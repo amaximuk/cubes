@@ -1,12 +1,15 @@
 
 #include <QApplication>
-#include <QLabel>
+
+#include "main_window.h"
 
 int main(int argc, char* argv[])
 {
 	QApplication app(argc, argv);
-    QLabel* lbl = new QLabel();
-    lbl->text() = "AAAAAAAAAA";
-    lbl->show();
+
+    MainWindow window;
+    window.setMinimumSize(800, 600);
+    window.show();
+
 	return app.exec();
 };
