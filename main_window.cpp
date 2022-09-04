@@ -31,6 +31,7 @@ void MainWindow::CreateUi()
     tool_box_ = new QToolBox;
     tool_box_->setMinimumWidth(350);
     sp_scene_ = QSharedPointer<QGraphicsScene>::create();
+    //sp_scene_->setSceneRect(0,0,500,500);
     view_ = new diagram_view(sp_scene_.get());
     tree_view_ = new QTreeView;
 

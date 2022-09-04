@@ -3,9 +3,9 @@
 #include <QPainter>
 #include <QDebug>
 
-diagram_item::diagram_item(QPixmap pixmap, QGraphicsItem *parent)
-    : QGraphicsItem(parent),
-      pixmap_(pixmap)
+diagram_item::diagram_item(QPixmap pixmap, QGraphicsItem *parent):
+    QGraphicsItem(parent),
+    pixmap_(pixmap)
 {
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
 }
@@ -20,5 +20,9 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option);
     Q_UNUSED(widget);
     painter->drawPixmap(0, 0, pixmap_);
+    if(this->isSelected())
+    {
+        painter->drawRect(pixmap_.rect());
+    }
 }
 

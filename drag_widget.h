@@ -12,13 +12,14 @@ class drag_widget : public QWidget
 {
     Q_OBJECT
 
+private:
+    QPixmap pixmap_;
+    QString name_;
+
 public:
     explicit drag_widget(QPixmap pixmap, QString name, QWidget *parent = nullptr);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event) override;
-    void dragMoveEvent(QDragMoveEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
 
 signals:
