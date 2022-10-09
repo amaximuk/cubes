@@ -30,8 +30,8 @@ void MainWindow::CreateUi()
     QHBoxLayout* lay = new QHBoxLayout;
 
     tool_box_ = new QToolBox;
-    tool_box_->setMinimumWidth(400);
-    sp_scene_ = new QGraphicsScene();
+    //tool_box_->setMinimumWidth(500);
+    sp_scene_ = new QGraphicsScene;
     //sp_scene_->setSceneRect(0,0,500,500);
     view_ = new diagram_view(sp_scene_);
     tree_view_ = new QTreeView;
@@ -39,7 +39,9 @@ void MainWindow::CreateUi()
     CreateToolBox();
     CreateTreeView();
 
-    table_view_ = new QTableView;
+    table_view_log_ = new QTableView;
+    table_view_info_ = new QTableView;
+    table_view_properties_ = new QTableView;
     //main_lay->addWidget(table_view_);
 
 //    QWidget *topWidget = new QWidget;
@@ -49,23 +51,36 @@ void MainWindow::CreateUi()
 //    splitter->addWidget(bottomWidget);
 
 //    QWidget* splitter_widget = new QWidget();
-    splitter_v_ = new QSplitter(Qt::Horizontal);
-    splitter_v_->addWidget(tool_box_);
-    splitter_v_->addWidget(tree_view_);
-    splitter_v_->setStretchFactor(0, 0);
-    splitter_v_->setStretchFactor(1, 1);
+    splitter_tool_box_ = new QSplitter(Qt::Horizontal);
+    splitter_tool_box_->addWidget(tool_box_);
+    splitter_tool_box_->addWidget(view_);
+    splitter_tool_box_->setStretchFactor(0, 0);
+    splitter_tool_box_->setStretchFactor(1, 1);
 
-    splitter_h_ = new QSplitter(Qt::Vertical);
-    splitter_h_->addWidget(splitter_v_);
-    splitter_h_->addWidget(table_view_);
-    splitter_h_->setStretchFactor(0, 1);
-    splitter_h_->setStretchFactor(1, 0);
+    splitter_log_ = new QSplitter(Qt::Vertical);
+    splitter_log_->addWidget(splitter_tool_box_);
+    splitter_log_->addWidget(table_view_log_);
+    splitter_log_->setStretchFactor(0, 1);
+    splitter_log_->setStretchFactor(1, 0);
+
+    splitter_info_ = new QSplitter(Qt::Vertical);
+    splitter_info_->addWidget(table_view_info_);
+    splitter_info_->addWidget(table_view_properties_);
+    splitter_info_->setStretchFactor(0, 0);
+    splitter_info_->setStretchFactor(1, 1);
+
+    splitter_info_properties_ = new QSplitter(Qt::Horizontal);
+    splitter_info_properties_->addWidget(splitter_log_);
+    splitter_info_properties_->addWidget(splitter_info_);
+    splitter_info_properties_->setStretchFactor(0, 1);
+    splitter_info_properties_->setStretchFactor(1, 0);
+
 //    lay->addWidget(tool_box_);
 //    lay->addWidget(view_);
 //    lay->addWidget(tree_view_);
 //    lay->addWidget(splitter_h_);
 
-    main_lay->addWidget(splitter_h_);
+    main_lay->addWidget(splitter_info_properties_);
 
 
     setLayout(main_lay);
