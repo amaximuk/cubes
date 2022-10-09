@@ -9,6 +9,7 @@ class QTableView;
 class QTreeView;
 class QToolBox;
 class diagram_view;
+class QSplitter;
 
 class MainWindow : public QWidget
 {
@@ -24,8 +25,10 @@ protected:
 
 private:
     QPointer<QToolBox> tool_box_;
-    QSharedPointer<QGraphicsScene> sp_scene_;
+    QPointer<QGraphicsScene> sp_scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_;
+    QPointer<QSplitter> splitter_v_;
+    QPointer<QSplitter> splitter_h_;
 };
