@@ -46,6 +46,8 @@ private slots:
     void valueChanged(QtProperty *property, const QPoint &value);
     void valueChanged(QtProperty *property, const QSize &value);
 
+    void MyFirstBtnClicked();
+
 private:
     QMap<QtProperty*, QString> propertyToId;
     QMap<QString, QtProperty*> idToProperty;

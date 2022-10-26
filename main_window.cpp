@@ -18,6 +18,7 @@
 #include <QSplitter>
 #include <QDialog>
 #include <QDebug>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
@@ -89,28 +90,28 @@ void MainWindow::CreateUi()
 
 
 
-    QtProperty *property;
+//    QtProperty *property;
 
-    property = doubleManager->addProperty(tr("Position X"));
-    doubleManager->setRange(property, 0, 100);
-    doubleManager->setValue(property, 50);
-    addProperty(property, QLatin1String("xpos"));
+//    property = doubleManager->addProperty(tr("Position X"));
+//    doubleManager->setRange(property, 0, 100);
+//    doubleManager->setValue(property, 50);
+//    addProperty(property, QLatin1String("xpos"));
 
-    property = doubleManager->addProperty(tr("Position Y"));
-    doubleManager->setRange(property, 0, 100);
-    doubleManager->setValue(property, 70);
-    addProperty(property, QLatin1String("ypos"));
+//    property = doubleManager->addProperty(tr("Position Y"));
+//    doubleManager->setRange(property, 0, 100);
+//    doubleManager->setValue(property, 70);
+//    addProperty(property, QLatin1String("ypos"));
 
-    property = doubleManager->addProperty(tr("Position Z"));
-    doubleManager->setRange(property, 0, 256);
-    doubleManager->setValue(property, 33);
-    addProperty(property, QLatin1String("zpos"));
+//    property = doubleManager->addProperty(tr("Position Z"));
+//    doubleManager->setRange(property, 0, 256);
+//    doubleManager->setValue(property, 33);
+//    addProperty(property, QLatin1String("zpos"));
 
-    property = colorManager->addProperty(tr("Color"));
-    colorManager->setValue(property, Qt::GlobalColor::darkRed);
-    addProperty(property, QLatin1String("color"));
+//    property = colorManager->addProperty(tr("Color"));
+//    colorManager->setValue(property, Qt::GlobalColor::darkRed);
+//    addProperty(property, QLatin1String("color"));
 
-    updateExpandState();
+//    updateExpandState();
 
 
 
@@ -120,6 +121,7 @@ void MainWindow::CreateUi()
     QToolButton* buttonAdd = new QToolButton;
     buttonAdd->setFixedSize(32, 32);
     buttonAdd->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
+    qDebug() << connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::MyFirstBtnClicked);
     hosts_buttons->addWidget(buttonAdd);
     hosts_buttons->addStretch();
     QVBoxLayout* hosts = new QVBoxLayout;
@@ -169,6 +171,34 @@ void MainWindow::CreateUi()
 
 
     setLayout(main_lay);
+}
+
+void MainWindow::MyFirstBtnClicked()
+{
+    qDebug() <<"xxxxxxxxx";
+    QtProperty *property;
+
+    property = doubleManager->addProperty(tr("Position X"));
+    doubleManager->setRange(property, 0, 100);
+    doubleManager->setValue(property, 50);
+    addProperty(property, QLatin1String("xpos"));
+
+    property = doubleManager->addProperty(tr("Position Y"));
+    doubleManager->setRange(property, 0, 100);
+    doubleManager->setValue(property, 70);
+    addProperty(property, QLatin1String("ypos"));
+
+    property = doubleManager->addProperty(tr("Position Z"));
+    doubleManager->setRange(property, 0, 256);
+    doubleManager->setValue(property, 33);
+    addProperty(property, QLatin1String("zpos"));
+
+    property = colorManager->addProperty(tr("Color"));
+    colorManager->setValue(property, Qt::GlobalColor::darkRed);
+    addProperty(property, QLatin1String("color"));
+
+    updateExpandState();
+
 }
 
 void MainWindow::CreateToolBox()
