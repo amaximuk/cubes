@@ -20,6 +20,10 @@
 #include <QDebug>
 #include <QPushButton>
 
+
+#include <QStandardItemModel>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
 {
@@ -53,9 +57,7 @@ void MainWindow::CreateUi()
 
 
 
-
-
-
+    groupManager = new QtGroupPropertyManager(this);
     doubleManager = new QtDoublePropertyManager(this);
     stringManager = new QtStringPropertyManager(this);
     colorManager = new QtColorPropertyManager(this);
@@ -113,8 +115,28 @@ void MainWindow::CreateUi()
 
 //    updateExpandState();
 
+    QTreeView *tree = new QTreeView();
+    QStandardItemModel* model = new QStandardItemModel( 5, 2 );
+    for( int r=0; r<5; r++ )
+      for( int c=0; c<2; c++)
+      {
+        QStandardItem *item = new QStandardItem( QString("Row:%0, Column:%1").arg(r).arg(c) );
 
+        if( c == 0 )
+          for( int i=0; i<3; i++ )
+          {
+            QStandardItem *child = new QStandardItem( QString("Item %0").arg(i) );
+            child->setEditable( false );
+            item->appendRow( child );
+          }
 
+        model->setItem(r, c, item);
+      }
+
+    model->setHorizontalHeaderItem( 0, new QStandardItem( "Foo" ) );
+    model->setHorizontalHeaderItem( 1, new QStandardItem( "Bar-Baz" ) );
+
+    tree->setModel( model );
 
 
     QHBoxLayout* hosts_buttons = new QHBoxLayout;
@@ -139,7 +161,8 @@ void MainWindow::CreateUi()
 
 //    QWidget* splitter_widget = new QWidget();
     splitter_tool_box_ = new QSplitter(Qt::Horizontal);
-    splitter_tool_box_->addWidget(tool_box_);
+//    splitter_tool_box_->addWidget(tool_box_);
+    splitter_tool_box_->addWidget(tree);
     splitter_tool_box_->addWidget(view_);
     splitter_tool_box_->setStretchFactor(0, 0);
     splitter_tool_box_->setStretchFactor(1, 1);
@@ -178,24 +201,32 @@ void MainWindow::MyFirstBtnClicked()
     qDebug() <<"xxxxxxxxx";
     QtProperty *property;
 
+    QtProperty *mainProperty = groupManager->addProperty("Item1");
+
     property = doubleManager->addProperty(tr("Position X"));
     doubleManager->setRange(property, 0, 100);
     doubleManager->setValue(property, 50);
     addProperty(property, QLatin1String("xpos"));
+    mainProperty->addSubProperty(property);
 
     property = doubleManager->addProperty(tr("Position Y"));
     doubleManager->setRange(property, 0, 100);
     doubleManager->setValue(property, 70);
     addProperty(property, QLatin1String("ypos"));
+    mainProperty->addSubProperty(property);
 
     property = doubleManager->addProperty(tr("Position Z"));
     doubleManager->setRange(property, 0, 256);
     doubleManager->setValue(property, 33);
     addProperty(property, QLatin1String("zpos"));
+    mainProperty->addSubProperty(property);
 
     property = colorManager->addProperty(tr("Color"));
     colorManager->setValue(property, Qt::GlobalColor::darkRed);
     addProperty(property, QLatin1String("color"));
+    mainProperty->addSubProperty(property);
+
+    addProperty(mainProperty, QLatin1String("Item1-XXX"));
 
     updateExpandState();
 

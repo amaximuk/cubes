@@ -56,6 +56,7 @@ private:
 private:
     void addProperty(QtProperty *property, const QString &id);
     void updateExpandState();
+    class QtGroupPropertyManager *groupManager;
     class QtDoublePropertyManager *doubleManager;
     class QtStringPropertyManager *stringManager;
     class QtColorPropertyManager *colorManager;
