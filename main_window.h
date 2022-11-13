@@ -48,6 +48,8 @@ private slots:
 
     void MyFirstBtnClicked();
 
+    void test();
+
 private:
     QMap<QtProperty*, QString> propertyToId;
     QMap<QString, QtProperty*> idToProperty;

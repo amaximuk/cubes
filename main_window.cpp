@@ -5,6 +5,7 @@
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
+#include "tree_item.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -19,6 +20,7 @@
 #include <QDialog>
 #include <QDebug>
 #include <QPushButton>
+#include <QFile>
 
 
 #include <QStandardItemModel>
@@ -43,9 +45,12 @@ void MainWindow::CreateUi()
     tool_box_ = new QToolBox;
     //tool_box_->setMinimumWidth(500);
     sp_scene_ = new QGraphicsScene;
-    //sp_scene_->setSceneRect(0,0,500,500);
+    sp_scene_->setSceneRect(0,0,500,500);
     view_ = new diagram_view(sp_scene_);
     tree_view_ = new QTreeView;
+
+    connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
+
 
     CreateToolBox();
     CreateTreeView();
@@ -116,26 +121,37 @@ void MainWindow::CreateUi()
 //    updateExpandState();
 
     QTreeView *tree = new QTreeView();
-    QStandardItemModel* model = new QStandardItemModel( 5, 2 );
+    tree->setDragEnabled(true);
+    tree_item* model = new tree_item();
+    //QStandardItemModel* model = new QStandardItemModel( 5, 1 );
     for( int r=0; r<5; r++ )
-      for( int c=0; c<2; c++)
+      for( int c=0; c<1; c++)
       {
-        QStandardItem *item = new QStandardItem( QString("Row:%0, Column:%1").arg(r).arg(c) );
-
+        QStandardItem *item = new QStandardItem( QString("Category %0").arg(r) );
+        item->setEditable( false );
+        item->setDragEnabled(false);
         if( c == 0 )
           for( int i=0; i<3; i++ )
           {
             QStandardItem *child = new QStandardItem( QString("Item %0").arg(i) );
             child->setEditable( false );
+
+            QFile f("c:/QtProjects/cubes/resource/plus.png");
+            if (!f.open(QIODevice::ReadOnly)) return;
+            QByteArray ba = f.readAll();
+            QPixmap px;
+            bool isLoaded = px.loadFromData (ba, "PNG", Qt::AutoColor  );
+            QIcon ico(px);
+            child->setIcon(ico);
+            //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
+
             item->appendRow( child );
           }
 
         model->setItem(r, c, item);
       }
 
-    model->setHorizontalHeaderItem( 0, new QStandardItem( "Foo" ) );
-    model->setHorizontalHeaderItem( 1, new QStandardItem( "Bar-Baz" ) );
-
+    tree->setHeaderHidden(true);
     tree->setModel( model );
 
 
@@ -229,6 +245,24 @@ void MainWindow::MyFirstBtnClicked()
     addProperty(mainProperty, QLatin1String("Item1-XXX"));
 
     updateExpandState();
+
+}
+
+void MainWindow::test()
+{
+    qDebug() << "!!!!!!!!!!!!!!!!!!!!";
+    propertyEditor->clear();
+
+    QtProperty *property;
+    QtProperty *mainProperty = groupManager->addProperty("Item1");
+
+    property = doubleManager->addProperty(tr("Position X"));
+    doubleManager->setRange(property, 0, 100);
+    doubleManager->setValue(property, 50);
+    addProperty(property, QLatin1String("xpos"));
+    mainProperty->addSubProperty(property);
+
+    addProperty(mainProperty, QLatin1String("Item1-XXX"));
 
 }
 
