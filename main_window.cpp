@@ -5,7 +5,8 @@
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
-#include "tree_item.h"
+#include "tree_item_model.h"
+#include "scene.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -44,9 +45,10 @@ void MainWindow::CreateUi()
 
     tool_box_ = new QToolBox;
     //tool_box_->setMinimumWidth(500);
-    sp_scene_ = new QGraphicsScene;
+    sp_scene_ = new scene();
     sp_scene_->setSceneRect(0,0,500,500);
     view_ = new diagram_view(sp_scene_);
+    view_->setDragMode(QGraphicsView::RubberBandDrag);
     tree_view_ = new QTreeView;
 
     connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
@@ -122,7 +124,7 @@ void MainWindow::CreateUi()
 
     QTreeView *tree = new QTreeView();
     tree->setDragEnabled(true);
-    tree_item* model = new tree_item();
+    tree_item_model* model = new tree_item_model();
     //QStandardItemModel* model = new QStandardItemModel( 5, 1 );
     for( int r=0; r<5; r++ )
       for( int c=0; c<1; c++)
@@ -211,45 +213,56 @@ void MainWindow::CreateUi()
 
     setLayout(main_lay);
 }
-
+QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {
-    qDebug() <<"xxxxxxxxx";
-    QtProperty *property;
 
-    QtProperty *mainProperty = groupManager->addProperty("Item1");
+    // Group all selected items together
+    group = sp_scene_->createItemGroup(sp_scene_->selectedItems());
 
-    property = doubleManager->addProperty(tr("Position X"));
-    doubleManager->setRange(property, 0, 100);
-    doubleManager->setValue(property, 50);
-    addProperty(property, QLatin1String("xpos"));
-    mainProperty->addSubProperty(property);
+    // Destroy the group, and delete the group item
+    sp_scene_->destroyItemGroup(group);
 
-    property = doubleManager->addProperty(tr("Position Y"));
-    doubleManager->setRange(property, 0, 100);
-    doubleManager->setValue(property, 70);
-    addProperty(property, QLatin1String("ypos"));
-    mainProperty->addSubProperty(property);
 
-    property = doubleManager->addProperty(tr("Position Z"));
-    doubleManager->setRange(property, 0, 256);
-    doubleManager->setValue(property, 33);
-    addProperty(property, QLatin1String("zpos"));
-    mainProperty->addSubProperty(property);
 
-    property = colorManager->addProperty(tr("Color"));
-    colorManager->setValue(property, Qt::GlobalColor::darkRed);
-    addProperty(property, QLatin1String("color"));
-    mainProperty->addSubProperty(property);
 
-    addProperty(mainProperty, QLatin1String("Item1-XXX"));
+//    qDebug() <<"xxxxxxxxx";
+//    QtProperty *property;
 
-    updateExpandState();
+//    QtProperty *mainProperty = groupManager->addProperty("Item1");
+
+//    property = doubleManager->addProperty(tr("Position X"));
+//    doubleManager->setRange(property, 0, 100);
+//    doubleManager->setValue(property, 50);
+//    addProperty(property, QLatin1String("xpos"));
+//    mainProperty->addSubProperty(property);
+
+//    property = doubleManager->addProperty(tr("Position Y"));
+//    doubleManager->setRange(property, 0, 100);
+//    doubleManager->setValue(property, 70);
+//    addProperty(property, QLatin1String("ypos"));
+//    mainProperty->addSubProperty(property);
+
+//    property = doubleManager->addProperty(tr("Position Z"));
+//    doubleManager->setRange(property, 0, 256);
+//    doubleManager->setValue(property, 33);
+//    addProperty(property, QLatin1String("zpos"));
+//    mainProperty->addSubProperty(property);
+
+//    property = colorManager->addProperty(tr("Color"));
+//    colorManager->setValue(property, Qt::GlobalColor::darkRed);
+//    addProperty(property, QLatin1String("color"));
+//    mainProperty->addSubProperty(property);
+
+//    addProperty(mainProperty, QLatin1String("Item1-XXX"));
+
+    //updateExpandState();
 
 }
 
 void MainWindow::test()
 {
+
     qDebug() << "!!!!!!!!!!!!!!!!!!!!";
     propertyEditor->clear();
 

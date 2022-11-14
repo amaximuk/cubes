@@ -69,8 +69,9 @@ void diagram_view::dropEvent(QDropEvent *event)
         diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
         this->scene()->addItem(newIcon);
+        this->scene()->clearSelection();
         newIcon->setPos(position);
-
+        newIcon->setSelected(true);
 
 
         if (event->source() == this) {
