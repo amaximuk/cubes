@@ -12,6 +12,7 @@ class QToolBox;
 class diagram_view;
 class QSplitter;
 class QtProperty;
+class scene;
 
 class MainWindow : public QWidget
 {
@@ -27,7 +28,7 @@ protected:
 
 private:
     QPointer<QToolBox> tool_box_;
-    QPointer<QGraphicsScene> sp_scene_;
+    scene* sp_scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
@@ -49,6 +50,7 @@ private slots:
     void MyFirstBtnClicked();
 
     void test();
+    void test2(QPointF ppp);
 
 private:
     QMap<QtProperty*, QString> propertyToId;

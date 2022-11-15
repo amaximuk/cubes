@@ -7,6 +7,7 @@
 #include "qttreepropertybrowser.h"
 #include "tree_item_model.h"
 #include "scene.h"
+#include "diagram_item.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -51,8 +52,9 @@ void MainWindow::CreateUi()
     view_->setDragMode(QGraphicsView::RubberBandDrag);
     tree_view_ = new QTreeView;
 
-    connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
-
+    qDebug() << connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
+    qDebug() << connect(sp_scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
+    //qDebug() << connect(sp_scene_, SIGNAL(xxx()), this, SLOT(test2()));
 
     CreateToolBox();
     CreateTreeView();
@@ -277,6 +279,17 @@ void MainWindow::test()
 
     addProperty(mainProperty, QLatin1String("Item1-XXX"));
 
+}
+
+void MainWindow::test2(QPointF ppp)
+{
+    qDebug() << "!!!!!111111111111111111111!!!!!!!!!!!!!!!";
+//    diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
+//    QPoint position = (sp_scene_->selectedItems()[0]->pos()-QPoint(24,24)).toPoint();
+//    sp_scene_->addItem(newIcon);
+//    sp_scene_->clearSelection();
+//    newIcon->setPos(position);
+//    newIcon->setSelected(true);
 }
 
 void MainWindow::CreateToolBox()
