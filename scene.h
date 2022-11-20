@@ -10,7 +10,7 @@ class scene : public QGraphicsScene
 
 private:
     QPointF ppp_;
-
+    bool is_item_moving_;
 public:
     explicit scene(QObject *parent = nullptr);
 
@@ -19,8 +19,10 @@ signals:
 
 protected slots:
     void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+    void mouseMoveEvent ( QGraphicsSceneMouseEvent * event );
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event );
-
+    void keyPressEvent(QKeyEvent *keyEvent);
+    void keyReleaseEvent(QKeyEvent *keyEvent);
 };
 
 #endif // SCENE_H

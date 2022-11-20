@@ -42,6 +42,7 @@ void diagram_view::dragMoveEvent(QDragMoveEvent *event)
     }
 }
 
+int counter = 0;
 void diagram_view::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
@@ -65,8 +66,9 @@ void diagram_view::dropEvent(QDropEvent *event)
         QString name;
         dataStream >> name;
         qDebug() << "name: " << name;
+        QString vvv = QString::number(counter++);
 
-        diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
+        diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48), vvv);
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
         this->scene()->addItem(newIcon);
         this->scene()->clearSelection();

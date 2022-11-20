@@ -3,11 +3,12 @@
 #include <QPainter>
 #include <QDebug>
 
-diagram_item::diagram_item(QPixmap pixmap, QGraphicsItem *parent):
+diagram_item::diagram_item(QPixmap pixmap, QString name, QGraphicsItem *parent):
     QGraphicsItem(parent),
-    pixmap_(pixmap)
+    pixmap_(pixmap),
+    name_(name)
 {
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |  QGraphicsItem::ItemSendsGeometryChanges);
 }
 
 QRectF diagram_item::boundingRect() const
@@ -26,3 +27,8 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 }
 
+QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    qDebug() << name_ << " !!!!!!!!!!!shdbfgjkshgkdfgskjdghkjdsfhgkjsdfhgkjsdfhksjhfk";
+    return QGraphicsItem::itemChange(change, value);
+}
