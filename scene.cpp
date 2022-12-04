@@ -10,14 +10,15 @@
 scene::scene(QObject *parent) : QGraphicsScene(parent)
 {
     is_item_moving_ = false;
+    moving_item_ = 0;
 }
 
 void scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
   event->ignore();
 
-  QGraphicsItem *item = itemAt(event->scenePos(), QTransform());
-  if (item != 0)
+  moving_item_ = itemAt(event->scenePos(), QTransform());
+  if (moving_item_ != 0)
   {
     qDebug() << "yes!!!!!!!!!!";
     is_item_moving_ = true;
@@ -27,7 +28,7 @@ void scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
     else
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
-    QPointF p = item->mapFromParent(event->scenePos());
+    QPointF p = moving_item_->mapFromParent(event->scenePos());
     ppp_ = event->scenePos() - p;
 
   }
@@ -78,19 +79,25 @@ void scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 //    //emit select(tmpPath, ctrl);
 //  }
 
-  // Always remember to call parents mousePressEvent
-  QGraphicsScene::mouseReleaseEvent(event);
 
   if (ctrl)
   {
-      if (selectedItems().count() > 0)
+      QPointF delta = ppp_ - moving_item_->pos();
+//      if (selectedItems().count() > 0)
+//      {
+//          selectedItems()[0]->setPos(ppp_);
+//      }
+      for (auto& item: selectedItems())
       {
-          selectedItems()[0]->setPos(ppp_);
+          item->setPos(item->pos() + delta);
       }
-      emit xxx(ppp_);
+      //emit xxx(ppp_);
       QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
   }
 
+  moving_item_ = 0;
+  // Always remember to call parents mousePressEvent
+  QGraphicsScene::mouseReleaseEvent(event);
 }
 
 void scene::keyPressEvent(QKeyEvent *keyEvent)

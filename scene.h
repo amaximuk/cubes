@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+class QGraphicsItem;
+
 #include <QGraphicsScene>
 #include <QpointF>
 
@@ -11,6 +13,8 @@ class scene : public QGraphicsScene
 private:
     QPointF ppp_;
     bool is_item_moving_;
+    QGraphicsItem* moving_item_;
+
 public:
     explicit scene(QObject *parent = nullptr);
 
