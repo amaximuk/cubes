@@ -15,6 +15,7 @@ public:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+
 };
 
 #endif // DIAGRAM_VIEW_H

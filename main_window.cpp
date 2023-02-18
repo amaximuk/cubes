@@ -292,6 +292,12 @@ void MainWindow::test2(QPointF ppp)
 //    newIcon->setSelected(true);
 }
 
+void MainWindow::itemPositionChanged(QPointF newPos)
+{
+    qDebug() << "!!!!!!!!!!!!!!" << newPos;
+
+}
+
 void MainWindow::CreateToolBox()
 {
     QGridLayout *layout = new QGridLayout;

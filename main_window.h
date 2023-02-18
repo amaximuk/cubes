@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QPointer>
 #include <QMap>
+#include <QPoint>
 
 class QGraphicsScene;
 class QGraphicsView;
@@ -51,6 +52,9 @@ private slots:
 
     void test();
     void test2(QPointF ppp);
+
+public slots:
+    void itemPositionChanged(QPointF newPos);
 
 private:
     QMap<QtProperty*, QString> propertyToId;

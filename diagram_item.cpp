@@ -30,5 +30,9 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     qDebug() << name_ << " !!!!!!!!!!!shdbfgjkshgkdfgskjdghkjdsfhgkjsdfhgkjsdfhksjhfk";
+    if (change == ItemPositionChange)
+    {
+        emit positionChanged(value.toPointF());
+    }
     return QGraphicsItem::itemChange(change, value);
 }
