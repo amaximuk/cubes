@@ -13,11 +13,15 @@ if(TARGET QtPropertyBrowser)
 else()
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
     execute_process(COMMAND ${CMAKE_COMMAND} -B ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build
-        -DQt5Widgets_DIR=${Qt5Widgets_DIR} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=install -G ${CMAKE_GENERATOR}
+        -DQt5Widgets_DIR=${Qt5Widgets_DIR} -DCMAKE_DEBUG_POSTFIX=d -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=install -G ${CMAKE_GENERATOR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser)
-    execute_process(COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
+    execute_process(COMMAND ${CMAKE_COMMAND} --build . --config Debug
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    execute_process(COMMAND ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE}
+    execute_process(COMMAND ${CMAKE_COMMAND} --install . --config Debug
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
+    execute_process(COMMAND ${CMAKE_COMMAND} --build . --config Release
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
+    execute_process(COMMAND ${CMAKE_COMMAND} --install . --config Release
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
     find_package(QtPropertyBrowser REQUIRED PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/install)
 endif()
