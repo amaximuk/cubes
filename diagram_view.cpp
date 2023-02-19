@@ -1,6 +1,6 @@
 #include "diagram_view.h"
-#include "drag_widget.h"
 #include "diagram_item.h"
+#include "diagram_scene.h"
 #include "main_window.h"
 
 #include <QtWidgets>
@@ -65,14 +65,13 @@ void diagram_view::dropEvent(QDropEvent *event)
         QPixmap pixmap;
         QPoint offset;
         QString name;
-        dataStream >> name;
-        qDebug() << "name: " << name;
+        dataStream >> name >> offset;
+        qDebug() << "name: " << name << offset;
         QString vvv = QString::number(counter++);
 
-        diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48), vvv);
-        qDebug() << connect(newIcon, &diagram_item::positionChanged, qobject_cast<MainWindow*>(QApplication::activeWindow()), &MainWindow::itemPositionChanged);
-
-
+        diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48), name);
+        diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
+        ds->informItemCreated(name, newIcon);
 
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
         this->scene()->addItem(newIcon);

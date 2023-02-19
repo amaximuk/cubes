@@ -30,7 +30,8 @@ QMimeData *tree_item_model::mimeData(const QModelIndexList &indexes) const
     foreach (QModelIndex index, indexes) {
         if (index.isValid()) {
             QString text = data(index, Qt::DisplayRole).toString();
-            stream << text;
+            QPoint point = data(index, Qt::UserRole + 1).toPoint();
+            stream << text << point;
         }
     }
 

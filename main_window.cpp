@@ -1,12 +1,11 @@
 #include "main_window.h"
-#include "drag_widget.h"
 #include "diagram_view.h"
 
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
 #include "tree_item_model.h"
-#include "scene.h"
+#include "diagram_scene.h"
 #include "diagram_item.h"
 
 #include <QHBoxLayout>
@@ -46,10 +45,17 @@ void MainWindow::CreateUi()
 
     tool_box_ = new QToolBox;
     //tool_box_->setMinimumWidth(500);
-    sp_scene_ = new scene();
+    sp_scene_ = new diagram_scene();
     sp_scene_->setSceneRect(0,0,500,500);
+
+    qDebug() << connect(sp_scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
+    qDebug() << connect(sp_scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
+
+
     view_ = new diagram_view(sp_scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
+
+
     tree_view_ = new QTreeView;
 
     qDebug() << connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
@@ -131,25 +137,27 @@ void MainWindow::CreateUi()
     for( int r=0; r<5; r++ )
       for( int c=0; c<1; c++)
       {
-        QStandardItem *item = new QStandardItem( QString("Category %0").arg(r) );
-        item->setEditable( false );
+        QStandardItem *item = new QStandardItem(QString("Category %0").arg(r));
+        item->setEditable(false);
         item->setDragEnabled(false);
         if( c == 0 )
           for( int i=0; i<3; i++ )
           {
-            QStandardItem *child = new QStandardItem( QString("Item %0").arg(i) );
-            child->setEditable( false );
+            QStandardItem *child = new QStandardItem(QString("Item %0").arg(i));
+            child->setEditable(false);
 
             QFile f("c:/QtProjects/cubes/resource/plus.png");
             if (!f.open(QIODevice::ReadOnly)) return;
             QByteArray ba = f.readAll();
             QPixmap px;
-            bool isLoaded = px.loadFromData (ba, "PNG", Qt::AutoColor  );
+            bool isLoaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
             QIcon ico(px);
             child->setIcon(ico);
             //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
 
-            item->appendRow( child );
+            child->setData(QPoint(r, i), Qt::UserRole + 1);
+
+            item->appendRow(child);
           }
 
         model->setItem(r, c, item);
@@ -264,20 +272,31 @@ void MainWindow::MyFirstBtnClicked()
 
 void MainWindow::test()
 {
+    if (sp_scene_->selectedItems().count() > 0)
+    {
+        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+        diagram_item* gi = (diagram_item*)(sp_scene_->selectedItems()[0]);
+        qDebug() << gi->getName();
 
-    qDebug() << "!!!!!!!!!!!!!!!!!!!!";
-    propertyEditor->clear();
+        propertyEditor->clear();
 
-    QtProperty *property;
-    QtProperty *mainProperty = groupManager->addProperty("Item1");
+        QtProperty *property;
+        QtProperty *mainProperty = groupManager->addProperty(gi->getName());
 
-    property = doubleManager->addProperty(tr("Position X"));
-    doubleManager->setRange(property, 0, 100);
-    doubleManager->setValue(property, 50);
-    addProperty(property, QLatin1String("xpos"));
-    mainProperty->addSubProperty(property);
+        property = doubleManager->addProperty(tr("Position X"));
+        doubleManager->setRange(property, -10000, 10000);
+        doubleManager->setValue(property, gi->scenePos().x());
+        addProperty(property, QLatin1String("Position X"));
+        mainProperty->addSubProperty(property);
 
-    addProperty(mainProperty, QLatin1String("Item1-XXX"));
+        property = doubleManager->addProperty(tr("Position Y"));
+        doubleManager->setRange(property, -10000, 10000);
+        doubleManager->setValue(property, gi->scenePos().y());
+        addProperty(property, QLatin1String("Position Y"));
+        mainProperty->addSubProperty(property);
+
+        addProperty(mainProperty, gi->getName());
+    }
 
 }
 
@@ -292,23 +311,45 @@ void MainWindow::test2(QPointF ppp)
 //    newIcon->setSelected(true);
 }
 
-void MainWindow::itemPositionChanged(QPointF newPos)
+void MainWindow::itemPositionChanged(QString id, QPointF newPos)
 {
+    QtProperty* p = idToProperty[id];
+    if (p != nullptr)
+    {
+        for (auto sp : p->subProperties())
+        {
+            if (sp->propertyName() == "Position X")
+            {
+                qDebug() << sp->valueText();
+                doubleManager->setValue(sp, newPos.x());
+            }
+            if (sp->propertyName() == "Position Y")
+            {
+                qDebug() << sp->valueText();
+                doubleManager->setValue(sp, newPos.y());
+            }
+        }
+    }
     qDebug() << "!!!!!!!!!!!!!!" << newPos;
+
+}
+
+void MainWindow::itemCreated(QString id, diagram_item* item)
+{
 
 }
 
 void MainWindow::CreateToolBox()
 {
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 0);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 1);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 0);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 1);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 0);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 1);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 0);
-    layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 1);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 0);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 1);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 0);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 1);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 0);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 1);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 0);
+    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 1);
 
     layout->setRowStretch(3, 1);
     layout->setColumnStretch(2, 1);
@@ -351,21 +392,35 @@ void MainWindow::valueChanged(QtProperty *property, double value)
 {
     qDebug() << "valueChanged value = " << value;
 
-//    if (!propertyToId.contains(property))
-//        return;
+    if (!propertyToId.contains(property))
+        return;
 
-//    if (!currentItem)
-//        return;
+    //if (!currentItem)
+    //    return;
 
-//    QString id = propertyToId[property];
-//    if (id == QLatin1String("xpos")) {
-//        currentItem->setX(value);
-//    } else if (id == QLatin1String("ypos")) {
-//        currentItem->setY(value);
-//    } else if (id == QLatin1String("zpos")) {
-//        currentItem->setZ(value);
-//    }
-//    canvas->update();
+    if (sp_scene_->selectedItems().count() > 0)
+    {
+        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+        diagram_item* gi = (diagram_item*)(sp_scene_->selectedItems()[0]);
+        qDebug() << gi->getName();
+
+        QString id = propertyToId[property];
+        if (id == "Position X")
+            gi->setX(value);
+        else if (id == "Position Y")
+            gi->setY(value);
+    }
+
+
+    //QString id = propertyToId[property];
+    //if (id == QLatin1String("xpos")) {
+    //    currentItem->setX(value);
+    //} else if (id == QLatin1String("ypos")) {
+    //    currentItem->setY(value);
+    //} else if (id == QLatin1String("zpos")) {
+    //    currentItem->setZ(value);
+    //}
+    //canvas->update();
 }
 
 void MainWindow::valueChanged(QtProperty *property, const QString &value)

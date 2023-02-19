@@ -1,3 +1,4 @@
+#include "diagram_scene.h"
 #include "diagram_item.h"
 
 #include <QPainter>
@@ -32,7 +33,8 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
     qDebug() << name_ << " !!!!!!!!!!!shdbfgjkshgkdfgskjdghkjdsfhgkjsdfhgkjsdfhksjhfk";
     if (change == ItemPositionChange)
     {
-        emit positionChanged(value.toPointF());
+        diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
+        ds->informItemPositionChanged(name_, value.toPointF());
     }
     return QGraphicsItem::itemChange(change, value);
 }

@@ -11,11 +11,8 @@ class QMenu;
 class QPolygonF;
 QT_END_NAMESPACE
 
-class diagram_item : public QObject, public QGraphicsItem
+class diagram_item : public QGraphicsItem
 {
-    Q_OBJECT
-    Q_INTERFACES(QGraphicsItem)
-
 private:
     QPixmap pixmap_;
     QString name_;
@@ -28,9 +25,8 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+    QString getName() { return name_; };
 
-signals:
-    void positionChanged(QPointF newPos);
 };
 
 #endif // DIAGRAM_ITEM_H

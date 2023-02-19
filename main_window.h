@@ -13,7 +13,8 @@ class QToolBox;
 class diagram_view;
 class QSplitter;
 class QtProperty;
-class scene;
+class diagram_scene;
+class diagram_item;
 
 class MainWindow : public QWidget
 {
@@ -29,7 +30,7 @@ protected:
 
 private:
     QPointer<QToolBox> tool_box_;
-    scene* sp_scene_;
+    diagram_scene* sp_scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
@@ -54,7 +55,8 @@ private slots:
     void test2(QPointF ppp);
 
 public slots:
-    void itemPositionChanged(QPointF newPos);
+    void itemPositionChanged(QString id, QPointF newPos);
+    void itemCreated(QString id, diagram_item* item);
 
 private:
     QMap<QtProperty*, QString> propertyToId;

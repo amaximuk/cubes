@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 #set(QT_ROOT /Users/pbondarenko/Qt5.12.5/5.12.5/clang_64)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
-#find_package(QtPropertyBrowser REQUIRED PATHS c:/QtProjects/QtPropertyBrowser/install)
+find_package(QtPropertyBrowser PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/install)
 
 if(TARGET QtPropertyBrowser)
     message("!!!!!!!!!!!! Have target QtPropertyBrowser")

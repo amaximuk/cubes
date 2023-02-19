@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "diagram_scene.h"
 #include <QPainterPath>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
@@ -7,13 +7,23 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-scene::scene(QObject *parent) : QGraphicsScene(parent)
+diagram_scene::diagram_scene(QObject *parent) : QGraphicsScene(parent)
 {
     is_item_moving_ = false;
     moving_item_ = 0;
 }
 
-void scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::informItemPositionChanged(QString id, QPointF newPos)
+{
+    emit itemPositionChanged(id, newPos);
+}
+
+void diagram_scene::informItemCreated(QString id, diagram_item* item)
+{
+    emit itemCreated(id, item);
+}
+
+void diagram_scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
   event->ignore();
 
@@ -45,7 +55,7 @@ void scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
   QGraphicsScene::mousePressEvent(event);
 }
 
-void scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 {
   event->ignore();
 //  bool ctrl = (event->modifiers() == Qt::ControlModifier);
@@ -58,7 +68,7 @@ void scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
   QGraphicsScene::mouseMoveEvent(event);
 }
 
-void scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 {
   event->ignore();
   is_item_moving_ = false;
@@ -100,7 +110,7 @@ void scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
   QGraphicsScene::mouseReleaseEvent(event);
 }
 
-void scene::keyPressEvent(QKeyEvent *keyEvent)
+void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (is_item_moving_)
     {
@@ -114,7 +124,7 @@ void scene::keyPressEvent(QKeyEvent *keyEvent)
     QGraphicsScene::keyPressEvent(keyEvent);
 }
 
-void scene::keyReleaseEvent(QKeyEvent *keyEvent)
+void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
     if (is_item_moving_)
     {
