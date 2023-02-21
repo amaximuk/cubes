@@ -45,21 +45,21 @@ void MainWindow::CreateUi()
 
     tool_box_ = new QToolBox;
     //tool_box_->setMinimumWidth(500);
-    sp_scene_ = new diagram_scene();
-    sp_scene_->setSceneRect(0,0,500,500);
+    scene_ = new diagram_scene();
+    scene_->setSceneRect(0,0,500,500);
 
-    qDebug() << connect(sp_scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(sp_scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
+    qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
+    qDebug() << connect(scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
 
 
-    view_ = new diagram_view(sp_scene_);
+    view_ = new diagram_view(scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 
 
     tree_view_ = new QTreeView;
 
-    qDebug() << connect(sp_scene_, SIGNAL(selectionChanged()), this, SLOT(test()));
-    qDebug() << connect(sp_scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
+    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
     //qDebug() << connect(sp_scene_, SIGNAL(xxx()), this, SLOT(test2()));
 
     CreateToolBox();
@@ -228,10 +228,10 @@ void MainWindow::MyFirstBtnClicked()
 {
 
     // Group all selected items together
-    group = sp_scene_->createItemGroup(sp_scene_->selectedItems());
+    group = scene_->createItemGroup(scene_->selectedItems());
 
     // Destroy the group, and delete the group item
-    sp_scene_->destroyItemGroup(group);
+    scene_->destroyItemGroup(group);
 
 
 
@@ -270,15 +270,14 @@ void MainWindow::MyFirstBtnClicked()
 
 }
 
-void MainWindow::test()
+void MainWindow::selectionChanged()
 {
-    if (sp_scene_->selectedItems().count() > 0)
+    propertyEditor->clear();
+    if (scene_->selectedItems().count() > 0)
     {
         //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-        diagram_item* gi = (diagram_item*)(sp_scene_->selectedItems()[0]);
+        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
         qDebug() << gi->getName();
-
-        propertyEditor->clear();
 
         QtProperty *property;
         QtProperty *mainProperty = groupManager->addProperty(gi->getName());
@@ -296,6 +295,7 @@ void MainWindow::test()
         mainProperty->addSubProperty(property);
 
         addProperty(mainProperty, gi->getName());
+        propertyEditor->addProperty(mainProperty);
     }
 
 }
@@ -366,9 +366,9 @@ void MainWindow::addProperty(QtProperty *property, const QString &id)
 {
     propertyToId[property] = id;
     idToProperty[id] = property;
-    QtBrowserItem *item = propertyEditor->addProperty(property);
-    if (idToExpanded.contains(id))
-        propertyEditor->setExpanded(item, idToExpanded[id]);
+    //QtBrowserItem *item = propertyEditor->addProperty(property);
+    //if (idToExpanded.contains(id))
+    //    propertyEditor->setExpanded(item, idToExpanded[id]);
 }
 
 
@@ -398,10 +398,10 @@ void MainWindow::valueChanged(QtProperty *property, double value)
     //if (!currentItem)
     //    return;
 
-    if (sp_scene_->selectedItems().count() > 0)
+    if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
     {
         //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-        diagram_item* gi = (diagram_item*)(sp_scene_->selectedItems()[0]);
+        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
         qDebug() << gi->getName();
 
         QString id = propertyToId[property];

@@ -30,7 +30,7 @@ protected:
 
 private:
     QPointer<QToolBox> tool_box_;
-    diagram_scene* sp_scene_;
+    diagram_scene* scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
@@ -51,7 +51,7 @@ private slots:
 
     void MyFirstBtnClicked();
 
-    void test();
+    void selectionChanged();
     void test2(QPointF ppp);
 
 public slots:

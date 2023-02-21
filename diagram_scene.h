@@ -22,6 +22,7 @@ public:
 public:
     void informItemPositionChanged(QString id, QPointF newPos);
     void informItemCreated(QString id, diagram_item* item);
+    bool isItemMoving() { return is_item_moving_; };
 
 signals:
      void xxx(QPointF ppp);
