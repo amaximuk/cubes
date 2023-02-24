@@ -3,8 +3,13 @@
 #include <QWidget>
 #include <QPointer>
 #include <QMap>
+#include <QSet>
 #include <QPoint>
+#include <QMainWindow>
 
+#include "parameters_compiler_types.h"
+
+class QPlainTextEdit;
 class QGraphicsScene;
 class QGraphicsView;
 class QTableView;
@@ -16,30 +21,63 @@ class QtProperty;
 class diagram_scene;
 class diagram_item;
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+private:
+    struct UnitParameters
+    {
+        parameters_compiler::file_info fiileInfo;
+        QSet<QString> platforms;
+    };
+
+private:
+    bool modified_;
+
 public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;
 
 protected:
     void CreateUi();
-    void CreateToolBox();
+    void CreateMenu();
+    QWidget* CreateMainWidget();
+    QWidget* CreateMainTabWidget();
+    void CreateScene();
+    void CreateView();
+    void CreatePropertyBrowser();
     void CreateTreeView();
+    QWidget* CreatePropertiesPanelWidget();
+    QWidget* CreatePropertieslWidget();
+    QWidget* CreateHostsButtonsWidget();
+    QWidget* CreateHintWidget();
+    void FillTreeView();
+    void FillParametersInfo();
 
 private:
-    QPointer<QToolBox> tool_box_;
+    //QPointer<QToolBox> tool_box_;
     diagram_scene* scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
-    QPointer<QTableView> table_view_info_;
-    QPointer<QTableView> table_view_properties_;
-    QPointer<QSplitter> splitter_tool_box_;
-    QPointer<QSplitter> splitter_log_;
-    QPointer<QSplitter> splitter_info_;
-    QPointer<QSplitter> splitter_info_properties_;
+    //QPointer<QTableView> table_view_info_;
+    //QPointer<QTableView> table_view_properties_;
+    //QPointer<QSplitter> splitter_tool_box_;
+    //QPointer<QSplitter> splitter_log_;
+    //QPointer<QSplitter> splitter_info_;
+    //QPointer<QSplitter> splitter_info_properties_;
+    QPointer<QTreeView> tree_;
+    QTabWidget* tabWidget_;
+    QPlainTextEdit* plainTextEditHint_;
+    QMap<QString, UnitParameters> unitParameters_;
+
+private slots:
+    void on_NewFile_action();
+    void on_OpenFile_action();
+    void on_SaveFile_action();
+    void on_SaveAsFile_action();
+    void on_Quit_action();
 
 private slots:
     void valueChanged(QtProperty *property, double value);

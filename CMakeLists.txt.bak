@@ -3,8 +3,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 project(cubes LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#set(QT_ROOT /Users/pbondarenko/Qt5.12.5/5.12.5/clang_64)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)  # Includes the contents of the conanbuildinfo.cmake file.
+conan_basic_setup()  # Prepares the CMakeList.txt for Conan.
+
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(QtPropertyBrowser PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/install)
 
@@ -38,4 +41,5 @@ file(GLOB PROJ_SRCS *.cpp)
 
 add_executable(cubes ${PROJ_HDRS} ${PROJ_SRCS})
 
-target_link_libraries(cubes Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser ${CONAN_LIBS})
+#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)

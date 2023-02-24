@@ -7,6 +7,8 @@
 #include "tree_item_model.h"
 #include "diagram_scene.h"
 #include "diagram_item.h"
+#include "yaml_parser.h"
+#include "base64.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -22,14 +24,24 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QFile>
+#include <QAction>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QApplication>
+#include <QPlainTextEdit>
+#include <QComboBox>
+#include <QDirIterator>
 
 
 #include <QStandardItemModel>
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QWidget(parent)
+    : QMainWindow(parent)
 {
+    modified_ = false;
+
     CreateUi();
 }
 
@@ -40,38 +52,107 @@ MainWindow::~MainWindow()
 
 void MainWindow::CreateUi()
 {
-    QVBoxLayout* main_lay = new QVBoxLayout;
-    QHBoxLayout* lay = new QHBoxLayout;
+    resize(1000, 600);
 
-    tool_box_ = new QToolBox;
-    //tool_box_->setMinimumWidth(500);
+    CreateMenu();
+
+    QWidget* mainWidget = CreateMainWidget();
+    setCentralWidget(mainWidget);
+}
+
+QWidget* MainWindow::CreateMainWidget()
+{
+    CreatePropertyBrowser();
+    CreateTreeView();
+    FillParametersInfo();
+    FillTreeView();
+
+    plainTextEditHint_ = qobject_cast<QPlainTextEdit*>(CreateHintWidget());
+    table_view_log_ = new QTableView;
+
+    tabWidget_ = new QTabWidget;
+    QWidget* widgetMainTab= CreateMainTabWidget();
+    tabWidget_->addTab(widgetMainTab, "Main");
+
+    QSplitter* splitterTreeTab = new QSplitter(Qt::Horizontal);
+    splitterTreeTab->addWidget(tree_);
+    splitterTreeTab->addWidget(tabWidget_);
+    splitterTreeTab->setStretchFactor(0, 0);
+    splitterTreeTab->setStretchFactor(1, 1);
+
+    QSplitter* splitterTreeTabLog = new QSplitter(Qt::Vertical);
+    splitterTreeTabLog->addWidget(splitterTreeTab);
+    splitterTreeTabLog->addWidget(table_view_log_);
+    splitterTreeTabLog->setStretchFactor(0, 1);
+    splitterTreeTabLog->setStretchFactor(1, 0);
+
+    QWidget* propertiesPanelWidget = CreatePropertiesPanelWidget();
+    QSplitter* splitterMain = new QSplitter(Qt::Horizontal);
+    splitterMain->addWidget(splitterTreeTabLog);
+    splitterMain->addWidget(propertiesPanelWidget);
+    splitterMain->setStretchFactor(0, 1);
+    splitterMain->setStretchFactor(1, 0);
+
+    QWidget* mainWidget = new QWidget;
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(splitterMain);
+    mainWidget->setLayout(mainLayout);
+    return mainWidget;
+}
+
+QWidget* MainWindow::CreateMainTabWidget()
+{
+    CreateScene();
+    CreateView();
+    return view_;
+}
+
+//QWidget* MainWindow::CreateMainTabWidget()
+//{
+//    QWidget* widgetTabProperties = new QWidget;
+//
+//    QWidget* widgetSplitterInfo = CreateMainTabInfoWidget();
+//    QWidget* widgetSplitterPropertyList = CreatePropertyListWidget("Main");
+//    QWidget* widgetSplitterProperties = CreatePropertiesWidget("Main");
+//
+//    AddGroupWidget(widgetSplitterInfo, "INFO_GROUP", "Main", ControlsGroup::Info);
+//    AddGroupWidget(widgetSplitterPropertyList, "PARAMETERS_GROUP", "Main", ControlsGroup::Parameters);
+//    AddGroupWidget(widgetSplitterProperties, "PROPERTIES_GROUP", "Main", ControlsGroup::Properties);
+//
+//    QSplitter* tabHSplitter = new QSplitter(Qt::Horizontal);
+//    tabHSplitter->addWidget(widgetSplitterInfo);
+//    tabHSplitter->addWidget(widgetSplitterPropertyList);
+//    tabHSplitter->addWidget(widgetSplitterProperties);
+//    tabHSplitter->setStretchFactor(0, 1);
+//    tabHSplitter->setStretchFactor(1, 0);
+//    tabHSplitter->setStretchFactor(2, 1);
+//    widgetSplitterProperties->setEnabled(false);
+//
+//    QVBoxLayout* vBoxLayoutSplitter = new QVBoxLayout;
+//    vBoxLayoutSplitter->addWidget(tabHSplitter);
+//    widgetTabProperties->setLayout(vBoxLayoutSplitter);
+//
+//    return widgetTabProperties;
+//}
+
+void MainWindow::CreateScene()
+{
     scene_ = new diagram_scene();
-    scene_->setSceneRect(0,0,500,500);
+    scene_->setSceneRect(-10000, -10000, 10000, 10000);
 
     qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
     qDebug() << connect(scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
+    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
+}
 
-
+void MainWindow::CreateView()
+{
     view_ = new diagram_view(scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
+}
 
-
-    tree_view_ = new QTreeView;
-
-    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
-    //qDebug() << connect(scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
-    //qDebug() << connect(sp_scene_, SIGNAL(xxx()), this, SLOT(test2()));
-
-    CreateToolBox();
-    CreateTreeView();
-
-    table_view_log_ = new QTableView;
-    table_view_info_ = new QTableView;
-    table_view_properties_ = new QTableView;
-    //main_lay->addWidget(table_view_);
-
-
-
+void MainWindow::CreatePropertyBrowser()
+{
     groupManager = new QtGroupPropertyManager(this);
     doubleManager = new QtDoublePropertyManager(this);
     stringManager = new QtStringPropertyManager(this);
@@ -80,18 +161,18 @@ void MainWindow::CreateUi()
     pointManager = new QtPointPropertyManager(this);
     sizeManager = new QtSizePropertyManager(this);
 
-    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*,double)), this, SLOT(valueChanged(QtProperty*,double)));
-    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*,const QString&)), this, SLOT(valueChanged(QtProperty*,const QString&)));
-    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*,const QColor&)), this, SLOT(valueChanged(QtProperty*,const QColor&)));
-    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*,const QFont&)), this, SLOT(valueChanged(QtProperty*,const QFont&)));
-    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*,const QPoint&)), this, SLOT(valueChanged(QtProperty*,const QPoint&)));
-    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*,const QSize&)), this, SLOT(valueChanged(QtProperty*,const QSize&)));
+    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
+    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
+    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*, const QFont&)), this, SLOT(valueChanged(QtProperty*, const QFont&)));
+    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
+    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
 
-    QtDoubleSpinBoxFactory *doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-    QtCheckBoxFactory *checkBoxFactory = new QtCheckBoxFactory(this);
-    QtSpinBoxFactory *spinBoxFactory = new QtSpinBoxFactory(this);
-    QtLineEditFactory *lineEditFactory = new QtLineEditFactory(this);
-    QtEnumEditorFactory *comboBoxFactory = new QtEnumEditorFactory(this);
+    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
+    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
 
     propertyEditor = new QtTreePropertyBrowser();
     propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
@@ -102,127 +183,228 @@ void MainWindow::CreateUi()
     propertyEditor->setFactoryForManager(fontManager->subEnumPropertyManager(), comboBoxFactory);
     propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
     propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
+}
+
+void MainWindow::CreateTreeView()
+{
+    tree_ = new QTreeView();
+    tree_->setDragEnabled(true);
+    tree_->setHeaderHidden(true);
+}
+
+QWidget* MainWindow::CreatePropertiesPanelWidget()
+{
+    QWidget* propertiesPanelWidget = new QWidget;
+
+    QWidget* propertieslWidget = CreatePropertieslWidget();
+    QWidget* hintWidget = CreateHintWidget();
+
+    QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
+    tabVSplitter->addWidget(propertieslWidget);
+    tabVSplitter->addWidget(hintWidget);
+    tabVSplitter->setStretchFactor(0, 1);
+    tabVSplitter->setStretchFactor(1, 0);
+
+    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+    propertiesPaneLayout->addWidget(tabVSplitter);
+    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+
+    propertiesPanelWidget->setLayout(propertiesPaneLayout);
+
+    return propertiesPanelWidget;
+}
+
+QWidget* MainWindow::CreatePropertieslWidget()
+{
+    QWidget* propertiesPanelWidget = new QWidget;
+
+    QWidget* hostsButtonsWidget = CreateHostsButtonsWidget();
+    QWidget* hintWidget = CreateHintWidget();
+
+    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+    propertiesPaneLayout->addWidget(hostsButtonsWidget);
+    propertiesPaneLayout->addWidget(propertyEditor);
+    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+
+    propertiesPanelWidget->setLayout(propertiesPaneLayout);
+
+    return propertiesPanelWidget;
+}
+
+QWidget* MainWindow::CreateHostsButtonsWidget()
+{
+    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
+    hBoxLayoutPropertyListButtons->setMargin(0);
+    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
+
+    QComboBox* comboBoxPlatforms = new QComboBox;
+    comboBoxPlatforms->addItem("Windows x64");
+    hBoxLayoutPropertyListButtons->addWidget(comboBoxPlatforms);
+    hBoxLayoutPropertyListButtons->addStretch();
+
+    QToolButton* toolButtonPropertyListAdd = new QToolButton;
+    toolButtonPropertyListAdd->setFixedSize(24, 24);
+    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить %1").arg("toolTipBase"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
 
 
+    QToolButton* toolButtonPropertyListRemove = new QToolButton;
+    toolButtonPropertyListRemove->setFixedSize(24, 24);
+    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить %1").arg("toolTipBase"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
 
 
+    QFrame* widgetPropertyListButtons = new QFrame;
+    widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
+    widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
 
-//    QtProperty *property;
+    return widgetPropertyListButtons;
+}
 
-//    property = doubleManager->addProperty(tr("Position X"));
-//    doubleManager->setRange(property, 0, 100);
-//    doubleManager->setValue(property, 50);
-//    addProperty(property, QLatin1String("xpos"));
+QWidget* MainWindow::CreateHintWidget()
+{
+    QWidget* hintWidget = new QWidget;
+    QPlainTextEdit* plainTextEditHint = new QPlainTextEdit;
+    plainTextEditHint->setFixedHeight(100);
+    plainTextEditHint->setReadOnly(true);
+    QVBoxLayout* vBoxLayoutHint = new QVBoxLayout;
+    vBoxLayoutHint->setMargin(0);
+    vBoxLayoutHint->addWidget(plainTextEditHint);
+    vBoxLayoutHint->setContentsMargins(0, 0, 0, 0);
+    hintWidget->setLayout(vBoxLayoutHint);
+    return hintWidget;
+}
 
-//    property = doubleManager->addProperty(tr("Position Y"));
-//    doubleManager->setRange(property, 0, 100);
-//    doubleManager->setValue(property, 70);
-//    addProperty(property, QLatin1String("ypos"));
-
-//    property = doubleManager->addProperty(tr("Position Z"));
-//    doubleManager->setRange(property, 0, 256);
-//    doubleManager->setValue(property, 33);
-//    addProperty(property, QLatin1String("zpos"));
-
-//    property = colorManager->addProperty(tr("Color"));
-//    colorManager->setValue(property, Qt::GlobalColor::darkRed);
-//    addProperty(property, QLatin1String("color"));
-
-//    updateExpandState();
-
-    QTreeView *tree = new QTreeView();
-    tree->setDragEnabled(true);
+void MainWindow::FillTreeView()
+{
     tree_item_model* model = new tree_item_model();
-    //QStandardItemModel* model = new QStandardItemModel( 5, 1 );
-    for( int r=0; r<5; r++ )
-      for( int c=0; c<1; c++)
-      {
-        QStandardItem *item = new QStandardItem(QString("Category %0").arg(r));
+
+    QMap<QString, QSet<QString>> categoriesMap;
+    for (const auto& up : unitParameters_)
+    {
+        QString category = "Default";
+        if (up.fiileInfo.info.category != "")
+            category = QString::fromStdString(up.fiileInfo.info.category).toLower();
+        categoriesMap[category].insert(QString::fromStdString(up.fiileInfo.info.id));
+    }
+
+    int row = 0;
+    for (const auto& cat : categoriesMap.toStdMap())
+    {
+        QStandardItem* item = new QStandardItem(cat.first);
         item->setEditable(false);
         item->setDragEnabled(false);
-        if( c == 0 )
-          for( int i=0; i<3; i++ )
-          {
-            QStandardItem *child = new QStandardItem(QString("Item %0").arg(i));
+        model->setItem(row, 0, item);
+        int col = 0;
+        for (const auto& id : cat.second)
+        {
+            QStandardItem* child = new QStandardItem(id);
             child->setEditable(false);
 
-            QFile f("c:/QtProjects/cubes/resource/plus.png");
-            if (!f.open(QIODevice::ReadOnly)) return;
-            QByteArray ba = f.readAll();
-            QPixmap px;
-            bool isLoaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
-            QIcon ico(px);
-            child->setIcon(ico);
-            //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
-
-            child->setData(QPoint(r, i), Qt::UserRole + 1);
-
+            if (unitParameters_[id].fiileInfo.info.pictogram != "")
+            {
+                std::string s = base64_decode(unitParameters_[id].fiileInfo.info.pictogram);
+                QByteArray ba(s.c_str(), s.size());
+                QPixmap px;
+                if (!px.loadFromData(ba, "PNG", Qt::AutoColor))
+                    child->setIcon(QIcon(":/images/minus.png"));
+                else
+                    child->setIcon(QIcon(px));
+            }
+            else
+                child->setIcon(QIcon(":/images/minus.png"));
+            
+            //child->setData(QPoint(row, col), Qt::UserRole + 1);
             item->appendRow(child);
-          }
-
-        model->setItem(r, c, item);
-      }
-
-    tree->setHeaderHidden(true);
-    tree->setModel( model );
-
-
-    QHBoxLayout* hosts_buttons = new QHBoxLayout;
-    QToolButton* buttonAdd = new QToolButton;
-    buttonAdd->setFixedSize(32, 32);
-    buttonAdd->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
-    qDebug() << connect(buttonAdd, &QPushButton::clicked, this, &MainWindow::MyFirstBtnClicked);
-    hosts_buttons->addWidget(buttonAdd);
-    hosts_buttons->addStretch();
-    QVBoxLayout* hosts = new QVBoxLayout;
-    hosts->addLayout(hosts_buttons);
-    hosts->addWidget(propertyEditor);
-    QWidget *hostsWidget = new QWidget;
-    hostsWidget->setContentsMargins(0,0,0,0);
-    hostsWidget->setLayout(hosts);
-
-//    QWidget *topWidget = new QWidget;
-//    topWidget->setLayout(layout1);
-//    ...
-//    splitter->addWidget(topWidget);
-//    splitter->addWidget(bottomWidget);
-
-//    QWidget* splitter_widget = new QWidget();
-    splitter_tool_box_ = new QSplitter(Qt::Horizontal);
-//    splitter_tool_box_->addWidget(tool_box_);
-    splitter_tool_box_->addWidget(tree);
-    splitter_tool_box_->addWidget(view_);
-    splitter_tool_box_->setStretchFactor(0, 0);
-    splitter_tool_box_->setStretchFactor(1, 1);
-
-    splitter_log_ = new QSplitter(Qt::Vertical);
-    splitter_log_->addWidget(splitter_tool_box_);
-    splitter_log_->addWidget(table_view_log_);
-    splitter_log_->setStretchFactor(0, 1);
-    splitter_log_->setStretchFactor(1, 0);
-
-    splitter_info_ = new QSplitter(Qt::Vertical);
-    splitter_info_->addWidget(hostsWidget);
-    splitter_info_->addWidget(table_view_properties_);
-    splitter_info_->setStretchFactor(0, 0);
-    splitter_info_->setStretchFactor(1, 1);
-
-    splitter_info_properties_ = new QSplitter(Qt::Horizontal);
-    splitter_info_properties_->addWidget(splitter_log_);
-    splitter_info_properties_->addWidget(splitter_info_);
-    splitter_info_properties_->setStretchFactor(0, 1);
-    splitter_info_properties_->setStretchFactor(1, 0);
-
-//    lay->addWidget(tool_box_);
-//    lay->addWidget(view_);
-//    lay->addWidget(tree_view_);
-//    lay->addWidget(splitter_h_);
-
-    main_lay->addWidget(splitter_info_properties_);
+            col++;
+        }
+        model->setItem(row, 0, item);
+        row++;
+    }
+    tree_->setModel(model);
 
 
-    setLayout(main_lay);
+    //tree_item_model* model = new tree_item_model();
+    ////QStandardItemModel* model = new QStandardItemModel( 5, 1 );
+    //for (int r = 0; r < 5; r++)
+    //    for (int c = 0; c < 1; c++)
+    //    {
+    //        QStandardItem* item = new QStandardItem(QString("Category %0").arg(r));
+    //        item->setEditable(false);
+    //        item->setDragEnabled(false);
+    //        if (c == 0)
+    //            for (int i = 0; i < 3; i++)
+    //            {
+    //                QStandardItem* child = new QStandardItem(QString("Item %0").arg(i));
+    //                child->setEditable(false);
+
+    //                QFile f("c:/QtProjects/cubes/resource/plus.png");
+    //                if (!f.open(QIODevice::ReadOnly))
+    //                    return; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //                QByteArray ba = f.readAll();
+    //                QPixmap px;
+    //                bool isLoaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
+    //                QIcon ico(px);
+    //                child->setIcon(ico);
+    //                //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
+
+    //                child->setData(QPoint(r, i), Qt::UserRole + 1);
+
+    //                item->appendRow(child);
+    //            }
+
+    //        model->setItem(r, c, item);
+    //    }
+
+    //tree_->setModel(model);
 }
+
+void MainWindow::FillParametersInfo()
+{
+    QString directoryPath("c:/QtProjects/cubes/build/bin/doc/all_units_solid");
+    QStringList platformDirs;
+    QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+    while (directories.hasNext()) {
+        directories.next();
+        platformDirs << directories.filePath();
+    }
+
+    for (const auto& platformDir : platformDirs)
+    {
+        QString ymlPath = QDir(platformDir).filePath("yml");
+        if (QFileInfo(ymlPath).exists() && QFileInfo(ymlPath).isDir())
+        {
+            QStringList propFiles = QDir(ymlPath).entryList(QStringList() << "*.yml" << "*.json", QDir::Files);
+            foreach(QString filename, propFiles)
+            {
+                QString fullPath = QDir(ymlPath).filePath(filename);
+                parameters_compiler::file_info fi{};
+                if (!yaml::parser::parse(fullPath.toStdString(), fi))
+                {
+                    //!!!!!!!!!!!!!!!
+                }
+                auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
+                up.fiileInfo = fi;
+                up.platforms.insert(QFileInfo(platformDir).baseName());
+            }
+        }
+    }
+}
+
 QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {
@@ -339,28 +521,28 @@ void MainWindow::itemCreated(QString id, diagram_item* item)
 
 }
 
-void MainWindow::CreateToolBox()
-{
-    QGridLayout *layout = new QGridLayout;
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 0);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 1);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 0);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 1);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 0);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 1);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 0);
-    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 1);
-
-    layout->setRowStretch(3, 1);
-    layout->setColumnStretch(2, 1);
-
-    QWidget *itemWidget = new QWidget;
-    itemWidget->setLayout(layout);
-
-    tool_box_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
-    tool_box_->setMinimumWidth(itemWidget->sizeHint().width());
-    tool_box_->addItem(itemWidget, tr("Basic Flowchart Shapes"));
-}
+//void MainWindow::CreateToolBox()
+//{
+//    QGridLayout *layout = new QGridLayout;
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 0);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 1);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 0);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 1);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 0);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 1);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 0);
+//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 1);
+//
+//    layout->setRowStretch(3, 1);
+//    layout->setColumnStretch(2, 1);
+//
+//    QWidget *itemWidget = new QWidget;
+//    itemWidget->setLayout(layout);
+//
+//    //tool_box_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
+//    //tool_box_->setMinimumWidth(itemWidget->sizeHint().width());
+//    //tool_box_->addItem(itemWidget, tr("Basic Flowchart Shapes"));
+//}
 
 void MainWindow::addProperty(QtProperty *property, const QString &id)
 {
@@ -383,9 +565,167 @@ void MainWindow::updateExpandState()
     }
 }
 
-void MainWindow::CreateTreeView()
+void MainWindow::CreateMenu()
 {
+    QAction* newAct = new QAction(QString::fromLocal8Bit("Создать"), this);
+    newAct->setShortcuts(QKeySequence::New);
+    newAct->setStatusTip(QString::fromLocal8Bit("Создать новый файл"));
+    connect(newAct, &QAction::triggered, this, &MainWindow::on_NewFile_action);
 
+    QAction* openAct = new QAction(QString::fromLocal8Bit("Открыть"), this);
+    openAct->setShortcuts(QKeySequence::Open);
+    openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
+    connect(openAct, &QAction::triggered, this, &MainWindow::on_OpenFile_action);
+
+    QAction* saveAct = new QAction(QString::fromLocal8Bit("Сохранить"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл"));
+    connect(saveAct, &QAction::triggered, this, &MainWindow::on_SaveFile_action);
+
+    QAction* saveAsAct = new QAction(QString::fromLocal8Bit("Сохранить как..."), this);
+    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
+    connect(saveAsAct, &QAction::triggered, this, &MainWindow::on_SaveAsFile_action);
+
+    QAction* quitAct = new QAction(QString::fromLocal8Bit("Выйти"), this);
+    quitAct->setShortcuts(QKeySequence::Quit);
+    quitAct->setStatusTip(QString::fromLocal8Bit("Выйти из приложения"));
+    connect(quitAct, &QAction::triggered, this, &MainWindow::on_Quit_action);
+
+    QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
+    fileMenu->addAction(newAct);
+    fileMenu->addAction(openAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
+    fileMenu->addSeparator();
+    //recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
+    //fileMenu->addSeparator();
+    fileMenu->addAction(quitAct);
+
+}
+
+void MainWindow::on_NewFile_action()
+{
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+            QString::fromLocal8Bit("Вы действительно хотите создать новый файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn != QMessageBox::Yes)
+            return;
+    }
+
+    //while (tabWidget_->count() > 0)
+    //    tabWidget_->removeTab(0);
+
+    //QWidget* widgetTabMain = CreateMainTabWidget();
+    //tabWidget_->addTab(widgetTabMain, "Main");
+
+    //fileInfo_ = {};
+
+    //currentFileName_ = "";
+    //modified_ = false;
+    //UpdateWindowTitle();
+}
+
+void MainWindow::on_OpenFile_action()
+{
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+            QString::fromLocal8Bit("Вы действительно хотите открыть файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn != QMessageBox::Yes)
+            return;
+    }
+
+    //QFileDialog dialog(this);
+    //dialog.setNameFilters({ "Parameters Compiler YAML Files (*.yml *.yaml)", "Parameters Compiler JSON Files (*.json)" });
+    //dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    //QStringList fileNames;
+    //if (dialog.exec())
+    //    fileNames = dialog.selectedFiles();
+
+    //if (fileNames.size() == 0)
+    //    return;
+
+    //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
+
+    //OpenFileInternal(fileNames[0], is_json);
+}
+
+void MainWindow::on_SaveFile_action()
+{
+    if (!modified_)
+        return;
+
+    //if (currentFileName_ == "")
+    //{
+    //    SaveAs();
+    //}
+    //else
+    //{
+    //    qDebug() << currentFileName_;
+
+    //    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+    //        QString::fromLocal8Bit("Вы действительно хотите сохранить файл?\nФайл будет перезаписан!"), QMessageBox::No | QMessageBox::Yes);
+    //    if (resBtn != QMessageBox::Yes)
+    //        return;
+
+    //    if (!ReadCurrentFileInfo())
+    //        return;
+
+    //    std::string message;
+    //    if (!parameters_compiler::helper::validate(fileInfo_, message))
+    //    {
+    //        QMessageBox::critical(this, "Validate error", QString::fromLocal8Bit(message.c_str()));
+    //        return;
+    //    }
+
+    //    bool have_type_loop = false;
+    //    if (!parameters_compiler::helper::rearrange_types(fileInfo_, have_type_loop))
+    //    {
+    //        QMessageBox::critical(this, "Rearrange error", QString::fromLocal8Bit("Ошибка переупорядочивания пользовательских типов перед сохранением"));
+    //        return;
+    //    }
+    //    else if (have_type_loop)
+    //    {
+    //        QMessageBox::warning(this, "Rearrange", QString::fromLocal8Bit("Обнаружена циклицеская зависимость в типах.\nФайл будет сохранен, но эта логическая ошибка требует исправления!"));
+    //    }
+
+    //    if (is_json_)
+    //    {
+    //        if (!json::writer::write(currentFileName_.toStdString(), fileInfo_))
+    //            return;
+    //    }
+    //    else
+    //    {
+    //        if (!yaml::writer::write(currentFileName_.toStdString(), fileInfo_))
+    //            return;
+    //    }
+
+    //    modified_ = false;
+    //    UpdateWindowTitle();
+    //}
+}
+
+void MainWindow::on_SaveAsFile_action()
+{
+    //SaveAs();
+}
+
+void MainWindow::on_Quit_action()
+{
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+            QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn == QMessageBox::Yes)
+            QApplication::quit();
+    }
+    else
+    {
+        QApplication::quit();
+    }
 }
 
 void MainWindow::valueChanged(QtProperty *property, double value)

@@ -38,8 +38,9 @@ set(CMAKE_AUTOUIC ON)
 
 file(GLOB PROJ_HDRS *.h)
 file(GLOB PROJ_SRCS *.cpp)
+file(GLOB PROJ_RES *.qrc)
 
-add_executable(cubes ${PROJ_HDRS} ${PROJ_SRCS})
+add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES})
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser ${CONAN_LIBS})
 #target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)
