@@ -59,7 +59,7 @@ void MainWindow::CreateUi()
     tree_view_ = new QTreeView;
 
     qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
-    qDebug() << connect(scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
+    //qDebug() << connect(scene_, SIGNAL(xxx(QPointF ppp)), this, SLOT(test2(QPointF ppp)));
     //qDebug() << connect(sp_scene_, SIGNAL(xxx()), this, SLOT(test2()));
 
     CreateToolBox();
