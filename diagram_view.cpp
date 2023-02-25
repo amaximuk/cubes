@@ -7,9 +7,10 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 
-diagram_view::diagram_view(QGraphicsScene *scene, QWidget *parent):
+diagram_view::diagram_view(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
     QGraphicsView(scene, parent)
 {
+    main_ = main;
     setAcceptDrops(true);
 }
 
@@ -62,6 +63,8 @@ void diagram_view::dropEvent(QDropEvent *event)
 //        this->scene()->addItem(newIcon);
 //        newIcon->setPos(position);
 
+
+
         QPixmap pixmap;
         QPoint offset;
         QString name;
@@ -69,7 +72,10 @@ void diagram_view::dropEvent(QDropEvent *event)
         qDebug() << "name: " << name << offset;
         QString vvv = QString::number(counter++);
 
-        diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48), name);
+
+        auto up = main_->GetUnitParameters(name);
+
+        diagram_item *newIcon = new diagram_item(up);
         diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
         ds->informItemCreated(name, newIcon);
 

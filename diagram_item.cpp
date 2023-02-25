@@ -4,12 +4,12 @@
 #include <QPainter>
 #include <QDebug>
 
-diagram_item::diagram_item(QPixmap pixmap, QString name, QGraphicsItem *parent):
-    QGraphicsItem(parent),
-    pixmap_(pixmap),
-    name_(name)
+diagram_item::diagram_item(MainWindow::UnitParameters unitParameters, QGraphicsItem *parent):
+    QGraphicsItem(parent)
 {
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |  QGraphicsItem::ItemSendsGeometryChanges);
+    properties_ = new properties_item(unitParameters);
+    pixmap_ = properties_->GetPixmap();
 }
 
 QRectF diagram_item::boundingRect() const

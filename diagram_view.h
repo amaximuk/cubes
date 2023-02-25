@@ -2,6 +2,8 @@
 #define DIAGRAM_VIEW_H
 
 #include <QGraphicsView>
+#include "main_window.h"
+
 
 QT_BEGIN_NAMESPACE
 class QDragEnterEvent;
@@ -10,8 +12,11 @@ QT_END_NAMESPACE
 
 class diagram_view : public QGraphicsView
 {
+private:
+    MainWindow* main_;
+
 public:
-    diagram_view(QGraphicsScene *scene, QWidget *parent = nullptr);
+    diagram_view(QGraphicsScene *scene, MainWindow* main, QWidget *parent = nullptr);
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;

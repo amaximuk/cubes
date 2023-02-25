@@ -20,12 +20,13 @@ class QSplitter;
 class QtProperty;
 class diagram_scene;
 class diagram_item;
+class QtTreePropertyBrowser;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-private:
+public:
     struct UnitParameters
     {
         parameters_compiler::file_info fiileInfo;
@@ -55,6 +56,9 @@ protected:
     void FillTreeView();
     void FillParametersInfo();
 
+public:
+    UnitParameters GetUnitParameters(QString id) const;
+
 private:
     diagram_scene* scene_;
     QPointer<diagram_view> view_;
@@ -72,14 +76,14 @@ private slots:
     void on_SaveAsFile_action();
     void on_Quit_action();
 
-private slots:
-    void valueChanged(QtProperty *property, int value);
-    void valueChanged(QtProperty *property, double value);
-    void valueChanged(QtProperty *property, const QString &value);
-    void valueChanged(QtProperty *property, const QColor &value);
-    void valueChanged(QtProperty *property, const QFont &value);
-    void valueChanged(QtProperty *property, const QPoint &value);
-    void valueChanged(QtProperty *property, const QSize &value);
+//private slots:
+//    void valueChanged(QtProperty *property, int value);
+//    void valueChanged(QtProperty *property, double value);
+//    void valueChanged(QtProperty *property, const QString &value);
+//    void valueChanged(QtProperty *property, const QColor &value);
+//    void valueChanged(QtProperty *property, const QFont &value);
+//    void valueChanged(QtProperty *property, const QPoint &value);
+//    void valueChanged(QtProperty *property, const QSize &value);
 
     void MyFirstBtnClicked();
 
@@ -98,13 +102,13 @@ private:
 private:
     void addProperty(QtProperty *property, const QString &id);
     void updateExpandState();
-    class QtGroupPropertyManager *groupManager;
-    class QtIntPropertyManager *intManager;
-    class QtDoublePropertyManager *doubleManager;
-    class QtStringPropertyManager *stringManager;
-    class QtColorPropertyManager *colorManager;
-    class QtFontPropertyManager *fontManager;
-    class QtPointPropertyManager *pointManager;
-    class QtSizePropertyManager *sizeManager;
-    class QtTreePropertyBrowser *propertyEditor;
+    //class QtGroupPropertyManager *groupManager;
+    //class QtIntPropertyManager *intManager;
+    //class QtDoublePropertyManager *doubleManager;
+    //class QtStringPropertyManager *stringManager;
+    //class QtColorPropertyManager *colorManager;
+    //class QtFontPropertyManager *fontManager;
+    //class QtPointPropertyManager *pointManager;
+    //class QtSizePropertyManager *sizeManager;
+    QtTreePropertyBrowser *propertyEditor;
 };

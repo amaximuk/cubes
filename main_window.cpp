@@ -137,7 +137,7 @@ QWidget* MainWindow::CreateMainTabWidget()
 
 void MainWindow::CreateScene()
 {
-    scene_ = new diagram_scene();
+    scene_ = new diagram_scene(this);
     scene_->setSceneRect(-10000, -10000, 10000, 10000);
 
     qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
@@ -147,46 +147,51 @@ void MainWindow::CreateScene()
 
 void MainWindow::CreateView()
 {
-    view_ = new diagram_view(scene_);
+    view_ = new diagram_view(scene_, this);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
+//void MainWindow::CreatePropertyBrowser()
+//{
+//    groupManager = new QtGroupPropertyManager(this);
+//    intManager = new QtIntPropertyManager(this);
+//    doubleManager = new QtDoublePropertyManager(this);
+//    stringManager = new QtStringPropertyManager(this);
+//    colorManager = new QtColorPropertyManager(this);
+//    fontManager = new QtFontPropertyManager(this);
+//    pointManager = new QtPointPropertyManager(this);
+//    sizeManager = new QtSizePropertyManager(this);
+//
+//    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+//    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
+//    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+//    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
+//    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*, const QFont&)), this, SLOT(valueChanged(QtProperty*, const QFont&)));
+//    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
+//    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
+//
+//    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
+//    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+//    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+//    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
+//    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+//    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+//
+//    propertyEditor = new QtTreePropertyBrowser();
+//    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
+//    propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
+//    propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
+//    propertyEditor->setFactoryForManager(colorManager->subIntPropertyManager(), spinBoxFactory);
+//    propertyEditor->setFactoryForManager(fontManager->subIntPropertyManager(), spinBoxFactory);
+//    propertyEditor->setFactoryForManager(fontManager->subBoolPropertyManager(), checkBoxFactory);
+//    propertyEditor->setFactoryForManager(fontManager->subEnumPropertyManager(), comboBoxFactory);
+//    propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
+//    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
+//}
+
 void MainWindow::CreatePropertyBrowser()
 {
-    groupManager = new QtGroupPropertyManager(this);
-    intManager = new QtIntPropertyManager(this);
-    doubleManager = new QtDoublePropertyManager(this);
-    stringManager = new QtStringPropertyManager(this);
-    colorManager = new QtColorPropertyManager(this);
-    fontManager = new QtFontPropertyManager(this);
-    pointManager = new QtPointPropertyManager(this);
-    sizeManager = new QtSizePropertyManager(this);
-
-    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
-    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
-    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
-    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*, const QFont&)), this, SLOT(valueChanged(QtProperty*, const QFont&)));
-    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
-    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
-
-    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
-    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
-    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
-    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
-    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
-
     propertyEditor = new QtTreePropertyBrowser();
-    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
-    propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
-    propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
-    propertyEditor->setFactoryForManager(colorManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subBoolPropertyManager(), checkBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subEnumPropertyManager(), comboBoxFactory);
-    propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
 }
 
 void MainWindow::CreateTreeView()
@@ -419,6 +424,16 @@ void MainWindow::FillParametersInfo()
     }
 }
 
+MainWindow::UnitParameters MainWindow::GetUnitParameters(QString id) const
+{
+    for (const auto& up : unitParameters_)
+    {
+        if (QString::fromStdString(up.fiileInfo.info.id) == id)
+            return up;
+    }
+    return {};
+}
+
 QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {
@@ -468,72 +483,79 @@ void MainWindow::MyFirstBtnClicked()
 
 void MainWindow::selectionChanged()
 {
-    propertyEditor->clear();
     if (scene_->selectedItems().count() > 0)
     {
-        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
         diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
-        qDebug() << di->getName();
-
-        QtProperty* mainGroup = groupManager->addProperty(di->getName());
-
-        QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
-        mainGroup->addSubProperty(propertiesGroup);
-
-        bool found = false;
-        UnitParameters unitParameters{};
-        for (const auto& up : unitParameters_)
-        {
-            if (QString::fromStdString(up.fiileInfo.info.id) == di->getName())
-            {
-                found = true;
-                unitParameters = up;
-                break;
-            }
-        }
-
-        if (found)
-        {
-            for (const auto& pi : unitParameters.fiileInfo.parameters)
-            {
-                QtProperty* channelsGroup = stringManager->addProperty(QString::fromStdString(pi.display_name));
-                propertiesGroup->addSubProperty(channelsGroup);
-                //addProperty(channelsGroup, QLatin1String("Channels"));
-            }
-        }
-
-
-        //QtProperty* channelsGroup = groupManager->addProperty(QString::fromLocal8Bit("Каналы"));
-        //propertiesGroup->addSubProperty(channelsGroup);
-        //addProperty(channelsGroup, QLatin1String("Channels"));
-
-        //QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Количество"));
-        //intManager->setRange(channelsCountProperty, 0, 10000);
-        //intManager->setValue(channelsCountProperty, 0);
-        //addProperty(channelsCountProperty, QLatin1String("Count"));
-        //channelsGroup->addSubProperty(channelsCountProperty);
-
-
-        QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
-        mainGroup->addSubProperty(editorGroup);
-
-
-        QtProperty* positionXProperty = doubleManager->addProperty("Position X");
-        doubleManager->setRange(positionXProperty, -10000, 10000);
-        doubleManager->setValue(positionXProperty, di->scenePos().x());
-        addProperty(positionXProperty, QLatin1String("Position X"));
-        editorGroup->addSubProperty(positionXProperty);
-
-        QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
-        doubleManager->setRange(positionYProperty, -10000, 10000);
-        doubleManager->setValue(positionYProperty, di->scenePos().y());
-        addProperty(positionYProperty, QLatin1String("Position Y"));
-        editorGroup->addSubProperty(positionYProperty);
-
-
-        addProperty(mainGroup, di->getName());
-        propertyEditor->addProperty(mainGroup);
+        di->getProperties()->ApplyToBrowser(propertyEditor);
     }
+
+
+    //propertyEditor->clear();
+    //if (scene_->selectedItems().count() > 0)
+    //{
+    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+    //    diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+    //    qDebug() << di->getName();
+
+    //    QtProperty* mainGroup = groupManager->addProperty(di->getName());
+
+    //    QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
+    //    mainGroup->addSubProperty(propertiesGroup);
+
+    //    bool found = false;
+    //    UnitParameters unitParameters{};
+    //    for (const auto& up : unitParameters_)
+    //    {
+    //        if (QString::fromStdString(up.fiileInfo.info.id) == di->getName())
+    //        {
+    //            found = true;
+    //            unitParameters = up;
+    //            break;
+    //        }
+    //    }
+
+    //    if (found)
+    //    {
+    //        for (const auto& pi : unitParameters.fiileInfo.parameters)
+    //        {
+    //            QtProperty* channelsGroup = stringManager->addProperty(QString::fromStdString(pi.display_name));
+    //            propertiesGroup->addSubProperty(channelsGroup);
+    //            //addProperty(channelsGroup, QLatin1String("Channels"));
+    //        }
+    //    }
+
+
+    //    //QtProperty* channelsGroup = groupManager->addProperty(QString::fromLocal8Bit("Каналы"));
+    //    //propertiesGroup->addSubProperty(channelsGroup);
+    //    //addProperty(channelsGroup, QLatin1String("Channels"));
+
+    //    //QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Количество"));
+    //    //intManager->setRange(channelsCountProperty, 0, 10000);
+    //    //intManager->setValue(channelsCountProperty, 0);
+    //    //addProperty(channelsCountProperty, QLatin1String("Count"));
+    //    //channelsGroup->addSubProperty(channelsCountProperty);
+
+
+    //    QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
+    //    mainGroup->addSubProperty(editorGroup);
+
+
+    //    QtProperty* positionXProperty = doubleManager->addProperty("Position X");
+    //    doubleManager->setRange(positionXProperty, -10000, 10000);
+    //    doubleManager->setValue(positionXProperty, di->scenePos().x());
+    //    addProperty(positionXProperty, QLatin1String("Position X"));
+    //    editorGroup->addSubProperty(positionXProperty);
+
+    //    QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
+    //    doubleManager->setRange(positionYProperty, -10000, 10000);
+    //    doubleManager->setValue(positionYProperty, di->scenePos().y());
+    //    addProperty(positionYProperty, QLatin1String("Position Y"));
+    //    editorGroup->addSubProperty(positionYProperty);
+
+
+    //    addProperty(mainGroup, di->getName());
+    //    propertyEditor->addProperty(mainGroup);
+    //}
 
 }
 
@@ -550,23 +572,23 @@ void MainWindow::test2(QPointF ppp)
 
 void MainWindow::itemPositionChanged(QString id, QPointF newPos)
 {
-    QtProperty* p = idToProperty[id];
-    if (p != nullptr)
-    {
-        for (auto sp : p->subProperties())
-        {
-            if (sp->propertyName() == "Position X")
-            {
-                qDebug() << sp->valueText();
-                doubleManager->setValue(sp, newPos.x());
-            }
-            if (sp->propertyName() == "Position Y")
-            {
-                qDebug() << sp->valueText();
-                doubleManager->setValue(sp, newPos.y());
-            }
-        }
-    }
+    //QtProperty* p = idToProperty[id];
+    //if (p != nullptr)
+    //{
+    //    for (auto sp : p->subProperties())
+    //    {
+    //        if (sp->propertyName() == "Position X")
+    //        {
+    //            qDebug() << sp->valueText();
+    //            doubleManager->setValue(sp, newPos.x());
+    //        }
+    //        if (sp->propertyName() == "Position Y")
+    //        {
+    //            qDebug() << sp->valueText();
+    //            doubleManager->setValue(sp, newPos.y());
+    //        }
+    //    }
+    //}
 }
 
 void MainWindow::itemCreated(QString id, diagram_item* item)
@@ -780,176 +802,176 @@ void MainWindow::on_Quit_action()
         QApplication::quit();
     }
 }
-
-void MainWindow::valueChanged(QtProperty* property, int value)
-{
-    qDebug() << "valueChanged value = " << value;
-
-    if (!idToProperty.contains("Channels"))
-        return;
-
-    QtProperty* channelsGroup = idToProperty["Channels"];
-
-    while (value > channelsGroup->subProperties().size() - 1)
-    {
-        QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
-        intManager->setRange(channelsCountProperty, 0, 10000);
-        intManager->setValue(channelsCountProperty, 0);
-        addProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
-        channelsGroup->addSubProperty(channelsCountProperty);
-    }
-
-    while (value < channelsGroup->subProperties().size() - 1)
-    {
-        QtProperty* channelsCountProperty = channelsGroup->subProperties()[channelsGroup->subProperties().size() - 1];
-        //removeProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
-
-        channelsGroup->removeSubProperty(channelsCountProperty);
-    }
-
-
-}
-
-void MainWindow::valueChanged(QtProperty *property, double value)
-{
-    qDebug() << "valueChanged value = " << value;
-
-    if (!propertyToId.contains(property))
-        return;
-
-    //if (!currentItem)
-    //    return;
-
-    if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
-    {
-        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
-        qDebug() << gi->getName();
-
-        QString id = propertyToId[property];
-        if (id == "Position X")
-            gi->setX(value);
-        else if (id == "Position Y")
-            gi->setY(value);
-    }
-
-
-    //QString id = propertyToId[property];
-    //if (id == QLatin1String("xpos")) {
-    //    currentItem->setX(value);
-    //} else if (id == QLatin1String("ypos")) {
-    //    currentItem->setY(value);
-    //} else if (id == QLatin1String("zpos")) {
-    //    currentItem->setZ(value);
-    //}
-    //canvas->update();
-}
-
-void MainWindow::valueChanged(QtProperty *property, const QString &value)
-{
+//
+//void MainWindow::valueChanged(QtProperty* property, int value)
+//{
+//    qDebug() << "valueChanged value = " << value;
+//
+//    if (!idToProperty.contains("Channels"))
+//        return;
+//
+//    QtProperty* channelsGroup = idToProperty["Channels"];
+//
+//    while (value > channelsGroup->subProperties().size() - 1)
+//    {
+//        QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+//        intManager->setRange(channelsCountProperty, 0, 10000);
+//        intManager->setValue(channelsCountProperty, 0);
+//        addProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+//        channelsGroup->addSubProperty(channelsCountProperty);
+//    }
+//
+//    while (value < channelsGroup->subProperties().size() - 1)
+//    {
+//        QtProperty* channelsCountProperty = channelsGroup->subProperties()[channelsGroup->subProperties().size() - 1];
+//        //removeProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+//
+//        channelsGroup->removeSubProperty(channelsCountProperty);
+//    }
+//
+//
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, double value)
+//{
+//    qDebug() << "valueChanged value = " << value;
+//
 //    if (!propertyToId.contains(property))
 //        return;
-
-//    if (!currentItem)
-//        return;
-
-//    QString id = propertyToId[property];
-//    if (id == QLatin1String("text")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-//            QtCanvasText *i = (QtCanvasText *)currentItem;
-//            i->setText(value);
-//        }
+//
+//    //if (!currentItem)
+//    //    return;
+//
+//    if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
+//    {
+//        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+//        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
+//        qDebug() << gi->getName();
+//
+//        QString id = propertyToId[property];
+//        if (id == "Position X")
+//            gi->setX(value);
+//        else if (id == "Position Y")
+//            gi->setY(value);
 //    }
-//    canvas->update();
-}
-
-void MainWindow::valueChanged(QtProperty *property, const QColor &value)
-{
-//    if (!propertyToId.contains(property))
-//        return;
-
-//    if (!currentItem)
-//        return;
-
-//    QString id = propertyToId[property];
-//    if (id == QLatin1String("color")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-//            QtCanvasText *i = (QtCanvasText *)currentItem;
-//            i->setColor(value);
-//        }
-//    } else if (id == QLatin1String("brush")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-//                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-//            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-//            QBrush b = i->brush();
-//            b.setColor(value);
-//            i->setBrush(b);
-//        }
-//    } else if (id == QLatin1String("pen")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-//                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-//            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-//            QPen p = i->pen();
-//            p.setColor(value);
-//            i->setPen(p);
-//        }
-//    }
-//    canvas->update();
-}
-
-void MainWindow::valueChanged(QtProperty *property, const QFont &value)
-{
-//    if (!propertyToId.contains(property))
-//        return;
-
-//    if (!currentItem)
-//        return;
-
-//    QString id = propertyToId[property];
-//    if (id == QLatin1String("font")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-//            QtCanvasText *i = (QtCanvasText *)currentItem;
-//            i->setFont(value);
-//        }
-//    }
-//    canvas->update();
-}
-
-void MainWindow::valueChanged(QtProperty *property, const QPoint &value)
-{
-//    if (!propertyToId.contains(property))
-//        return;
-
-//    if (!currentItem)
-//        return;
-
-//    QString id = propertyToId[property];
-//    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-//        QtCanvasLine *i = (QtCanvasLine *)currentItem;
-//        if (id == QLatin1String("endpoint")) {
-//            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
-//        }
-//    }
-//    canvas->update();
-}
-
-void MainWindow::valueChanged(QtProperty *property, const QSize &value)
-{
-//    if (!propertyToId.contains(property))
-//        return;
-
-//    if (!currentItem)
-//        return;
-
-//    QString id = propertyToId[property];
-//    if (id == QLatin1String("size")) {
-//        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
-//            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
-//            i->setSize(value.width(), value.height());
-//        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-//            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
-//            i->setSize(value.width(), value.height());
-//        }
-//    }
-//    canvas->update();
-}
+//
+//
+//    //QString id = propertyToId[property];
+//    //if (id == QLatin1String("xpos")) {
+//    //    currentItem->setX(value);
+//    //} else if (id == QLatin1String("ypos")) {
+//    //    currentItem->setY(value);
+//    //} else if (id == QLatin1String("zpos")) {
+//    //    currentItem->setZ(value);
+//    //}
+//    //canvas->update();
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, const QString &value)
+//{
+////    if (!propertyToId.contains(property))
+////        return;
+//
+////    if (!currentItem)
+////        return;
+//
+////    QString id = propertyToId[property];
+////    if (id == QLatin1String("text")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+////            QtCanvasText *i = (QtCanvasText *)currentItem;
+////            i->setText(value);
+////        }
+////    }
+////    canvas->update();
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, const QColor &value)
+//{
+////    if (!propertyToId.contains(property))
+////        return;
+//
+////    if (!currentItem)
+////        return;
+//
+////    QString id = propertyToId[property];
+////    if (id == QLatin1String("color")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+////            QtCanvasText *i = (QtCanvasText *)currentItem;
+////            i->setColor(value);
+////        }
+////    } else if (id == QLatin1String("brush")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+////                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+////            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+////            QBrush b = i->brush();
+////            b.setColor(value);
+////            i->setBrush(b);
+////        }
+////    } else if (id == QLatin1String("pen")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+////                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+////            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+////            QPen p = i->pen();
+////            p.setColor(value);
+////            i->setPen(p);
+////        }
+////    }
+////    canvas->update();
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, const QFont &value)
+//{
+////    if (!propertyToId.contains(property))
+////        return;
+//
+////    if (!currentItem)
+////        return;
+//
+////    QString id = propertyToId[property];
+////    if (id == QLatin1String("font")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+////            QtCanvasText *i = (QtCanvasText *)currentItem;
+////            i->setFont(value);
+////        }
+////    }
+////    canvas->update();
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, const QPoint &value)
+//{
+////    if (!propertyToId.contains(property))
+////        return;
+//
+////    if (!currentItem)
+////        return;
+//
+////    QString id = propertyToId[property];
+////    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+////        QtCanvasLine *i = (QtCanvasLine *)currentItem;
+////        if (id == QLatin1String("endpoint")) {
+////            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
+////        }
+////    }
+////    canvas->update();
+//}
+//
+//void MainWindow::valueChanged(QtProperty *property, const QSize &value)
+//{
+////    if (!propertyToId.contains(property))
+////        return;
+//
+////    if (!currentItem)
+////        return;
+//
+////    QString id = propertyToId[property];
+////    if (id == QLatin1String("size")) {
+////        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
+////            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
+////            i->setSize(value.width(), value.height());
+////        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+////            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
+////            i->setSize(value.width(), value.height());
+////        }
+////    }
+////    canvas->update();
+//}
