@@ -154,6 +154,7 @@ void MainWindow::CreateView()
 void MainWindow::CreatePropertyBrowser()
 {
     groupManager = new QtGroupPropertyManager(this);
+    intManager = new QtIntPropertyManager(this);
     doubleManager = new QtDoublePropertyManager(this);
     stringManager = new QtStringPropertyManager(this);
     colorManager = new QtColorPropertyManager(this);
@@ -161,6 +162,7 @@ void MainWindow::CreatePropertyBrowser()
     pointManager = new QtPointPropertyManager(this);
     sizeManager = new QtSizePropertyManager(this);
 
+    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
     qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
     qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
@@ -168,6 +170,7 @@ void MainWindow::CreatePropertyBrowser()
     qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
     qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
 
+    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
     QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
     QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
     QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
@@ -175,6 +178,7 @@ void MainWindow::CreatePropertyBrowser()
     QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
 
     propertyEditor = new QtTreePropertyBrowser();
+    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
     propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
     propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
     propertyEditor->setFactoryForManager(colorManager->subIntPropertyManager(), spinBoxFactory);
@@ -250,7 +254,7 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
     //toolButtonPropertyListAdd->setProperty("name", name);
     //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить %1").arg("toolTipBase"));
+    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
     //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
 
@@ -263,7 +267,7 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
     //toolButtonPropertyListAdd->setProperty("name", name);
     //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить %1").arg("toolTipBase"));
+    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
     //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
 
@@ -318,15 +322,25 @@ void MainWindow::FillTreeView()
             if (unitParameters_[id].fiileInfo.info.pictogram != "")
             {
                 std::string s = base64_decode(unitParameters_[id].fiileInfo.info.pictogram);
-                QByteArray ba(s.c_str(), s.size());
+                QByteArray ba(s.c_str(), static_cast<int>(s.size()));
                 QPixmap px;
-                if (!px.loadFromData(ba, "PNG", Qt::AutoColor))
-                    child->setIcon(QIcon(":/images/minus.png"));
+                bool loaded = false;
+                try
+                {
+                    loaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
+                }
+                catch (...)
+                {
+                    loaded = false;
+                }
+
+                if (!loaded)
+                    child->setIcon(QIcon(":/images/parameters.png"));
                 else
                     child->setIcon(QIcon(px));
             }
             else
-                child->setIcon(QIcon(":/images/minus.png"));
+                child->setIcon(QIcon(":/images/parameters.png"));
             
             //child->setData(QPoint(row, col), Qt::UserRole + 1);
             item->appendRow(child);
@@ -458,26 +472,67 @@ void MainWindow::selectionChanged()
     if (scene_->selectedItems().count() > 0)
     {
         //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
-        qDebug() << gi->getName();
+        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        qDebug() << di->getName();
 
-        QtProperty *property;
-        QtProperty *mainProperty = groupManager->addProperty(gi->getName());
+        QtProperty* mainGroup = groupManager->addProperty(di->getName());
 
-        property = doubleManager->addProperty(tr("Position X"));
-        doubleManager->setRange(property, -10000, 10000);
-        doubleManager->setValue(property, gi->scenePos().x());
-        addProperty(property, QLatin1String("Position X"));
-        mainProperty->addSubProperty(property);
+        QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
+        mainGroup->addSubProperty(propertiesGroup);
 
-        property = doubleManager->addProperty(tr("Position Y"));
-        doubleManager->setRange(property, -10000, 10000);
-        doubleManager->setValue(property, gi->scenePos().y());
-        addProperty(property, QLatin1String("Position Y"));
-        mainProperty->addSubProperty(property);
+        bool found = false;
+        UnitParameters unitParameters{};
+        for (const auto& up : unitParameters_)
+        {
+            if (QString::fromStdString(up.fiileInfo.info.id) == di->getName())
+            {
+                found = true;
+                unitParameters = up;
+                break;
+            }
+        }
 
-        addProperty(mainProperty, gi->getName());
-        propertyEditor->addProperty(mainProperty);
+        if (found)
+        {
+            for (const auto& pi : unitParameters.fiileInfo.parameters)
+            {
+                QtProperty* channelsGroup = stringManager->addProperty(QString::fromStdString(pi.display_name));
+                propertiesGroup->addSubProperty(channelsGroup);
+                //addProperty(channelsGroup, QLatin1String("Channels"));
+            }
+        }
+
+
+        //QtProperty* channelsGroup = groupManager->addProperty(QString::fromLocal8Bit("Каналы"));
+        //propertiesGroup->addSubProperty(channelsGroup);
+        //addProperty(channelsGroup, QLatin1String("Channels"));
+
+        //QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Количество"));
+        //intManager->setRange(channelsCountProperty, 0, 10000);
+        //intManager->setValue(channelsCountProperty, 0);
+        //addProperty(channelsCountProperty, QLatin1String("Count"));
+        //channelsGroup->addSubProperty(channelsCountProperty);
+
+
+        QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
+        mainGroup->addSubProperty(editorGroup);
+
+
+        QtProperty* positionXProperty = doubleManager->addProperty("Position X");
+        doubleManager->setRange(positionXProperty, -10000, 10000);
+        doubleManager->setValue(positionXProperty, di->scenePos().x());
+        addProperty(positionXProperty, QLatin1String("Position X"));
+        editorGroup->addSubProperty(positionXProperty);
+
+        QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
+        doubleManager->setRange(positionYProperty, -10000, 10000);
+        doubleManager->setValue(positionYProperty, di->scenePos().y());
+        addProperty(positionYProperty, QLatin1String("Position Y"));
+        editorGroup->addSubProperty(positionYProperty);
+
+
+        addProperty(mainGroup, di->getName());
+        propertyEditor->addProperty(mainGroup);
     }
 
 }
@@ -512,8 +567,6 @@ void MainWindow::itemPositionChanged(QString id, QPointF newPos)
             }
         }
     }
-    qDebug() << "!!!!!!!!!!!!!!" << newPos;
-
 }
 
 void MainWindow::itemCreated(QString id, diagram_item* item)
@@ -726,6 +779,35 @@ void MainWindow::on_Quit_action()
     {
         QApplication::quit();
     }
+}
+
+void MainWindow::valueChanged(QtProperty* property, int value)
+{
+    qDebug() << "valueChanged value = " << value;
+
+    if (!idToProperty.contains("Channels"))
+        return;
+
+    QtProperty* channelsGroup = idToProperty["Channels"];
+
+    while (value > channelsGroup->subProperties().size() - 1)
+    {
+        QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+        intManager->setRange(channelsCountProperty, 0, 10000);
+        intManager->setValue(channelsCountProperty, 0);
+        addProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+        channelsGroup->addSubProperty(channelsCountProperty);
+    }
+
+    while (value < channelsGroup->subProperties().size() - 1)
+    {
+        QtProperty* channelsCountProperty = channelsGroup->subProperties()[channelsGroup->subProperties().size() - 1];
+        //removeProperty(channelsCountProperty, QString::fromLocal8Bit("Item %1").arg(channelsGroup->subProperties().size()));
+
+        channelsGroup->removeSubProperty(channelsCountProperty);
+    }
+
+
 }
 
 void MainWindow::valueChanged(QtProperty *property, double value)

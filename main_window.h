@@ -56,17 +56,10 @@ protected:
     void FillParametersInfo();
 
 private:
-    //QPointer<QToolBox> tool_box_;
     diagram_scene* scene_;
     QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
-    //QPointer<QTableView> table_view_info_;
-    //QPointer<QTableView> table_view_properties_;
-    //QPointer<QSplitter> splitter_tool_box_;
-    //QPointer<QSplitter> splitter_log_;
-    //QPointer<QSplitter> splitter_info_;
-    //QPointer<QSplitter> splitter_info_properties_;
     QPointer<QTreeView> tree_;
     QTabWidget* tabWidget_;
     QPlainTextEdit* plainTextEditHint_;
@@ -80,6 +73,7 @@ private slots:
     void on_Quit_action();
 
 private slots:
+    void valueChanged(QtProperty *property, int value);
     void valueChanged(QtProperty *property, double value);
     void valueChanged(QtProperty *property, const QString &value);
     void valueChanged(QtProperty *property, const QColor &value);
@@ -105,6 +99,7 @@ private:
     void addProperty(QtProperty *property, const QString &id);
     void updateExpandState();
     class QtGroupPropertyManager *groupManager;
+    class QtIntPropertyManager *intManager;
     class QtDoublePropertyManager *doubleManager;
     class QtStringPropertyManager *stringManager;
     class QtColorPropertyManager *colorManager;
