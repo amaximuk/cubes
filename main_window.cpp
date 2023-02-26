@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     modified_ = false;
 
+    setWindowIcon(QIcon(":/images/cubes.png"));
+
     CreateUi();
 }
 
@@ -87,6 +89,7 @@ QWidget* MainWindow::CreateMainWidget()
     splitterTreeTabLog->setStretchFactor(1, 0);
 
     QWidget* propertiesPanelWidget = CreatePropertiesPanelWidget();
+    propertiesPanelWidget->setMinimumWidth(300);
     QSplitter* splitterMain = new QSplitter(Qt::Horizontal);
     splitterMain->addWidget(splitterTreeTabLog);
     splitterMain->addWidget(propertiesPanelWidget);
@@ -199,6 +202,7 @@ void MainWindow::CreateTreeView()
     tree_ = new QTreeView();
     tree_->setDragEnabled(true);
     tree_->setHeaderHidden(true);
+    tree_->setMinimumWidth(300);
 }
 
 QWidget* MainWindow::CreatePropertiesPanelWidget()
@@ -324,28 +328,24 @@ void MainWindow::FillTreeView()
             QStandardItem* child = new QStandardItem(id);
             child->setEditable(false);
 
+            QPixmap px;
+            bool loaded = false;
             if (unitParameters_[id].fiileInfo.info.pictogram != "")
             {
                 std::string s = base64_decode(unitParameters_[id].fiileInfo.info.pictogram);
                 QByteArray ba(s.c_str(), static_cast<int>(s.size()));
-                QPixmap px;
-                bool loaded = false;
                 try
                 {
-                    loaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
+                    loaded = px.loadFromData(ba);
                 }
                 catch (...)
                 {
                     loaded = false;
                 }
-
-                if (!loaded)
-                    child->setIcon(QIcon(":/images/parameters.png"));
-                else
-                    child->setIcon(QIcon(px));
             }
-            else
-                child->setIcon(QIcon(":/images/parameters.png"));
+            if (!loaded)
+                px.load(":/images/ice.png");
+            child->setIcon(QIcon(px));
             
             //child->setData(QPoint(row, col), Qt::UserRole + 1);
             item->appendRow(child);

@@ -8,6 +8,7 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QRegularExpression>
 
 properties_item::properties_item(MainWindow::UnitParameters unitParameters, QObject* parent):
     QObject(parent)
@@ -55,9 +56,56 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
     propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
 
+
+
+    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
     propertyEditor->clear();
 
-    QtProperty* mainGroup = groupManager->addProperty("di->getName()");
+    QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fiileInfo.info.id));
+    
+    QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
+    mainGroup->addSubProperty(propertiesGroup);
+
+    
+    for (const auto& pi : unitParameters_.fiileInfo.parameters)
+    {
+        QRegularExpression re(R"wwww(^array<(?<value>.*)>)wwww");
+        QRegularExpressionMatch match = re.match(QString::fromStdString(pi.type));
+        if (match.hasMatch())
+        {
+            QString value = match.captured("value");
+
+            QtProperty* gr = groupManager->addProperty(QString::fromStdString(pi.display_name));
+            propertiesGroup->addSubProperty(gr);
+
+            QtProperty* pr = intManager->addProperty(QString::fromLocal8Bit("Количество"));
+            gr->addSubProperty(pr);
+        }
+        else
+        {
+            QtProperty* pr = stringManager->addProperty(QString::fromStdString(pi.display_name));
+            propertiesGroup->addSubProperty(pr);
+            //addProperty(channelsGroup, QLatin1String("Channels"));
+        }
+    }
+
+    QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
+    mainGroup->addSubProperty(editorGroup);
+
+
+    QtProperty* positionXProperty = doubleManager->addProperty("Position X");
+    doubleManager->setRange(positionXProperty, -10000, 10000);
+    //doubleManager->setValue(positionXProperty, di->scenePos().x());
+    //addProperty(positionXProperty, QLatin1String("Position X"));
+    editorGroup->addSubProperty(positionXProperty);
+
+    QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
+    doubleManager->setRange(positionYProperty, -10000, 10000);
+    //doubleManager->setValue(positionYProperty, di->scenePos().y());
+    //addProperty(positionYProperty, QLatin1String("Position Y"));
+    editorGroup->addSubProperty(positionYProperty);
+
+    
     propertyEditor->addProperty(mainGroup);
 }
 
@@ -71,7 +119,7 @@ QPixmap properties_item::GetPixmap()
         QByteArray ba(s.c_str(), static_cast<int>(s.size()));
         try
         {
-            loaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
+            loaded = px.loadFromData(ba);
         }
         catch (...)
         {
@@ -79,7 +127,7 @@ QPixmap properties_item::GetPixmap()
         }
     }
     if (!loaded)
-        px.load(":/images/parameters.png");
+        px.load(":/images/ice.png");
     return px;
 }
 

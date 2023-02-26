@@ -21,6 +21,10 @@ private:
     QPixmap pixmap_;
     QString name_;
     QPointer<properties_item> properties_;
+    QFont font_;
+    QRect iconRect_;
+    QRectF textRect_;
+    QRectF boundingRect_;
 
 public:
     enum { Type = UserType + 15 };

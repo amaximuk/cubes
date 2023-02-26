@@ -5,5 +5,8 @@
         <file>images/minus.png</file>
         <file>images/plus.png</file>
         <file>images/up.png</file>
+        <file>images/module.png</file>
+        <file>images/cubes.png</file>
+        <file>images/ice.png</file>
     </qresource>
 </RCC>
