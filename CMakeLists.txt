@@ -44,3 +44,14 @@ add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES})
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser ${CONAN_LIBS})
 #target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)
+
+if(WIN32)
+	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:/SUBSYSTEM:CONSOLE>)
+	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>)
+	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:/ENTRY:mainCRTStartup>)
+	
+	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/Debug/qtlogging.ini COPYONLY)
+	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/Release/qtlogging.ini COPYONLY)
+# else()
+	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/qtlogging.ini COPYONLY)
+endif()
