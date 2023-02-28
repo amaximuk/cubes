@@ -1,19 +1,21 @@
+#include <QPainter>
+#include <QDebug>
+#include <QRegularExpression>
+
 #include "diagram_scene.h"
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
 #include "main_window.h"
 #include "base64.h"
+#include "diagram_item.h"
 #include "properties_item.h"
 
-#include <QPainter>
-#include <QDebug>
-#include <QRegularExpression>
-
-properties_item::properties_item(MainWindow::UnitParameters unitParameters, QObject* parent):
+properties_item::properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent):
     QObject(parent)
 {
     unitParameters_ = unitParameters;
+    diagramItem_ = diagramItem;
     CreatePropertyBrowser();
 }
 
@@ -36,6 +38,8 @@ void properties_item::CreatePropertyBrowser()
     qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
     qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
 }
+QtProperty* positionXProperty;
+QtProperty* positionYProperty;
 
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
@@ -57,8 +61,9 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
 
 
-
-    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
+    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
+    propertyEditor->setSplitterPosition(250);
+    //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
     propertyEditor->clear();
 
     QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fiileInfo.info.id));
@@ -93,13 +98,13 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     mainGroup->addSubProperty(editorGroup);
 
 
-    QtProperty* positionXProperty = doubleManager->addProperty("Position X");
+    positionXProperty = doubleManager->addProperty("Position X");
     doubleManager->setRange(positionXProperty, -10000, 10000);
     //doubleManager->setValue(positionXProperty, di->scenePos().x());
     //addProperty(positionXProperty, QLatin1String("Position X"));
     editorGroup->addSubProperty(positionXProperty);
 
-    QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
+    positionYProperty = doubleManager->addProperty("Position Y");
     doubleManager->setRange(positionYProperty, -10000, 10000);
     //doubleManager->setValue(positionYProperty, di->scenePos().y());
     //addProperty(positionYProperty, QLatin1String("Position Y"));
@@ -131,10 +136,15 @@ QPixmap properties_item::GetPixmap()
     return px;
 }
 
+void properties_item::PositionChanged(QPointF point)
+{
+    doubleManager->setValue(positionXProperty, point.x());
+    doubleManager->setValue(positionYProperty, point.y());
+}
+
 void properties_item::valueChanged(QtProperty* property, int value)
 {
     qDebug() << "valueChanged value = " << value;
-
     //if (!idToProperty.contains("Channels"))
     //    return;
 
@@ -162,7 +172,16 @@ void properties_item::valueChanged(QtProperty* property, int value)
 
 void properties_item::valueChanged(QtProperty* property, double value)
 {
-    qDebug() << "valueChanged value = " << value;
+    if (property == positionXProperty)
+    {
+        qDebug() << "valueChanged X value = " << value;
+        diagramItem_->InformPositionXChanged(value);
+    }
+    else if (property == positionYProperty)
+    {
+        qDebug() << "valueChanged Y value = " << value;
+        diagramItem_->InformPositionYChanged(value);
+    }
 
     //if (!propertyToId.contains(property))
     //    return;

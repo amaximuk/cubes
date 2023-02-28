@@ -5,6 +5,9 @@
 #include <QObject>
 #include <QPixmap>
 
+#include "unit_types.h"
+class diagram_item;
+
 class QtGroupPropertyManager;
 class QtIntPropertyManager;
 class QtDoublePropertyManager;
@@ -21,7 +24,7 @@ class properties_item : public QObject
     Q_OBJECT
 
 private:
-    MainWindow::UnitParameters unitParameters_;
+    unit_types::UnitParameters unitParameters_;
 
     QtGroupPropertyManager *groupManager;
     QtIntPropertyManager *intManager;
@@ -31,6 +34,11 @@ private:
     QtFontPropertyManager *fontManager;
     QtPointPropertyManager *pointManager;
     QtSizePropertyManager *sizeManager;
+
+    diagram_item* diagramItem_;
+
+public:
+    properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
 
 private:
     void CreatePropertyBrowser();
@@ -45,12 +53,10 @@ private slots:
     void valueChanged(QtProperty* property, const QSize& value);
 
 public:
-    properties_item(MainWindow::UnitParameters unitParameters, QObject* parent = nullptr);
-
-public:
     QString getName() { return QString::fromStdString(unitParameters_.fiileInfo.info.id); };
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     QPixmap GetPixmap();
+    void PositionChanged(QPointF point);
 };
 
 #endif // PROPERTIES_ITEM_H

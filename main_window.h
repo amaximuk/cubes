@@ -8,6 +8,7 @@
 #include <QMainWindow>
 
 #include "parameters_compiler_types.h"
+#include "unit_types.h"
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -25,13 +26,6 @@ class QtTreePropertyBrowser;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
-public:
-    struct UnitParameters
-    {
-        parameters_compiler::file_info fiileInfo;
-        QSet<QString> platforms;
-    };
 
 private:
     bool modified_;
@@ -57,7 +51,7 @@ protected:
     void FillParametersInfo();
 
 public:
-    UnitParameters GetUnitParameters(QString id) const;
+    unit_types::UnitParameters GetUnitParameters(QString id) const;
 
 private:
     diagram_scene* scene_;
@@ -67,7 +61,8 @@ private:
     QPointer<QTreeView> tree_;
     QTabWidget* tabWidget_;
     QPlainTextEdit* plainTextEditHint_;
-    QMap<QString, UnitParameters> unitParameters_;
+    QMap<QString, unit_types::UnitParameters> unitParameters_;
+    QtTreePropertyBrowser* propertyEditor_;
 
 private slots:
     void on_NewFile_action();
@@ -110,5 +105,4 @@ private:
     //class QtFontPropertyManager *fontManager;
     //class QtPointPropertyManager *pointManager;
     //class QtSizePropertyManager *sizeManager;
-    QtTreePropertyBrowser *propertyEditor;
 };

@@ -5,8 +5,9 @@
 #include <QObject>
 #include <QPointer>
 
-#include "main_window.h"
-#include "properties_item.h"
+#include "unit_types.h"
+
+class properties_item;
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -20,7 +21,7 @@ class diagram_item : public QGraphicsItem
 private:
     QPixmap pixmap_;
     QString name_;
-    QPointer<properties_item> properties_;
+    QSharedPointer<properties_item> properties_;
     QFont font_;
     QRect iconRect_;
     QRectF textRect_;
@@ -29,13 +30,17 @@ private:
 public:
     enum { Type = UserType + 15 };
 
-    diagram_item(MainWindow::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
+    diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
     int type() const override { return Type; }
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
     QString getName() { return name_; };
-    QPointer<properties_item> getProperties() { return properties_; };
+    QSharedPointer<properties_item> getProperties() { return properties_; };
+
+public:
+    void InformPositionXChanged(double x);
+    void InformPositionYChanged(double y);
 };
 
 #endif // DIAGRAM_ITEM_H

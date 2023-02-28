@@ -7,6 +7,7 @@
 #include "tree_item_model.h"
 #include "diagram_scene.h"
 #include "diagram_item.h"
+#include "properties_item.h"
 #include "yaml_parser.h"
 #include "base64.h"
 
@@ -89,7 +90,7 @@ QWidget* MainWindow::CreateMainWidget()
     splitterTreeTabLog->setStretchFactor(1, 0);
 
     QWidget* propertiesPanelWidget = CreatePropertiesPanelWidget();
-    propertiesPanelWidget->setMinimumWidth(300);
+    propertiesPanelWidget->setMinimumWidth(360);
     QSplitter* splitterMain = new QSplitter(Qt::Horizontal);
     splitterMain->addWidget(splitterTreeTabLog);
     splitterMain->addWidget(propertiesPanelWidget);
@@ -194,7 +195,7 @@ void MainWindow::CreateView()
 
 void MainWindow::CreatePropertyBrowser()
 {
-    propertyEditor = new QtTreePropertyBrowser();
+    propertyEditor_ = new QtTreePropertyBrowser();
 }
 
 void MainWindow::CreateTreeView()
@@ -236,7 +237,7 @@ QWidget* MainWindow::CreatePropertieslWidget()
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
-    propertiesPaneLayout->addWidget(propertyEditor);
+    propertiesPaneLayout->addWidget(propertyEditor_);
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -355,7 +356,7 @@ void MainWindow::FillTreeView()
         row++;
     }
     tree_->setModel(model);
-
+    tree_->expandAll();
 
     //tree_item_model* model = new tree_item_model();
     ////QStandardItemModel* model = new QStandardItemModel( 5, 1 );
@@ -424,7 +425,7 @@ void MainWindow::FillParametersInfo()
     }
 }
 
-MainWindow::UnitParameters MainWindow::GetUnitParameters(QString id) const
+unit_types::UnitParameters MainWindow::GetUnitParameters(QString id) const
 {
     for (const auto& up : unitParameters_)
     {
@@ -486,7 +487,8 @@ void MainWindow::selectionChanged()
     if (scene_->selectedItems().count() > 0)
     {
         diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
-        di->getProperties()->ApplyToBrowser(propertyEditor);
+        di->getProperties()->ApplyToBrowser(propertyEditor_);
+        di->getProperties()->PositionChanged(di->pos());
     }
 
 
@@ -631,12 +633,12 @@ void MainWindow::addProperty(QtProperty *property, const QString &id)
 
 void MainWindow::updateExpandState()
 {
-    QList<QtBrowserItem *> list = propertyEditor->topLevelItems();
+    QList<QtBrowserItem *> list = propertyEditor_->topLevelItems();
     QListIterator<QtBrowserItem *> it(list);
     while (it.hasNext()) {
         QtBrowserItem *item = it.next();
         QtProperty *prop = item->property();
-        idToExpanded[propertyToId[prop]] = propertyEditor->isExpanded(item);
+        idToExpanded[propertyToId[prop]] = propertyEditor_->isExpanded(item);
     }
 }
 
