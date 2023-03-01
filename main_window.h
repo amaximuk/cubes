@@ -22,6 +22,7 @@ class QtProperty;
 class diagram_scene;
 class diagram_item;
 class QtTreePropertyBrowser;
+class QtBrowserItem;
 
 class MainWindow : public QMainWindow
 {
@@ -70,6 +71,10 @@ private slots:
     void on_SaveFile_action();
     void on_SaveAsFile_action();
     void on_Quit_action();
+
+
+    void currentItemChanged(QtBrowserItem* item);
+
 
 //private slots:
 //    void valueChanged(QtProperty *property, int value);

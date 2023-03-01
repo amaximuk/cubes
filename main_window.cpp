@@ -70,7 +70,6 @@ QWidget* MainWindow::CreateMainWidget()
     FillParametersInfo();
     FillTreeView();
 
-    plainTextEditHint_ = qobject_cast<QPlainTextEdit*>(CreateHintWidget());
     table_view_log_ = new QTableView;
 
     tabWidget_ = new QTabWidget;
@@ -142,7 +141,7 @@ QWidget* MainWindow::CreateMainTabWidget()
 void MainWindow::CreateScene()
 {
     scene_ = new diagram_scene(this);
-    scene_->setSceneRect(-10000, -10000, 10000, 10000);
+    scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
     qDebug() << connect(scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
@@ -196,6 +195,7 @@ void MainWindow::CreateView()
 void MainWindow::CreatePropertyBrowser()
 {
     propertyEditor_ = new QtTreePropertyBrowser();
+    qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
 }
 
 void MainWindow::CreateTreeView()
@@ -292,12 +292,12 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
 QWidget* MainWindow::CreateHintWidget()
 {
     QWidget* hintWidget = new QWidget;
-    QPlainTextEdit* plainTextEditHint = new QPlainTextEdit;
-    plainTextEditHint->setFixedHeight(100);
-    plainTextEditHint->setReadOnly(true);
+    plainTextEditHint_ = new QPlainTextEdit;
+    plainTextEditHint_->setFixedHeight(100);
+    plainTextEditHint_->setReadOnly(true);
     QVBoxLayout* vBoxLayoutHint = new QVBoxLayout;
     vBoxLayoutHint->setMargin(0);
-    vBoxLayoutHint->addWidget(plainTextEditHint);
+    vBoxLayoutHint->addWidget(plainTextEditHint_);
     vBoxLayoutHint->setContentsMargins(0, 0, 0, 0);
     hintWidget->setLayout(vBoxLayoutHint);
     return hintWidget;
@@ -489,6 +489,12 @@ void MainWindow::selectionChanged()
         diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
+        di->getProperties()->ZOrderChanged(di->zValue());
+    }
+    else
+    {
+        propertyEditor_->clear();
+        plainTextEditHint_->setPlainText("");
     }
 
 
@@ -804,6 +810,24 @@ void MainWindow::on_Quit_action()
         QApplication::quit();
     }
 }
+
+
+void MainWindow::currentItemChanged(QtBrowserItem* item)
+{
+    if (item != nullptr)
+        qDebug() << item->property()->propertyName();
+
+    if (scene_->selectedItems().size() > 0)
+    {
+        auto di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
+        if (item != nullptr)
+            plainTextEditHint_->setPlainText(di->getProperties()->GetPropertyDescription(item->property()));
+        else
+            plainTextEditHint_->setPlainText("");
+    }
+}
+
+
 //
 //void MainWindow::valueChanged(QtProperty* property, int value)
 //{

@@ -57,6 +57,8 @@ public:
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
+    void ZOrderChanged(double value);
+    QString GetPropertyDescription(QtProperty* property);
 };
 
 #endif // PROPERTIES_ITEM_H

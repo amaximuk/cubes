@@ -41,6 +41,7 @@ public:
 public:
     void InformPositionXChanged(double x);
     void InformPositionYChanged(double y);
+    void InformPositionZChanged(double z);
 };
 
 #endif // DIAGRAM_ITEM_H

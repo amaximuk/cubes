@@ -80,6 +80,12 @@ void diagram_view::dropEvent(QDropEvent *event)
         ds->informItemCreated(name, newIcon);
 
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
+
+        int gridSize = 20;
+        qreal xV = round(position.x() / gridSize) * gridSize;
+        qreal yV = round(position.y() / gridSize) * gridSize;
+        position = QPoint(xV, yV);
+
         this->scene()->addItem(newIcon);
         this->scene()->clearSelection();
         newIcon->setPos(position);

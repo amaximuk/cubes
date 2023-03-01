@@ -40,6 +40,7 @@ void properties_item::CreatePropertyBrowser()
 }
 QtProperty* positionXProperty;
 QtProperty* positionYProperty;
+QtProperty* positionZProperty;
 
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
@@ -100,16 +101,23 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 
     positionXProperty = doubleManager->addProperty("Position X");
     doubleManager->setRange(positionXProperty, -10000, 10000);
+    doubleManager->setSingleStep(positionXProperty, 20);
     //doubleManager->setValue(positionXProperty, di->scenePos().x());
     //addProperty(positionXProperty, QLatin1String("Position X"));
     editorGroup->addSubProperty(positionXProperty);
 
     positionYProperty = doubleManager->addProperty("Position Y");
     doubleManager->setRange(positionYProperty, -10000, 10000);
+    doubleManager->setSingleStep(positionYProperty, 20);
     //doubleManager->setValue(positionYProperty, di->scenePos().y());
     //addProperty(positionYProperty, QLatin1String("Position Y"));
     editorGroup->addSubProperty(positionYProperty);
 
+    positionZProperty = doubleManager->addProperty("Position Z");
+    doubleManager->setRange(positionZProperty, -10000, 10000);
+    //doubleManager->setValue(positionYProperty, di->scenePos().y());
+    //addProperty(positionYProperty, QLatin1String("Position Y"));
+    editorGroup->addSubProperty(positionZProperty);
     
     propertyEditor->addProperty(mainGroup);
 }
@@ -142,6 +150,22 @@ void properties_item::PositionChanged(QPointF point)
     doubleManager->setValue(positionYProperty, point.y());
 }
 
+void properties_item::ZOrderChanged(double value)
+{
+    doubleManager->setValue(positionZProperty, value);
+}
+
+QString properties_item::GetPropertyDescription(QtProperty* property)
+{
+    if (property == positionXProperty)
+        return "positionXProperty";
+    if (property == positionYProperty)
+        return "positionYProperty";
+    if (property == positionZProperty)
+        return "positionZProperty";
+    return "1234567";
+}
+
 void properties_item::valueChanged(QtProperty* property, int value)
 {
     qDebug() << "valueChanged value = " << value;
@@ -172,15 +196,27 @@ void properties_item::valueChanged(QtProperty* property, int value)
 
 void properties_item::valueChanged(QtProperty* property, double value)
 {
+    int gridSize = 20;
     if (property == positionXProperty)
     {
         qDebug() << "valueChanged X value = " << value;
-        diagramItem_->InformPositionXChanged(value);
+        qreal xV = round(value / gridSize) * gridSize;
+        if (xV != value)
+            doubleManager->setValue(positionXProperty, xV);
+        diagramItem_->InformPositionXChanged(xV);
     }
     else if (property == positionYProperty)
     {
         qDebug() << "valueChanged Y value = " << value;
-        diagramItem_->InformPositionYChanged(value);
+        qreal yV = round(value / gridSize) * gridSize;
+        if (yV != value)
+            doubleManager->setValue(positionYProperty, yV);
+        diagramItem_->InformPositionYChanged(yV);
+    }
+    else if (property == positionZProperty)
+    {
+        qDebug() << "valueChanged Z value = " << value;
+        diagramItem_->InformPositionZChanged(value);
     }
 
     //if (!propertyToId.contains(property))
