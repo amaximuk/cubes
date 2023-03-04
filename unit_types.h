@@ -107,86 +107,13 @@ namespace unit_types
 		QString name;
 		QVariant value;
 		EditorSettings editorSettings;
-		QList<ParameterModel> parameters;
+		QList<QSharedPointer<ParameterModel> > parameters;
 		bool is_array;
-
-		//bool operator==(const ParameterModel& other) const
-		//{
-		//	return this->id == other.id;
-		//}
 	};
-
-
-	/*
-	enum class ParameterType
-	{
-		SimpleParameter,
-		UnitParameter,
-		ArrayParameter
-	};
-
-	struct AbstractParameterModel
-	{
-	public:
-		ParameterType type;
-		EditorSettings editorSettings;
-
-	protected:
-		AbstractParameterModel()
-		{
-			type = ParameterType::UnitParameter;
-			editorSettings = {};
-		};
-	public:
-		virtual ~AbstractParameterModel() {};
-	};
-
-	template<typename T>
-	struct SimpleParameterModel : AbstractParameterModel
-	{
-	public:
-		T value;
-
-	public:
-		SimpleParameterModel()
-		{
-			type = ParameterType::SimpleParameter;
-		}
-	};
-
-	struct UnitParameterModel : AbstractParameterModel
-	{
-	public:
-		QString name;
-		bool depends;
-
-	public:
-		UnitParameterModel()
-		{
-			depends = false;
-			type = ParameterType::UnitParameter;
-		}
-	};
-
-	struct ArrayParameterModel : AbstractParameterModel
-	{
-	public:
-		QList<AbstractParameterModel> parameters;
-
-	public:
-		ArrayParameterModel()
-		{
-			type = ParameterType::ArrayParameter;
-		}
-	};
-	*/
-
-
-
 
 	struct ParametersModel
 	{
 	public:
-		QList<ParameterModel> parameters;
+		QList<QSharedPointer<ParameterModel> > parameters;
 	};
 }
