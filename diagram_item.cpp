@@ -113,20 +113,20 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
 void diagram_item::InformPositionXChanged(double x)
 {
     diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && !sc->isItemMoving())
+    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
         setX(x);
 }
 
 void diagram_item::InformPositionYChanged(double y)
 {
     diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && !sc->isItemMoving())
+    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
         setY(y);
 }
 
 void diagram_item::InformPositionZChanged(double z)
 {
     diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && !sc->isItemMoving())
+    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
         setZValue(z);
 }

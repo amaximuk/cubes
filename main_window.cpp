@@ -490,6 +490,7 @@ void MainWindow::selectionChanged()
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
+        di->getProperties()->applyExpandState(propertyEditor_);
     }
     else
     {
@@ -627,26 +628,7 @@ void MainWindow::itemCreated(QString id, diagram_item* item)
 //    //tool_box_->addItem(itemWidget, tr("Basic Flowchart Shapes"));
 //}
 
-void MainWindow::addProperty(QtProperty *property, const QString &id)
-{
-    propertyToId[property] = id;
-    idToProperty[id] = property;
-    //QtBrowserItem *item = propertyEditor->addProperty(property);
-    //if (idToExpanded.contains(id))
-    //    propertyEditor->setExpanded(item, idToExpanded[id]);
-}
 
-
-void MainWindow::updateExpandState()
-{
-    QList<QtBrowserItem *> list = propertyEditor_->topLevelItems();
-    QListIterator<QtBrowserItem *> it(list);
-    while (it.hasNext()) {
-        QtBrowserItem *item = it.next();
-        QtProperty *prop = item->property();
-        idToExpanded[propertyToId[prop]] = propertyEditor_->isExpanded(item);
-    }
-}
 
 void MainWindow::CreateMenu()
 {

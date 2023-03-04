@@ -94,14 +94,14 @@ public slots:
     void itemPositionChanged(QString id, QPointF newPos);
     void itemCreated(QString id, diagram_item* item);
 
-private:
-    QMap<QtProperty*, QString> propertyToId;
-    QMap<QString, QtProperty*> idToProperty;
-    QMap<QString, bool> idToExpanded;
+//private:
+//    QMap<QtProperty*, QString> propertyToId;
+//    QMap<QString, QtProperty*> idToProperty;
+//    QMap<QString, bool> idToExpanded;
 
-private:
-    void addProperty(QtProperty *property, const QString &id);
-    void updateExpandState();
+//private:
+//    void addProperty(QtProperty *property, const QString &id);
+//    void updateExpandState();
     //class QtGroupPropertyManager *groupManager;
     //class QtIntPropertyManager *intManager;
     //class QtDoublePropertyManager *doubleManager;
