@@ -28,7 +28,7 @@ class properties_item : public QObject
 private:
     unit_types::UnitParameters unitParameters_;
     unit_types::ParametersModel parametersModel_;
-    unit_types::ParametersModel editorModel_;
+    //unit_types::ParametersModel editorModel_;
 
     QtGroupPropertyManager *groupManager;
     QtIntPropertyManager *intManager;
@@ -49,7 +49,7 @@ public:
 private:
     void CreateParametersModel();
     void CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model);
-    void UpdateArrayModel(unit_types::ParameterModel& pm, int count);
+    void UpdateArrayModel(unit_types::ParameterModel& pm);
     void CreateEditorModel();
     QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
     void CreatePropertyBrowser();

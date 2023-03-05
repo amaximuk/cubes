@@ -18,7 +18,7 @@ properties_item::properties_item(unit_types::UnitParameters unitParameters, diag
     unitParameters_ = unitParameters;
     diagramItem_ = diagramItem;
     parametersModel_ = {};
-    editorModel_ = {};
+    //editorModel_ = {};
 
     CreateParametersModel();
     CreateEditorModel();
@@ -27,57 +27,86 @@ properties_item::properties_item(unit_types::UnitParameters unitParameters, diag
 
 void properties_item::CreateEditorModel()
 {
-    unit_types::ParameterModel* pm = GetParameterModel("EDITOR");
-    if (pm == nullptr)
-        assert(false);
+    unit_types::ParameterModel editor_group;
+    editor_group.id = "EDITOR";
+    editor_group.editorSettings.type = unit_types::EditorType::None;
+    editor_group.parameterInfo.display_name = QString::fromLocal8Bit("Редактор").toStdString();
 
-    parameters_compiler::parameter_info pix{};
-    pix.display_name = QString::fromLocal8Bit("Позиция X").toStdString();
+    // Get reference
+    //auto eg = GetParameterModel("EDITOR");
 
-    unit_types::ParameterModel pmx;
-    pmx.id = QString::fromLocal8Bit("_POSITION_X");
-    pmx.parameterInfo = pix;
-    //pmx.parameterInfo.name = QString::fromLocal8Bit("Позиция X").toStdString();
-    pmx.editorSettings.type = unit_types::EditorType::SpinDouble;
-    pmx.editorSettings.SpinDoubleMin = -10000;
-    pmx.editorSettings.SpinDoubleMax = 10000;
-    pmx.editorSettings.SpinDoubleSingleStep = 20;
-    editorModel_.parameters.push_back(pmx);
+    //if (eg == nullptr)
+    //    assert(false);
 
-    parameters_compiler::parameter_info piy{};
-    piy.display_name = QString::fromLocal8Bit("Позиция Y").toStdString();;
+    {
+        parameters_compiler::parameter_info pi{};
+        pi.display_name = QString::fromLocal8Bit("Позиция X").toStdString();
 
-    unit_types::ParameterModel pmy;
-    pmy.id = QString::fromLocal8Bit("_POSITION_Y");
-    pmy.parameterInfo = piy;
-    //pmy.parameterInfo.name = QString::fromLocal8Bit("Позиция Y").toStdString();
-    pmy.editorSettings.type = unit_types::EditorType::SpinDouble;
-    pmy.editorSettings.SpinDoubleMin = -10000;
-    pmy.editorSettings.SpinDoubleMax = 10000;
-    pmy.editorSettings.SpinDoubleSingleStep = 20;
-    editorModel_.parameters.push_back(pmy);
+        unit_types::ParameterModel pm;
+        pm.id = "EDITOR/POSITION_X";
+        pm.parameterInfo = pi;
+        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+        pm.editorSettings.SpinDoubleMin = -10000;
+        pm.editorSettings.SpinDoubleMax = 10000;
+        pm.editorSettings.SpinDoubleSingleStep = 20;
+        editor_group.parameters.push_back(pm);
+        //eg->parameters.push_back(pm);
+    }
 
-    parameters_compiler::parameter_info piz{};
-    piz.display_name = QString::fromLocal8Bit("Позиция Z").toStdString();
+    {
+        parameters_compiler::parameter_info pi{};
+        pi.display_name = QString::fromLocal8Bit("Позиция Y").toStdString();;
 
-    unit_types::ParameterModel pmz;
-    pmz.id = QString::fromLocal8Bit("_POSITION_Z");
-    pmz.parameterInfo = piz;
-    //pmz.parameterInfo.name = QString::fromLocal8Bit("Позиция Z").toStdString();
-    pmz.editorSettings.type = unit_types::EditorType::SpinDouble;
-    pmz.editorSettings.SpinDoubleMin = -10000;
-    pmz.editorSettings.SpinDoubleMax = 10000;
-    editorModel_.parameters.push_back(pmz);
+        unit_types::ParameterModel pm;
+        pm.id = "EDITOR/POSITION_Y";
+        pm.parameterInfo = pi;
+        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+        pm.editorSettings.SpinDoubleMin = -10000;
+        pm.editorSettings.SpinDoubleMax = 10000;
+        pm.editorSettings.SpinDoubleSingleStep = 20;
+        editor_group.parameters.push_back(pm);
+        //eg->parameters.push_back(pm);
+    }
+
+    {
+        parameters_compiler::parameter_info pi{};
+        pi.display_name = QString::fromLocal8Bit("Позиция Z").toStdString();
+
+        unit_types::ParameterModel pm;
+        pm.id = "EDITOR/POSITION_Z";
+        pm.parameterInfo = pi;
+        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+        pm.editorSettings.SpinDoubleMin = -10000;
+        pm.editorSettings.SpinDoubleMax = 10000;
+        editor_group.parameters.push_back(pm);
+        //eg->parameters.push_back(pm);
+    }
+
+    parametersModel_.parameters.push_back(std::move(editor_group));
 }
 
 void properties_item::CreateParametersModel()
 {
+    unit_types::ParameterModel properties_group;
+    properties_group.id = "PARAMETERS";
+    properties_group.editorSettings.type = unit_types::EditorType::None;
+    properties_group.parameterInfo.display_name = QString::fromLocal8Bit("Параметры").toStdString();
+
+    // Get reference
+    //auto pg = GetParameterModel("PARAMETERS");
+
+    //if (pg == nullptr)
+    //    assert(false);
+
     for (const auto& pi : unitParameters_.fiileInfo.parameters)
     {
         unit_types::ParameterModel pm;
         CreateParameterModel(pi, "PARAMETERS", pm);
-        parametersModel_.parameters.push_back(pm);
+        properties_group.parameters.push_back(pm);
+        //pg->parameters.push_back(pm);
     }
+
+    parametersModel_.parameters.push_back(std::move(properties_group));
 }
 
 void properties_item::CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model)
@@ -116,40 +145,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
                 pm.editorSettings.SpinIntergerMax = 1000; // !!! todo: make a define for a const
         }
 
-        UpdateArrayModel(pm, pm.value.toInt());
-
-        //auto at = parameters_compiler::helper::get_array_type(pi.type);
-        //auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
-        //if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
-        //{
-        //    for (int i = 0; i < pm.value.toInt(); ++i)
-        //    {
-        //        parameters_compiler::parameter_info pi_new = pi;
-        //        pi_new.type = at;
-        //        pi_new.name = QString("_%1_%2_%3").arg(QString::fromStdString(pi.name), "ITEM").arg(i).toStdString();
-        //        pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
-        //        unit_types::ParameterModel model;
-        //        CreateParameterModel(pi_new, pm.id, model);
-        //        pm.parameters.push_back(model);
-        //    }
-        //}
-        //else if (ti != nullptr) // yml type
-        //{
-        //    for (int i = 0; i < pm.value.toInt(); ++i)
-        //    {
-        //        unit_types::ParameterModel group_model;
-        //        group_model.editorSettings.type = unit_types::EditorType::None;
-        //        group_model.id = QString("_%1_%2_%3").arg(QString::fromStdString(pi.name), "ITEM").arg(i);
-        //        group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
-        //        for (auto p : ti->parameters)
-        //        {
-        //            unit_types::ParameterModel model;
-        //            CreateParameterModel(p, pm.id, model);
-        //            group_model.parameters.push_back(model);
-        //        }
-        //        pm.parameters.push_back(group_model);
-        //    }
-        //}
+        UpdateArrayModel(pm);
     }
     else
     {
@@ -161,7 +157,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
             pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
 
             unit_types::ParameterModel pm_depends;
-            pm_depends.id = QString("_%1_%2").arg(pm.id, "DEPENDS");
+            pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
             pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
             pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
             pm_depends.value = false;
@@ -231,7 +227,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
         if (parameters_compiler::helper::get_parameter_optional(pi))
         {
             unit_types::ParameterModel pm_optional;
-            pm_optional.id = QString("_%1_%2").arg(pm.id, "OPTIONAL");
+            pm_optional.id = QString("%1/%2").arg(pm.id, "OPTIONAL");
             pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
             pm_optional.editorSettings.type = unit_types::EditorType::CheckBox;
             pm_optional.value = false;
@@ -303,17 +299,6 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr->addSubProperty(GetPropertyForModel(sp));
     }
 
-    //if (model.type == unit_types::ParameterType::SimpleParameter)
-    //{
-    //}
-    //else if (model.type == unit_types::ParameterType::UnitParameter)
-    //{
-    //}
-    //else if (model.type == unit_types::ParameterType::ArrayParameter)
-    //{
-
-    //}
-    //else assert(false);
     return pr;
 }
 
@@ -377,11 +362,11 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     for (auto& pm : parametersModel_.parameters)
         propertiesGroup->addSubProperty(GetPropertyForModel(pm));
     
-    QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
-    mainGroup->addSubProperty(editorGroup);
+    //QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
+    //mainGroup->addSubProperty(editorGroup);
 
-    for (auto& pm : editorModel_.parameters)
-        editorGroup->addSubProperty(GetPropertyForModel(pm));
+    //for (auto& pm : editorModel_.parameters)
+    //    editorGroup->addSubProperty(GetPropertyForModel(pm));
 
     propertyEditor->addProperty(mainGroup);
 }
@@ -410,13 +395,13 @@ QPixmap properties_item::GetPixmap()
 
 void properties_item::PositionChanged(QPointF point)
 {
-    doubleManager->setValue(GetProperty("_POSITION_X"), point.x());
-    doubleManager->setValue(GetProperty("_POSITION_Y"), point.y());
+    doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
+    doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
 }
 
 void properties_item::ZOrderChanged(double value)
 {
-    doubleManager->setValue(GetProperty("_POSITION_Z"), value);
+    doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
 }
 
 QString properties_item::GetPropertyDescription(QtProperty* property)
@@ -425,7 +410,7 @@ QString properties_item::GetPropertyDescription(QtProperty* property)
     return id;
 }
 
-void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm, int count)
+void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
     auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
@@ -435,7 +420,7 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm, int count
         {
             parameters_compiler::parameter_info pi_new = pm.parameterInfo;
             pi_new.type = at;
-            pi_new.name = QString("_%1_%2_%3").arg(QString::fromStdString(pm.parameterInfo.name), "ITEM").arg(i).toStdString();
+            pi_new.name = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i).toStdString();
             pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
             unit_types::ParameterModel model;
             CreateParameterModel(pi_new, pm.id, model);
@@ -448,17 +433,20 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm, int count
         {
             unit_types::ParameterModel group_model;
             group_model.editorSettings.type = unit_types::EditorType::None;
-            group_model.id = QString("_%1_%2_%3").arg(QString::fromStdString(pm.parameterInfo.name), "ITEM").arg(i);
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
             group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
             for (auto p : ti->parameters)
             {
                 unit_types::ParameterModel model;
-                CreateParameterModel(p, pm.id, model);
+                CreateParameterModel(p, group_model.id, model);
                 group_model.parameters.push_back(model);
             }
             pm.parameters.push_back(group_model);
         }
     }
+
+    while (pm.parameters.size() > pm.value.toInt())
+        pm.parameters.pop_back();
 }
 
 void properties_item::valueChanged(QtProperty* property, int value)
@@ -469,30 +457,49 @@ void properties_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
+
     bool is_array = parameters_compiler::helper::is_array_type(pm->parameterInfo.type);
     if (is_array)
     {
         int count = std::stoi(property->valueText().toStdString());
-        UpdateArrayModel(*pm, count);
+        pm->value = count;
+        UpdateArrayModel(*pm);
 
+        //UpdateArrayProperty();
         // !!!
 
-        while (count > property->subProperties().size())
+        //int count = pm->parameters.size();
+
+        for (int i = property->subProperties().size(); i < count; ++i)
+            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+        QList<QtProperty*> to_remove;
+        for (int i = count; i < property->subProperties().size(); ++i)
         {
-            unit_types::ParameterModel pm_new;
-            pm_new.id = QString::fromLocal8Bit("Item %1").arg(property->subProperties().size());
-            pm_new.editorSettings.type = unit_types::EditorType::String;
-            pm->parameters.push_back(pm_new);
-            property->addSubProperty(GetPropertyForModel(pm_new));
+            auto p = property->subProperties()[i];
+            to_remove.push_back(p);
+            UnregisterProperty(p);
         }
 
-        while (count < property->subProperties().size())
-        {
-            QtProperty* removeProperty = property->subProperties()[property->subProperties().size() - 1];
-            UnregisterProperty(removeProperty);
-            pm->parameters.pop_back();
-            property->removeSubProperty(removeProperty);
-        }
+        for (auto& p : to_remove)
+            property->removeSubProperty(p);
+
+        //while (count > property->subProperties().size())
+        //{
+        //    unit_types::ParameterModel pm_new;
+        //    pm_new.id = QString::fromLocal8Bit("Item %1").arg(property->subProperties().size());
+        //    pm_new.editorSettings.type = unit_types::EditorType::String;
+        //    pm->parameters.push_back(pm_new);
+        //    property->addSubProperty(GetPropertyForModel(pm_new));
+        //}
+
+        //while (count < property->subProperties().size())
+        //{
+        //    QtProperty* removeProperty = property->subProperties()[property->subProperties().size() - 1];
+        //    UnregisterProperty(removeProperty);
+        //    pm->parameters.pop_back();
+        //    property->removeSubProperty(removeProperty);
+        //}
 
         pm->value = count;
     }
@@ -503,7 +510,7 @@ void properties_item::valueChanged(QtProperty* property, double value)
     QString id = GetPropertyId(property);
 
     int gridSize = 20;
-    if (id == "_POSITION_X")
+    if (id == "EDITOR/POSITION_X")
     {
         qDebug() << "valueChanged X value = " << value;
         qreal xV = round(value / gridSize) * gridSize;
@@ -511,7 +518,7 @@ void properties_item::valueChanged(QtProperty* property, double value)
             doubleManager->setValue(property, xV);
         diagramItem_->InformPositionXChanged(xV);
     }
-    else if (id == "_POSITION_Y")
+    else if (id == "EDITOR/POSITION_Y")
     {
         qDebug() << "valueChanged Y value = " << value;
         qreal yV = round(value / gridSize) * gridSize;
@@ -519,7 +526,7 @@ void properties_item::valueChanged(QtProperty* property, double value)
             doubleManager->setValue(property, yV);
         diagramItem_->InformPositionYChanged(yV);
     }
-    else if (id == "_POSITION_Z")
+    else if (id == "EDITOR/POSITION_Z")
     {
         qDebug() << "valueChanged Z value = " << value;
         diagramItem_->InformPositionZChanged(value);
@@ -671,22 +678,17 @@ void properties_item::RegisterProperty(QtProperty* property, const QString& id)
 
 void properties_item::UnregisterProperty(const QString& id)
 {
-    propertyToId.remove(idToProperty[id]);
-    idToProperty.remove(id);
-    idToExpanded.remove(id);
-    //QtBrowserItem *item = propertyEditor->addProperty(property);
-    //if (idToExpanded.contains(id))
-    //    propertyEditor->setExpanded(item, idToExpanded[id]);
+    UnregisterProperty(idToProperty[id]);
 }
 
 void properties_item::UnregisterProperty(QtProperty* property)
 {
+    for (auto p : property->subProperties())
+        UnregisterProperty(p);
+
     idToProperty.remove(propertyToId[property]);
     idToExpanded.remove(propertyToId[property]);
     propertyToId.remove(property);
-    //QtBrowserItem *item = propertyEditor->addProperty(property);
-    //if (idToExpanded.contains(id))
-    //    propertyEditor->setExpanded(item, idToExpanded[id]);
 }
 
 QtProperty* properties_item::GetProperty(const QString& id)
@@ -712,12 +714,14 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id
     {
         QStringList sl = id.split("/");
         auto ql = &parametersModel_.parameters;
+        QString idt;
         while (sl.size() > 0)
         {
+            idt = idt == "" ? sl[0] : idt + "/" + sl[0];
             bool found = false;
             for (auto& x : *ql)
             {
-                if (x.id == sl[0])
+                if (x.id == idt)
                 {
                     pm = &x;
                     ql = &x.parameters;
@@ -731,30 +735,30 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id
         }
     }
 
-    if (pm != nullptr)
-        return pm;
+    //if (pm != nullptr)
+    //    return pm;
 
-    {
-        QStringList sl = id.split("/");
-        auto ql = &editorModel_.parameters;
-        while (sl.size() > 0)
-        {
-            bool found = false;
-            for (auto x : *ql)
-            {
-                if (x.id == sl[0])
-                {
-                    pm = &x;
-                    ql = &x.parameters;
-                    sl.pop_front();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                break;
-        }
-    }
+    //{
+    //    QStringList sl = id.split("/");
+    //    auto ql = &editorModel_.parameters;
+    //    while (sl.size() > 0)
+    //    {
+    //        bool found = false;
+    //        for (auto x : *ql)
+    //        {
+    //            if (x.id == sl[0])
+    //            {
+    //                pm = &x;
+    //                ql = &x.parameters;
+    //                sl.pop_front();
+    //                found = true;
+    //                break;
+    //            }
+    //        }
+    //        if (!found)
+    //            break;
+    //    }
+    //}
 
     return pm;
 }
