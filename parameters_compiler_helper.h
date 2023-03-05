@@ -11,6 +11,118 @@ namespace parameters_compiler
 	class helper
 	{
 	public:
+        static bool is_array_type(const std::string& name)
+        {
+            QRegularExpression re(R"wwww(^array<(?<value>.*)>)wwww");
+            QRegularExpressionMatch match = re.match(QString::fromStdString(name));
+            QString type = QString::fromStdString(name);
+            bool is_array = false;
+            if (match.hasMatch())
+            {
+                is_array = true;
+                type = match.captured("value");
+            }
+            return is_array;
+        }
+
+        static std::string get_array_type(const std::string& name)
+        {
+            QRegularExpression re(R"wwww(^array<(?<value>.*)>)wwww");
+            QRegularExpressionMatch match = re.match(QString::fromStdString(name));
+            QString type = QString::fromStdString(name);
+            bool is_array = false;
+            if (match.hasMatch())
+            {
+                is_array = true;
+                type = match.captured("value");
+            }
+            return type.toStdString();
+        }
+
+        //static std::string get_parameter_hint(const parameters_compiler::parameter_info& pi)
+        //{
+        //    if (pi.required)
+        //        return pi.hint;
+        //    else if (pi.default_ != "")
+        //        return pi.default_;
+        //    else
+        //        return pi.hint;
+        //}
+
+        template<typename T>
+        static T get_parameter_initial(file_info& fi, const parameter_info& pi)
+        {
+            return {};
+        }
+
+        template<>
+        static std::string get_parameter_initial(file_info& fi, const parameter_info& pi)
+        {
+            std::string hint;
+            bool is_array = is_array_type(pi.type);
+            if (is_array)
+            {
+                if (pi.restrictions.set_count.size() > 0)
+                    return pi.restrictions.set_count[0];
+                else if (pi.restrictions.min_count != "")
+                    return pi.restrictions.min_count;
+                else if (pi.restrictions.max_count != "")
+                    return pi.restrictions.max_count;
+            }
+            else
+            {
+                type_info* ti = get_type_info(fi, pi.type);
+
+                if (pi.required)
+                    hint = pi.hint;
+                else if (pi.default_ != "")
+                    hint = pi.default_;
+                else
+                    hint = pi.hint;
+
+                if (hint == "")
+                {
+                    if (pi.restrictions.set_.size() > 0)
+                        hint = pi.restrictions.set_[0];
+                    else if (pi.restrictions.min != "")
+                        hint = pi.restrictions.min;
+                    else if (pi.restrictions.max != "")
+                        hint = pi.restrictions.max;
+                }
+
+                if (hint == "" && ti != nullptr && ti->type == "enum" && ti->values.size() > 0)
+                    hint = "0"; // index of first enum element
+                    //hint = ti->values[0].first;
+            }
+            return hint;
+        }
+
+        template<>
+        static int get_parameter_initial(file_info& fi, const parameter_info& pi)
+        {
+            return std::stoi(get_parameter_initial<std::string>(fi, pi));
+        }
+
+        template<>
+        static double get_parameter_initial(file_info& fi, const parameter_info& pi)
+        {
+            return std::stod(get_parameter_initial<std::string>(fi, pi));
+        }
+
+        template<>
+        static bool get_parameter_initial(file_info& fi, const parameter_info& pi)
+        {
+            return get_parameter_initial<std::string>(fi, pi) == "true" ? true : false;
+        }
+
+        static bool get_parameter_optional(const parameter_info& pi)
+        {
+            if (!pi.required && pi.default_ != "")
+                return true;
+            else
+                return false;
+        }
+
         static std::string get_hint_html(const struct_types type, const std::string& name)
         {
             if (type == struct_types::file_info)

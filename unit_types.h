@@ -104,11 +104,12 @@ namespace unit_types
 	{
 	public:
 		QString id; // id path, separated by /
-		QString name;
 		QVariant value;
+		//QString name;
+		//bool is_array;
+		parameters_compiler::parameter_info parameterInfo;
 		EditorSettings editorSettings;
 		QList<ParameterModel> parameters;
-		bool is_array;
 	};
 
 	struct ParametersModel
