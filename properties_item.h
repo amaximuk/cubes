@@ -48,6 +48,8 @@ public:
 
 private:
     void CreateParametersModel();
+    void CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model);
+    void UpdateArrayModel(unit_types::ParameterModel& pm, int count);
     void CreateEditorModel();
     QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
     void CreatePropertyBrowser();
@@ -82,6 +84,7 @@ private:
     QtProperty* GetProperty(const QString& id);
     QString GetPropertyId(QtProperty* property);
     bool GetExpanded(QtProperty* property);
+    unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(QtProperty* property);
 
 public:

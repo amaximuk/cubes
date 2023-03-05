@@ -90,9 +90,20 @@ namespace parameters_compiler
                         hint = pi.restrictions.max;
                 }
 
-                if (hint == "" && ti != nullptr && ti->type == "enum" && ti->values.size() > 0)
-                    hint = "0"; // index of first enum element
+                if (ti != nullptr && ti->type == "enum" && ti->values.size() > 0)
+                {
+                    if (hint == "")
+                        hint = "0"; // index of first enum element
+                    else
+                    {
+                        auto it = std::find_if(ti->values.cbegin(), ti->values.cend(), [hint](const auto& v) { return v.first == hint; });
+                        if (it != ti->values.cend())
+                            hint = std::to_string(std::distance(ti->values.cbegin(), it));
+                        else
+                            hint = "0"; // index of first enum element
+                    }
                     //hint = ti->values[0].first;
+                }
             }
             return hint;
         }

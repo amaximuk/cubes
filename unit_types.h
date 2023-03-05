@@ -70,6 +70,7 @@ namespace unit_types
 
 	enum class EditorType
 	{
+		None,
 		String,
 		SpinInterger,
 		SpinDouble,
@@ -110,6 +111,12 @@ namespace unit_types
 		parameters_compiler::parameter_info parameterInfo;
 		EditorSettings editorSettings;
 		QList<ParameterModel> parameters;
+
+	public:
+		ParameterModel()
+		{
+			parameterInfo = {};
+		}
 	};
 
 	struct ParametersModel
