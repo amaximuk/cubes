@@ -107,13 +107,13 @@ namespace unit_types
 		QString name;
 		QVariant value;
 		EditorSettings editorSettings;
-		QList<QSharedPointer<ParameterModel> > parameters;
+		QList<ParameterModel> parameters;
 		bool is_array;
 	};
 
 	struct ParametersModel
 	{
 	public:
-		QList<QSharedPointer<ParameterModel> > parameters;
+		QList<ParameterModel> parameters;
 	};
 }

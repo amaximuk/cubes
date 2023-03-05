@@ -45,7 +45,6 @@ private:
 
 public:
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
-    ~properties_item();
 
 private:
     void CreateParametersModel();
@@ -83,7 +82,7 @@ private:
     QtProperty* GetProperty(const QString& id);
     QString GetPropertyId(QtProperty* property);
     bool GetExpanded(QtProperty* property);
-    QSharedPointer<unit_types::ParameterModel> GetParameterModel(QtProperty* property);
+    unit_types::ParameterModel* GetParameterModel(QtProperty* property);
 
 public:
     void updateExpandState(QtTreePropertyBrowser* propertyEditor);
