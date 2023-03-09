@@ -94,6 +94,9 @@ public slots:
     void itemPositionChanged(QString id, QPointF newPos);
     void itemCreated(QString id, diagram_item* item);
 
+    void collapsed(QtBrowserItem* item);
+    void expanded(QtBrowserItem* item);
+
 //private:
 //    QMap<QtProperty*, QString> propertyToId;
 //    QMap<QString, QtProperty*> idToProperty;

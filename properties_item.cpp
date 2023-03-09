@@ -19,6 +19,8 @@ properties_item::properties_item(unit_types::UnitParameters unitParameters, diag
     diagramItem_ = diagramItem;
     parametersModel_ = {};
     //editorModel_ = {};
+    propertyEditor_ = nullptr;
+    ignoreEvents_ = false;
 
     CreateParametersModel();
     CreateEditorModel();
@@ -30,6 +32,7 @@ void properties_item::CreateEditorModel()
     unit_types::ParameterModel editor_group;
     editor_group.id = "EDITOR";
     editor_group.editorSettings.type = unit_types::EditorType::None;
+    editor_group.editorSettings.is_expanded = true;
     editor_group.parameterInfo.display_name = QString::fromLocal8Bit("Редактор").toStdString();
 
     // Get reference
@@ -90,7 +93,13 @@ void properties_item::CreateParametersModel()
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
     properties_group.editorSettings.type = unit_types::EditorType::None;
+    properties_group.editorSettings.is_expanded = true;
     properties_group.parameterInfo.display_name = QString::fromLocal8Bit("Параметры").toStdString();
+
+    //{
+    //    auto sl = pm->id.split("/");
+    //    if (sl.size() > 1 && sl[0] == "PARAMETERS")
+    //}
 
     // Get reference
     //auto pg = GetParameterModel("PARAMETERS");
@@ -109,6 +118,15 @@ void properties_item::CreateParametersModel()
     parametersModel_.parameters.push_back(std::move(properties_group));
 }
 
+//QVariant GetValue(const QString& type, const QString& value)
+//{
+//    bool is_array = parameters_compiler::helper::is_array_type(type.toStdString());
+//    if (is_array)
+//    {
+//        value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+//    }
+//}
+
 void properties_item::CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model)
 {
     bool is_array = parameters_compiler::helper::is_array_type(pi.type);
@@ -116,17 +134,16 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
     unit_types::ParameterModel pm;
     pm.id = QString("%1/%2").arg(parent_model_id, QString::fromStdString(pi.name));
     pm.parameterInfo = pi;
+
     if (is_array)
     {
         if (pi.restrictions.set_count.size() > 0)
         {
             pm.editorSettings.type = unit_types::EditorType::ComboBox;
-            if (pi.restrictions.set_count.size() > 0)
-            {
-                for (const auto& s : pi.restrictions.set_count)
-                    pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
-            }
+            for (const auto& s : pi.restrictions.set_count)
+                pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
+
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
         }
         else
         {
@@ -150,78 +167,96 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
     else
     {
         // "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
-
-        if (pi.type == "unit")
+        if (pi.restrictions.set_.size() > 0)
         {
-            pm.editorSettings.type = unit_types::EditorType::String;
-            pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+            pm.editorSettings.type = unit_types::EditorType::ComboBox;
+            for (const auto& s : pi.restrictions.set_)
+                pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
 
-            unit_types::ParameterModel pm_depends;
-            pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
-            pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
-            pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
-            pm_depends.value = false;
-            pm.parameters.push_back(pm_depends);
-        }
-        else if (pi.type == "path" || pi.type == "string")
-        {
-            pm.editorSettings.type = unit_types::EditorType::String;
-            pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
-        }
-        else if (pi.type == "bool")
-        {
-            pm.editorSettings.type = unit_types::EditorType::CheckBox;
-            pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fiileInfo, pi);
-        }
-        else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-            pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-        {
-            pm.editorSettings.type = unit_types::EditorType::SpinInterger;
-
-            if (pi.restrictions.min != "")
-                pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
-            else
-                pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(pi.type));
-
-            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
-
-            if (pi.restrictions.max != "")
-                pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
-            else
-                pm.editorSettings.SpinIntergerMax = unit_types::GetMaxForIntegralType(QString::fromStdString(pi.type));
-        }
-        else if (pi.type == "double" || pi.type == "float")
-        {
-            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-
-            if (pi.restrictions.min != "")
-                pm.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
-            else
-                pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
-
-            pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fiileInfo, pi);
-
-            if (pi.restrictions.max != "")
-                pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
-            else
-                pm.editorSettings.SpinDoubleMax = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
+            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+            else if (pi.type == "double" || pi.type == "float")
+                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fiileInfo, pi);
+            else // enum
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
         }
         else
         {
-            // enum user type
-            const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, pi.type);
-            if (pti->type == "enum")
+            if (pi.type == "unit")
             {
-                pm.editorSettings.type = unit_types::EditorType::ComboBox;
-                if (pti->values.size() > 0)
-                {
-                    for (const auto v : pti->values)
-                        pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
+                pm.editorSettings.type = unit_types::EditorType::String;
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
 
-                    pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
-                }
+                unit_types::ParameterModel pm_depends;
+                pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
+                pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
+                pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
+                pm_depends.value = false;
+                pm.parameters.push_back(pm_depends);
             }
-            else assert(false);
+            else if (pi.type == "path" || pi.type == "string")
+            {
+                pm.editorSettings.type = unit_types::EditorType::String;
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+            }
+            else if (pi.type == "bool")
+            {
+                pm.editorSettings.type = unit_types::EditorType::CheckBox;
+                pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fiileInfo, pi);
+            }
+            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+            {
+                pm.editorSettings.type = unit_types::EditorType::SpinInterger;
+
+                if (pi.restrictions.min != "")
+                    pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
+                else
+                    pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(pi.type));
+
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+
+                if (pi.restrictions.max != "")
+                    pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
+                else
+                    pm.editorSettings.SpinIntergerMax = unit_types::GetMaxForIntegralType(QString::fromStdString(pi.type));
+            }
+            else if (pi.type == "double" || pi.type == "float")
+            {
+                pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+
+                if (pi.restrictions.min != "")
+                    pm.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
+                else
+                    pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
+
+                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fiileInfo, pi);
+
+                if (pi.restrictions.max != "")
+                    pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
+                else
+                    pm.editorSettings.SpinDoubleMax = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
+            }
+            else
+            {
+                // enum user type
+                const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, pi.type);
+                if (pti->type == "enum")
+                {
+                    pm.editorSettings.type = unit_types::EditorType::ComboBox;
+                    if (pti->values.size() > 0)
+                    {
+                        for (const auto v : pti->values)
+                            pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
+
+                        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+                    }
+                }
+                else assert(false);
+            }
         }
 
         if (parameters_compiler::helper::get_parameter_optional(pi))
@@ -279,7 +314,17 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr = enumManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
         enumManager->blockSignals(true);
         enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
-        int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
+        
+        int pos = 0;
+        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
+        {
+            if (model.parameterInfo.type == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+        }
+        //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
+        if (pos == model.editorSettings.ComboBoxValues.size())
+            pos = 0;
+
         enumManager->setValue(pr, pos);
         enumManager->blockSignals(false);
     }
@@ -309,26 +354,20 @@ void properties_item::CreatePropertyBrowser()
     doubleManager = new QtDoublePropertyManager(this);
     stringManager = new QtStringPropertyManager(this);
     enumManager = new QtEnumPropertyManager(this);
-    colorManager = new QtColorPropertyManager(this);
-    fontManager = new QtFontPropertyManager(this);
-    pointManager = new QtPointPropertyManager(this);
-    sizeManager = new QtSizePropertyManager(this);
     boolManager = new QtBoolPropertyManager(this);
 
     qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
     qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
     qDebug() << connect(enumManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
-    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*, const QFont&)), this, SLOT(valueChanged(QtProperty*, const QFont&)));
-    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
-    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
     qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
 }
 
 
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
+    propertyEditor_ = propertyEditor;
+
     QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
     QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
     QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
@@ -340,18 +379,14 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
     propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
     propertyEditor->setFactoryForManager(enumManager, comboBoxFactory);
-    propertyEditor->setFactoryForManager(colorManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subBoolPropertyManager(), checkBoxFactory);
-    propertyEditor->setFactoryForManager(fontManager->subEnumPropertyManager(), comboBoxFactory);
-    propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
-    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
     propertyEditor->setFactoryForManager(boolManager, checkBoxFactory);
 
 
     propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
     propertyEditor->setSplitterPosition(250);
     //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
+    //propertyEditor->setPropertiesWithoutValueMarked(true);
+
     propertyEditor->clear();
 
     QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fiileInfo.info.id));
@@ -368,7 +403,11 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     //for (auto& pm : editorModel_.parameters)
     //    editorGroup->addSubProperty(GetPropertyForModel(pm));
 
+    ignoreEvents_ = true;
     propertyEditor->addProperty(mainGroup);
+    ignoreEvents_ = false;
+
+    ApplyExpandState();
 }
 
 QPixmap properties_item::GetPixmap()
@@ -408,6 +447,16 @@ QString properties_item::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property);
     return id;
+}
+
+void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
+{
+    if (!ignoreEvents_)
+    {
+        auto pm = GetParameterModel(property);
+        if (pm != nullptr)
+            pm->editorSettings.is_expanded = is_expanded;
+    }
 }
 
 void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
@@ -457,18 +506,14 @@ void properties_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
-
     bool is_array = parameters_compiler::helper::is_array_type(pm->parameterInfo.type);
     if (is_array)
     {
+        SaveExpandState();
+
         int count = std::stoi(property->valueText().toStdString());
         pm->value = count;
         UpdateArrayModel(*pm);
-
-        //UpdateArrayProperty();
-        // !!!
-
-        //int count = pm->parameters.size();
 
         for (int i = property->subProperties().size(); i < count; ++i)
             property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
@@ -484,54 +529,56 @@ void properties_item::valueChanged(QtProperty* property, int value)
         for (auto& p : to_remove)
             property->removeSubProperty(p);
 
-        //while (count > property->subProperties().size())
-        //{
-        //    unit_types::ParameterModel pm_new;
-        //    pm_new.id = QString::fromLocal8Bit("Item %1").arg(property->subProperties().size());
-        //    pm_new.editorSettings.type = unit_types::EditorType::String;
-        //    pm->parameters.push_back(pm_new);
-        //    property->addSubProperty(GetPropertyForModel(pm_new));
-        //}
+        ApplyExpandState();
+    }
+    else
+    {
+        auto& pi = pm->parameterInfo;
+        if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+            pm->value = property->valueText();
+        else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+            pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+            pm->value = std::stoi(property->valueText().toStdString());
+        else if (pi.type == "double" || pi.type == "float")
+            pm->value = std::stod(property->valueText().toStdString());
+        else // enum
+            pm->value = property->valueText();
 
-        //while (count < property->subProperties().size())
-        //{
-        //    QtProperty* removeProperty = property->subProperties()[property->subProperties().size() - 1];
-        //    UnregisterProperty(removeProperty);
-        //    pm->parameters.pop_back();
-        //    property->removeSubProperty(removeProperty);
-        //}
-
-        pm->value = count;
     }
 }
 
 void properties_item::valueChanged(QtProperty* property, double value)
 {
-    QString id = GetPropertyId(property);
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
+
+    qDebug() << "valueChanged " << pm->id << " = " << value;
+    pm->value = value;
 
     int gridSize = 20;
-    if (id == "EDITOR/POSITION_X")
+    if (pm->id == "EDITOR/POSITION_X")
     {
-        qDebug() << "valueChanged X value = " << value;
         qreal xV = round(value / gridSize) * gridSize;
         if (xV != value)
             doubleManager->setValue(property, xV);
         diagramItem_->InformPositionXChanged(xV);
+        pm->value = xV;
     }
-    else if (id == "EDITOR/POSITION_Y")
+    else if (pm->id == "EDITOR/POSITION_Y")
     {
-        qDebug() << "valueChanged Y value = " << value;
         qreal yV = round(value / gridSize) * gridSize;
         if (yV != value)
             doubleManager->setValue(property, yV);
         diagramItem_->InformPositionYChanged(yV);
+        pm->value = yV;
     }
-    else if (id == "EDITOR/POSITION_Z")
+    else if (pm->id == "EDITOR/POSITION_Z")
     {
-        qDebug() << "valueChanged Z value = " << value;
         diagramItem_->InformPositionZChanged(value);
     }
 
+    
     //if (!propertyToId.contains(property))
     //    return;
 
@@ -554,6 +601,13 @@ void properties_item::valueChanged(QtProperty* property, double value)
 
 void properties_item::valueChanged(QtProperty* property, const QString& value)
 {
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
+
+    qDebug() << "valueChanged " << pm->id << " = " << value;
+    pm->value = value;
+
     //    if (!propertyToId.contains(property))
     //        return;
 
@@ -663,17 +717,18 @@ void properties_item::valueChanged(QtProperty* property, const QSize& value)
 
 void properties_item::valueChanged(QtProperty* property, bool value)
 {
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
 
+    qDebug() << "valueChanged " << pm->id << " = " << value;
+    pm->value = value;
 }
 
 void properties_item::RegisterProperty(QtProperty* property, const QString& id)
 {
     propertyToId[property] = id;
     idToProperty[id] = property;
-    idToExpanded[id] = false;
-    //QtBrowserItem *item = propertyEditor->addProperty(property);
-    //if (idToExpanded.contains(id))
-    //    propertyEditor->setExpanded(item, idToExpanded[id]);
 }
 
 void properties_item::UnregisterProperty(const QString& id)
@@ -687,24 +742,33 @@ void properties_item::UnregisterProperty(QtProperty* property)
         UnregisterProperty(p);
 
     idToProperty.remove(propertyToId[property]);
-    idToExpanded.remove(propertyToId[property]);
     propertyToId.remove(property);
 }
 
 QtProperty* properties_item::GetProperty(const QString& id)
 {
-    if (idToProperty.contains(id))
-        return idToProperty[id];
-    else
-        return nullptr;
+    auto it = idToProperty.find(id);
+    if (it != idToProperty.end())
+        return *it;
+    return nullptr;
+
+    //if (idToProperty.contains(id))
+    //    return idToProperty[id];
+    //else
+    //    return nullptr;
 }
 
 QString properties_item::GetPropertyId(QtProperty* property)
 {
-    if (propertyToId.contains(property))
-        return propertyToId[property];
-    else
-        return QString();
+    auto it = propertyToId.find(property);
+    if (it != propertyToId.end())
+        return *it;
+    return QString();
+
+    //if (propertyToId.contains(property))
+    //    return propertyToId[property];
+    //else
+    //    return QString();
 }
 
 unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id)
@@ -777,38 +841,56 @@ bool properties_item::GetExpanded(QtProperty* property)
     return false;
 }
 
-void properties_item::updateExpandState(QtTreePropertyBrowser* propertyEditor)
+void properties_item::SaveExpandState(QtBrowserItem* index)
 {
-    QList<QtBrowserItem*> list = propertyEditor->topLevelItems();
-    QListIterator<QtBrowserItem*> it(list);
-    while (it.hasNext()) {
-        QtBrowserItem* item = it.next();
-        QtProperty* prop = item->property();
-        idToExpanded[propertyToId[prop]] = propertyEditor->isExpanded(item);
-    }
+    if (propertyEditor_ == nullptr)
+        return;
+
+    QList<QtBrowserItem*> children = index->children();
+    QListIterator<QtBrowserItem*> itChild(children);
+    while (itChild.hasNext())
+        SaveExpandState(itChild.next());
+    QtProperty* prop = index->property();
+
+    auto pm = GetParameterModel(prop);
+    if (pm != nullptr)
+        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
 }
 
-void properties_item::applyExpandState(QtTreePropertyBrowser* propertyEditor)
+void properties_item::SaveExpandState()
 {
-    QList<QtBrowserItem*> list = propertyEditor->topLevelItems();
-    QListIterator<QtBrowserItem*> it(list);
-    while (it.hasNext())
-    {
-        QtBrowserItem* item = it.next();
-        QListIterator<QtBrowserItem*> it2 = item->children();
-        while (it2.hasNext())
-        {
-            QtBrowserItem* item2 = it2.next();
-            QListIterator<QtBrowserItem*> it3 = item2->children();
-            while (it3.hasNext())
-            {
-                QtBrowserItem* item3 = it3.next();
-                QtProperty* prop = item3->property();
-                //propertyEditor->setExpanded(item, idToExpanded[propertyToId[prop]]);
-                propertyEditor->setExpanded(item3, false);
+    if (propertyEditor_ == nullptr)
+        return;
 
-            }
-        }
-        
-    }
+    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+    QListIterator<QtBrowserItem*> itItem(indexes);
+    while (itItem.hasNext())
+        SaveExpandState(itItem.next());
+}
+
+void properties_item::ApplyExpandState(QtBrowserItem* index)
+{
+    if (propertyEditor_ == nullptr)
+        return;
+
+    QList<QtBrowserItem*> children = index->children();
+    QListIterator<QtBrowserItem*> itChild(children);
+    while (itChild.hasNext())
+        ApplyExpandState(itChild.next());
+    QtProperty* prop = index->property();
+
+    auto pm = GetParameterModel(prop);
+    if (pm != nullptr)
+        propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
+}
+
+void properties_item::ApplyExpandState()
+{
+    if (propertyEditor_ == nullptr)
+        return;
+
+    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+    QListIterator<QtBrowserItem*> itItem(indexes);
+    while (itItem.hasNext())
+        ApplyExpandState(itItem.next());
 }

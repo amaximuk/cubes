@@ -88,6 +88,7 @@ namespace unit_types
 		double SpinDoubleMax;
 		double SpinDoubleSingleStep;
 		QList<QString> ComboBoxValues;
+		bool is_expanded;
 
 	public:
 		EditorSettings()
@@ -98,6 +99,7 @@ namespace unit_types
 			SpinDoubleMin = 0;
 			SpinDoubleMax = 0;
 			SpinDoubleSingleStep = 1;
+			is_expanded = false;
 		};
 	};
 

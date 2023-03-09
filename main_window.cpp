@@ -196,6 +196,8 @@ void MainWindow::CreatePropertyBrowser()
 {
     propertyEditor_ = new QtTreePropertyBrowser();
     qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+    qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
+    qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
 }
 
 void MainWindow::CreateTreeView()
@@ -490,7 +492,7 @@ void MainWindow::selectionChanged()
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
-        di->getProperties()->applyExpandState(propertyEditor_);
+        //di->getProperties()->applyExpandState(propertyEditor_);
     }
     else
     {
@@ -603,6 +605,24 @@ void MainWindow::itemPositionChanged(QString id, QPointF newPos)
 void MainWindow::itemCreated(QString id, diagram_item* item)
 {
 
+}
+
+void MainWindow::collapsed(QtBrowserItem* item)
+{
+    if (scene_->selectedItems().count() > 0)
+    {
+        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        di->getProperties()->ExpandedChanged(item->property(), false);
+    }
+}
+
+void MainWindow::expanded(QtBrowserItem* item)
+{
+    if (scene_->selectedItems().count() > 0)
+    {
+        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        di->getProperties()->ExpandedChanged(item->property(), true);
+    }
 }
 
 //void MainWindow::CreateToolBox()

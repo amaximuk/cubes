@@ -20,6 +20,7 @@ class QtSizePropertyManager;
 class QtBoolPropertyManager;
 class QtProperty;
 class QtTreePropertyBrowser;
+class QtBrowserItem;
 
 class properties_item : public QObject
 {
@@ -30,18 +31,17 @@ private:
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
-    QtGroupPropertyManager *groupManager;
-    QtIntPropertyManager *intManager;
-    QtDoublePropertyManager *doubleManager;
-    QtStringPropertyManager *stringManager;
-    QtEnumPropertyManager *enumManager;
-    QtColorPropertyManager *colorManager;
-    QtFontPropertyManager *fontManager;
-    QtPointPropertyManager *pointManager;
-    QtSizePropertyManager *sizeManager;
+    QtGroupPropertyManager* groupManager;
+    QtIntPropertyManager* intManager;
+    QtDoublePropertyManager* doubleManager;
+    QtStringPropertyManager* stringManager;
+    QtEnumPropertyManager* enumManager;
     QtBoolPropertyManager* boolManager;
 
     diagram_item* diagramItem_;
+    QtTreePropertyBrowser* propertyEditor_;
+
+    bool ignoreEvents_;
 
 public:
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
@@ -71,11 +71,11 @@ public:
     void PositionChanged(QPointF point);
     void ZOrderChanged(double value);
     QString GetPropertyDescription(QtProperty* property);
+    void ExpandedChanged(QtProperty* property, bool is_expanded);
 
 private:
     QMap<QtProperty*, QString> propertyToId;
     QMap<QString, QtProperty*> idToProperty;
-    QMap<QString, bool> idToExpanded;
 
 private:
     void RegisterProperty(QtProperty* property, const QString& id);
@@ -87,9 +87,10 @@ private:
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(QtProperty* property);
 
-public:
-    void updateExpandState(QtTreePropertyBrowser* propertyEditor);
-    void applyExpandState(QtTreePropertyBrowser* propertyEditor);
+    void SaveExpandState();
+    void SaveExpandState(QtBrowserItem* index);
+    void ApplyExpandState();
+    void ApplyExpandState(QtBrowserItem* index);
 };
 
 #endif // PROPERTIES_ITEM_H
