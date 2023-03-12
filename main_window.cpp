@@ -33,6 +33,7 @@
 #include <QPlainTextEdit>
 #include <QComboBox>
 #include <QDirIterator>
+#include <QInputDialog>
 
 
 #include <QStandardItemModel>
@@ -45,7 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
+
     CreateUi();
+
+    auto fi = new files_item();
+    fi->ApplyToBrowser(filesPropertyEditor_);
+    files_items_.push_back(fi);
 }
 
 MainWindow::~MainWindow()
@@ -65,6 +71,7 @@ void MainWindow::CreateUi()
 
 QWidget* MainWindow::CreateMainWidget()
 {
+    CreateFilesPropertyBrowser();
     CreatePropertyBrowser();
     CreateTreeView();
     FillParametersInfo();
@@ -192,6 +199,14 @@ void MainWindow::CreateView()
 //    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
 //}
 
+void MainWindow::CreateFilesPropertyBrowser()
+{
+    filesPropertyEditor_ = new QtTreePropertyBrowser();
+    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+    //qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
+    //qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+}
+
 void MainWindow::CreatePropertyBrowser()
 {
     propertyEditor_ = new QtTreePropertyBrowser();
@@ -212,14 +227,17 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
-    QWidget* propertieslWidget = CreatePropertieslWidget();
+    QWidget* filesPropertiesWidget = CreateFilesPropertiesWidget();
+    QWidget* propertiesWidget = CreatePropertiesWidget();
     QWidget* hintWidget = CreateHintWidget();
 
     QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
-    tabVSplitter->addWidget(propertieslWidget);
+    tabVSplitter->addWidget(filesPropertiesWidget);
+    tabVSplitter->addWidget(propertiesWidget);
     tabVSplitter->addWidget(hintWidget);
-    tabVSplitter->setStretchFactor(0, 1);
-    tabVSplitter->setStretchFactor(1, 0);
+    tabVSplitter->setStretchFactor(0, 0);
+    tabVSplitter->setStretchFactor(1, 1);
+    tabVSplitter->setStretchFactor(2, 0);
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(tabVSplitter);
@@ -230,12 +248,27 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
     return propertiesPanelWidget;
 }
 
-QWidget* MainWindow::CreatePropertieslWidget()
+QWidget* MainWindow::CreateFilesPropertiesWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
     QWidget* hostsButtonsWidget = CreateHostsButtonsWidget();
-    QWidget* hintWidget = CreateHintWidget();
+
+    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+    propertiesPaneLayout->addWidget(hostsButtonsWidget);
+    propertiesPaneLayout->addWidget(filesPropertyEditor_);
+    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+
+    propertiesPanelWidget->setLayout(propertiesPaneLayout);
+
+    return propertiesPanelWidget;
+}
+
+QWidget* MainWindow::CreatePropertiesWidget()
+{
+    QWidget* propertiesPanelWidget = new QWidget;
+
+    QWidget* hostsButtonsWidget = CreateHostsButtonsWidget();
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
@@ -268,7 +301,7 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("action", "add");
     toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
+    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddHost_clicked);
 
 
     QToolButton* toolButtonPropertyListRemove = new QToolButton;
@@ -281,7 +314,7 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("action", "add");
     toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_ListControlClicked);
+    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
 
 
     QFrame* widgetPropertyListButtons = new QFrame;
@@ -813,6 +846,21 @@ void MainWindow::on_Quit_action()
     }
 }
 
+void MainWindow::on_AddHost_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, "Add host", QString::fromLocal8Bit("Имя хоста:"), QLineEdit::Normal, "", &ok);
+    if (!ok || text.isEmpty())
+        return;
+}
+
+void MainWindow::on_RemoveHost_clicked()
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+    if (resBtn == QMessageBox::Yes)
+        QApplication::quit();
+}
 
 void MainWindow::currentItemChanged(QtBrowserItem* item)
 {

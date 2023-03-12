@@ -8,6 +8,7 @@
 #include <QMainWindow>
 
 #include "parameters_compiler_types.h"
+#include "files_item.h"
 #include "unit_types.h"
 
 class QPlainTextEdit;
@@ -42,10 +43,12 @@ protected:
     QWidget* CreateMainTabWidget();
     void CreateScene();
     void CreateView();
+    void CreateFilesPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
-    QWidget* CreatePropertieslWidget();
+    QWidget* CreateFilesPropertiesWidget();
+    QWidget* CreatePropertiesWidget();
     QWidget* CreateHostsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
@@ -63,7 +66,9 @@ private:
     QTabWidget* tabWidget_;
     QPlainTextEdit* plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
+    QtTreePropertyBrowser* filesPropertyEditor_;
     QtTreePropertyBrowser* propertyEditor_;
+    QList<files_item*> files_items_;
 
 private slots:
     void on_NewFile_action();
@@ -72,19 +77,10 @@ private slots:
     void on_SaveAsFile_action();
     void on_Quit_action();
 
+    void on_AddHost_clicked();
+    void on_RemoveHost_clicked();
 
     void currentItemChanged(QtBrowserItem* item);
-
-
-//private slots:
-//    void valueChanged(QtProperty *property, int value);
-//    void valueChanged(QtProperty *property, double value);
-//    void valueChanged(QtProperty *property, const QString &value);
-//    void valueChanged(QtProperty *property, const QColor &value);
-//    void valueChanged(QtProperty *property, const QFont &value);
-//    void valueChanged(QtProperty *property, const QPoint &value);
-//    void valueChanged(QtProperty *property, const QSize &value);
-
     void MyFirstBtnClicked();
 
     void selectionChanged();
@@ -96,21 +92,4 @@ public slots:
 
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);
-
-//private:
-//    QMap<QtProperty*, QString> propertyToId;
-//    QMap<QString, QtProperty*> idToProperty;
-//    QMap<QString, bool> idToExpanded;
-
-//private:
-//    void addProperty(QtProperty *property, const QString &id);
-//    void updateExpandState();
-    //class QtGroupPropertyManager *groupManager;
-    //class QtIntPropertyManager *intManager;
-    //class QtDoublePropertyManager *doubleManager;
-    //class QtStringPropertyManager *stringManager;
-    //class QtColorPropertyManager *colorManager;
-    //class QtFontPropertyManager *fontManager;
-    //class QtPointPropertyManager *pointManager;
-    //class QtSizePropertyManager *sizeManager;
 };
