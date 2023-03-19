@@ -63,11 +63,11 @@ namespace parameters_compiler
             if (is_array)
             {
                 if (pi.restrictions.set_count.size() > 0)
-                    return pi.restrictions.set_count[0];
+                    hint = pi.restrictions.set_count[0];
                 else if (pi.restrictions.min_count != "")
-                    return pi.restrictions.min_count;
+                    hint = pi.restrictions.min_count;
                 else if (pi.restrictions.max_count != "")
-                    return pi.restrictions.max_count;
+                    hint = "0";
             }
             else
             {
@@ -84,10 +84,31 @@ namespace parameters_compiler
                 {
                     if (pi.restrictions.set_.size() > 0)
                         hint = pi.restrictions.set_[0];
+                    else if (pi.restrictions.min != "" && pi.restrictions.max != "")
+                    {
+                        if (std::stoi(pi.restrictions.min) <= 0 && std::stoi(pi.restrictions.max) >= 0)
+                            hint = "0";
+                        else
+                        {
+                            int abs_min = std::abs(std::stoi(pi.restrictions.min));
+                            int abs_max = std::abs(std::stoi(pi.restrictions.max));
+                            hint = abs_min <= abs_max ? pi.restrictions.min : pi.restrictions.max;
+                        }
+                    }
                     else if (pi.restrictions.min != "")
-                        hint = pi.restrictions.min;
+                    {
+                        if (std::stoi(pi.restrictions.min) <= 0)
+                            hint = "0";
+                        else
+                            hint = pi.restrictions.min;
+                    }
                     else if (pi.restrictions.max != "")
-                        hint = pi.restrictions.max;
+                    {
+                        if (std::stoi(pi.restrictions.max) >= 0)
+                            hint = "0";
+                        else
+                            hint = pi.restrictions.max;
+                    }
                 }
 
                 if (ti != nullptr && ti->type == "enum" && ti->values.size() > 0)

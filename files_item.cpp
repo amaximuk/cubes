@@ -15,7 +15,8 @@
 files_item::files_item(QObject* parent):
     QObject(parent)
 {
-    //unitParameters_ = unitParameters;
+    unitParameters_ = {};
+    unitParameters_.fiileInfo.info.id = "XXXXXXXXXXXX";
     //diagramItem_ = diagramItem;
     parametersModel_ = {};
     //editorModel_ = {};
