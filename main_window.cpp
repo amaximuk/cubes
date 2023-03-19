@@ -346,9 +346,9 @@ void MainWindow::FillTreeView()
     for (const auto& up : unitParameters_)
     {
         QString category = "Default";
-        if (up.fiileInfo.info.category != "")
-            category = QString::fromStdString(up.fiileInfo.info.category).toLower();
-        categoriesMap[category].insert(QString::fromStdString(up.fiileInfo.info.id));
+        if (up.fileInfo.info.category != "")
+            category = QString::fromStdString(up.fileInfo.info.category).toLower();
+        categoriesMap[category].insert(QString::fromStdString(up.fileInfo.info.id));
     }
 
     int row = 0;
@@ -366,9 +366,9 @@ void MainWindow::FillTreeView()
 
             QPixmap px;
             bool loaded = false;
-            if (unitParameters_[id].fiileInfo.info.pictogram != "")
+            if (unitParameters_[id].fileInfo.info.pictogram != "")
             {
-                std::string s = base64_decode(unitParameters_[id].fiileInfo.info.pictogram);
+                std::string s = base64_decode(unitParameters_[id].fileInfo.info.pictogram);
                 QByteArray ba(s.c_str(), static_cast<int>(s.size()));
                 try
                 {
@@ -453,7 +453,7 @@ void MainWindow::FillParametersInfo()
                     //!!!!!!!!!!!!!!!
                 }
                 auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
-                up.fiileInfo = fi;
+                up.fileInfo = fi;
                 up.platforms.insert(QFileInfo(platformDir).baseName());
             }
         }
@@ -464,7 +464,7 @@ unit_types::UnitParameters MainWindow::GetUnitParameters(QString id) const
 {
     for (const auto& up : unitParameters_)
     {
-        if (QString::fromStdString(up.fiileInfo.info.id) == id)
+        if (QString::fromStdString(up.fileInfo.info.id) == id)
             return up;
     }
     return {};

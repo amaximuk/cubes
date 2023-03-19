@@ -65,7 +65,7 @@ private slots:
     void valueChanged(QtProperty* property, bool value);
 
 public:
-    QString getName() { return QString::fromStdString(unitParameters_.fiileInfo.info.id); };
+    QString getName() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);

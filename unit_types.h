@@ -64,7 +64,7 @@ namespace unit_types
 
 	struct UnitParameters
 	{
-		parameters_compiler::file_info fiileInfo;
+		parameters_compiler::file_info fileInfo;
 		QSet<QString> platforms;
 	};
 

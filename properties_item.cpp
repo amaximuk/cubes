@@ -107,7 +107,7 @@ void properties_item::CreateParametersModel()
     //if (pg == nullptr)
     //    assert(false);
 
-    for (const auto& pi : unitParameters_.fiileInfo.parameters)
+    for (const auto& pi : unitParameters_.fileInfo.parameters)
     {
         unit_types::ParameterModel pm;
         CreateParameterModel(pi, "PARAMETERS", pm);
@@ -123,7 +123,7 @@ void properties_item::CreateParametersModel()
 //    bool is_array = parameters_compiler::helper::is_array_type(type.toStdString());
 //    if (is_array)
 //    {
-//        value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+//        value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
 //    }
 //}
 
@@ -143,7 +143,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
             for (const auto& s : pi.restrictions.set_count)
                 pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
 
-            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
         }
         else
         {
@@ -154,7 +154,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
             else
                 pm.editorSettings.SpinIntergerMin = 0;
 
-            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
 
             if (pi.restrictions.max_count != "")
                 pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max_count);
@@ -174,21 +174,21 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
                 pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
 
             if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
             else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
                 pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
             else if (pi.type == "double" || pi.type == "float")
-                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
             else // enum
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
         }
         else
         {
             if (pi.type == "unit")
             {
                 pm.editorSettings.type = unit_types::EditorType::String;
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
 
                 unit_types::ParameterModel pm_depends;
                 pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
@@ -200,12 +200,12 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
             else if (pi.type == "path" || pi.type == "string")
             {
                 pm.editorSettings.type = unit_types::EditorType::String;
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fiileInfo, pi));
+                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
             }
             else if (pi.type == "bool")
             {
                 pm.editorSettings.type = unit_types::EditorType::CheckBox;
-                pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fileInfo, pi);
             }
             else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
                 pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
@@ -217,7 +217,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
                 else
                     pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(pi.type));
 
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
 
                 if (pi.restrictions.max != "")
                     pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
@@ -233,7 +233,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
                 else
                     pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
 
-                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fiileInfo, pi);
+                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
 
                 if (pi.restrictions.max != "")
                     pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
@@ -243,7 +243,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
             else
             {
                 // enum user type
-                const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, pi.type);
+                const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, pi.type);
                 if (pti->type == "enum")
                 {
                     pm.editorSettings.type = unit_types::EditorType::ComboBox;
@@ -252,7 +252,7 @@ void properties_item::CreateParameterModel(const parameters_compiler::parameter_
                         for (const auto v : pti->values)
                             pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
 
-                        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fiileInfo, pi);
+                        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
                     }
                 }
                 else assert(false);
@@ -389,7 +389,7 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 
     propertyEditor->clear();
 
-    QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fiileInfo.info.id));
+    QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fileInfo.info.id));
     
     QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
     mainGroup->addSubProperty(propertiesGroup);
@@ -414,9 +414,9 @@ QPixmap properties_item::GetPixmap()
 {
     QPixmap px;
     bool loaded = false;
-    if (unitParameters_.fiileInfo.info.pictogram != "")
+    if (unitParameters_.fileInfo.info.pictogram != "")
     {
-        std::string s = base64_decode(unitParameters_.fiileInfo.info.pictogram);
+        std::string s = base64_decode(unitParameters_.fileInfo.info.pictogram);
         QByteArray ba(s.c_str(), static_cast<int>(s.size()));
         try
         {
@@ -462,7 +462,7 @@ void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
 void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
-    auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
+    auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, at);
     if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
     {
         for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
