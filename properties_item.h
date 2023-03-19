@@ -48,7 +48,9 @@ public:
 
 private:
     void CreateParametersModel();
-    void CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model);
+    void CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model);
+    void FillParameterModel(unit_types::ParameterModel& pm);
+    void FillArrayModel(unit_types::ParameterModel& pm);
     void UpdateArrayModel(unit_types::ParameterModel& pm);
     void CreateEditorModel();
     QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);

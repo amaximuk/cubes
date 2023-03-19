@@ -31,58 +31,52 @@ void properties_item::CreateEditorModel()
 {
     unit_types::ParameterModel editor_group;
     editor_group.id = "EDITOR";
+    editor_group.name = QString::fromLocal8Bit("Редактор");
+    editor_group.value = "";
+    editor_group.valueType = "none";
+    //editor_group.parameterInfoId = "";
     editor_group.editorSettings.type = unit_types::EditorType::None;
     editor_group.editorSettings.is_expanded = true;
-    editor_group.parameterInfo.display_name = QString::fromLocal8Bit("Редактор").toStdString();
-
-    // Get reference
-    //auto eg = GetParameterModel("EDITOR");
-
-    //if (eg == nullptr)
-    //    assert(false);
 
     {
-        parameters_compiler::parameter_info pi{};
-        pi.display_name = QString::fromLocal8Bit("Позиция X").toStdString();
-
         unit_types::ParameterModel pm;
         pm.id = "EDITOR/POSITION_X";
-        pm.parameterInfo = pi;
+        pm.name = QString::fromLocal8Bit("Позиция X");
+        pm.value = 0.0;
+        pm.valueType = "double";
+        //pm.parameterInfoId = "";
         pm.editorSettings.type = unit_types::EditorType::SpinDouble;
         pm.editorSettings.SpinDoubleMin = -10000;
         pm.editorSettings.SpinDoubleMax = 10000;
         pm.editorSettings.SpinDoubleSingleStep = 20;
-        editor_group.parameters.push_back(pm);
-        //eg->parameters.push_back(pm);
+        editor_group.parameters.push_back(std::move(pm));
     }
 
     {
-        parameters_compiler::parameter_info pi{};
-        pi.display_name = QString::fromLocal8Bit("Позиция Y").toStdString();;
-
         unit_types::ParameterModel pm;
         pm.id = "EDITOR/POSITION_Y";
-        pm.parameterInfo = pi;
+        pm.name = QString::fromLocal8Bit("Позиция Y");
+        pm.value = 0.0;
+        pm.valueType = "double";
+        //pm.parameterInfoId = "";
         pm.editorSettings.type = unit_types::EditorType::SpinDouble;
         pm.editorSettings.SpinDoubleMin = -10000;
         pm.editorSettings.SpinDoubleMax = 10000;
         pm.editorSettings.SpinDoubleSingleStep = 20;
-        editor_group.parameters.push_back(pm);
-        //eg->parameters.push_back(pm);
+        editor_group.parameters.push_back(std::move(pm));
     }
 
     {
-        parameters_compiler::parameter_info pi{};
-        pi.display_name = QString::fromLocal8Bit("Позиция Z").toStdString();
-
         unit_types::ParameterModel pm;
         pm.id = "EDITOR/POSITION_Z";
-        pm.parameterInfo = pi;
+        pm.name = QString::fromLocal8Bit("Позиция Z");
+        pm.value = 0.0;
+        pm.valueType = "double";
+        //pm.parameterInfoId = "";
         pm.editorSettings.type = unit_types::EditorType::SpinDouble;
         pm.editorSettings.SpinDoubleMin = -10000;
         pm.editorSettings.SpinDoubleMax = 10000;
-        editor_group.parameters.push_back(pm);
-        //eg->parameters.push_back(pm);
+        editor_group.parameters.push_back(std::move(pm));
     }
 
     parametersModel_.parameters.push_back(std::move(editor_group));
@@ -92,27 +86,18 @@ void properties_item::CreateParametersModel()
 {
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
+    properties_group.name = QString::fromLocal8Bit("Параметры");
+    properties_group.value = "";
+    properties_group.valueType = "none";
+    //properties_group.parameterInfoId = "";
     properties_group.editorSettings.type = unit_types::EditorType::None;
     properties_group.editorSettings.is_expanded = true;
-    properties_group.parameterInfo.display_name = QString::fromLocal8Bit("Параметры").toStdString();
-
-    //{
-    //    auto sl = pm->id.split("/");
-    //    if (sl.size() > 1 && sl[0] == "PARAMETERS")
-    //}
-
-    // Get reference
-    //auto pg = GetParameterModel("PARAMETERS");
-
-    //if (pg == nullptr)
-    //    assert(false);
 
     for (const auto& pi : unitParameters_.fileInfo.parameters)
     {
         unit_types::ParameterModel pm;
-        CreateParameterModel(pi, "PARAMETERS", pm);
-        properties_group.parameters.push_back(pm);
-        //pg->parameters.push_back(pm);
+        CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", pm);
+        properties_group.parameters.push_back(std::move(pm));
     }
 
     parametersModel_.parameters.push_back(std::move(properties_group));
@@ -127,150 +112,144 @@ void properties_item::CreateParametersModel()
 //    }
 //}
 
-void properties_item::CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model)
+void properties_item::CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model)
 {
-    bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
     unit_types::ParameterModel pm;
-    pm.id = QString("%1/%2").arg(parent_model_id, QString::fromStdString(pi.name));
-    pm.parameterInfo = pi;
+    pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
+    pm.name = QString::fromStdString(pi.name);
+    pm.parameterInfoId = parameterInfoId;
 
+    bool is_array = parameters_compiler::helper::is_array_type(pi.type);
     if (is_array)
     {
-        if (pi.restrictions.set_count.size() > 0)
-        {
-            pm.editorSettings.type = unit_types::EditorType::ComboBox;
-            for (const auto& s : pi.restrictions.set_count)
-                pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
-
-            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-        }
-        else
-        {
-            pm.editorSettings.type = unit_types::EditorType::SpinInterger;
-
-            if (pi.restrictions.min_count != "")
-                pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min_count);
-            else
-                pm.editorSettings.SpinIntergerMin = 0;
-
-            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-
-            if (pi.restrictions.max_count != "")
-                pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max_count);
-            else
-                pm.editorSettings.SpinIntergerMax = 1000; // !!! todo: make a define for a const
-        }
-
+        FillArrayModel(pm);
         UpdateArrayModel(pm);
     }
     else
     {
-        // "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
-        if (pi.restrictions.set_.size() > 0)
-        {
-            pm.editorSettings.type = unit_types::EditorType::ComboBox;
-            for (const auto& s : pi.restrictions.set_)
-                pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
-
-            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
-            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-            else if (pi.type == "double" || pi.type == "float")
-                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
-            else // enum
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-        }
-        else
-        {
-            if (pi.type == "unit")
-            {
-                pm.editorSettings.type = unit_types::EditorType::String;
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
-
-                unit_types::ParameterModel pm_depends;
-                pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
-                pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
-                pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
-                pm_depends.value = false;
-                pm.parameters.push_back(pm_depends);
-            }
-            else if (pi.type == "path" || pi.type == "string")
-            {
-                pm.editorSettings.type = unit_types::EditorType::String;
-                pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
-            }
-            else if (pi.type == "bool")
-            {
-                pm.editorSettings.type = unit_types::EditorType::CheckBox;
-                pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fileInfo, pi);
-            }
-            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-            {
-                pm.editorSettings.type = unit_types::EditorType::SpinInterger;
-
-                if (pi.restrictions.min != "")
-                    pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
-                else
-                    pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(pi.type));
-
-                pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-
-                if (pi.restrictions.max != "")
-                    pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
-                else
-                    pm.editorSettings.SpinIntergerMax = unit_types::GetMaxForIntegralType(QString::fromStdString(pi.type));
-            }
-            else if (pi.type == "double" || pi.type == "float")
-            {
-                pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-
-                if (pi.restrictions.min != "")
-                    pm.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
-                else
-                    pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
-
-                pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
-
-                if (pi.restrictions.max != "")
-                    pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
-                else
-                    pm.editorSettings.SpinDoubleMax = unit_types::GetMinForFloatingPointType(QString::fromStdString(pi.type));
-            }
-            else
-            {
-                // enum user type
-                const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, pi.type);
-                if (pti->type == "enum")
-                {
-                    pm.editorSettings.type = unit_types::EditorType::ComboBox;
-                    if (pti->values.size() > 0)
-                    {
-                        for (const auto v : pti->values)
-                            pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
-
-                        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-                    }
-                }
-                else assert(false);
-            }
-        }
-
-        if (parameters_compiler::helper::get_parameter_optional(pi))
-        {
-            unit_types::ParameterModel pm_optional;
-            pm_optional.id = QString("%1/%2").arg(pm.id, "OPTIONAL");
-            pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
-            pm_optional.editorSettings.type = unit_types::EditorType::CheckBox;
-            pm_optional.value = false;
-            pm.parameters.push_back(pm_optional);
-        }
+        FillParameterModel(pm);
     }
 
     model = pm;
+}
+
+void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
+{
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+
+    auto piType = pi.type;
+    if (parameters_compiler::helper::is_array_type(piType))
+        piType = parameters_compiler::helper::get_array_type(pi.type);
+
+
+    // "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
+    if (pi.restrictions.set_.size() > 0)
+    {
+        pm.editorSettings.type = unit_types::EditorType::ComboBox;
+        for (const auto& s : pi.restrictions.set_)
+            pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
+
+        if (piType == "unit" || piType == "path" || piType == "string")
+            pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
+        else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
+            piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+        else if (piType == "double" || piType == "float")
+            pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
+        else // enum
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+    }
+    else
+    {
+        if (piType == "unit")
+        {
+            pm.editorSettings.type = unit_types::EditorType::String;
+            pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
+
+            unit_types::ParameterModel pm_depends;
+            pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
+            pm_depends.name = QString::fromLocal8Bit("Зависимость");
+            pm_depends.value = false;
+            pm_depends.valueType = "bool";
+            //pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
+            pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
+            pm.parameters.push_back(std::move(pm_depends));
+        }
+        else if (piType == "path" || piType == "string")
+        {
+            pm.editorSettings.type = unit_types::EditorType::String;
+            pm.value = QString::fromStdString(parameters_compiler::helper::get_parameter_initial<std::string>(unitParameters_.fileInfo, pi));
+        }
+        else if (piType == "bool")
+        {
+            pm.editorSettings.type = unit_types::EditorType::CheckBox;
+            pm.value = parameters_compiler::helper::get_parameter_initial<bool>(unitParameters_.fileInfo, pi);
+        }
+        else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
+            piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
+        {
+            pm.editorSettings.type = unit_types::EditorType::SpinInterger;
+
+            if (pi.restrictions.min != "")
+                pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
+            else
+                pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(piType));
+
+            pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+
+            if (pi.restrictions.max != "")
+                pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
+            else
+                pm.editorSettings.SpinIntergerMax = unit_types::GetMaxForIntegralType(QString::fromStdString(piType));
+        }
+        else if (piType == "double" || piType == "float")
+        {
+            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+
+            if (pi.restrictions.min != "")
+                pm.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
+            else
+                pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(piType));
+
+            pm.value = parameters_compiler::helper::get_parameter_initial<double>(unitParameters_.fileInfo, pi);
+
+            if (pi.restrictions.max != "")
+                pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
+            else
+                pm.editorSettings.SpinDoubleMax = unit_types::GetMinForFloatingPointType(QString::fromStdString(piType));
+        }
+        else
+        {
+            // enum user type
+            const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, piType);
+            if (pti->type == "enum")
+            {
+                pm.editorSettings.type = unit_types::EditorType::ComboBox;
+                if (pti->values.size() > 0)
+                {
+                    for (const auto v : pti->values)
+                        pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
+
+                    pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+                }
+            }
+            else assert(false);
+        }
+    }
+
+    if (parameters_compiler::helper::get_parameter_optional(pi))
+    {
+        unit_types::ParameterModel pm_optional;
+        pm_optional.id = QString("%1/%2").arg(pm.id, "OPTIONAL");
+        pm_optional.name = QString::fromLocal8Bit("Не задавать");
+        pm_optional.value = false;
+        pm_optional.valueType = "bool";
+        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
+        pm_optional.editorSettings.type = unit_types::EditorType::CheckBox;
+        pm.parameters.push_back(std::move(pm_optional));
+    }
 }
 
 QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& model)
@@ -280,13 +259,13 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
     QtProperty* pr = nullptr;
     if (model.editorSettings.type == unit_types::EditorType::None)
     {
-        pr = groupManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = groupManager->addProperty(model.name);
         groupManager->blockSignals(true);
         groupManager->blockSignals(false);
     }
     else if (model.editorSettings.type == unit_types::EditorType::String)
     {
-        pr = stringManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
         //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
         stringManager->setValue(pr, model.value.toString());
@@ -294,7 +273,7 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
     }
     else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
     {
-        pr = intManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = intManager->addProperty(model.name);
         intManager->blockSignals(true);
         intManager->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
         intManager->setValue(pr, model.value.toInt());
@@ -302,7 +281,7 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
     }
     else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
     {
-        pr = doubleManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = doubleManager->addProperty(model.name);
         doubleManager->blockSignals(true);
         doubleManager->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
         doubleManager->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
@@ -311,14 +290,14 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
     }
     else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
     {
-        pr = enumManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = enumManager->addProperty(model.name);
         enumManager->blockSignals(true);
         enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
         
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
         {
-            if (model.parameterInfo.type == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
         }
         //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
@@ -330,7 +309,7 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
     }
     else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
     {
-        pr = boolManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = boolManager->addProperty(model.name);
         boolManager->blockSignals(true);
         boolManager->setValue(pr, model.value.toBool());
         boolManager->blockSignals(false);
@@ -459,21 +438,71 @@ void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
     }
 }
 
+void properties_item::FillArrayModel(unit_types::ParameterModel& pm)
+{
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+
+
+
+
+    if (pi.restrictions.set_count.size() > 0)
+    {
+        pm.editorSettings.type = unit_types::EditorType::ComboBox;
+        for (const auto& s : pi.restrictions.set_count)
+            pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
+
+        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+    }
+    else
+    {
+        pm.editorSettings.type = unit_types::EditorType::SpinInterger;
+
+        if (pi.restrictions.min_count != "")
+            pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min_count);
+        else
+            pm.editorSettings.SpinIntergerMin = 0;
+
+        pm.value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
+
+        if (pi.restrictions.max_count != "")
+            pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max_count);
+        else
+            pm.editorSettings.SpinIntergerMax = 1000; // !!! todo: make a define for a const
+    }
+
+}
+
 void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
-    auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+
+
+
+
+
+
+    auto at = parameters_compiler::helper::get_array_type(pi.type);
     auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, at);
     if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
     {
         for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
         {
-            parameters_compiler::parameter_info pi_new = pm.parameterInfo;
-            pi_new.type = at;
-            pi_new.name = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i).toStdString();
-            pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
             unit_types::ParameterModel model;
-            CreateParameterModel(pi_new, pm.id, model);
-            pm.parameters.push_back(model);
+            model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+//!!!!!!!!!!!!!!!!!!!!!!!
+            //model.value = "";
+            //model.valueType = "none";
+            model.parameterInfoId = pm.parameterInfoId;
+            FillParameterModel(model);
+
+            //parameters_compiler::parameter_info pi_new = pm.parameterInfo;
+            //pi_new.type = at;
+            //pi_new.name = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i).toStdString();
+            //pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+            //unit_types::ParameterModel model;
+            //CreateParameterModel(pi_new, pm.id, model);
+            //pm.parameters.push_back(model);
         }
     }
     else if (ti != nullptr) // yml type
@@ -481,16 +510,30 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
         for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
         {
             unit_types::ParameterModel group_model;
-            group_model.editorSettings.type = unit_types::EditorType::None;
             group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-            group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+            group_model.value = "";
+            group_model.valueType = "none";
+            group_model.editorSettings.type = unit_types::EditorType::None;
             for (auto p : ti->parameters)
             {
                 unit_types::ParameterModel model;
-                CreateParameterModel(p, group_model.id, model);
-                group_model.parameters.push_back(model);
+                CreateParameterModel({ QString::fromStdString(ti->name), QString::fromStdString(p.name) }, group_model.id, model);
+                group_model.parameters.push_back(std::move(model));
             }
-            pm.parameters.push_back(group_model);
+            pm.parameters.push_back(std::move(group_model));
+
+            //unit_types::ParameterModel group_model;
+            //group_model.editorSettings.type = unit_types::EditorType::None;
+            //group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            //group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+            //for (auto p : ti->parameters)
+            //{
+            //    unit_types::ParameterModel model;
+            //    CreateParameterModel(p, group_model.id, model);
+            //    group_model.parameters.push_back(model);
+            //}
+            //pm.parameters.push_back(group_model);
         }
     }
 
@@ -506,7 +549,9 @@ void properties_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
-    bool is_array = parameters_compiler::helper::is_array_type(pm->parameterInfo.type);
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+
+    bool is_array = parameters_compiler::helper::is_array_type(pi.type);
     if (is_array)
     {
         SaveExpandState();
@@ -533,7 +578,6 @@ void properties_item::valueChanged(QtProperty* property, int value)
     }
     else
     {
-        auto& pi = pm->parameterInfo;
         if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
             pm->value = property->valueText();
         else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
@@ -543,7 +587,6 @@ void properties_item::valueChanged(QtProperty* property, int value)
             pm->value = std::stod(property->valueText().toStdString());
         else // enum
             pm->value = property->valueText();
-
     }
 }
 

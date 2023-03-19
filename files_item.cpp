@@ -30,23 +30,21 @@ void files_item::CreateEditorModel()
 {
     unit_types::ParameterModel editor_group;
     editor_group.id = "EDITOR";
+    editor_group.name = QString::fromLocal8Bit("Редактор");
+    editor_group.value = "";
+    editor_group.valueType = "none";
+    //editor_group.parameterInfoId = "";
     editor_group.editorSettings.type = unit_types::EditorType::None;
     editor_group.editorSettings.is_expanded = true;
-    editor_group.parameterInfo.display_name = QString::fromLocal8Bit("Редактор").toStdString();
 
-    // Get reference
-    //auto eg = GetParameterModel("EDITOR");
-
-    //if (eg == nullptr)
-    //    assert(false);
     {
-        parameters_compiler::parameter_info pi{};
-        pi.display_name = QString::fromLocal8Bit("Цвет").toStdString();
         unit_types::ParameterModel pm;
         pm.id = "EDITOR/COLOR";
-        pm.parameterInfo = pi;
-        pm.editorSettings.type = unit_types::EditorType::Color;
+        pm.name = QString::fromLocal8Bit("Цвет");
         pm.value = QColor("Red").rgba();
+        pm.valueType = "string";
+        //pm.parameterInfoId = "";
+        pm.editorSettings.type = unit_types::EditorType::Color;
         editor_group.parameters.push_back(std::move(pm));
     }
 
@@ -57,47 +55,53 @@ void files_item::CreateParametersModel()
 {
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
+    properties_group.name = QString::fromLocal8Bit("Параметры");
+    properties_group.value = "";
+    properties_group.valueType = "none";
+    //properties_group.parameterInfoId = "";
     properties_group.editorSettings.type = unit_types::EditorType::None;
     properties_group.editorSettings.is_expanded = true;
-    properties_group.parameterInfo.display_name = QString::fromLocal8Bit("Параметры").toStdString();
 
     {
-        parameters_compiler::parameter_info pi_connection{};
-        pi_connection.display_name = QString::fromLocal8Bit("Соединение").toStdString();
         unit_types::ParameterModel pm_connection;
         pm_connection.id = "PARAMETERS/CONNECTION";
-        pm_connection.parameterInfo = pi_connection;
+        pm_connection.name = QString::fromLocal8Bit("Соединение");
+        pm_connection.value = "";
+        pm_connection.valueType = "none";
+        //pm_connection.parameterInfoId = "";
         pm_connection.editorSettings.type = unit_types::EditorType::None;
 
-        parameters_compiler::parameter_info pi_host{};
-        pi_host.display_name = QString::fromLocal8Bit("Хост").toStdString();
         unit_types::ParameterModel pm_host;
         pm_host.id = "PARAMETERS/CONNECTION/HOST";
-        pm_host.parameterInfo = pi_host;
+        pm_host.name = QString::fromLocal8Bit("Хост");
+        pm_host.value = "";
+        pm_host.valueType= "string";
+        //pm_host.parameterInfoId = "";
         pm_host.editorSettings.type = unit_types::EditorType::String;
         pm_host.value = "127.0.0.1";
         pm_connection.parameters.push_back(std::move(pm_host));
 
-        parameters_compiler::parameter_info pi_port{};
-        pi_port.display_name = QString::fromLocal8Bit("Порт").toStdString();
         unit_types::ParameterModel pm_port;
         pm_port.id = "PARAMETERS/CONNECTION/PORT";
-        pm_port.parameterInfo = pi_port;
+        pm_port.name = QString::fromLocal8Bit("Порт");
+        pm_port.value = 50000;
+        pm_port.valueType = "int";
+        //pm_port.parameterInfoId = "";
         pm_port.editorSettings.type = unit_types::EditorType::SpinInterger;
         pm_port.editorSettings.SpinIntergerMin = 1000;
         pm_port.editorSettings.SpinIntergerMin = 65535;
-        pm_port.value = 50000;
         pm_connection.parameters.push_back(std::move(pm_port));
 
         properties_group.parameters.push_back(std::move(pm_connection));
     }
 
     {
-        parameters_compiler::parameter_info pi{};
-        pi.display_name = QString::fromLocal8Bit("Логирование").toStdString();
         unit_types::ParameterModel pm;
         pm.id = "PARAMETERS/LOG";
-        pm.parameterInfo = pi;
+        pm.name = QString::fromLocal8Bit("Логирование");
+        pm.value = "";
+        pm.valueType = "none";
+        //pm.parameterInfoId = "";
         pm.editorSettings.type = unit_types::EditorType::None;
         properties_group.parameters.push_back(pm);
     }
@@ -267,13 +271,13 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
     QtProperty* pr = nullptr;
     if (model.editorSettings.type == unit_types::EditorType::None)
     {
-        pr = groupManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = groupManager->addProperty(model.name);
         groupManager->blockSignals(true);
         groupManager->blockSignals(false);
     }
     else if (model.editorSettings.type == unit_types::EditorType::String)
     {
-        pr = stringManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
         //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
         stringManager->setValue(pr, model.value.toString());
@@ -281,7 +285,7 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
     }
     else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
     {
-        pr = intManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = intManager->addProperty(model.name);
         intManager->blockSignals(true);
         intManager->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
         intManager->setValue(pr, model.value.toInt());
@@ -289,7 +293,7 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
     }
     else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
     {
-        pr = doubleManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = doubleManager->addProperty(model.name);
         doubleManager->blockSignals(true);
         doubleManager->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
         doubleManager->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
@@ -298,14 +302,14 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
     }
     else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
     {
-        pr = enumManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = enumManager->addProperty(model.name);
         enumManager->blockSignals(true);
         enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
         
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
         {
-            if (model.parameterInfo.type == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
         }
         //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
@@ -317,14 +321,14 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
     }
     else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
     {
-        pr = boolManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = boolManager->addProperty(model.name);
         boolManager->blockSignals(true);
         boolManager->setValue(pr, model.value.toBool());
         boolManager->blockSignals(false);
     }
     else if (model.editorSettings.type == unit_types::EditorType::Color)
     {
-        pr = colorManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        pr = colorManager->addProperty(model.name);
         colorManager->blockSignals(true);
         colorManager->setValue(pr, QColor::fromRgba(model.value.toUInt()));
         colorManager->blockSignals(false);
@@ -505,7 +509,7 @@ void files_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
-    bool is_array = parameters_compiler::helper::is_array_type(pm->parameterInfo.type);
+    bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
     if (is_array)
     {
         SaveExpandState();
@@ -532,13 +536,12 @@ void files_item::valueChanged(QtProperty* property, int value)
     }
     else
     {
-        auto& pi = pm->parameterInfo;
-        if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+        if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
             pm->value = property->valueText();
-        else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-            pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+        else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+            pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
             pm->value = std::stoi(property->valueText().toStdString());
-        else if (pi.type == "double" || pi.type == "float")
+        else if (pm->valueType == "double" || pm->valueType == "float")
             pm->value = std::stod(property->valueText().toStdString());
         else // enum
             pm->value = property->valueText();

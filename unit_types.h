@@ -104,22 +104,31 @@ namespace unit_types
 		};
 	};
 
+	struct ParameterInfoId
+	{
+		QString type;
+		QString name;
+
+		ParameterInfoId() = default;
+		ParameterInfoId(QString type, QString name)
+		{
+			this->type = type;
+			this->name = name;
+		}
+	};
+
 	struct ParameterModel
 	{
 	public:
 		QString id; // id path, separated by /
+		QString name;
 		QVariant value;
-		//QString name;
+		QString valueType;
 		//bool is_array;
-		parameters_compiler::parameter_info parameterInfo;
+		//parameters_compiler::parameter_info parameterInfo;
+		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;
 		QList<ParameterModel> parameters;
-
-	public:
-		ParameterModel()
-		{
-			parameterInfo = {};
-		}
 	};
 
 	struct ParametersModel
