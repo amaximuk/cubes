@@ -26,7 +26,6 @@ class files_item : public QObject
     Q_OBJECT
 
 private:
-    unit_types::UnitParameters unitParameters_;
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
@@ -37,7 +36,6 @@ private:
     QtEnumPropertyManager* enumManager;
     QtBoolPropertyManager* boolManager;
 
-    diagram_item* diagramItem_;
     QtTreePropertyBrowser* propertyEditor_;
 
     bool ignoreEvents_;
@@ -64,7 +62,7 @@ private slots:
     void valueChanged(QtProperty* property, bool value);
 
 public:
-    QString getName() { return QString::fromStdString(unitParameters_.fiileInfo.info.id); };
+    QString getName() { return "FilesItem"; };
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
