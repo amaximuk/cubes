@@ -35,6 +35,7 @@ private:
     QtStringPropertyManager* stringManager;
     QtEnumPropertyManager* enumManager;
     QtBoolPropertyManager* boolManager;
+    QtColorPropertyManager* colorManager;
 
     QtTreePropertyBrowser* propertyEditor_;
 

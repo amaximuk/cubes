@@ -75,7 +75,8 @@ namespace unit_types
 		SpinInterger,
 		SpinDouble,
 		ComboBox,
-		CheckBox
+		CheckBox,
+		Color
 	};
 
 	struct EditorSettings

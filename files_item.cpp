@@ -39,17 +39,15 @@ void files_item::CreateEditorModel()
 
     //if (eg == nullptr)
     //    assert(false);
-
     {
         parameters_compiler::parameter_info pi{};
         pi.display_name = QString::fromLocal8Bit("Цвет").toStdString();
-
         unit_types::ParameterModel pm;
         pm.id = "EDITOR/COLOR";
         pm.parameterInfo = pi;
-        pm.editorSettings.type = unit_types::EditorType::None;
-        editor_group.parameters.push_back(pm);
-        //eg->parameters.push_back(pm);
+        pm.editorSettings.type = unit_types::EditorType::Color;
+        pm.value = QColor("Red").rgba();
+        editor_group.parameters.push_back(std::move(pm));
     }
 
     parametersModel_.parameters.push_back(std::move(editor_group));
@@ -78,7 +76,7 @@ void files_item::CreateParametersModel()
         pm_host.parameterInfo = pi_host;
         pm_host.editorSettings.type = unit_types::EditorType::String;
         pm_host.value = "127.0.0.1";
-        pm_connection.parameters.push_back(pm_host);
+        pm_connection.parameters.push_back(std::move(pm_host));
 
         parameters_compiler::parameter_info pi_port{};
         pi_port.display_name = QString::fromLocal8Bit("Порт").toStdString();
@@ -89,7 +87,7 @@ void files_item::CreateParametersModel()
         pm_port.editorSettings.SpinIntergerMin = 1000;
         pm_port.editorSettings.SpinIntergerMin = 65535;
         pm_port.value = 50000;
-        pm_connection.parameters.push_back(pm_port);
+        pm_connection.parameters.push_back(std::move(pm_port));
 
         properties_group.parameters.push_back(std::move(pm_connection));
     }
@@ -324,6 +322,13 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
         boolManager->setValue(pr, model.value.toBool());
         boolManager->blockSignals(false);
     }
+    else if (model.editorSettings.type == unit_types::EditorType::Color)
+    {
+        pr = colorManager->addProperty(QString::fromStdString(model.parameterInfo.display_name));
+        colorManager->blockSignals(true);
+        colorManager->setValue(pr, QColor::fromRgba(model.value.toUInt()));
+        colorManager->blockSignals(false);
+    }
     else assert(false);
 
     RegisterProperty(pr, model.id);
@@ -344,12 +349,14 @@ void files_item::CreatePropertyBrowser()
     stringManager = new QtStringPropertyManager(this);
     enumManager = new QtEnumPropertyManager(this);
     boolManager = new QtBoolPropertyManager(this);
+    colorManager = new QtColorPropertyManager(this);
 
     qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
     qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
     qDebug() << connect(enumManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
+    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
 }
 
 
@@ -363,12 +370,14 @@ void files_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
     QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
     QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+    QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
 
     propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
     propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
     propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
     propertyEditor->setFactoryForManager(enumManager, comboBoxFactory);
     propertyEditor->setFactoryForManager(boolManager, checkBoxFactory);
+    propertyEditor->setFactoryForManager(colorManager, colorEditorFactory);
 
 
     propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
@@ -616,6 +625,7 @@ void files_item::valueChanged(QtProperty* property, const QString& value)
 
 void files_item::valueChanged(QtProperty* property, const QColor& value)
 {
+    qDebug() << "Color changed: " << value;
     //    if (!propertyToId.contains(property))
     //        return;
 
