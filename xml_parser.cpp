@@ -220,15 +220,12 @@ bool parser::get_units(const QDomElement& node, QList<Group>& groups)
 
 bool parser::get_group(const QDomElement& node, Group& group)
 {
-	auto paramNodes = node.elementsByTagName("Param");
-
-	qDebug() << node.tagName();
-	qDebug() << paramNodes.size();
+	auto paramNodes = elementsByTagName(node, "Param");
 
 	if (paramNodes.size() != 1)
 		ELRF("Group/Param not found or more then one");
 
-	auto ep = paramNodes.at(0).toElement();
+	const auto& ep = paramNodes[0];
 	QString name = ep.attribute("name", "");
 	QString type = ep.attribute("type", "");
 	QString val = ep.attribute("val", "");
@@ -238,10 +235,9 @@ bool parser::get_group(const QDomElement& node, Group& group)
 	else
 		ELRF("Group/Param is unknown");
 
-	auto unitNodes = node.elementsByTagName("Unit");
-	for (size_t i = 0; i < unitNodes.count(); i++)
+	auto unitNodes = elementsByTagName(node, "Unit");
+	for (const auto& eu : unitNodes)
 	{
-		auto eu = unitNodes.at(i).toElement();
 		Unit unit{};
 		if (!get_unit(eu, unit))
 			ELRF("Get Unit failed");
@@ -264,33 +260,27 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 	unit.name = name;
 	unit.id = id;
 
-	auto paramNodes = node.elementsByTagName("Param");
-	for (size_t i = 0; i < paramNodes.count(); i++)
+	auto paramNodes = elementsByTagName(node, "Param");
+	for (const auto& ep : paramNodes)
 	{
-		auto ep = paramNodes.at(i).toElement();
-
 		Param param{};
 		if (!get_param(ep, param))
 			ELRF("Get Param failed");
 		unit.params.push_back(std::move(param));
 	}
 
-	auto arrayNodes = node.elementsByTagName("Array");
-	for (size_t i = 0; i < arrayNodes.count(); i++)
+	auto arrayNodes = elementsByTagName(node, "Array");
+	for (const auto& ea : arrayNodes)
 	{
-		auto ea = arrayNodes.at(i).toElement();
-
 		Array array{};
 		if (!get_array(ea, array))
 			ELRF("Get Array failed");
 		unit.arrays.push_back(std::move(array));
 	}
 
-	auto dependsNodes = node.elementsByTagName("Depends");
-	for (size_t i = 0; i < dependsNodes.count(); i++)
+	auto dependsNodes = elementsByTagName(node, "Depends");
+	for (const auto& ed : dependsNodes)
 	{
-		auto ed = dependsNodes.at(i).toElement();
-
 		QList<QString> depends;
 		if (!get_depends(ed, depends))
 			ELRF("Get Depends failed");
@@ -335,11 +325,9 @@ bool parser::get_array(const QDomElement& node, Array& array)
 	array.name = name;
 	array.type = type;
 
-	auto itemNodes = node.elementsByTagName("Item");
-	for (size_t i = 0; i < itemNodes.count(); i++)
+	auto itemNodes = elementsByTagName(node, "Item");
+	for (const auto& ei : itemNodes)
 	{
-		auto ei = itemNodes.at(i).toElement();
-
 		Item item;
 		if (!get_item(ei, type, item))
 			ELRF("Get Item failed");
@@ -351,11 +339,9 @@ bool parser::get_array(const QDomElement& node, Array& array)
 
 bool parser::get_depends(const QDomElement& node, QList<QString>& depends)
 {
-	auto itemNodes = node.elementsByTagName("Item");
-	for (size_t i = 0; i < itemNodes.count(); i++)
+	auto itemNodes = elementsByTagName(node, "Item");
+	for (const auto& ei : itemNodes)
 	{
-		auto ei = itemNodes.at(i).toElement();
-		
 		QString name = ei.attribute("name", "");
 
 		if (name == "")
@@ -369,7 +355,7 @@ bool parser::get_depends(const QDomElement& node, QList<QString>& depends)
 
 bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 {
-	if (type == "")
+	if (type != "")
 	{
 		QString val = node.attribute("val", "");
 
@@ -380,22 +366,18 @@ bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 	}
 	else
 	{
-		auto paramNodes = node.elementsByTagName("Param");
-		for (size_t i = 0; i < paramNodes.count(); i++)
+		auto paramNodes = elementsByTagName(node, "Param");
+		for (const auto& ep : paramNodes)
 		{
-			auto ep = paramNodes.at(i).toElement();
-
 			Param param{};
 			if (!get_param(ep, param))
 				ELRF("Get Param failed");
 			item.params.push_back(std::move(param));
 		}
 
-		auto arrayNodes = node.elementsByTagName("Array");
-		for (size_t i = 0; i < arrayNodes.count(); i++)
+		auto arrayNodes = elementsByTagName(node, "Array");
+		for (const auto& ea : arrayNodes)
 		{
-			auto ea = arrayNodes.at(i).toElement();
-
 			Array array{};
 			if (!get_array(ea, array))
 				ELRF("Get Array failed");
@@ -406,115 +388,21 @@ bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 	return true;
 }
 
-//
-//bool parser::get_info_info(const YAML::Node& node, parameters_compiler::info_info& ui)
-//{
-//	// Required members from yml
-//	if (!try_get_yaml_value<std::string>(node, "ID", ui.id))
-//		ELRF("Get unit ID node failed");
-//
-//	// Optional members from yml
-//	if (!try_get_yaml_value<std::string>(node, "DISPLAY_NAME", ui.display_name))
-//		ui.display_name = "";
-//	if (!try_get_yaml_value<std::string>(node, "DESCRIPTION", ui.description))
-//		ui.description = "";
-//	ui.description = std::regex_replace(ui.description, std::regex("\r\n$|\n$"), "");
-//	if (!try_get_yaml_value<std::string>(node, "CATEGORY", ui.category))
-//		ui.category = "";
-//	if (!try_get_yaml_value<std::string>(node, "HINT", ui.hint))
-//		ui.hint = "";
-//	if (!try_get_yaml_value<std::string>(node, "PICTOGRAM", ui.pictogram))
-//		ui.pictogram = "";
-//	if (!try_get_yaml_value<std::string>(node, "AUTHOR", ui.author))
-//		ui.author = "";
-//	if (!try_get_yaml_value<std::string>(node, "WIKI", ui.wiki))
-//		ui.wiki = "";
-//
-//	return true;
-//}
-//
-//bool parser::get_type_info(const YAML::Node& node, const std::vector<parameters_compiler::type_info>& type_infos, parameters_compiler::type_info& ti)
-//{
-//	// Required members from yml
-//	if (!try_get_yaml_value<std::string>(node, "NAME", ti.name))
-//		ELRF("Get parameter NAME node failed");
-//
-//	// Optional members from yml
-//	if (!try_get_yaml_value<std::string>(node, "TYPE", ti.type))
-//		ti.type = "yml";
-//	if (!try_get_yaml_value<std::string>(node, "DESCRIPTION", ti.description))
-//		ti.description = "";
-//	ti.description = std::regex_replace(ti.description, std::regex("\r\n$|\n$"), "");
-//
-//	YAML::Node parameters = node["PARAMETERS"];
-//	for (const auto& parameter : parameters)
-//	{
-//		parameters_compiler::parameter_info pi;
-//		if (!get_parameter_info(parameter, type_infos, pi))
-//			ELRF("Get parameter info failed");
-//		ti.parameters.push_back(std::move(pi));
-//	}
-//	YAML::Node values = node["VALUES"];
-//	for (const auto& value : values)
-//		ti.values.push_back({ value.first.as<std::string>(), value.second.as<std::string>() });
-//
-//	YAML::Node includes = node["INCLUDES"];
-//	for (const auto& include : includes)
-//		ti.includes.push_back(include.as<std::string>());
-//
-//	return true;
-//}
-//
-//bool parser::get_parameter_info(const YAML::Node& node, const std::vector<parameters_compiler::type_info>& type_infos, parameters_compiler::parameter_info& pi)
-//{
-//	// Get required members
-//	if (!try_get_yaml_value<std::string>(node, "TYPE", pi.type))
-//		ELRF("Get parameter TYPE node failed");
-//	if (!try_get_yaml_value<std::string>(node, "NAME", pi.name))
-//		ELRF("Get parameter NAME node failed");
-//
-//	// Get optional members
-//	bool parameter_has_default = true;
-//	if (!try_get_yaml_value<std::string>(node, "DEFAULT", pi.default_))
-//	{
-//		parameter_has_default = false;
-//		pi.default_ = "";
-//	}
-//	if (!try_get_yaml_value<std::string>(node, "DISPLAY_NAME", pi.display_name))
-//		pi.display_name = "";
-//	if (!try_get_yaml_value<std::string>(node, "DESCRIPTION", pi.description))
-//		pi.description = "";
-//	pi.description = std::regex_replace(pi.description, std::regex("\r\n$|\n$"), "");
-//	if (!try_get_yaml_value<std::string>(node, "HINT", pi.hint))
-//		pi.hint = "";
-//	if (!try_get_yaml_value<bool>(node, "REQUIRED", pi.required))
-//		pi.required = true;
-//
-//	YAML::Node restrictions = node["RESTRICTIONS"];
-//	if (restrictions)
-//	{
-//		if (!try_get_yaml_value<std::string>(restrictions, "MIN", pi.restrictions.min))
-//			pi.restrictions.min = "";
-//		if (!try_get_yaml_value<std::string>(restrictions, "MAX", pi.restrictions.max))
-//			pi.restrictions.max = "";
-//		YAML::Node required_set = restrictions["SET"];
-//		for (const auto& v : required_set)
-//			pi.restrictions.set_.push_back(v.as<std::string>());
-//		if (!try_get_yaml_value<std::string>(restrictions, "MIN_COUNT", pi.restrictions.min_count))
-//			pi.restrictions.min_count = "";
-//		if (!try_get_yaml_value<std::string>(restrictions, "MAX_COUNT", pi.restrictions.max_count))
-//			pi.restrictions.max_count = "";
-//		YAML::Node required_set_count = restrictions["SET_COUNT"];
-//		for (const auto& v : required_set_count)
-//			pi.restrictions.set_count.push_back(v.as<std::string>());
-//		if (!try_get_yaml_value<std::string>(restrictions, "CATEGORY", pi.restrictions.category))
-//			pi.restrictions.category = "";
-//		YAML::Node required_ids = restrictions["IDS"];
-//		for (const auto& v : required_ids)
-//			pi.restrictions.ids.push_back(v.as<std::string>());
-//		if (!try_get_yaml_value<std::string>(restrictions, "MAX_LENGTH", pi.restrictions.max_length))
-//			pi.restrictions.max_length = "";
-//	}
-//
-//	return true;
-//}
+QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QString& tagname)
+{
+	QList<QDomElement> list;
+
+	QDomNode i = node.firstChild();
+	while (!i.isNull())
+	{
+		QDomElement ei = i.toElement();
+		if (!ei.isNull())
+		{
+			if (ei.tagName() == tagname)
+				list.push_back(ei);
+		}
+		i = i.nextSibling();
+	}
+
+	return list;
+}
