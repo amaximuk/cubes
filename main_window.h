@@ -73,6 +73,7 @@ private:
 private slots:
     void on_NewFile_action();
     void on_OpenFile_action();
+    void on_ImportXmlFile_action();
     void on_SaveFile_action();
     void on_SaveAsFile_action();
     void on_Quit_action();

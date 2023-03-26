@@ -9,6 +9,7 @@
 #include "diagram_item.h"
 #include "properties_item.h"
 #include "yaml_parser.h"
+#include "xml_parser.h"
 #include "base64.h"
 
 #include <QHBoxLayout>
@@ -34,6 +35,7 @@
 #include <QComboBox>
 #include <QDirIterator>
 #include <QInputDialog>
+#include <QFileDialog>
 
 
 #include <QStandardItemModel>
@@ -695,6 +697,10 @@ void MainWindow::CreateMenu()
     openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
     connect(openAct, &QAction::triggered, this, &MainWindow::on_OpenFile_action);
 
+    QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
+    importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
+    connect(importXmlAct, &QAction::triggered, this, &MainWindow::on_ImportXmlFile_action);
+
     QAction* saveAct = new QAction(QString::fromLocal8Bit("Сохранить"), this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл"));
@@ -713,6 +719,7 @@ void MainWindow::CreateMenu()
     QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
+    fileMenu->addAction(importXmlAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
@@ -766,6 +773,34 @@ void MainWindow::on_OpenFile_action()
     //if (fileNames.size() == 0)
     //    return;
 
+    //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
+
+    //OpenFileInternal(fileNames[0], is_json);
+}
+
+void MainWindow::on_ImportXmlFile_action()
+{
+    //if (modified_)
+    //{
+    //    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+    //        QString::fromLocal8Bit("Вы действительно хотите открыть файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+    //    if (resBtn != QMessageBox::Yes)
+    //        return;
+    //}
+
+    QFileDialog dialog(this);
+    dialog.setNameFilter("Settings XML Files (*.xml)");
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QStringList fileNames;
+    if (dialog.exec())
+        fileNames = dialog.selectedFiles();
+
+    if (fileNames.size() == 0)
+        return;
+
+    xml::File f{};
+    xml::parser::parse(fileNames[0], f);
     //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
 
     //OpenFileInternal(fileNames[0], is_json);
