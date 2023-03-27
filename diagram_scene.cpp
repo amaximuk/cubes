@@ -6,6 +6,7 @@
 #include <QCursor>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QPainter>
 
 diagram_scene::diagram_scene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -136,4 +137,11 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
     }
 
     QGraphicsScene::keyPressEvent(keyEvent);
+}
+
+void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
+{
+    painter->drawLine(0, 0, 100, 100);
+
+    QGraphicsScene::drawBackground(painter, rect);
 }

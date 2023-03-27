@@ -4,6 +4,7 @@
 #include <QGraphicsItem>
 #include <QObject>
 #include <QPointer>
+#include <QFont>
 
 #include "unit_types.h"
 

@@ -35,6 +35,7 @@ protected slots:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
+    void drawBackground(QPainter* painter, const QRectF& rect);
 };
 
 #endif // SCENE_H
