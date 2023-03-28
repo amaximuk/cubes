@@ -6,9 +6,9 @@
 #include <QPointer>
 #include <QFont>
 
+#include "properties_item.h"
 #include "unit_types.h"
 
-class properties_item;
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -38,6 +38,8 @@ public:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
     QString getName() { return name_; };
     QSharedPointer<properties_item> getProperties() { return properties_; };
+    QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
+    QString getInstanceName() { return properties_->GetInstanceName(); }
 
 public:
     void InformPositionXChanged(double x);

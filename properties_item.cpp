@@ -84,6 +84,27 @@ void properties_item::CreateEditorModel()
 
 void properties_item::CreateParametersModel()
 {
+    unit_types::ParameterModel base_group;
+    base_group.id = "PARAMETERS";
+    base_group.name = QString::fromLocal8Bit("Базовые");
+    base_group.value = "";
+    base_group.valueType = "none";
+    //base_group.parameterInfoId = "";
+    base_group.editorSettings.type = unit_types::EditorType::None;
+    base_group.editorSettings.is_expanded = true;
+
+    unit_types::ParameterModel instance_name;
+    instance_name.id = "PARAMETERS/INSTANCE_NAME";
+    instance_name.name = QString::fromLocal8Bit("Имя экземляра");
+    instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
+    instance_name.valueType = "string";
+    //instance_name.parameterInfoId = "";
+    instance_name.editorSettings.type = unit_types::EditorType::String;
+    instance_name.editorSettings.is_expanded = false;
+
+    base_group.parameters.push_back(std::move(instance_name));
+    parametersModel_.parameters.push_back(std::move(base_group));
+
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
     properties_group.name = QString::fromLocal8Bit("Параметры");
@@ -416,6 +437,44 @@ void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
         if (pm != nullptr)
             pm->editorSettings.is_expanded = is_expanded;
     }
+}
+
+void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+{
+    auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+
+    if (pi != nullptr && pi->type == "unit")
+    {
+        QString name = model.value.toString();
+        if (name != "")
+            list.push_back(name);
+    }
+    for (const auto& pm : model.parameters)
+        GetConnectedNamesInternal(pm, list);
+}
+
+QString properties_item::GetInstanceName()
+{
+    const auto pm = GetParameterModel("PARAMETERS/INSTANCE_NAME");
+    if (pm != nullptr)
+        return pm->value.toString();
+    return QString();
+}
+
+QList<QString> properties_item::GetConnectedNames()
+{
+    QList<QString> list;
+    for(const auto& pm : parametersModel_.parameters)
+    {
+        GetConnectedNamesInternal(pm, list);
+        // auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+        //if (pm.parameterInfoId.type == "unit")
+        //{
+        //    list.push_back(pm.name);
+        //}
+    }
+    return list;
 }
 
 void properties_item::FillArrayModel(unit_types::ParameterModel& pm)

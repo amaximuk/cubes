@@ -1,4 +1,3 @@
-#include "diagram_scene.h"
 #include <QPainterPath>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
@@ -7,6 +6,9 @@
 #include <QKeyEvent>
 #include <QDebug>
 #include <QPainter>
+
+#include "diagram_item.h"
+#include "diagram_scene.h"
 
 diagram_scene::diagram_scene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -141,6 +143,17 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
 {
+    QMap<QString, QList<QString>> connections;
+    for (const auto& item : items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        QString name = di->getInstanceName();
+        if (name != "")
+        {
+            QList<QString> conn = di->getConnectedNames();
+            connections[name].append(conn);
+        }
+    }
     painter->drawLine(0, 0, 100, 100);
 
     QGraphicsScene::drawBackground(painter, rect);

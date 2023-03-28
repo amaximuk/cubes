@@ -74,6 +74,8 @@ public:
     void ZOrderChanged(double value);
     QString GetPropertyDescription(QtProperty* property);
     void ExpandedChanged(QtProperty* property, bool is_expanded);
+    QList<QString> GetConnectedNames();
+    QString GetInstanceName();
 
 private:
     QMap<QtProperty*, QString> propertyToId;
@@ -88,6 +90,7 @@ private:
     bool GetExpanded(QtProperty* property);
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(QtProperty* property);
+    void GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
 
     void SaveExpandState();
     void SaveExpandState(QtBrowserItem* index);

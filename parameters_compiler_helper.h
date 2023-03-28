@@ -83,6 +83,13 @@ namespace parameters_compiler
         //    else
         //        return pi.hint;
         //}
+        static QString get_instance_name_initial(file_info& fi)
+        {
+            if (fi.info.hint != "")
+                return QString::fromStdString(fi.info.hint);
+
+            return QString::fromStdString(fi.info.id);
+        }
 
         static QVariant get_parameter_initial(file_info& fi, const parameter_info& pi)
         {
