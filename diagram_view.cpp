@@ -101,4 +101,7 @@ void diagram_view::dropEvent(QDropEvent *event)
     } else {
         event->ignore();
     }
+
+    scene()->invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
+
 }

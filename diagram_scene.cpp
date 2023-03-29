@@ -69,6 +69,9 @@ void diagram_scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 
   // Always remember to call parents mousePressEvent
   QGraphicsScene::mouseMoveEvent(event);
+
+  QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
+
 }
 
 void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
@@ -111,6 +114,9 @@ void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
   moving_item_ = 0;
   // Always remember to call parents mousePressEvent
   QGraphicsScene::mouseReleaseEvent(event);
+
+
+  QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
 }
 
 void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
@@ -154,7 +160,37 @@ void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
             connections[name].append(conn);
         }
     }
-    painter->drawLine(0, 0, 100, 100);
+    
+    //painter->fillRect(sceneRect(), Qt::blue);
 
+    for (const auto& kvp : connections.toStdMap())
+    {
+        auto di1 = getDiagramItem(kvp.first);
+        if (di1 != nullptr)
+        {
+            for (const auto& item : kvp.second)
+            {
+                auto di2 = getDiagramItem(item);
+                if (di2 != nullptr)
+                {
+                    painter->drawLine(di1->scenePos(), di2->scenePos());
+                    painter->drawLine(di1->pos(), di2->pos());
+                }
+            }
+        }
+    }
     QGraphicsScene::drawBackground(painter, rect);
+}
+
+diagram_item* diagram_scene::getDiagramItem(QString name)
+{
+    for (const auto& item : items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (name == di->getInstanceName())
+        {
+            return di;
+        }
+    }
+    return nullptr;
 }

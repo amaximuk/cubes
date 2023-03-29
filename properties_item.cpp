@@ -85,7 +85,7 @@ void properties_item::CreateEditorModel()
 void properties_item::CreateParametersModel()
 {
     unit_types::ParameterModel base_group;
-    base_group.id = "PARAMETERS";
+    base_group.id = "BASE";
     base_group.name = QString::fromLocal8Bit("Базовые");
     base_group.value = "";
     base_group.valueType = "none";
@@ -94,7 +94,7 @@ void properties_item::CreateParametersModel()
     base_group.editorSettings.is_expanded = true;
 
     unit_types::ParameterModel instance_name;
-    instance_name.id = "PARAMETERS/INSTANCE_NAME";
+    instance_name.id = "BASE/INSTANCE_NAME";
     instance_name.name = QString::fromLocal8Bit("Имя экземляра");
     instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
     instance_name.valueType = "string";
@@ -456,7 +456,7 @@ void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel
 
 QString properties_item::GetInstanceName()
 {
-    const auto pm = GetParameterModel("PARAMETERS/INSTANCE_NAME");
+    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
     if (pm != nullptr)
         return pm->value.toString();
     return QString();

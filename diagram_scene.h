@@ -36,6 +36,9 @@ protected slots:
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
     void drawBackground(QPainter* painter, const QRectF& rect);
+
+private:
+    diagram_item* getDiagramItem(QString name);
 };
 
 #endif // SCENE_H
