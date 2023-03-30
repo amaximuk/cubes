@@ -55,7 +55,7 @@ protected:
     void FillParametersInfo();
 
 public:
-    unit_types::UnitParameters GetUnitParameters(QString id) const;
+    unit_types::UnitParameters* GetUnitParameters(QString id);
 
 private:
     diagram_scene* scene_;

@@ -73,11 +73,11 @@ void diagram_view::dropEvent(QDropEvent *event)
         QString vvv = QString::number(counter++);
 
 
-        auto up = main_->GetUnitParameters(name);
+        auto up = *main_->GetUnitParameters(name);
 
-        diagram_item *newIcon = new diagram_item(up);
+        diagram_item *di = new diagram_item(up);
         diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-        ds->informItemCreated(name, newIcon);
+        ds->informItemCreated(name, di);
 
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 
@@ -86,10 +86,10 @@ void diagram_view::dropEvent(QDropEvent *event)
         qreal yV = round(position.y() / gridSize) * gridSize;
         position = QPoint(xV, yV);
 
-        this->scene()->addItem(newIcon);
+        this->scene()->addItem(di);
         this->scene()->clearSelection();
-        newIcon->setPos(position);
-        newIcon->setSelected(true);
+        di->setPos(position);
+        di->setSelected(true);
 
 
         if (event->source() == this) {

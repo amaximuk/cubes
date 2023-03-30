@@ -461,14 +461,14 @@ void MainWindow::FillParametersInfo()
     }
 }
 
-unit_types::UnitParameters MainWindow::GetUnitParameters(QString id) const
+unit_types::UnitParameters* MainWindow::GetUnitParameters(QString id)
 {
-    for (const auto& up : unitParameters_)
+    for (auto& up : unitParameters_)
     {
         if (QString::fromStdString(up.fileInfo.info.id) == id)
-            return up;
+            return &up;
     }
-    return {};
+    return nullptr;
 }
 
 QGraphicsItemGroup *group;
@@ -800,6 +800,45 @@ void MainWindow::on_ImportXmlFile_action()
 
     xml::File f{};
     xml::parser::parse(fileNames[0], f);
+
+
+    // Transform
+    for (const auto& g : f.groups)
+    {
+        for (const auto& u : g.units)
+        {
+            QString name = u.id;
+            auto up = GetUnitParameters(name);
+
+            if (up != nullptr)
+            {
+                diagram_item* di = new diagram_item(*up);
+                scene_->informItemCreated(name, di);
+
+                QPoint position(0, 0);
+
+                int gridSize = 20;
+                qreal xV = round(position.x() / gridSize) * gridSize;
+                qreal yV = round(position.y() / gridSize) * gridSize;
+                position = QPoint(xV, yV);
+
+                scene_->addItem(di);
+                scene_->clearSelection();
+                di->setPos(position);
+                di->setSelected(true);
+            }
+        }
+    }
+
+
+
+
+    // Sort
+
+
+
+
+
     //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
 
     //OpenFileInternal(fileNames[0], is_json);
