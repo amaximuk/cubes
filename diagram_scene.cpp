@@ -161,7 +161,9 @@ void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
         }
     }
     
-    //painter->fillRect(sceneRect(), Qt::blue);
+    //painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
+    painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setRenderHint(QPainter::Antialiasing);
 
     for (const auto& kvp : connections.toStdMap())
     {
@@ -173,8 +175,8 @@ void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
                 auto di2 = getDiagramItem(item);
                 if (di2 != nullptr)
                 {
-                    painter->drawLine(di1->scenePos(), di2->scenePos());
-                    painter->drawLine(di1->pos(), di2->pos());
+                    //painter->drawLine(di1->scenePos(), di2->scenePos());
+                    painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
                 }
             }
         }

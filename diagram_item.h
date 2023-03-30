@@ -40,6 +40,7 @@ public:
     QSharedPointer<properties_item> getProperties() { return properties_; };
     QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
     QString getInstanceName() { return properties_->GetInstanceName(); }
+    QPointF getLineAncorPosition() { return mapToScene(iconRect_.center()); }
 
 public:
     void InformPositionXChanged(double x);
