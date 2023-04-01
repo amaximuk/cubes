@@ -454,6 +454,38 @@ void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel
         GetConnectedNamesInternal(pm, list);
 }
 
+void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu)
+{
+    auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+
+    if (pi != nullptr)
+    {
+        if (parameters_compiler::helper::is_array_type(pi->type))
+        {
+            int i = xml::parser::getItemsCount(xu, model.id);
+            qDebug() << i;
+            if (i != -1)
+            {
+                model.value = i;
+                UpdateArrayModel(model);
+            }
+        }
+        else
+        {
+            xml::Param* xp = xml::parser::getParam(xu, model.id);
+            if (xp != nullptr)
+            {
+                qDebug() << xp->name;
+                model.value = xp->val;
+            }
+        }
+    }
+
+    for (auto& pm : model.parameters)
+        ApplyXmlPropertiesInternal(pm, xu);
+}
+
 QString properties_item::GetInstanceName()
 {
     const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
@@ -467,6 +499,10 @@ void properties_item::ApplyXmlProperties(xml::Unit xu)
     auto pm = GetParameterModel("BASE/INSTANCE_NAME");
     pm->value = xu.name;
 
+    for (auto& pm : parametersModel_.parameters)
+    {
+        ApplyXmlPropertiesInternal(pm, xu);
+    }
 }
 
 QList<QString> properties_item::GetConnectedNames()

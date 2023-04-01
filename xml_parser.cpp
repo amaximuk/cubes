@@ -428,6 +428,16 @@ bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 	return true;
 }
 
+QList<QString> parser::getConnections(Unit u)
+{
+	return {};
+}
+
+QList<QString> parser::getDependencies(Unit u)
+{
+	return {};
+}
+
 QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QString& tagname)
 {
 	QList<QDomElement> list;
@@ -445,4 +455,130 @@ QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QStr
 	}
 
 	return list;
+}
+
+int parser::getItemsCount(Unit& unit, const QString& id)
+{
+	QList<QString> ss = id.split("/");
+	if (ss.size() < 2)
+		return false;
+	if (ss.front() != "PARAMETERS")
+		return false;
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			if (s.startsWith("ITEM_") && s.size() > 4)
+			{
+				int index = s.mid(5).toInt();
+				if (array->items.size() > index)
+				{
+					params = &array->items[index].params;
+					arrays = &array->items[index].arrays;
+				}
+				else
+					return -1;
+			}
+			else
+				return -1;
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			for (auto& p : *params)
+			{
+				if (s == p.name)
+				{
+					return -1;
+				}
+			}
+
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+	
+	if (array != nullptr)
+		return array->items.size();
+
+	return -1;
+}
+
+Param* parser::getParam(Unit& unit, const QString& id)
+{
+	QList<QString> ss = id.split("/");
+	if (ss.size() < 2)
+		return false;
+	if (ss.front() != "PARAMETERS")
+		return false;
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			if (s.startsWith("ITEM_") && s.size() > 4)
+			{
+				int index = s.mid(5).toInt();
+				if (array->items.size() > index)
+				{
+					params = &array->items[index].params;
+					arrays = &array->items[index].arrays;
+				}
+				else
+					return nullptr;
+			}
+			else
+				return nullptr;
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			for (auto& p : *params)
+			{
+				if (s == p.name)
+				{
+					if (ss.size() != 1)
+						return nullptr;
+					return &p;
+				}
+			}
+
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+	return nullptr;
 }

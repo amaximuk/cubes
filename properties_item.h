@@ -94,6 +94,7 @@ private:
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(QtProperty* property);
     void GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
+    void ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu);
 
     void SaveExpandState();
     void SaveExpandState(QtBrowserItem* index);
