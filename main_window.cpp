@@ -14,6 +14,8 @@
 #include "graph.h"
 #include "arrow_item.h"
 
+#include <vector>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -46,7 +48,6 @@ MainWindow::MainWindow(QWidget *parent)
     modified_ = false;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
-    xxx();
 
     CreateUi();
 
@@ -802,38 +803,66 @@ void MainWindow::on_ImportXmlFile_action()
     xml::parser::parse(fileNames[0], f);
 
 
-    // Transform
-    for (const auto& g : f.groups)
+    QVector<xml::Unit> all_units;
+    std::vector<std::pair<int, int>> edges;
+    for (const auto& g : f.config.groups)
     {
         for (const auto& u : g.units)
         {
             QString name = u.id;
             auto up = GetUnitParameters(name);
-
             if (up != nullptr)
             {
-                diagram_item* di = new diagram_item(*up);
-                scene_->informItemCreated(name, di);
-
-                QPoint position(0, 0);
-
-                int gridSize = 20;
-                qreal xV = round(position.x() / gridSize) * gridSize;
-                qreal yV = round(position.y() / gridSize) * gridSize;
-                position = QPoint(xV, yV);
-
-                scene_->addItem(di);
-                scene_->clearSelection();
-                di->setPos(position);
-                di->setSelected(true);
+                all_units.push_back(u);
             }
         }
+    }
+
+    // Sort
+    std::vector<std::pair<int, int>> coordinates;
+    if (!rearrangeGraph(all_units.size(), edges, coordinates))
+    {
+        return;
     }
 
 
 
 
-    // Sort
+    // Transform
+    for (size_t i = 0; i < all_units.size(); i++)
+    {
+        QString name = all_units[i].id;
+        auto up = GetUnitParameters(name);
+
+        if (up != nullptr)
+        {
+            diagram_item* di = new diagram_item(*up);
+            //scene_->informItemCreated(name, di);
+
+
+            auto pi = di->getProperties();
+            pi->ApplyXmlProperties(all_units[i]);
+
+
+            QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 40);
+
+            int gridSize = 20;
+            qreal xV = round(position.x() / gridSize) * gridSize;
+            qreal yV = round(position.y() / gridSize) * gridSize;
+            position = QPoint(xV, yV);
+
+            scene_->addItem(di);
+            scene_->clearSelection();
+            di->setPos(position);
+            di->setSelected(true);
+        }
+        else
+        {
+            // error
+        }
+    }
+
+
 
 
 

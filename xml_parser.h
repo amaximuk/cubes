@@ -112,12 +112,25 @@ namespace xml
 		QList<Unit> units;
 	};
 
-	struct File
+	//struct File
+	//{
+	//	QList<Include> includes;
+	//	Networking networking;
+	//	Log log;
+	//	QList<Group> groups;
+	//};
+
+	struct Config
 	{
-		QList<Include> includes;
 		Networking networking;
 		Log log;
 		QList<Group> groups;
+	};
+
+	struct File
+	{
+		QList<Include> includes;
+		Config config;
 	};
 
 	class parser
@@ -130,6 +143,7 @@ namespace xml
 
 		static bool get_file(const QDomElement& node, File& file);
 		static bool get_includes(const QDomElement& node, QList<Include>& includes);
+		static bool get_config(const QDomElement& node, Config& config);
 		static bool get_networking(const QDomElement& node, Networking& networking);
 		static bool get_log(const QDomElement& node, Log& log);
 		static bool get_units(const QDomElement& node, QList<Group>& groups);

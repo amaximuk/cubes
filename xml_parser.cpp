@@ -13,19 +13,38 @@ using namespace xml;
 
 bool parser::parse(const QString& filename, File& fi)
 {
+	//QFile xmlFile(filename);
+	//if (!xmlFile.open(QIODevice::ReadOnly))
+	//{
+	//	ELRF("File " << filename.toStdString() << " load failed");
+	//}
 	QFile xmlFile(filename);
-	if (!xmlFile.open(QIODevice::ReadOnly))
+	if (!xmlFile.open(QIODevice::ReadOnly | QFile::Text))
 	{
 		ELRF("File " << filename.toStdString() << " load failed");
 	}
+
+	QTextStream in(&xmlFile);
+	QString xmlText = in.readAll();
+
+	int pos = xmlText.indexOf("<Includes");
+	if (pos == -1)
+		pos = xmlText.indexOf("<Config");
+	if (pos != -1)
+	{
+		xmlText.insert(pos, "<FakeRoot>\n");
+		xmlText.append("\n</FakeRoot>");
+	}
+
 	QDomDocument doc;
-	doc.setContent(&xmlFile);
+	//doc.setContent(&xmlFile);
+	doc.setContent(xmlText);
 	xmlFile.close();
 
 	QDomElement root = doc.documentElement();
 
-	if (root.tagName() != "Config")
-		ELRF("File have no Config or doc malformed");
+	//if (root.tagName() != "Config")
+	//	ELRF("File have no Config or doc malformed");
 
 	if (!get_file(root, fi))
 		ELRF("File info parse failed");
@@ -42,28 +61,17 @@ bool parser::get_file(const QDomElement& node, File& fi)
 		if (!ne.isNull())
 		{
 			qDebug() << ne.tagName();
+
 			if (ne.tagName() == "Includes")
 			{
 				if (!get_includes(ne, fi.includes))
 					ELRF("Get Includes failed");
 			}
-			else if (ne.tagName() == "Networking")
+			else if (ne.tagName() == "Config")
 			{
-				if (!get_networking(ne, fi.networking))
-					ELRF("Get Networking failed");
+				if (!get_config(ne, fi.config))
+					ELRF("Get Config failed");
 			}
-			else if (ne.tagName() == "Log")
-			{
-				if (!get_log(ne, fi.log))
-					ELRF("Get Log failed");
-			}
-			else if (ne.tagName() == "Units")
-			{
-				if (!get_units(ne, fi.groups))
-					ELRF("Get Units failed");
-			}
-			else
-				ELRF("Config have unknown child");
 		}
 		n = n.nextSibling();
 	}
@@ -114,6 +122,38 @@ bool parser::get_includes(const QDomElement& node, QList<Include>& includes)
 				v = v.nextSibling();
 			}
 			includes.push_back(std::move(include));
+		}
+		i = i.nextSibling();
+	}
+
+	return true;
+}
+
+bool parser::get_config(const QDomElement& node, Config& config)
+{
+	QDomNode i = node.firstChild();
+	while (!i.isNull())
+	{
+		QDomElement ei = i.toElement();
+		if (!ei.isNull())
+		{
+			if (ei.tagName() == "Networking")
+			{
+				if (!get_networking(ei, config.networking))
+					ELRF("Get Networking failed");
+			}
+			else if (ei.tagName() == "Log")
+			{
+				if (!get_log(ei, config.log))
+					ELRF("Get Log failed");
+			}
+			else if (ei.tagName() == "Units")
+			{
+				if (!get_units(ei, config.groups))
+					ELRF("Get Units failed");
+			}
+			else
+				ELRF("Config have unknown child");
 		}
 		i = i.nextSibling();
 	}

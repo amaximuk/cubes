@@ -462,10 +462,17 @@ QString properties_item::GetInstanceName()
     return QString();
 }
 
+void properties_item::ApplyXmlProperties(xml::Unit xu)
+{
+    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    pm->value = xu.name;
+
+}
+
 QList<QString> properties_item::GetConnectedNames()
 {
     QList<QString> list;
-    for(const auto& pm : parametersModel_.parameters)
+    for (const auto& pm : parametersModel_.parameters)
     {
         GetConnectedNamesInternal(pm, list);
         // auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());

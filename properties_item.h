@@ -6,6 +6,8 @@
 #include <QPixmap>
 
 #include "unit_types.h"
+#include "xml_parser.h"
+
 class diagram_item;
 
 class QtGroupPropertyManager;
@@ -76,6 +78,7 @@ public:
     void ExpandedChanged(QtProperty* property, bool is_expanded);
     QList<QString> GetConnectedNames();
     QString GetInstanceName();
+    void ApplyXmlProperties(xml::Unit xu);
 
 private:
     QMap<QtProperty*, QString> propertyToId;

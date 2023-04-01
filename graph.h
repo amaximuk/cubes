@@ -13,18 +13,22 @@
 #include <boost/graph/make_maximal_planar.hpp>
 #include <boost/graph/make_biconnected_planar.hpp>
 #include <boost/graph/planar_face_traversal.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/graph/make_connected.hpp>
 
 using namespace boost;
 
-// a class to hold the coordinates of the straight line embedding
-struct coord_t
+bool rearrangeGraph(const int vertex_count, const std::vector<std::pair<int, int>>& initial_edges, std::vector<std::pair<int, int>>& coordinates)
 {
-    std::size_t x;
-    std::size_t y;
-};
+    if (vertex_count < 3)
+        return false;
 
-int xxx()
-{
+    // a class to hold the coordinates of the straight line embedding
+    struct coord_t
+    {
+        std::size_t x;
+        std::size_t y;
+    };
     //typedef adjacency_list< vecS, vecS, undirectedS,
     //    property< vertex_index_t, int > >
     //    graph;
@@ -55,12 +59,33 @@ int xxx()
     // sequence to add a set of edges to any undirected planar graph to make
     // it maximal planar.
 
-    graph g(4);
-    add_edge(0, 1, g);
-    add_edge(1, 2, g);
-    add_edge(2, 3, g);
-    add_edge(3, 0, g);
 
+    // count MUST be >3
+    //at least 1 connection
+
+    //graph g(count + 1);
+
+    //for (size_t i = 0; i < count; i++)
+    //{
+    //    add_edge(count - i - 1, count, g);
+    //}
+    //for (const auto& pe : ed)
+    //{
+    //    add_edge(pe.first, pe.second, g);
+    //}
+
+    graph g(vertex_count);
+
+    //for (int i = 0; i < count - 1; i++)
+    //{
+    //    add_edge(i, i + 1, g);
+    //}
+    //add_edge(count - 1, 0, g);
+
+    for (const auto& pe : initial_edges)
+    {
+        add_edge(pe.first, pe.second, g);
+    }
 
 
     // Create the planar embedding
@@ -89,25 +114,44 @@ int xxx()
         put(e_index, *ei, edge_count++);
 
 
-    std::cout << "The !! is: " << std::endl;
+    std::cout << "Initial edges is: " << std::endl;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         std::cout << *ei 
         << std::endl;
 
+
+
+
+    make_connected(g);
+    // Re-initialize the edge index, since we just added a few edges
+    edge_count = 0;
+    for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
+        put(e_index, *ei, edge_count++);
+
+    std::cout << "After make_connected edges is: " << std::endl;
+    for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
+        std::cout << *ei 
+        << std::endl;
+
+
+
+
+
     make_biconnected_planar(g, &embedding[0]);
-
-
-
 
     // Re-initialize the edge index, since we just added a few edges
     edge_count = 0;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         put(e_index, *ei, edge_count++);
 
-    std::cout << "The !! is: " << std::endl;
+    std::cout << "After make_biconnected_planar edges is: " << std::endl;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         std::cout << *ei 
         << std::endl;
+
+
+
+
 
     //Test for planarity again; compute the planar embedding as a side-effect
     if (boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g,
@@ -121,21 +165,25 @@ int xxx()
         std::cout << "After calling make_biconnected, the graph is not planar"
         << std::endl;
 
+
+
+
+
+
     make_maximal_planar(g, &embedding[0]);
-
-
 
     // Re-initialize the edge index, since we just added a few edges
     edge_count = 0;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         put(e_index, *ei, edge_count++);
 
-
-
-    std::cout << "The !! is: " << std::endl;
+    std::cout << "After make_maximal_planar edges is: " << std::endl;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         std::cout << *ei 
         << std::endl;
+
+
+
 
 
     // Test for planarity one final time; compute the planar embedding as a 
@@ -204,7 +252,7 @@ int xxx()
     chrobak_payne_straight_line_drawing(
         g, embedding, ordering.begin(), ordering.end(), straight_line_drawing);
 
-    std::cout << "The !! is: " << std::endl;
+    std::cout << "After chrobak_payne_straight_line_drawing edges is: " << std::endl;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
         std::cout << *ei 
         << std::endl;
@@ -227,7 +275,17 @@ int xxx()
     else
         std::cout << "Is not a plane drawing." << std::endl;
 
-    return 0;
+
+
+
+    coordinates.clear();
+    for (boost::tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi)
+    {
+        coord_t coord(get(straight_line_drawing, *vi));
+        coordinates.push_back({ coord.x, coord.y });
+    }
+
+    return true;
 }
 
 
