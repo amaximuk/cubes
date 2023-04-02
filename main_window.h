@@ -77,6 +77,7 @@ private slots:
     void on_SaveFile_action();
     void on_SaveAsFile_action();
     void on_Quit_action();
+    void on_Sort_action();
 
     void on_AddHost_clicked();
     void on_RemoveHost_clicked();

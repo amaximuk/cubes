@@ -428,16 +428,6 @@ bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 	return true;
 }
 
-QList<QString> parser::getConnections(Unit u)
-{
-	return {};
-}
-
-QList<QString> parser::getDependencies(Unit u)
-{
-	return {};
-}
-
 QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QString& tagname)
 {
 	QList<QDomElement> list;
@@ -582,3 +572,13 @@ Param* parser::getParam(Unit& unit, const QString& id)
 	}
 	return nullptr;
 }
+
+//QList<QString> parser::getConnections(Unit u)
+//{
+//	return {};
+//}
+//
+//QList<QString> parser::getDependencies(Unit u)
+//{
+//	return {};
+//}

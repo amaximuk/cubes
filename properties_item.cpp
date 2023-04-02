@@ -179,7 +179,7 @@ void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
     else if (piType == "double" || piType == "float")
         pm.valueType = "double";
     else // enum user type
-        pm.valueType = "int";
+        pm.valueType = "string";
             
 
 

@@ -727,6 +727,13 @@ void MainWindow::CreateMenu()
     //fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
 
+    QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
+    sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortAct, &QAction::triggered, this, &MainWindow::on_Sort_action);
+
+    QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
+    editMenu->addAction(sortAct);
+
 }
 
 void MainWindow::on_NewFile_action()
@@ -804,7 +811,6 @@ void MainWindow::on_ImportXmlFile_action()
 
 
     QVector<xml::Unit> all_units;
-    std::vector<std::pair<int, int>> edges;
     for (const auto& g : f.config.groups)
     {
         for (const auto& u : g.units)
@@ -815,18 +821,12 @@ void MainWindow::on_ImportXmlFile_action()
             {
                 all_units.push_back(u);
             }
+            else
+            {
+                // !!! error
+            }
         }
     }
-
-    // Sort
-    std::vector<std::pair<int, int>> coordinates;
-    if (!rearrangeGraph(all_units.size(), edges, coordinates))
-    {
-        return;
-    }
-
-
-
 
     // Transform
     for (size_t i = 0; i < all_units.size(); i++)
@@ -844,17 +844,18 @@ void MainWindow::on_ImportXmlFile_action()
             pi->ApplyXmlProperties(all_units[i]);
 
 
-            QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 40);
+            //QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 40);
+            QPoint position(0, 0);
 
-            int gridSize = 20;
-            qreal xV = round(position.x() / gridSize) * gridSize;
-            qreal yV = round(position.y() / gridSize) * gridSize;
-            position = QPoint(xV, yV);
+            //int gridSize = 20;
+            //qreal xV = round(position.x() / gridSize) * gridSize;
+            //qreal yV = round(position.y() / gridSize) * gridSize;
+            //position = QPoint(xV, yV);
 
             scene_->addItem(di);
             scene_->clearSelection();
-            di->setPos(position);
-            di->setSelected(true);
+            //di->setPos(position);
+            //di->setSelected(true);
         }
         else
         {
@@ -862,10 +863,61 @@ void MainWindow::on_ImportXmlFile_action()
         }
     }
 
+    int nextIndex = 0;
+    QMap<QString, int> nameToIndex;
+    QMap<int, QString> indexToName;
+    QMap<QString, QSet<QString>> connectedNames;
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
+        if (!nameToIndex.contains(di->getProperties()->GetInstanceName()))
+        {
+            nameToIndex[di->getProperties()->GetInstanceName()] = nextIndex;
+            indexToName[nextIndex] = di->getProperties()->GetInstanceName();
+            nextIndex++;
+        }
 
+        auto connected = di->getConnectedNames();
+        connectedNames[di->getProperties()->GetInstanceName()].unite(QSet<QString>(connected.begin(), connected.end()));
+    }
 
+    // Sort
+    std::vector<std::pair<int, int>> edges;
 
+    for (const auto& kvp : connectedNames.toStdMap())
+    {
+        for (const auto& se : kvp.second)
+        {
+            if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
+                edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
+        }
+    }
+
+    std::vector<std::pair<int, int>> coordinates;
+    if (!rearrangeGraph(nameToIndex.size(), edges, coordinates))
+    {
+        return;
+    }
+
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        
+        int i = nameToIndex[di->getProperties()->GetInstanceName()];
+
+        QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 60);
+
+        int gridSize = 20;
+        qreal xV = round(position.x() / gridSize) * gridSize;
+        qreal yV = round(position.y() / gridSize) * gridSize;
+        position = QPoint(xV, yV);
+
+        di->setPos(position);
+        //di->setSelected(true);
+    }
+
+    scene_->invalidate();
 
 
     //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
@@ -946,6 +998,67 @@ void MainWindow::on_Quit_action()
     {
         QApplication::quit();
     }
+}
+
+void MainWindow::on_Sort_action()
+{
+
+    int nextIndex = 0;
+    QMap<QString, int> nameToIndex;
+    QMap<int, QString> indexToName;
+    QMap<QString, QSet<QString>> connectedNames;
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+
+        if (!nameToIndex.contains(di->getProperties()->GetInstanceName()))
+        {
+            nameToIndex[di->getProperties()->GetInstanceName()] = nextIndex;
+            indexToName[nextIndex] = di->getProperties()->GetInstanceName();
+            nextIndex++;
+        }
+
+        auto connected = di->getConnectedNames();
+        connectedNames[di->getProperties()->GetInstanceName()].unite(QSet<QString>(connected.begin(), connected.end()));
+    }
+
+    // Sort
+    std::vector<std::pair<int, int>> edges;
+
+    for (const auto& kvp : connectedNames.toStdMap())
+    {
+        for (const auto& se : kvp.second)
+        {
+            if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
+                edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
+        }
+    }
+
+    std::vector<std::pair<int, int>> coordinates;
+    if (!rearrangeGraph(nameToIndex.size(), edges, coordinates))
+    {
+        return;
+    }
+
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+
+        int i = nameToIndex[di->getProperties()->GetInstanceName()];
+
+        QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 60);
+
+        int gridSize = 20;
+        qreal xV = round(position.x() / gridSize) * gridSize;
+        qreal yV = round(position.y() / gridSize) * gridSize;
+        position = QPoint(xV, yV);
+
+        di->setPos(position);
+        //di->setSelected(true);
+    }
+
+    scene_->invalidate();
+
 }
 
 void MainWindow::on_AddHost_clicked()

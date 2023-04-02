@@ -139,6 +139,8 @@ namespace xml
 		static bool parse(const QString& filename, File& fi);
 		static int getItemsCount(Unit& unit, const QString& id);
 		static Param* getParam(Unit& unit, const QString& id);
+		//static QList<QString> getConnections(Unit u);
+		//static QList<QString> getDependencies(Unit u);
 
 	private:
 		//template<typename T> static bool try_get_yaml_value(const QDomElement& node, const std::string& name, T& value);
@@ -155,11 +157,6 @@ namespace xml
 		static bool get_array(const QDomElement& node, Array& array);
 		static bool get_depends(const QDomElement& node, QList<QString>& depends);
 		static bool get_item(const QDomElement& node, const QString& type, Item& item);
-
-
-		static QList<QString> getConnections(Unit u);
-		static QList<QString> getDependencies(Unit u);
-
 
 		static QList<QDomElement> elementsByTagName(const QDomElement& node, const QString& tagname);
 	};

@@ -21,7 +21,7 @@ class diagram_item : public QGraphicsItem
 {
 private:
     QPixmap pixmap_;
-    QString name_;
+    //QString name_;
     QSharedPointer<properties_item> properties_;
     QFont font_;
     QRect iconRect_;
@@ -36,7 +36,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-    QString getName() { return name_; };
+    QString getName() { return properties_->getName(); };
     QSharedPointer<properties_item> getProperties() { return properties_; };
     QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
     QString getInstanceName() { return properties_->GetInstanceName(); }

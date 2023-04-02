@@ -193,6 +193,7 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
         {
             return di;
         }
+        qDebug() << name << " - " << di->getInstanceName();
     }
     return nullptr;
 }
