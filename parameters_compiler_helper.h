@@ -99,6 +99,7 @@ namespace parameters_compiler
             if (bt == base_types::array)
             {
                 if (pi.restrictions.set_count.size() > 0)
+                    //value = 0;
                     value = std::stoi(pi.restrictions.set_count[0]);
                 else if (pi.restrictions.min_count != "")
                     value = std::stoi(pi.restrictions.min_count);

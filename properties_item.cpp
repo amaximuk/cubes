@@ -165,6 +165,24 @@ void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
     if (parameters_compiler::helper::is_array_type(piType))
         piType = parameters_compiler::helper::get_array_type(pi.type);
 
+
+
+    if (piType == "unit")
+        pm.valueType = "string";
+    else if (piType == "path" || piType == "string")
+        pm.valueType = "string";
+    else if (piType == "bool")
+        pm.valueType = "bool";
+    else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
+        piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
+        pm.valueType = "int";
+    else if (piType == "double" || piType == "float")
+        pm.valueType = "double";
+    else // enum user type
+        pm.valueType = "int";
+            
+
+
     if (pi.restrictions.set_.size() > 0)
     {
         pm.editorSettings.type = unit_types::EditorType::ComboBox;
@@ -295,10 +313,19 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         enumManager->blockSignals(true);
         enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
         
+
+
+        //enumManager->setValue(pr, model.value.toInt());
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
         {
             if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+                break;
+            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
                 break;
         }
         //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
@@ -467,6 +494,20 @@ void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& mod
             qDebug() << i;
             if (i != -1)
             {
+                //if (pi->restrictions.set_count.size() > 0)
+                //{
+                //    int pos = 0;
+                //    for (; pos < pi->restrictions.set_count.size(); ++pos)
+                //    {
+                //        if (i == std::stoi(pi->restrictions.set_count[pos]))
+                //            break;
+                //    }
+                //    if (pos == pi->restrictions.set_count.size())
+                //        pos = 0;
+                //    model.value = pos;
+                //}
+                //else
+                //    model.value = i;
                 model.value = i;
                 UpdateArrayModel(model);
             }
@@ -524,6 +565,7 @@ void properties_item::FillArrayModel(unit_types::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
     pm.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
+    pm.valueType = "int";
 
     if (pi.restrictions.set_count.size() > 0)
     {
@@ -552,16 +594,15 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
-
-
-
-
+    int count = pm.value.toInt();
+    //if (pi.restrictions.set_count.size() > 0 && count < pi.restrictions.set_count.size())
+    //    count = std::stoi(pi.restrictions.set_count[count]);
 
     auto at = parameters_compiler::helper::get_array_type(pi.type);
     auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, at);
     if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
     {
-        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        for (int i = pm.parameters.size(); i < count; ++i)
         {
             unit_types::ParameterModel model;
             model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
@@ -583,7 +624,7 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
     }
     else if (ti != nullptr) // yml type
     {
-        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        for (int i = pm.parameters.size(); i < count; ++i)
         {
             unit_types::ParameterModel group_model;
             group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
@@ -613,7 +654,7 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
         }
     }
 
-    while (pm.parameters.size() > pm.value.toInt())
+    while (pm.parameters.size() > count)
         pm.parameters.pop_back();
 }
 
