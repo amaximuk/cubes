@@ -32,6 +32,7 @@ public:
     enum { Type = UserType + 15 };
 
     diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
+    diagram_item(const diagram_item& other);
     int type() const override { return Type; }
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;

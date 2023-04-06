@@ -21,6 +21,17 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
 }
 
+diagram_item::diagram_item(const diagram_item& other)
+{
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
+    pixmap_ = QPixmap(other.pixmap_);
+    properties_.reset(new properties_item(*other.properties_, this));
+    font_ = QFont(other.font_);
+    iconRect_ = other.iconRect_;
+    textRect_ = other.textRect_;
+    boundingRect_ = other.boundingRect_;
+}
+
 QRectF diagram_item::boundingRect() const
 {
     return boundingRect_;
@@ -130,3 +141,4 @@ void diagram_item::InformPositionZChanged(double z)
     if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
         setZValue(z);
 }
+

@@ -7,17 +7,20 @@ class diagram_item;
 #include <QGraphicsScene>
 #include <QpointF>
 
+#include "main_window.h"
+
 class diagram_scene : public QGraphicsScene
 {
     Q_OBJECT
 
 private:
+    MainWindow* main_;
     QPointF ppp_;
     bool is_item_moving_;
     QGraphicsItem* moving_item_;
 
 public:
-    explicit diagram_scene(QObject *parent = nullptr);
+    explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);
 
 public:
     void informItemPositionChanged(QString id, QPointF newPos);

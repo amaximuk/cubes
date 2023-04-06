@@ -27,6 +27,38 @@ properties_item::properties_item(unit_types::UnitParameters unitParameters, diag
     CreatePropertyBrowser();
 }
 
+properties_item::properties_item(const properties_item& other, diagram_item* diagramItem)
+{
+    unitParameters_ = other.unitParameters_;
+    parametersModel_ = other.parametersModel_;
+    //editorModel_ = {};
+
+
+    diagramItem_ = diagramItem;
+    propertyEditor_ = other.propertyEditor_;
+    ignoreEvents_ = false;
+
+    //CreateParametersModel();
+    //CreateEditorModel();
+    CreatePropertyBrowser();
+
+    //unit_types::UnitParameters unitParameters_;
+    //unit_types::ParametersModel parametersModel_;
+    //unit_types::ParametersModel editorModel_;
+
+    //QtGroupPropertyManager* groupManager;
+    //QtIntPropertyManager* intManager;
+    //QtDoublePropertyManager* doubleManager;
+    //QtStringPropertyManager* stringManager;
+    //QtEnumPropertyManager* enumManager;
+    //QtBoolPropertyManager* boolManager;
+
+    //diagram_item* diagramItem_;
+    //QtTreePropertyBrowser* propertyEditor_;
+
+    bool ignoreEvents_;
+}
+
 void properties_item::CreateEditorModel()
 {
     unit_types::ParameterModel editor_group;

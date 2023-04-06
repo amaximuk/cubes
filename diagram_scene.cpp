@@ -10,8 +10,9 @@
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
-diagram_scene::diagram_scene(QObject *parent) : QGraphicsScene(parent)
+diagram_scene::diagram_scene(MainWindow* main, QObject *parent) : QGraphicsScene(parent)
 {
+    main_ = main;
     is_item_moving_ = false;
     moving_item_ = 0;
 }
@@ -103,15 +104,48 @@ void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 //      {
 //          selectedItems()[0]->setPos(ppp_);
 //      }
-      for (auto& item: selectedItems())
+
+
+      for (auto& item : selectedItems())
+      {
+            diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+            
+//          diagram_item* difrom = reinterpret_cast<diagram_item*>(item);
+//          QString name = difrom->getName();
+//
+//          auto up = *main_->GetUnitParameters(name);
+//
+//
+//          diagram_item* di = new diagram_item(up);
+//          //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
+//          //ds->informItemCreated(name, di);
+//          informItemCreated(name, di);
+//
+          QPoint position = item->pos().toPoint();
+          //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+
+
+          int gridSize = 20;
+          qreal xV = round(position.x() / gridSize) * gridSize;
+          qreal yV = round(position.y() / gridSize) * gridSize;
+          position = QPoint(xV, yV);
+
+          addItem(di);
+          di->setPos(position);
+//          di->setSelected(true);
+      }
+        //clearSelection();
+      for (auto& item : selectedItems())
       {
           item->setPos(item->pos() + delta);
       }
+
+
       //emit xxx(ppp_);
       QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
   }
 
-  moving_item_ = 0;
+  moving_item_ = nullptr;
   // Always remember to call parents mousePressEvent
   QGraphicsScene::mouseReleaseEvent(event);
 

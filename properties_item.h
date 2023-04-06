@@ -47,6 +47,7 @@ private:
 
 public:
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
+    properties_item(const properties_item& other, diagram_item* diagramItem);
 
 private:
     void CreateParametersModel();
