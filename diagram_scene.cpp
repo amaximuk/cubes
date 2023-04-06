@@ -129,6 +129,16 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
         else
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
     }
+    else
+    {
+        if (keyEvent->key() == Qt::Key_Delete)
+        {
+            for (auto item : selectedItems())
+            {
+                delete item;
+            }
+        }
+    }
 
     QGraphicsScene::keyPressEvent(keyEvent);
 }
