@@ -123,7 +123,9 @@ namespace xml
 	struct Config
 	{
 		Networking networking;
+		bool networking_is_set;
 		Log log;
+		bool log_is_set;
 		QList<Group> groups;
 	};
 

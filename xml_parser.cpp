@@ -139,11 +139,13 @@ bool parser::get_config(const QDomElement& node, Config& config)
 		{
 			if (ei.tagName() == "Networking")
 			{
+				config.networking_is_set = true;
 				if (!get_networking(ei, config.networking))
 					ELRF("Get Networking failed");
 			}
 			else if (ei.tagName() == "Log")
 			{
+				config.log_is_set = true;
 				if (!get_log(ei, config.log))
 					ELRF("Get Log failed");
 			}

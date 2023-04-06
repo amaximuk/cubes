@@ -809,6 +809,23 @@ void MainWindow::on_ImportXmlFile_action()
     xml::File f{};
     xml::parser::parse(fileNames[0], f);
 
+    if (f.config.networking_is_set)
+    {
+        // main
+
+        QDir dir = QFileInfo(fileNames[0]).absoluteDir();
+        for (size_t i = 0; i < f.includes.size(); i++)
+        {
+            QString includedFileName = dir.filePath(f.includes[i].fileName);
+            xml::File includedFile{};
+            xml::parser::parse(includedFileName, includedFile);
+        }
+    }
+    else
+    {
+        // included config
+    }
+
 
     QVector<xml::Unit> all_units;
     for (const auto& g : f.config.groups)
