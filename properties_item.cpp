@@ -32,7 +32,22 @@ properties_item::properties_item(const properties_item& other, diagram_item* dia
     unitParameters_ = other.unitParameters_;
     parametersModel_ = other.parametersModel_;
     //editorModel_ = {};
-
+    
+    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    if (pm != nullptr)
+    {
+        QString s = pm->value.toString();
+        int index = s.lastIndexOf("#");
+        if (index != -1 && index < s.length() - 1)
+        {
+            auto y = s.mid(index + 1);
+            auto x = y.toInt();
+            s = s.left(index).append("#%1").arg(x + 1);
+        }
+        else
+            s.append("#1");
+        pm->value = s;
+    }
 
     diagramItem_ = diagramItem;
     propertyEditor_ = other.propertyEditor_;
