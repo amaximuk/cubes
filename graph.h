@@ -16,6 +16,7 @@
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/make_connected.hpp>
 
+
 using namespace boost;
 
 bool rearrangeGraph(const int vertex_count, const std::vector<std::pair<int, int>>& initial_edges, std::vector<std::pair<int, int>>& coordinates)
@@ -44,10 +45,16 @@ bool rearrangeGraph(const int vertex_count, const std::vector<std::pair<int, int
     // sequence to add a set of edges to any undirected planar graph to make
     // it maximal planar.
 
+    std::vector<std::pair<int, int>> edges_copy(initial_edges);
+    std::sort(edges_copy.begin(), edges_copy.end());
+
     graph g(vertex_count);
-    for (const auto& pe : initial_edges)
+    for (const auto& pe : edges_copy)
     {
-        add_edge(pe.first, pe.second, g);
+        if (pe.first > pe.second)
+            add_edge(pe.second, pe.first, g);
+        else
+            add_edge(pe.first, pe.second, g);
     }
 
     // Create the planar embedding
@@ -144,11 +151,20 @@ bool rearrangeGraph(const int vertex_count, const std::vector<std::pair<int, int
 
 
 
-
+    typedef std::vector<graph_traits<graph>::vertex_descriptor> ordering_storage_t;
 
     // Find a canonical ordering
-    std::vector< graph_traits< graph >::vertex_descriptor > ordering;
+    ordering_storage_t ordering;
     planar_canonical_ordering(g, embedding, std::back_inserter(ordering));
+
+
+    ordering_storage_t::iterator oi, oi_end;
+    oi_end = ordering.end();
+    std::cout << "The planar canonical ordering is: ";
+    for (oi = ordering.begin(); oi != oi_end; ++oi)
+        std::cout << *oi << " ";
+    std::cout << std::endl;
+
 
     // Set up a property map to hold the mapping from vertices to coord_t's
     typedef std::vector< coord_t > straight_line_drawing_storage_t;
