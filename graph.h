@@ -21,8 +21,15 @@ using namespace boost;
 
 bool rearrangeGraph(const int vertex_count, const std::vector<std::pair<int, int>>& initial_edges, std::vector<std::pair<int, int>>& coordinates)
 {
+
     if (vertex_count < 3)
-        return false;
+    {
+        coordinates.clear();
+        coordinates.push_back({0, 0});
+        if (vertex_count == 2)
+            coordinates.push_back({0, 1});
+        return true;
+    }
 
     // a class to hold the coordinates of the straight line embedding
     struct coord_t

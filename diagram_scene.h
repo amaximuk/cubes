@@ -18,6 +18,7 @@ private:
     QPointF ppp_;
     bool is_item_moving_;
     QGraphicsItem* moving_item_;
+    QList<diagram_item*> drag_items_;
 
 public:
     explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);

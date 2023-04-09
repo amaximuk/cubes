@@ -1057,13 +1057,28 @@ void MainWindow::on_Sort_action()
         return;
     }
 
+    //scene_->sceneRect();
+    //QRectF itemsRect{0,0,0,0};
+    //for (auto& item : scene_->items())
+    //{
+    //    auto r = item->boundingRect();
+    //    itemsRect = itemsRect.united(item->boundingRect());
+    //}
+
+    //QPointF addPosition{0,0};
+    //addPosition = scene_->sceneRect().center() - itemsRect.center();
+
+    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
+    
     for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
         int i = nameToIndex[di->getProperties()->GetInstanceName()];
 
-        QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 60);
+        QPoint position(vr.left() + 60 + coordinates[i].first * 60,
+            vr.top() + 60 + coordinates[i].second * 60);
+
 
         int gridSize = 20;
         qreal xV = round(position.x() / gridSize) * gridSize;
@@ -1071,11 +1086,9 @@ void MainWindow::on_Sort_action()
         position = QPoint(xV, yV);
 
         di->setPos(position);
-        //di->setSelected(true);
     }
 
     scene_->invalidate();
-
 }
 
 void MainWindow::on_AddHost_clicked()

@@ -30,6 +30,8 @@ diagram_item::diagram_item(const diagram_item& other)
     iconRect_ = other.iconRect_;
     textRect_ = other.textRect_;
     boundingRect_ = other.boundingRect_;
+    setPos(other.pos() + QPointF{0, 0});
+    setZValue(other.zValue() - 1);
 }
 
 QRectF diagram_item::boundingRect() const

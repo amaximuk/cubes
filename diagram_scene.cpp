@@ -27,18 +27,38 @@ void diagram_scene::informItemCreated(QString id, diagram_item* item)
     emit itemCreated(id, item);
 }
 
-void diagram_scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  event->ignore();
+  //event->ignore();
 
   moving_item_ = itemAt(event->scenePos(), QTransform());
   if (moving_item_ != 0)
   {
-    qDebug() << "yes!!!!!!!!!!";
     is_item_moving_ = true;
+    
+    // Если сразу тащим, без предварительного выделения, selectedItems() пустой
+    // Если при этом были выделены другие item, то selectedItems() надо очистить
+    if (!selectedItems().contains(moving_item_))
+    {
+        clearSelection();
+        moving_item_->setSelected(true);
+   }
+
+    for (auto& item : selectedItems())
+    {
+        diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+        drag_items_.push_back(di);
+        di->setVisible(false);
+        addItem(di);
+    }
+    
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     if (ctrl)
+    {
         QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
+        for (auto& item : drag_items_)
+            item->setVisible(true);
+    }
     else
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
@@ -59,9 +79,9 @@ void diagram_scene::mousePressEvent ( QGraphicsSceneMouseEvent * event )
   QGraphicsScene::mousePressEvent(event);
 }
 
-void diagram_scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-  event->ignore();
+  //event->ignore();
 //  bool ctrl = (event->modifiers() == Qt::ControlModifier);
 //  if (ctrl)
 //      QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
@@ -75,9 +95,9 @@ void diagram_scene::mouseMoveEvent ( QGraphicsSceneMouseEvent * event )
 
 }
 
-void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
+void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-  event->ignore();
+  //event->ignore();
   is_item_moving_ = false;
 
   bool ctrl = (event->modifiers() == Qt::ControlModifier);
@@ -96,56 +116,76 @@ void diagram_scene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event )
 //    //emit select(tmpPath, ctrl);
 //  }
 
-
-  if (ctrl)
+  if (moving_item_ != nullptr)
   {
-      QPointF delta = ppp_ - moving_item_->pos();
-//      if (selectedItems().count() > 0)
-//      {
-//          selectedItems()[0]->setPos(ppp_);
-//      }
-
-
-      for (auto& item : selectedItems())
+      if (ctrl)
       {
-            diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
-            
-//          diagram_item* difrom = reinterpret_cast<diagram_item*>(item);
-//          QString name = difrom->getName();
-//
-//          auto up = *main_->GetUnitParameters(name);
-//
-//
-//          diagram_item* di = new diagram_item(up);
-//          //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-//          //ds->informItemCreated(name, di);
-//          informItemCreated(name, di);
-//
-          QPoint position = item->pos().toPoint();
-          //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+          QPointF delta = ppp_ - moving_item_->pos();
+          //      if (selectedItems().count() > 0)
+          //      {
+          //          selectedItems()[0]->setPos(ppp_);
+          //      }
+          for (auto& item : selectedItems())
+          {
+              item->setPos(item->pos() + delta);
+          }
+          clearSelection();
 
 
-          int gridSize = 20;
-          qreal xV = round(position.x() / gridSize) * gridSize;
-          qreal yV = round(position.y() / gridSize) * gridSize;
-          position = QPoint(xV, yV);
+          for (auto& item : drag_items_)
+          {
+              //diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
 
-          addItem(di);
-          di->setPos(position);
-//          di->setSelected(true);
+    //          diagram_item* difrom = reinterpret_cast<diagram_item*>(item);
+    //          QString name = difrom->getName();
+    //
+    //          auto up = *main_->GetUnitParameters(name);
+    //
+    //
+    //          diagram_item* di = new diagram_item(up);
+    //          //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
+    //          //ds->informItemCreated(name, di);
+    //          informItemCreated(name, di);
+    //
+              QPointF position = item->pos() - delta;
+              //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+
+
+              int gridSize = 20;
+              qreal xV = round(position.x() / gridSize) * gridSize;
+              qreal yV = round(position.y() / gridSize) * gridSize;
+              position = QPoint(xV, yV);
+
+              addItem(item);
+              item->setPos(position);
+              item->setSelected(true);
+              //addItem(di);
+              //di->setPos(position);
+    //          di->setSelected(true);
+          }
+          //clearSelection();
+          //for (auto& item : selectedItems())
+          //{
+          //    item->setPos(item->pos() + delta);
+          //}
+          //clearSelection();
+          //for (auto& item : drag_items_)
+          //    item->setSelected(true);
+          drag_items_.clear();
+
+          //emit xxx(ppp_);
+          QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
       }
-        //clearSelection();
-      for (auto& item : selectedItems())
+      else
       {
-          item->setPos(item->pos() + delta);
+          for (auto& item : drag_items_)
+              delete item;
+          drag_items_.clear();
       }
 
-
-      //emit xxx(ppp_);
-      QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+      moving_item_ = nullptr;
   }
 
-  moving_item_ = nullptr;
   // Always remember to call parents mousePressEvent
   QGraphicsScene::mouseReleaseEvent(event);
 
@@ -159,9 +199,19 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
     {
         bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
         if (ctrl)
+        {
+            qDebug() << "press" << drag_items_.size();
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
+            for (auto& item : drag_items_)
+                item->setVisible(true);
+        }
         else
+        {
+            qDebug() << "release " << drag_items_.size();
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+            for (auto& item : drag_items_)
+                item->setVisible(false);
+        }
     }
     else
     {
@@ -183,9 +233,17 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
     {
         bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
         if (ctrl)
+        {
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
+            for (auto& item : drag_items_)
+                item->setVisible(true);
+        }
         else
+        {
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+            for (auto& item : drag_items_)
+                item->setVisible(false);
+        }
     }
 
     QGraphicsScene::keyPressEvent(keyEvent);
