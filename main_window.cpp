@@ -392,6 +392,20 @@ void MainWindow::FillTreeView()
         model->setItem(row, 0, item);
         row++;
     }
+    //{
+    //    QStandardItem* item = new QStandardItem(QString::fromLocal8Bit("Служебные"));
+    //    item->setEditable(false);
+    //    item->setDragEnabled(false);
+    //    model->setItem(row, 0, item);
+    //    QStandardItem* child = new QStandardItem(QString::fromLocal8Bit("Группа"));
+    //    child->setEditable(false);
+
+    //    QPixmap px;
+    //    px.load(":/images/module.png");
+    //    child->setIcon(QIcon(px));
+    //    item->appendRow(child);
+    //}
+
     tree_->setModel(model);
     tree_->expandAll();
 
@@ -432,7 +446,7 @@ void MainWindow::FillTreeView()
 
 void MainWindow::FillParametersInfo()
 {
-    QString directoryPath("c:/QtProjects/cubes/build/bin/doc/all_units_solid");
+    QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
     QStringList platformDirs;
     QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     while (directories.hasNext()) {
@@ -814,18 +828,58 @@ void MainWindow::on_ImportXmlFile_action()
         // main
 
         QDir dir = QFileInfo(fileNames[0]).absoluteDir();
-        for (size_t i = 0; i < f.includes.size(); i++)
+
+        // Convert includes into unit
+        xml::Group g{};
+        g.path = "service";
+        int unitIndex = 0;
+        for (const auto& include : f.includes)
         {
-            QString includedFileName = dir.filePath(f.includes[i].fileName);
-            xml::File includedFile{};
-            xml::parser::parse(includedFileName, includedFile);
+            xml::Unit u{};
+            u.id = "group";
+            u.name = QString::fromLocal8Bit("Группа %1").arg(unitIndex++);
+            xml::Param p{};
+            p.name = "FILE_PATH";
+            p.type = "str";
+            p.val = include.fileName;
+            u.params.push_back(std::move(p));
+            xml::Array a{};
+            a.name = "VARIABLES";
+            for (const auto& kvp : include.variables.toStdMap())
+            {
+                xml::Item i{};
+                xml::Param p1{};
+                p1.name = "NAME";
+                p1.type = "str";
+                p1.val = kvp.first;
+                i.params.push_back(std::move(p1));
+                xml::Param p2{};
+                p2.name = "VALUE";
+                p2.type = "str";
+                p2.val = kvp.second;
+                i.params.push_back(std::move(p2));
+                a.items.push_back(std::move(i));
+            }
+            u.arrays.push_back(std::move(a));
+            g.units.push_back(std::move(u));
         }
+
+        if (f.includes.size() > 0)
+            f.config.groups.push_back(std::move(g));
+
+        //for (int i = 0; i < f.includes.size(); i++)
+        //{
+        //    QString includedFileName = dir.filePath(f.includes[i].fileName);
+        //    xml::File includedFile{};
+        //    xml::parser::parse(includedFileName, includedFile);
+
+
+        //}
     }
     else
     {
         // included config
     }
-
 
     QVector<xml::Unit> all_units;
     for (const auto& g : f.config.groups)
@@ -846,7 +900,7 @@ void MainWindow::on_ImportXmlFile_action()
     }
 
     // Transform
-    for (size_t i = 0; i < all_units.size(); i++)
+    for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;
         auto up = GetUnitParameters(name);
@@ -854,25 +908,12 @@ void MainWindow::on_ImportXmlFile_action()
         if (up != nullptr)
         {
             diagram_item* di = new diagram_item(*up);
-            //scene_->informItemCreated(name, di);
-
 
             auto pi = di->getProperties();
             pi->ApplyXmlProperties(all_units[i]);
 
-
-            //QPoint position(0 + coordinates[i].first * 60, 0 + coordinates[i].second * 40);
-            QPoint position(0, 0);
-
-            //int gridSize = 20;
-            //qreal xV = round(position.x() / gridSize) * gridSize;
-            //qreal yV = round(position.y() / gridSize) * gridSize;
-            //position = QPoint(xV, yV);
-
             scene_->addItem(di);
             scene_->clearSelection();
-            //di->setPos(position);
-            //di->setSelected(true);
         }
         else
         {
@@ -880,6 +921,7 @@ void MainWindow::on_ImportXmlFile_action()
         }
     }
 
+    // Prepare sort
     int nextIndex = 0;
     QMap<QString, int> nameToIndex;
     QMap<int, QString> indexToName;

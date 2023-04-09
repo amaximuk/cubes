@@ -40,6 +40,7 @@ protected slots:
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
     void drawBackground(QPainter* painter, const QRectF& rect);
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 
 private:
     diagram_item* getDiagramItem(QString name);

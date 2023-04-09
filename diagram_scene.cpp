@@ -27,7 +27,7 @@ void diagram_scene::informItemCreated(QString id, diagram_item* item)
     emit itemCreated(id, item);
 }
 
-void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent * event)
+void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();
 
@@ -298,4 +298,15 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
         qDebug() << name << " - " << di->getInstanceName();
     }
     return nullptr;
+}
+
+void diagram_scene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+    auto item = itemAt(event->scenePos(), QTransform());
+    if (item != nullptr)
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+
+        qDebug() << di->getName();
+    }
 }
