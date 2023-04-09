@@ -438,18 +438,20 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 
     propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
     propertyEditor->setSplitterPosition(250);
+    propertyEditor->setHeaderVisible(false);
+
     //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
     //propertyEditor->setPropertiesWithoutValueMarked(true);
 
     propertyEditor->clear();
 
-    QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fileInfo.info.id));
-    
-    QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
-    mainGroup->addSubProperty(propertiesGroup);
+    //QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fileInfo.info.id));
+    //
+    //QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
+    //mainGroup->addSubProperty(propertiesGroup);
 
-    for (auto& pm : parametersModel_.parameters)
-        propertiesGroup->addSubProperty(GetPropertyForModel(pm));
+    //for (auto& pm : parametersModel_.parameters)
+    //    propertiesGroup->addSubProperty(GetPropertyForModel(pm));
     
     //QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
     //mainGroup->addSubProperty(editorGroup);
@@ -458,7 +460,10 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     //    editorGroup->addSubProperty(GetPropertyForModel(pm));
 
     ignoreEvents_ = true;
-    propertyEditor->addProperty(mainGroup);
+    for (auto& pm : parametersModel_.parameters)
+        propertyEditor->addProperty(GetPropertyForModel(pm));
+
+    // propertyEditor->addProperty(mainGroup);
     ignoreEvents_ = false;
 
     ApplyExpandState();
