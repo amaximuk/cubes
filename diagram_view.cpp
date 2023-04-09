@@ -79,6 +79,8 @@ void diagram_view::dropEvent(QDropEvent *event)
         diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
         ds->informItemCreated(name, di);
 
+        di->getProperties()->SetFileNames(main_->GetFileNames());
+
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 
         int gridSize = 20;

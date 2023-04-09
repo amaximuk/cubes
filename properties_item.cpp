@@ -148,8 +148,25 @@ void properties_item::CreateParametersModel()
     //instance_name.parameterInfoId = "";
     instance_name.editorSettings.type = unit_types::EditorType::String;
     instance_name.editorSettings.is_expanded = false;
-
     base_group.parameters.push_back(std::move(instance_name));
+
+    unit_types::ParameterModel file;
+    file.id = "BASE/FILE";
+    file.name = QString::fromLocal8Bit("Τΰιλ");
+    file.value = 0;
+    file.valueType = "string";
+    //file.parameterInfoId = "";
+    file.editorSettings.type = unit_types::EditorType::ComboBox;
+    file.editorSettings.is_expanded = false;
+
+    //auto sc = diagramItem_->scene();
+    //auto m = sc->parent();
+    //auto mw = reinterpret_cast<MainWindow*>(diagramItem_->scene()->parent());
+    //
+    //for (const auto& pl : mw->GetFileNames())
+    //    file.editorSettings.ComboBoxValues.push_back(pl);
+    base_group.parameters.push_back(std::move(file));
+
     parametersModel_.parameters.push_back(std::move(base_group));
 
     unit_types::ParameterModel properties_group;
@@ -417,6 +434,17 @@ void properties_item::CreatePropertyBrowser()
     qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
 }
 
+void properties_item::SetFileNames(QStringList fileNames)
+{
+    // !!!!!!!!!!!!! save old value
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        pm->editorSettings.ComboBoxValues = fileNames;
+
+    //for (const auto& pl : mw->GetFileNames())
+//    file.editorSettings.ComboBoxValues.push_back(pl);
+
+}
 
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {

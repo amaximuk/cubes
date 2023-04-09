@@ -16,6 +16,14 @@ namespace unit_types
 {
 	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
 
+	const std::vector<std::string> platform_names_ = {
+	"Windows x32",
+	"Windows x64",
+	"Astra 15 x64",
+	"Astra 16 x64",
+	"Sigma a32"
+	};
+
 	static int GetMinForIntegralType(QString type)
 	{
 		if (type == "uint8_t" || type == "uint16_t" || type == "uint32_t" || type == "uint64_t")

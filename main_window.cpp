@@ -486,6 +486,14 @@ unit_types::UnitParameters* MainWindow::GetUnitParameters(QString id)
     return nullptr;
 }
 
+QStringList MainWindow::GetFileNames()
+{
+    QStringList result;
+    for (auto& fi : files_items_)
+        result.push_back(fi->getName());
+    return result;
+}
+
 QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {

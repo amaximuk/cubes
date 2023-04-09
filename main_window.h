@@ -56,6 +56,7 @@ protected:
 
 public:
     unit_types::UnitParameters* GetUnitParameters(QString id);
+    QStringList GetFileNames();
 
 private:
     diagram_scene* scene_;

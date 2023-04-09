@@ -53,6 +53,49 @@ void files_item::CreateEditorModel()
 
 void files_item::CreateParametersModel()
 {
+    unit_types::ParameterModel base_group;
+    base_group.id = "BASE";
+    base_group.name = QString::fromLocal8Bit("Базовые");
+    base_group.value = "";
+    base_group.valueType = "none";
+    //base_group.parameterInfoId = "";
+    base_group.editorSettings.type = unit_types::EditorType::None;
+    base_group.editorSettings.is_expanded = true;
+
+    unit_types::ParameterModel name;
+    name.id = "BASE/NAME";
+    name.name = QString::fromLocal8Bit("Имя");
+    name.value = QString::fromLocal8Bit("АРМ");
+    name.valueType = "string";
+    //name.parameterInfoId = "";
+    name.editorSettings.type = unit_types::EditorType::String;
+    name.editorSettings.is_expanded = false;
+    base_group.parameters.push_back(std::move(name));
+
+    unit_types::ParameterModel platform;
+    platform.id = "BASE/PLATFORM";
+    platform.name = QString::fromLocal8Bit("Платформа");
+    platform.value = 0;
+    platform.valueType = "string";
+    //platform.parameterInfoId = "";
+    platform.editorSettings.type = unit_types::EditorType::ComboBox;
+    platform.editorSettings.is_expanded = false;
+    for(const auto& pl : unit_types::platform_names_)
+        platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
+    base_group.parameters.push_back(std::move(platform));
+    
+    unit_types::ParameterModel file_path;
+    file_path.id = "BASE/FILE_PATH";
+    file_path.name = QString::fromLocal8Bit("Имя файла");
+    file_path.value = QString::fromLocal8Bit("config.xml");
+    file_path.valueType = "string";
+    //file_path.parameterInfoId = "";
+    file_path.editorSettings.type = unit_types::EditorType::String;
+    file_path.editorSettings.is_expanded = false;
+    base_group.parameters.push_back(std::move(file_path));
+
+    parametersModel_.parameters.push_back(std::move(base_group));
+
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
     properties_group.name = QString::fromLocal8Bit("Параметры");
@@ -362,6 +405,15 @@ void files_item::CreatePropertyBrowser()
     qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
     qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
 }
+
+QString files_item::getName()
+{
+    auto pm = GetParameterModel("BASE/NAME");
+    if (pm == nullptr)
+        return "";
+
+    return pm->value.toString();
+};
 
 
 void files_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)

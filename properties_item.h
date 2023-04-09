@@ -80,6 +80,7 @@ public:
     QList<QString> GetConnectedNames();
     QString GetInstanceName();
     void ApplyXmlProperties(xml::Unit xu);
+    void SetFileNames(QStringList fileNames);
 
 private:
     QMap<QtProperty*, QString> propertyToId;
