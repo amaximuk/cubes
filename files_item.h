@@ -63,7 +63,8 @@ private slots:
     void valueChanged(QtProperty* property, bool value);
 
 public:
-    QString getName();
+    QString GetName();
+    QColor GetColor();
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);

@@ -81,6 +81,7 @@ public:
     QString GetInstanceName();
     void ApplyXmlProperties(xml::Unit xu);
     void SetFileNames(QStringList fileNames);
+    QString GetFileId();
 
 private:
     QMap<QtProperty*, QString> propertyToId;

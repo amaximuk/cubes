@@ -406,7 +406,7 @@ void files_item::CreatePropertyBrowser()
     qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
 }
 
-QString files_item::getName()
+QString files_item::GetName()
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -415,6 +415,14 @@ QString files_item::getName()
     return pm->value.toString();
 };
 
+QColor files_item::GetColor()
+{
+    auto pm = GetParameterModel("EDITOR/COLOR");
+    if (pm == nullptr)
+        return "";
+
+    return QColor(pm->value.toInt());
+};
 
 void files_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {

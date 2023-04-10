@@ -63,6 +63,7 @@ protected:
 public:
     unit_types::UnitParameters* GetUnitParameters(QString id);
     QStringList GetFileNames();
+    QColor GetFileColor(QString fileId);
 
 private:
     diagram_scene* scene_;

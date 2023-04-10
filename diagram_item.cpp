@@ -54,6 +54,15 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->drawRect(iconRect_);
     }
 
+    QColor c = QColor("Black");
+    diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
+    if (ds != nullptr)
+        c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileId());
+    c.setAlpha(0x20);
+    painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->drawRect(iconRect_);
+
     //QPointF centerPoint(iconRect_.bottomRight());
     //qreal centerRadius = 8;
 

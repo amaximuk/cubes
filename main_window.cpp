@@ -529,6 +529,16 @@ void MainWindow::FillParametersInfo()
     }
 }
 
+QColor MainWindow::GetFileColor(QString fileId)
+{
+    for (auto& fi : files_items_)
+    {
+        if (fi->GetName() == fileId)
+            return fi->GetColor();
+    }
+    return QColor("Black");
+}
+
 unit_types::UnitParameters* MainWindow::GetUnitParameters(QString id)
 {
     for (auto& up : unitParameters_)
@@ -543,7 +553,7 @@ QStringList MainWindow::GetFileNames()
 {
     QStringList result;
     for (auto& fi : files_items_)
-        result.push_back(fi->getName());
+        result.push_back(fi->GetName());
     return result;
 }
 

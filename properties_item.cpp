@@ -442,6 +442,18 @@ void properties_item::SetFileNames(QStringList fileNames)
         pm->editorSettings.ComboBoxValues = fileNames;
 }
 
+QString properties_item::GetFileId()
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
+    if (pm != nullptr)
+    {
+        if (pm->value.toInt() < pm->editorSettings.ComboBoxValues.size())
+            return pm->editorSettings.ComboBoxValues[pm->value.toInt()];
+    }
+    return "";
+}
+
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
     propertyEditor_ = propertyEditor;
