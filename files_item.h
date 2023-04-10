@@ -70,6 +70,8 @@ public:
     void ZOrderChanged(double value);
     QString GetPropertyDescription(QtProperty* property);
     void ExpandedChanged(QtProperty* property, bool is_expanded);
+    void SetName(QString name);
+    void SetColor(QColor color);
 
 private:
     QMap<QtProperty*, QString> propertyToId;

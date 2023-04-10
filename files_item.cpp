@@ -510,6 +510,22 @@ void files_item::ExpandedChanged(QtProperty* property, bool is_expanded)
     }
 }
 
+void files_item::SetName(QString name)
+{
+    auto pm = GetParameterModel("BASE/NAME");
+    if (pm == nullptr)
+        return;
+    pm->value = name;
+}
+
+void files_item::SetColor(QColor color)
+{
+    auto pm = GetParameterModel("EDITOR/COLOR");
+    if (pm == nullptr)
+        return;
+    pm->value = color.rgba();
+}
+
 void files_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     //auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);

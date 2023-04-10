@@ -46,14 +46,21 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     modified_ = false;
+    defaultColorIndex_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
     CreateUi();
 
     auto fi = new files_item();
+    fi->SetName(QString::fromLocal8Bit("АРМ"));
+    if (defaultColorIndex_ < defaultColors_.size())
+        fi->SetColor(defaultColors_[defaultColorIndex_++]);
+    else
+        fi->SetColor(QColor("White"));
     fi->ApplyToBrowser(filesPropertyEditor_);
     files_items_.push_back(fi);
+    comboBoxFiles_->addItem(QString::fromLocal8Bit("АРМ"));
 }
 
 MainWindow::~MainWindow()
@@ -254,7 +261,7 @@ QWidget* MainWindow::CreateFilesPropertiesWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
-    QWidget* hostsButtonsWidget = CreateHostsButtonsWidget();
+    QWidget* hostsButtonsWidget = CreateFilesButtonsWidget();
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
@@ -270,7 +277,7 @@ QWidget* MainWindow::CreatePropertiesWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
-    QWidget* hostsButtonsWidget = CreateHostsButtonsWidget();
+    QWidget* hostsButtonsWidget = CreateUnitsButtonsWidget();
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
@@ -282,15 +289,16 @@ QWidget* MainWindow::CreatePropertiesWidget()
     return propertiesPanelWidget;
 }
 
-QWidget* MainWindow::CreateHostsButtonsWidget()
+QWidget* MainWindow::CreateFilesButtonsWidget()
 {
     QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
     hBoxLayoutPropertyListButtons->setMargin(0);
     hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
 
-    QComboBox* comboBoxPlatforms = new QComboBox;
-    comboBoxPlatforms->addItem("Windows x64");
-    hBoxLayoutPropertyListButtons->addWidget(comboBoxPlatforms);
+    comboBoxFiles_ = new QComboBox;
+    //comboBoxFiles_->addItem("Windows x64");
+    comboBoxFiles_->setMinimumWidth(150);
+    hBoxLayoutPropertyListButtons->addWidget(comboBoxFiles_);
     hBoxLayoutPropertyListButtons->addStretch();
 
     QToolButton* toolButtonPropertyListAdd = new QToolButton;
@@ -316,7 +324,52 @@ QWidget* MainWindow::CreateHostsButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("action", "add");
     toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
+    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
+
+
+    QFrame* widgetPropertyListButtons = new QFrame;
+    widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
+    widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
+
+    return widgetPropertyListButtons;
+}
+
+
+QWidget* MainWindow::CreateUnitsButtonsWidget()
+{
+    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
+    hBoxLayoutPropertyListButtons->setMargin(0);
+    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
+
+    comboBoxUnits_ = new QComboBox;
+    //comboBoxFiles_->addItem("Windows x64");
+    hBoxLayoutPropertyListButtons->addWidget(comboBoxUnits_);
+    hBoxLayoutPropertyListButtons->addStretch();
+
+    QToolButton* toolButtonPropertyListAdd = new QToolButton;
+    toolButtonPropertyListAdd->setFixedSize(24, 24);
+    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddHost_clicked);
+
+
+    QToolButton* toolButtonPropertyListRemove = new QToolButton;
+    toolButtonPropertyListRemove->setFixedSize(24, 24);
+    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+    //connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
 
 
     QFrame* widgetPropertyListButtons = new QFrame;
@@ -1136,6 +1189,16 @@ void MainWindow::on_AddHost_clicked()
     QString text = QInputDialog::getText(this, "Add host", QString::fromLocal8Bit("Имя хоста:"), QLineEdit::Normal, "", &ok);
     if (!ok || text.isEmpty())
         return;
+
+    auto fi = new files_item();
+    fi->SetName(text);
+    if (defaultColorIndex_ < defaultColors_.size())
+        fi->SetColor(defaultColors_[defaultColorIndex_++]);
+    else
+        fi->SetColor(QColor("White"));
+    fi->ApplyToBrowser(filesPropertyEditor_);
+    files_items_.push_back(fi);
+    comboBoxFiles_->addItem(text);
 }
 
 void MainWindow::on_RemoveHost_clicked()

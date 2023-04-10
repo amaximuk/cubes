@@ -6,6 +6,7 @@
 #include <QSet>
 #include <QPoint>
 #include <QMainWindow>
+#include <QVector>
 
 #include "parameters_compiler_types.h"
 #include "files_item.h"
@@ -24,10 +25,14 @@ class diagram_scene;
 class diagram_item;
 class QtTreePropertyBrowser;
 class QtBrowserItem;
+class QComboBox;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+private:
+    QVector<QColor> defaultColors_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+    int defaultColorIndex_;
 
 private:
     bool modified_;
@@ -49,7 +54,8 @@ protected:
     QWidget* CreatePropertiesPanelWidget();
     QWidget* CreateFilesPropertiesWidget();
     QWidget* CreatePropertiesWidget();
-    QWidget* CreateHostsButtonsWidget();
+    QWidget* CreateFilesButtonsWidget();
+    QWidget* CreateUnitsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
     void FillParametersInfo();
@@ -70,6 +76,8 @@ private:
     QtTreePropertyBrowser* filesPropertyEditor_;
     QtTreePropertyBrowser* propertyEditor_;
     QList<files_item*> files_items_;
+    QComboBox* comboBoxFiles_;
+    QComboBox* comboBoxUnits_;
 
 private slots:
     void on_NewFile_action();

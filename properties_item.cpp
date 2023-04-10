@@ -436,14 +436,10 @@ void properties_item::CreatePropertyBrowser()
 
 void properties_item::SetFileNames(QStringList fileNames)
 {
-    // !!!!!!!!!!!!! save old value
     const auto pm = GetParameterModel("BASE/FILE");
+    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
         pm->editorSettings.ComboBoxValues = fileNames;
-
-    //for (const auto& pl : mw->GetFileNames())
-//    file.editorSettings.ComboBoxValues.push_back(pl);
-
 }
 
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
@@ -746,44 +742,51 @@ void properties_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
-
-    bool is_array = parameters_compiler::helper::is_array_type(pi.type);
-    if (is_array)
+    if (pm->id.startsWith("BASE"))
     {
-        SaveExpandState();
 
-        int count = std::stoi(property->valueText().toStdString());
-        pm->value = count;
-        UpdateArrayModel(*pm);
-
-        for (int i = property->subProperties().size(); i < count; ++i)
-            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-        QList<QtProperty*> to_remove;
-        for (int i = count; i < property->subProperties().size(); ++i)
-        {
-            auto p = property->subProperties()[i];
-            to_remove.push_back(p);
-            UnregisterProperty(p);
-        }
-
-        for (auto& p : to_remove)
-            property->removeSubProperty(p);
-
-        ApplyExpandState();
     }
-    else
+    else if (pm->id.startsWith("PROPERTIES"))
     {
-        if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
-            pm->value = property->valueText();
-        else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-            pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-            pm->value = std::stoi(property->valueText().toStdString());
-        else if (pi.type == "double" || pi.type == "float")
-            pm->value = std::stod(property->valueText().toStdString());
-        else // enum
-            pm->value = property->valueText();
+        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+
+        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+        if (is_array)
+        {
+            SaveExpandState();
+
+            int count = std::stoi(property->valueText().toStdString());
+            pm->value = count;
+            UpdateArrayModel(*pm);
+
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+            QList<QtProperty*> to_remove;
+            for (int i = count; i < property->subProperties().size(); ++i)
+            {
+                auto p = property->subProperties()[i];
+                to_remove.push_back(p);
+                UnregisterProperty(p);
+            }
+
+            for (auto& p : to_remove)
+                property->removeSubProperty(p);
+
+            ApplyExpandState();
+        }
+        else
+        {
+            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+                pm->value = property->valueText();
+            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+                pm->value = std::stoi(property->valueText().toStdString());
+            else if (pi.type == "double" || pi.type == "float")
+                pm->value = std::stod(property->valueText().toStdString());
+            else // enum
+                pm->value = property->valueText();
+        }
     }
 }
 
