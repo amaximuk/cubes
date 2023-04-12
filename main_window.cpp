@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     modified_ = false;
     defaultColorIndex_ = 0;
+    for (auto& c : defaultColors_)
+        c.setAlpha(0x20);
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
@@ -300,6 +302,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     comboBoxFiles_->setMinimumWidth(150);
     hBoxLayoutPropertyListButtons->addWidget(comboBoxFiles_);
     hBoxLayoutPropertyListButtons->addStretch();
+    connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
 
     QToolButton* toolButtonPropertyListAdd = new QToolButton;
     toolButtonPropertyListAdd->setFixedSize(24, 24);
@@ -1209,6 +1212,7 @@ void MainWindow::on_AddHost_clicked()
     fi->ApplyToBrowser(filesPropertyEditor_);
     files_items_.push_back(fi);
     comboBoxFiles_->addItem(text);
+    comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 }
 
 void MainWindow::on_RemoveHost_clicked()
@@ -1225,6 +1229,16 @@ void MainWindow::on_RemoveHost_clicked()
         QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes)
         QApplication::quit();
+}
+
+void MainWindow::on_Files_currentIndexChanged(int index)
+{
+    QString name = comboBoxFiles_->currentText();
+    for (const auto& fi : files_items_)
+    {
+        if (fi->GetName() == name)
+            fi->ApplyToBrowser(filesPropertyEditor_);
+    }
 }
 
 void MainWindow::currentItemChanged(QtBrowserItem* item)

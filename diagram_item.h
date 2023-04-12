@@ -49,6 +49,7 @@ public:
     void InformPositionXChanged(double x);
     void InformPositionYChanged(double y);
     void InformPositionZChanged(double z);
+    void InformColorChanged();
 };
 
 #endif // DIAGRAM_ITEM_H

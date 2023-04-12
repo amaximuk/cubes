@@ -153,7 +153,7 @@ void properties_item::CreateParametersModel()
     unit_types::ParameterModel file;
     file.id = "BASE/FILE";
     file.name = QString::fromLocal8Bit("Τΰιλ");
-    file.value = 0;
+    file.value = "";
     file.valueType = "string";
     //file.parameterInfoId = "";
     file.editorSettings.type = unit_types::EditorType::ComboBox;
@@ -439,7 +439,11 @@ void properties_item::SetFileNames(QStringList fileNames)
     const auto pm = GetParameterModel("BASE/FILE");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
+    {
         pm->editorSettings.ComboBoxValues = fileNames;
+        if (pm->value.toString() == "" && fileNames.size() > 0)
+            pm->value = fileNames[0];
+    }
 }
 
 QString properties_item::GetFileId()
@@ -448,8 +452,9 @@ QString properties_item::GetFileId()
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
-        if (pm->value.toInt() < pm->editorSettings.ComboBoxValues.size())
-            return pm->editorSettings.ComboBoxValues[pm->value.toInt()];
+        return pm->value.toString();
+        //if (pm->value.toInt() < pm->editorSettings.ComboBoxValues.size())
+        //    return pm->editorSettings.ComboBoxValues[pm->value.toInt()];
     }
     return "";
 }
@@ -756,7 +761,8 @@ void properties_item::valueChanged(QtProperty* property, int value)
 
     if (pm->id.startsWith("BASE"))
     {
-
+        pm->value = property->valueText();
+        diagramItem_->InformColorChanged();
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {

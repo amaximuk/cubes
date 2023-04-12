@@ -48,20 +48,24 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(Qt::blue);
     painter->drawText(textRect_, properties_->getName());
 
-    if(this->isSelected())
-    {
-        painter->setPen(Qt::black);
-        painter->drawRect(iconRect_);
-    }
 
     QColor c = QColor("Black");
     diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
     if (ds != nullptr)
         c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileId());
-    c.setAlpha(0x20);
+    //c.setAlpha(0x20);
     painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->setRenderHint(QPainter::Antialiasing);
     painter->drawRect(iconRect_);
+
+    if(this->isSelected())
+    {
+        //painter->setPen(QPen(QBrush(Qt::white, Qt::SolidPattern), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        //painter->drawRect(iconRect_);
+        //painter->setPen(QPen(QBrush(Qt::black, Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setPen(Qt::black);
+        painter->drawRect(iconRect_);
+    }
 
     //QPointF centerPoint(iconRect_.bottomRight());
     //qreal centerRadius = 8;
@@ -153,3 +157,8 @@ void diagram_item::InformPositionZChanged(double z)
         setZValue(z);
 }
 
+void diagram_item::InformColorChanged()
+{
+    if (scene() != nullptr)
+        scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+}

@@ -75,13 +75,15 @@ void files_item::CreateParametersModel()
     unit_types::ParameterModel platform;
     platform.id = "BASE/PLATFORM";
     platform.name = QString::fromLocal8Bit("Платформа");
-    platform.value = 0;
+    platform.value = "";
     platform.valueType = "string";
     //platform.parameterInfoId = "";
     platform.editorSettings.type = unit_types::EditorType::ComboBox;
     platform.editorSettings.is_expanded = false;
     for(const auto& pl : unit_types::platform_names_)
         platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
+    if (unit_types::platform_names_.size() > 0)
+        platform.value = QString::fromStdString(unit_types::platform_names_[0]);
     base_group.parameters.push_back(std::move(platform));
     
     unit_types::ParameterModel file_path;
@@ -354,7 +356,14 @@ QtProperty* files_item::GetPropertyForModel(unit_types::ParameterModel& model)
         {
             if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
+            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+                break;
+            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
+                break;
         }
+
         //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
         if (pos == model.editorSettings.ComboBoxValues.size())
             pos = 0;
@@ -421,7 +430,7 @@ QColor files_item::GetColor()
     if (pm == nullptr)
         return "";
 
-    return QColor(pm->value.toInt());
+    return QColor::fromRgba(pm->value.toInt());
 };
 
 void files_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
@@ -581,43 +590,50 @@ void files_item::valueChanged(QtProperty* property, int value)
     if (pm == nullptr)
         return;
 
-    bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
-    if (is_array)
+    if (pm->id.startsWith("BASE"))
     {
-        SaveExpandState();
-
-        int count = std::stoi(property->valueText().toStdString());
-        pm->value = count;
-        UpdateArrayModel(*pm);
-
-        for (int i = property->subProperties().size(); i < count; ++i)
-            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-        QList<QtProperty*> to_remove;
-        for (int i = count; i < property->subProperties().size(); ++i)
-        {
-            auto p = property->subProperties()[i];
-            to_remove.push_back(p);
-            UnregisterProperty(p);
-        }
-
-        for (auto& p : to_remove)
-            property->removeSubProperty(p);
-
-        ApplyExpandState();
+        pm->value = property->valueText();
     }
-    else
+    else if (pm->id.startsWith("PROPERTIES"))
     {
-        if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
-            pm->value = property->valueText();
-        else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
-            pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
-            pm->value = std::stoi(property->valueText().toStdString());
-        else if (pm->valueType == "double" || pm->valueType == "float")
-            pm->value = std::stod(property->valueText().toStdString());
-        else // enum
-            pm->value = property->valueText();
+        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
+        if (is_array)
+        {
+            SaveExpandState();
 
+            int count = std::stoi(property->valueText().toStdString());
+            pm->value = count;
+            UpdateArrayModel(*pm);
+
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+            QList<QtProperty*> to_remove;
+            for (int i = count; i < property->subProperties().size(); ++i)
+            {
+                auto p = property->subProperties()[i];
+                to_remove.push_back(p);
+                UnregisterProperty(p);
+            }
+
+            for (auto& p : to_remove)
+                property->removeSubProperty(p);
+
+            ApplyExpandState();
+        }
+        else
+        {
+            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
+                pm->value = property->valueText();
+            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
+                pm->value = std::stoi(property->valueText().toStdString());
+            else if (pm->valueType == "double" || pm->valueType == "float")
+                pm->value = std::stod(property->valueText().toStdString());
+            else // enum
+                pm->value = property->valueText();
+
+        }
     }
 }
 
@@ -700,7 +716,14 @@ void files_item::valueChanged(QtProperty* property, const QString& value)
 
 void files_item::valueChanged(QtProperty* property, const QColor& value)
 {
-    qDebug() << "Color changed: " << value;
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
+
+    qDebug() << "valueChanged " << pm->id << " = " << value;
+    pm->value = value.rgba();
+
+
     //    if (!propertyToId.contains(property))
     //        return;
 
