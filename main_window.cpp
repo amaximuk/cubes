@@ -314,7 +314,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("action", "add");
     toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddHost_clicked);
+    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddFile_clicked);
 
 
     QToolButton* toolButtonPropertyListRemove = new QToolButton;
@@ -327,7 +327,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     //toolButtonPropertyListAdd->setProperty("action", "add");
     toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
     hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
+    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveFile_clicked);
 
 
     QFrame* widgetPropertyListButtons = new QFrame;
@@ -1201,7 +1201,7 @@ void MainWindow::on_Sort_action()
     scene_->invalidate();
 }
 
-void MainWindow::on_AddHost_clicked()
+void MainWindow::on_AddFile_clicked()
 {
     bool ok;
     QString text = QInputDialog::getText(this, "Add host", QString::fromLocal8Bit("Имя хоста:"), QLineEdit::Normal, "", &ok);
@@ -1218,9 +1218,19 @@ void MainWindow::on_AddHost_clicked()
     files_items_.push_back(fi);
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+
+    QStringList fileNames;
+    for (auto& file : files_items_)
+        fileNames.push_back(file->GetName());
+
+    for (auto& item : scene_->items())
+        reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+
+    if (scene_->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 }
 
-void MainWindow::on_RemoveHost_clicked()
+void MainWindow::on_RemoveFile_clicked()
 {
     //if (scene_->items().size() > 1)
     //{

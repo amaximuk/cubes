@@ -90,8 +90,8 @@ private slots:
     void on_Quit_action();
     void on_Sort_action();
 
-    void on_AddHost_clicked();
-    void on_RemoveHost_clicked();
+    void on_AddFile_clicked();
+    void on_RemoveFile_clicked();
     void on_Files_currentIndexChanged(int index);
 
     void currentItemChanged(QtBrowserItem* item);
