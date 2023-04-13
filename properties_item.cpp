@@ -446,7 +446,14 @@ void properties_item::SetFileNames(QStringList fileNames)
     }
 }
 
-QString properties_item::GetFileId()
+void properties_item::SetFileName(QString fileName)
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        pm->value = fileName;
+}
+
+QString properties_item::GetFileName()
 {
     const auto pm = GetParameterModel("BASE/FILE");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());

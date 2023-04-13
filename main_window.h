@@ -63,6 +63,7 @@ protected:
 public:
     unit_types::UnitParameters* GetUnitParameters(QString id);
     QStringList GetFileNames();
+    QString GetCurrentFileName();
     QColor GetFileColor(QString fileId);
 
 private:

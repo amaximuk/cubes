@@ -80,6 +80,7 @@ void diagram_view::dropEvent(QDropEvent *event)
         ds->informItemCreated(name, di);
 
         di->getProperties()->SetFileNames(main_->GetFileNames());
+        di->getProperties()->SetFileName(main_->GetCurrentFileName());
 
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 

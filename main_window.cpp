@@ -560,6 +560,11 @@ QStringList MainWindow::GetFileNames()
     return result;
 }
 
+QString MainWindow::GetCurrentFileName()
+{
+    return comboBoxFiles_->currentText();
+}
+
 QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {
