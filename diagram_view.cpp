@@ -47,7 +47,8 @@ void diagram_view::dragMoveEvent(QDragMoveEvent *event)
 int counter = 0;
 void diagram_view::dropEvent(QDropEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
+    if (event->mimeData()->hasFormat("application/x-dnditemdata"))
+    {
     //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
         QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
         QDataStream dataStream(&itemData, QIODevice::ReadOnly);
@@ -77,10 +78,13 @@ void diagram_view::dropEvent(QDropEvent *event)
 
         diagram_item *di = new diagram_item(up);
         diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-        ds->informItemCreated(name, di);
 
         di->getProperties()->SetFileNames(main_->GetFileNames());
         di->getProperties()->SetFileName(main_->GetCurrentFileName());
+        di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
+        ds->informItemCreated(di->getProperties()->GetName(), di);
+
+
 
         QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 

@@ -17,10 +17,11 @@ private:
 
 public:
     diagram_view(QGraphicsScene *scene, MainWindow* main, QWidget *parent = nullptr);
+
+public:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-
 };
 
 #endif // DIAGRAM_VIEW_H

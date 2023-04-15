@@ -71,7 +71,7 @@ properties_item::properties_item(const properties_item& other, diagram_item* dia
     //diagram_item* diagramItem_;
     //QtTreePropertyBrowser* propertyEditor_;
 
-    bool ignoreEvents_;
+    //bool ignoreEvents_;
 }
 
 void properties_item::CreateEditorModel()
@@ -463,6 +463,22 @@ QString properties_item::GetFileName()
         //if (pm->value.toInt() < pm->editorSettings.ComboBoxValues.size())
         //    return pm->editorSettings.ComboBoxValues[pm->value.toInt()];
     }
+    return "";
+}
+
+void properties_item::SetName(QString name)
+{
+    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    if (pm != nullptr)
+        pm->value = name;
+    diagramItem_->InformNameChanged(name);
+}
+
+QString properties_item::GetName()
+{
+    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    if (pm != nullptr)
+        return pm->value.toString();
     return "";
 }
 
@@ -876,6 +892,10 @@ void properties_item::valueChanged(QtProperty* property, const QString& value)
     qDebug() << "valueChanged " << pm->id << " = " << value;
     pm->value = value;
 
+    if (pm->id == "BASE/INSTANCE_NAME")
+    {
+        diagramItem_->InformNameChanged(value);
+    }
     //    if (!propertyToId.contains(property))
     //        return;
 

@@ -15,7 +15,8 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     font_ = QFont("Arial", 10);
     iconRect_ = QRect(0, 0, 32, 32);
     QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(properties_->getName());
+    textRect_ = fontMetrics.boundingRect(properties_->GetName());
+    textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
 
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
@@ -46,7 +47,7 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->drawPixmap(iconRect_, pixmap_);
     painter->setFont(font_);
     painter->setPen(Qt::blue);
-    painter->drawText(textRect_, properties_->getName());
+    painter->drawText(textRect_, properties_->GetName());
 
 
     QColor c = QColor("Black");
@@ -161,4 +162,15 @@ void diagram_item::InformColorChanged()
 {
     if (scene() != nullptr)
         scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+}
+
+void diagram_item::InformNameChanged(QString name)
+{
+    QFontMetricsF fontMetrics(font_);
+    textRect_ = fontMetrics.boundingRect(name);
+    textRect_.adjust(-1, 0, 1, 0);
+    textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
+    boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
+    if (scene() != nullptr)
+        scene()->invalidate(mapRectToScene(textRect_));
 }

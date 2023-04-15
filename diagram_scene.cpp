@@ -24,7 +24,7 @@ void diagram_scene::informItemPositionChanged(QString id, QPointF newPos)
 
 void diagram_scene::informItemCreated(QString id, diagram_item* item)
 {
-    emit itemCreated(id, item);
+    emit afterItemCreated(item);
 }
 
 void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -219,6 +219,8 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
         {
             for (auto item : selectedItems())
             {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                emit beforeItemDeleted(di);
                 delete item;
             }
         }

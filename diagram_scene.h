@@ -32,7 +32,8 @@ public:
 signals:
      void xxx(QPointF ppp);
      void itemPositionChanged(QString id, QPointF newPos);
-     void itemCreated(QString id, diagram_item* item);
+     void afterItemCreated(diagram_item* item);
+     void beforeItemDeleted(diagram_item* item);
 
 protected slots:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);

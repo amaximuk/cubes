@@ -163,7 +163,8 @@ void MainWindow::CreateScene()
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(scene_, &diagram_scene::itemCreated, this, &MainWindow::itemCreated);
+    qDebug() << connect(scene_, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
+    qDebug() << connect(scene_, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
     qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
 }
 
@@ -357,113 +358,16 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
 QWidget* MainWindow::CreateUnitsButtonsWidget()
 {
     comboBoxUnits_ = new QComboBox;
+    comboBoxUnits_->addItem("<not selected>");
     connect(comboBoxUnits_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Units_currentIndexChanged);
-
-    //QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
-    //hBoxLayoutPropertyListButtons->setMargin(0);
-    //hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
-
-    //QToolButton* toolButtonPropertyListAdd = new QToolButton;
-    //toolButtonPropertyListAdd->setFixedSize(24, 24);
-    //toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-    //toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-    ////toolButtonPropertyListAdd->setProperty("type", type);
-    ////toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    ////toolButtonPropertyListAdd->setProperty("name", name);
-    ////toolButtonPropertyListAdd->setProperty("action", "add");
-    //toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-    //hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    //connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddFile_clicked);
-
-    //QToolButton* toolButtonPropertyListRemove = new QToolButton;
-    //toolButtonPropertyListRemove->setFixedSize(24, 24);
-    //toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-    //toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-    ////toolButtonPropertyListAdd->setProperty("type", type);
-    ////toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    ////toolButtonPropertyListAdd->setProperty("name", name);
-    ////toolButtonPropertyListAdd->setProperty("action", "add");
-    //toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
-    //hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    //connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveFile_clicked);
-
-    //QWidget* buttonsWidget = new QWidget;
-    //buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
-
-    //QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
-    //splitterComboButtons->addWidget(comboBoxFiles_);
-    //splitterComboButtons->addWidget(buttonsWidget);
-    //splitterComboButtons->setStretchFactor(0, 1);
-    //splitterComboButtons->setStretchFactor(1, 0);
-
-    ////QLabel* label = new QLabel;
-    ////label->setStyleSheet("font-weight: bold; font-size: 14px");
-    ////label->setText(QString::fromLocal8Bit("Файлы"));
 
     QWidget* mainWidget = new QWidget;
     QVBoxLayout* mainLayout = new QVBoxLayout;
     mainLayout->setMargin(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    //mainLayout->addWidget(label, 1, Qt::AlignCenter);
-    //mainLayout->addWidget(splitterComboButtons);
     mainLayout->addWidget(comboBoxUnits_);
     mainWidget->setLayout(mainLayout);
     return mainWidget;
-
-    //QFrame* widgetPropertyListButtons = new QFrame;
-    //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
-    //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
-    //return widgetPropertyListButtons;
-
-
-
-
-
-
-
-
-    //QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
-    //hBoxLayoutPropertyListButtons->setMargin(0);
-    //hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
-
-    //comboBoxUnits_ = new QComboBox;
-    //comboBoxUnits_->setMinimumWidth(150);
-    ////comboBoxFiles_->addItem("Windows x64");
-    //hBoxLayoutPropertyListButtons->addWidget(comboBoxUnits_);
-    //hBoxLayoutPropertyListButtons->addStretch();
-    //connect(comboBoxUnits_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Units_currentIndexChanged);
-
-    //QToolButton* toolButtonPropertyListAdd = new QToolButton;
-    //toolButtonPropertyListAdd->setFixedSize(24, 24);
-    //toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-    //toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-    ////toolButtonPropertyListAdd->setProperty("type", type);
-    ////toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    ////toolButtonPropertyListAdd->setProperty("name", name);
-    ////toolButtonPropertyListAdd->setProperty("action", "add");
-    //toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-    //hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    ////connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddHost_clicked);
-
-
-    //QToolButton* toolButtonPropertyListRemove = new QToolButton;
-    //toolButtonPropertyListRemove->setFixedSize(24, 24);
-    //toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-    //toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-    ////toolButtonPropertyListAdd->setProperty("type", type);
-    ////toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    ////toolButtonPropertyListAdd->setProperty("name", name);
-    ////toolButtonPropertyListAdd->setProperty("action", "add");
-    //toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
-    //hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    ////connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveHost_clicked);
-
-
-    //QFrame* widgetPropertyListButtons = new QFrame;
-    //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
-    //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
-
-    //return widgetPropertyListButtons;
 }
 
 QWidget* MainWindow::CreateHintWidget()
@@ -626,6 +530,30 @@ QColor MainWindow::GetFileColor(QString fileId)
     return QColor("Black");
 }
 
+QString MainWindow::GetNewUnitName(QString baseName)
+{
+    QString name = baseName;
+    int counter = 0;
+    while (true)
+    {
+        bool found = false;
+        for (const auto& item : scene_->items())
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            if (di->getName() == name)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            name = QString("%1#%2").arg(baseName).arg(++counter);
+        else
+            break;
+    }
+    return name;
+}
+
 unit_types::UnitParameters* MainWindow::GetUnitParameters(QString id)
 {
     for (auto& up : unitParameters_)
@@ -705,11 +633,15 @@ void MainWindow::selectionChanged()
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
         //di->getProperties()->applyExpandState(propertyEditor_);
+        comboBoxUnits_->setCurrentText(di->getName());
     }
     else
     {
         propertyEditor_->clear();
         plainTextEditHint_->setPlainText("");
+        //comboBoxUnits_->blockSignals(true);
+        comboBoxUnits_->setCurrentIndex(0);
+        //comboBoxUnits_->blockSignals(false);
     }
 
 
@@ -814,9 +746,14 @@ void MainWindow::itemPositionChanged(QString id, QPointF newPos)
     //}
 }
 
-void MainWindow::itemCreated(QString id, diagram_item* item)
+void MainWindow::afterItemCreated(diagram_item* item)
 {
+    comboBoxUnits_->addItem(item->getName());
+}
 
+void MainWindow::beforeItemDeleted(diagram_item* item)
+{
+    comboBoxUnits_->addItem(item->getName());
 }
 
 void MainWindow::collapsed(QtBrowserItem* item)
@@ -1342,12 +1279,21 @@ void MainWindow::on_Files_currentIndexChanged(int index)
 
 void MainWindow::on_Units_currentIndexChanged(int index)
 {
+    scene_->blockSignals(true);
+    if (scene_->selectedItems().size() > 0)
+        scene_->clearSelection();
+    propertyEditor_->clear();
+    scene_->blockSignals(false);
+    if (index == 0)
+        return;
+
     QString name = comboBoxUnits_->currentText();
-    //for (const auto& fi : files_items_)
-    //{
-    //    if (fi->GetName() == name)
-    //        fi->ApplyToBrowser(filesPropertyEditor_);
-    //}
+    for (const auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (di->getName() == name)
+            item->setSelected(true);
+    }
 }
 
 void MainWindow::currentItemChanged(QtBrowserItem* item)

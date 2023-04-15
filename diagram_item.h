@@ -39,7 +39,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-    QString getName() { return properties_->getName(); };
+    QString getName() { return properties_->GetName(); };
     QSharedPointer<properties_item> getProperties() { return properties_; };
     QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
     QString getInstanceName() { return properties_->GetInstanceName(); }
@@ -50,6 +50,7 @@ public:
     void InformPositionYChanged(double y);
     void InformPositionZChanged(double z);
     void InformColorChanged();
+    void InformNameChanged(QString name);
 };
 
 #endif // DIAGRAM_ITEM_H
