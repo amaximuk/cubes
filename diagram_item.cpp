@@ -15,9 +15,11 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     font_ = QFont("Arial", 10);
     iconRect_ = QRect(0, 0, 32, 32);
     QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(properties_->GetName());
+    //textRect_ = fontMetrics.boundingRect(properties_->GetName());
+    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetName());
     textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
+    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
+    //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
 
     // Adjust iconRect_ for colored frame
     boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect());
@@ -168,9 +170,11 @@ void diagram_item::InformColorChanged()
 void diagram_item::InformNameChanged(QString name)
 {
     QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(name);
+    //textRect_ = fontMetrics.boundingRect(name);
+    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
     textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
+    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
+    //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
     if (scene() != nullptr)
         scene()->invalidate(mapRectToScene(textRect_));
