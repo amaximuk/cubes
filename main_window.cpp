@@ -520,7 +520,7 @@ void MainWindow::FillParametersInfo()
     }
 }
 
-QColor MainWindow::GetFileColor(QString fileId)
+QColor MainWindow::GetFileColor(const QString& fileId)
 {
     for (auto& fi : files_items_)
     {
@@ -530,9 +530,14 @@ QColor MainWindow::GetFileColor(QString fileId)
     return QColor("Black");
 }
 
-QString MainWindow::GetNewUnitName(QString baseName)
+QString MainWindow::GetNewUnitName(const QString& baseName)
 {
-    QString name = baseName;
+    QString n = baseName;
+    int i = baseName.lastIndexOf("#");
+    if (i != -1)
+        n = baseName.left(i);
+
+    QString name = n;
     int counter = 0;
     while (true)
     {
@@ -547,14 +552,14 @@ QString MainWindow::GetNewUnitName(QString baseName)
             }
         }
         if (found)
-            name = QString("%1#%2").arg(baseName).arg(++counter);
+            name = QString("%1#%2").arg(n).arg(++counter);
         else
             break;
     }
     return name;
 }
 
-unit_types::UnitParameters* MainWindow::GetUnitParameters(QString id)
+unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 {
     for (auto& up : unitParameters_)
     {

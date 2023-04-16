@@ -61,11 +61,11 @@ protected:
     void FillParametersInfo();
 
 public:
-    unit_types::UnitParameters* GetUnitParameters(QString id);
+    unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
-    QColor GetFileColor(QString fileId);
-    QString GetNewUnitName(QString baseName);
+    QColor GetFileColor(const QString& fileId);
+    QString GetNewUnitName(const QString& baseName);
 
 private:
     diagram_scene* scene_;

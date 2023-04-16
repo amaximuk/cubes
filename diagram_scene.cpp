@@ -47,6 +47,9 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     for (auto& item : selectedItems())
     {
         diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+        di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
+
+        //di->getProperties()->SetName("<new item>");
         drag_items_.push_back(di);
         di->setVisible(false);
         addItem(di);
@@ -146,7 +149,10 @@ void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     //          //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
     //          //ds->informItemCreated(name, di);
     //          informItemCreated(name, di);
-    //
+
+              //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
+              informItemCreated(item->getProperties()->GetName(), item);
+
               QPointF position = item->pos() - delta;
               //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
 

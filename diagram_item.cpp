@@ -16,6 +16,7 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     iconRect_ = QRect(0, 0, 32, 32);
     QFontMetricsF fontMetrics(font_);
     //textRect_ = fontMetrics.boundingRect(properties_->GetName());
+    QString x = properties_->GetName();
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetName());
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
