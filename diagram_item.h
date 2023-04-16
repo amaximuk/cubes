@@ -15,6 +15,7 @@ class QPixmap;
 class QGraphicsSceneContextMenuEvent;
 class QMenu;
 class QPolygonF;
+class QGraphicsScene;
 QT_END_NAMESPACE
 
 class diagram_item : public QGraphicsItem
@@ -27,6 +28,7 @@ private:
     QRect iconRect_;
     QRectF textRect_;
     QRectF boundingRect_;
+    bool borderOnly_;
 
 public:
     enum { Type = UserType + 15 };
@@ -51,6 +53,7 @@ public:
     void InformPositionZChanged(double z);
     void InformColorChanged();
     void InformNameChanged(QString name);
+    void SetBorderOnly(bool borderOnly);
 };
 
 #endif // DIAGRAM_ITEM_H

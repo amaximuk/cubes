@@ -51,7 +51,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
         //di->getProperties()->SetName("<new item>");
         drag_items_.push_back(di);
-        di->setVisible(false);
+        di->SetBorderOnly(true);
         addItem(di);
     }
     
@@ -60,7 +60,10 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     {
         QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
         for (auto& item : drag_items_)
-            item->setVisible(true);
+        {
+            diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+            di->SetBorderOnly(false);
+        }
     }
     else
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -151,6 +154,7 @@ void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     //          informItemCreated(name, di);
 
               //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
+              item->SetBorderOnly(false);
               informItemCreated(item->getProperties()->GetName(), item);
 
               QPointF position = item->pos() - delta;
@@ -209,14 +213,20 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
             qDebug() << "press" << drag_items_.size();
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
             for (auto& item : drag_items_)
-                item->setVisible(true);
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                di->SetBorderOnly(false);
+            }
         }
         else
         {
             qDebug() << "release " << drag_items_.size();
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
             for (auto& item : drag_items_)
-                item->setVisible(false);
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                di->SetBorderOnly(true);
+            }
         }
     }
     else
@@ -244,13 +254,19 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
         {
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
             for (auto& item : drag_items_)
-                item->setVisible(true);
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                di->SetBorderOnly(false);
+            }
         }
         else
         {
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
             for (auto& item : drag_items_)
-                item->setVisible(false);
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                di->SetBorderOnly(true);
+            }
         }
     }
 

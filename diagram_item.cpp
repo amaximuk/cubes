@@ -8,6 +8,7 @@
 diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent):
     QGraphicsItem(parent)
 {
+    borderOnly_ = false;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
     properties_.reset(new properties_item(unitParameters, this));
     pixmap_ = properties_->GetPixmap();
@@ -28,6 +29,7 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
 
 diagram_item::diagram_item(const diagram_item& other)
 {
+    borderOnly_ = other.borderOnly_;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
     pixmap_ = QPixmap(other.pixmap_);
     properties_.reset(new properties_item(*other.properties_, this));
@@ -48,44 +50,53 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    painter->drawPixmap(iconRect_, pixmap_);
-    painter->setFont(font_);
-    painter->setPen(Qt::blue);
-    painter->drawText(textRect_, properties_->GetName());
 
-
-    QColor c = QColor("Black");
-    diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
-    if (ds != nullptr)
-        c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileName());
-    //c.setAlpha(0x20);
-    painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->drawRect(iconRect_);
-
-    if(this->isSelected())
+    if (borderOnly_)
     {
-        //painter->setPen(QPen(QBrush(Qt::white, Qt::SolidPattern), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        //painter->drawRect(iconRect_);
-        //painter->setPen(QPen(QBrush(Qt::black, Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setPen(Qt::black);
         painter->drawRect(iconRect_);
     }
+    else
+    {
+        painter->drawPixmap(iconRect_, pixmap_);
+        painter->setFont(font_);
+        painter->setPen(Qt::blue);
+        painter->drawText(textRect_, properties_->GetName());
 
-    //QPointF centerPoint(iconRect_.bottomRight());
-    //qreal centerRadius = 8;
 
-    //QRadialGradient radialGrad(centerPoint, centerRadius);
-    //radialGrad.setColorAt(0.000, QColor(0, 0, 0, 0.9 * 255));
-    //radialGrad.setColorAt(1.000, QColor(0, 0, 0, 0.000));
+        QColor c = QColor("Black");
+        diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
+        if (ds != nullptr)
+            c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileName());
+        //c.setAlpha(0x20);
+        painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->drawRect(iconRect_);
 
-    //QPen pen;
-    //pen.setWidth(16);
-    //pen.setColor("blue");
-    //pen.setBrush(radialGrad);
+        if (this->isSelected())
+        {
+            //painter->setPen(QPen(QBrush(Qt::white, Qt::SolidPattern), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            //painter->drawRect(iconRect_);
+            //painter->setPen(QPen(QBrush(Qt::black, Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter->setPen(Qt::black);
+            painter->drawRect(iconRect_);
+        }
 
-    //painter->setPen(pen);
-    //painter->drawPoint(centerPoint);
+        //QPointF centerPoint(iconRect_.bottomRight());
+        //qreal centerRadius = 8;
+
+        //QRadialGradient radialGrad(centerPoint, centerRadius);
+        //radialGrad.setColorAt(0.000, QColor(0, 0, 0, 0.9 * 255));
+        //radialGrad.setColorAt(1.000, QColor(0, 0, 0, 0.000));
+
+        //QPen pen;
+        //pen.setWidth(16);
+        //pen.setColor("blue");
+        //pen.setBrush(radialGrad);
+
+        //painter->setPen(pen);
+        //painter->drawPoint(centerPoint);
+    }
 }
 
 QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -179,4 +190,11 @@ void diagram_item::InformNameChanged(QString name)
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
     if (scene() != nullptr)
         scene()->invalidate(mapRectToScene(textRect_));
+}
+
+void diagram_item::SetBorderOnly(bool borderOnly)
+{
+    borderOnly_ = borderOnly;
+    if (scene() != nullptr)
+        scene()->invalidate(mapRectToScene(boundingRect_));
 }
