@@ -753,7 +753,14 @@ void MainWindow::afterItemCreated(diagram_item* item)
 
 void MainWindow::beforeItemDeleted(diagram_item* item)
 {
-    comboBoxUnits_->addItem(item->getName());
+    for (int i = 1; i < comboBoxUnits_->count(); i++)
+    {
+        if (comboBoxUnits_->itemText(i) == item->getName())
+        {
+            comboBoxUnits_->removeItem(i);
+            break;
+        }
+    }
 }
 
 void MainWindow::collapsed(QtBrowserItem* item)

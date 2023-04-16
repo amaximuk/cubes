@@ -19,7 +19,8 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
 
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
+    // Adjust iconRect_ for colored frame
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect());
 }
 
 diagram_item::diagram_item(const diagram_item& other)
