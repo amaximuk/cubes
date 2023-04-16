@@ -30,6 +30,7 @@ class QComboBox;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 private:
     QVector<QColor> defaultColors_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
     int defaultColorIndex_;
@@ -45,9 +46,9 @@ protected:
     void CreateUi();
     void CreateMenu();
     QWidget* CreateMainWidget();
-    QWidget* CreateMainTabWidget();
-    void CreateScene();
-    void CreateView();
+    QWidget* CreateTabWidget(int index);
+    void CreateScene(int index);
+    void CreateView(int index);
     void CreateFilesPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
@@ -68,8 +69,9 @@ public:
     QString GetNewUnitName(const QString& baseName);
 
 private:
-    diagram_scene* scene_;
-    QPointer<diagram_view> view_;
+    QVector<QPair<diagram_scene*, diagram_view*>> panes_;
+    //diagram_scene* scene_;
+    //QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;

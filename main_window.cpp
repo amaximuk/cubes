@@ -92,8 +92,15 @@ QWidget* MainWindow::CreateMainWidget()
     table_view_log_ = new QTableView;
 
     tabWidget_ = new QTabWidget;
-    QWidget* widgetMainTab= CreateMainTabWidget();
+    QWidget* widgetMainTab= CreateTabWidget(0);
     tabWidget_->addTab(widgetMainTab, "Main");
+
+    QWidget* widgetTab1 = CreateTabWidget(1);
+    tabWidget_->addTab(widgetTab1, "XXX");
+
+    QWidget* widgetTab2 = CreateTabWidget(2);
+    tabWidget_->addTab(widgetTab2, "YYY");
+
 
     QSplitter* splitterTreeTab = new QSplitter(Qt::Horizontal);
     splitterTreeTab->addWidget(tree_);
@@ -122,11 +129,15 @@ QWidget* MainWindow::CreateMainWidget()
     return mainWidget;
 }
 
-QWidget* MainWindow::CreateMainTabWidget()
+QWidget* MainWindow::CreateTabWidget(int index)
 {
-    CreateScene();
-    CreateView();
-    return view_;
+    if (panes_.size() != index)
+        return nullptr;
+
+    panes_.resize(index + 1);
+    CreateScene(index);
+    CreateView(index);
+    return panes_[index].second;
 }
 
 //QWidget* MainWindow::CreateMainTabWidget()
@@ -157,21 +168,21 @@ QWidget* MainWindow::CreateMainTabWidget()
 //    return widgetTabProperties;
 //}
 
-void MainWindow::CreateScene()
+void MainWindow::CreateScene(int index)
 {
-    scene_ = new diagram_scene(this);
-    scene_->setSceneRect(-10000, -10000, 20032, 20032);
+    panes_[index].first = new diagram_scene(this);
+    panes_[index].first->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(scene_, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
-    qDebug() << connect(scene_, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
-    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(panes_[index].first, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
+    qDebug() << connect(panes_[index].first, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
+    qDebug() << connect(panes_[index].first, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
+    qDebug() << connect(panes_[index].first, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
 }
 
-void MainWindow::CreateView()
+void MainWindow::CreateView(int index)
 {
-    view_ = new diagram_view(scene_, this);
-    view_->setDragMode(QGraphicsView::RubberBandDrag);
+    panes_[index].second = new diagram_view(panes_[index].first, this);
+    panes_[index].second->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 //void MainWindow::CreatePropertyBrowser()
@@ -542,7 +553,7 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
     while (true)
     {
         bool found = false;
-        for (const auto& item : scene_->items())
+        for (const auto& item : panes_[0].first->items())
         {
             diagram_item* di = reinterpret_cast<diagram_item*>(item);
             if (di->getName() == name)
@@ -587,10 +598,10 @@ void MainWindow::MyFirstBtnClicked()
 {
 
     // Group all selected items together
-    group = scene_->createItemGroup(scene_->selectedItems());
+    group = panes_[0].first->createItemGroup(panes_[0].first->selectedItems());
 
     // Destroy the group, and delete the group item
-    scene_->destroyItemGroup(group);
+    panes_[0].first->destroyItemGroup(group);
 
 
 
@@ -631,9 +642,9 @@ void MainWindow::MyFirstBtnClicked()
 
 void MainWindow::selectionChanged()
 {
-    if (scene_->selectedItems().count() > 0)
+    if (panes_[0].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
@@ -651,10 +662,10 @@ void MainWindow::selectionChanged()
 
 
     //propertyEditor->clear();
-    //if (scene_->selectedItems().count() > 0)
+    //if (panes_[0].first->selectedItems().count() > 0)
     //{
     //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-    //    diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+    //    diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
     //    qDebug() << di->getName();
 
     //    QtProperty* mainGroup = groupManager->addProperty(di->getName());
@@ -753,6 +764,11 @@ void MainWindow::itemPositionChanged(QString id, QPointF newPos)
 
 void MainWindow::afterItemCreated(diagram_item* item)
 {
+    if (item->getProperties()->GetId() == "group")
+    {
+        QWidget* widgetTab = CreateTabWidget(tabWidget_->count());
+        tabWidget_->addTab(widgetTab, item->getName());
+    }
     comboBoxUnits_->addItem(item->getName());
 }
 
@@ -770,18 +786,18 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
 
 void MainWindow::collapsed(QtBrowserItem* item)
 {
-    if (scene_->selectedItems().count() > 0)
+    if (panes_[0].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
         di->getProperties()->ExpandedChanged(item->property(), false);
     }
 }
 
 void MainWindow::expanded(QtBrowserItem* item)
 {
-    if (scene_->selectedItems().count() > 0)
+    if (panes_[0].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
         di->getProperties()->ExpandedChanged(item->property(), true);
     }
 }
@@ -1024,8 +1040,8 @@ void MainWindow::on_ImportXmlFile_action()
             auto pi = di->getProperties();
             pi->ApplyXmlProperties(all_units[i]);
 
-            scene_->addItem(di);
-            scene_->clearSelection();
+            panes_[0].first->addItem(di);
+            panes_[0].first->clearSelection();
         }
         else
         {
@@ -1038,7 +1054,7 @@ void MainWindow::on_ImportXmlFile_action()
     QMap<QString, int> nameToIndex;
     QMap<int, QString> indexToName;
     QMap<QString, QSet<QString>> connectedNames;
-    for (auto& item : scene_->items())
+    for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -1071,8 +1087,8 @@ void MainWindow::on_ImportXmlFile_action()
         return;
     }
 
-    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
-    for (auto& item : scene_->items())
+    auto vr = panes_[0].second->mapToScene(panes_[0].second->viewport()->geometry()).boundingRect();
+    for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         
@@ -1090,7 +1106,7 @@ void MainWindow::on_ImportXmlFile_action()
         //di->setSelected(true);
     }
 
-    scene_->invalidate();
+    panes_[0].first->invalidate();
 
 
     //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
@@ -1180,7 +1196,7 @@ void MainWindow::on_Sort_action()
     QMap<QString, int> nameToIndex;
     QMap<int, QString> indexToName;
     QMap<QString, QSet<QString>> connectedNames;
-    for (auto& item : scene_->items())
+    for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -1213,8 +1229,8 @@ void MainWindow::on_Sort_action()
         return;
     }
 
-    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
-    for (auto& item : scene_->items())
+    auto vr = panes_[0].second->mapToScene(panes_[0].second->viewport()->geometry()).boundingRect();
+    for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -1231,7 +1247,7 @@ void MainWindow::on_Sort_action()
         di->setPos(position);
     }
 
-    scene_->invalidate();
+    panes_[0].first->invalidate();
 }
 
 void MainWindow::on_AddFile_clicked()
@@ -1256,19 +1272,19 @@ void MainWindow::on_AddFile_clicked()
     for (auto& file : files_items_)
         fileNames.push_back(file->GetName());
 
-    for (auto& item : scene_->items())
+    for (auto& item : panes_[0].first->items())
         reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
 
-    if (scene_->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    if (panes_[0].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 }
 
 void MainWindow::on_RemoveFile_clicked()
 {
-    //if (scene_->items().size() > 1)
+    //if (panes_[0].first->items().size() > 1)
     //{
-    //    Arrow* a = new Arrow(reinterpret_cast<diagram_item*>(scene_->items()[0]), reinterpret_cast<diagram_item*>(scene_->items()[1]));
-    //    scene_->addItem(a);
+    //    Arrow* a = new Arrow(reinterpret_cast<diagram_item*>(panes_[0].first->items()[0]), reinterpret_cast<diagram_item*>(panes_[0].first->items()[1]));
+    //    panes_[0].first->addItem(a);
 
     //}
     
@@ -1291,16 +1307,16 @@ void MainWindow::on_Files_currentIndexChanged(int index)
 
 void MainWindow::on_Units_currentIndexChanged(int index)
 {
-    scene_->blockSignals(true);
-    if (scene_->selectedItems().size() > 0)
-        scene_->clearSelection();
+    panes_[0].first->blockSignals(true);
+    if (panes_[0].first->selectedItems().size() > 0)
+        panes_[0].first->clearSelection();
     propertyEditor_->clear();
-    scene_->blockSignals(false);
+    panes_[0].first->blockSignals(false);
     if (index == 0)
         return;
 
     QString name = comboBoxUnits_->currentText();
-    for (const auto& item : scene_->items())
+    for (const auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (di->getName() == name)
@@ -1313,9 +1329,9 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     if (item != nullptr)
         qDebug() << item->property()->propertyName();
 
-    if (scene_->selectedItems().size() > 0)
+    if (panes_[0].first->selectedItems().size() > 0)
     {
-        auto di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
+        auto di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
         if (item != nullptr)
             plainTextEditHint_->setPlainText(di->getProperties()->GetPropertyDescription(item->property()));
         else
@@ -1364,10 +1380,10 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
 //    //if (!currentItem)
 //    //    return;
 //
-//    if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
+//    if (panes_[0].first->selectedItems().count() > 0 && !panes_[0].first->isItemMoving())
 //    {
 //        //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-//        diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
+//        diagram_item* gi = (diagram_item*)(panes_[0].first->selectedItems()[0]);
 //        qDebug() << gi->getName();
 //
 //        QString id = propertyToId[property];
