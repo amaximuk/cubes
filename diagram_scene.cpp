@@ -239,6 +239,7 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
                 emit beforeItemDeleted(di);
                 delete item;
             }
+            invalidate();
         }
     }
 

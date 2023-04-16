@@ -53,6 +53,7 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     if (borderOnly_)
     {
+        painter->fillRect(iconRect_, Qt::white);
         painter->setPen(Qt::black);
         painter->drawRect(iconRect_);
     }
