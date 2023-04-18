@@ -95,12 +95,7 @@ QWidget* MainWindow::CreateMainWidget()
     QWidget* widgetMainTab= CreateTabWidget(0);
     tabWidget_->addTab(widgetMainTab, "Main");
 
-    QWidget* widgetTab1 = CreateTabWidget(1);
-    tabWidget_->addTab(widgetTab1, "XXX");
-
-    QWidget* widgetTab2 = CreateTabWidget(2);
-    tabWidget_->addTab(widgetTab2, "YYY");
-
+    qDebug() << connect(tabWidget_, &QTabWidget::currentChanged, this, &MainWindow::on_Tab_currentChanged);
 
     QSplitter* splitterTreeTab = new QSplitter(Qt::Horizontal);
     splitterTreeTab->addWidget(tree_);
@@ -642,9 +637,13 @@ void MainWindow::MyFirstBtnClicked()
 
 void MainWindow::selectionChanged()
 {
-    if (panes_[0].first->selectedItems().count() > 0)
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return;
+
+    if (panes_[i].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
+        diagram_item* di = (diagram_item*)(panes_[i].first->selectedItems()[0]);
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
@@ -741,6 +740,30 @@ void MainWindow::test2(QPointF ppp)
 //    newIcon->setSelected(true);
 }
 
+void MainWindow::on_Tab_currentChanged(int index)
+{
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return;
+
+    if (index == 0)
+    {
+        filesPropertyEditor_->setEnabled(true);
+    }
+    else
+    {
+        filesPropertyEditor_->setEnabled(false);
+    }
+
+    comboBoxUnits_->clear();
+    comboBoxUnits_->addItem("<empty>");
+    for (const auto& item : panes_[i].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        comboBoxUnits_->addItem(di->getName());
+    }
+}
+
 void MainWindow::itemPositionChanged(QString id, QPointF newPos)
 {
     //QtProperty* p = idToProperty[id];
@@ -780,6 +803,22 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
         {
             comboBoxUnits_->removeItem(i);
             break;
+        }
+    }
+
+    if (item->getProperties()->GetId() == "group")
+    {
+        QString name = item->getProperties()->GetName();
+        for (int i = 0l; i < tabWidget_->count(); ++i)
+        {
+            if (tabWidget_->tabText(i) == name)
+            {
+                tabWidget_->removeTab(i);
+                delete panes_[i].first; // Use Smart pointers!!!
+                delete panes_[i].second; // Use Smart pointers!!!
+                panes_.removeAt(i);
+                break;
+            }
         }
     }
 }
@@ -1307,16 +1346,20 @@ void MainWindow::on_Files_currentIndexChanged(int index)
 
 void MainWindow::on_Units_currentIndexChanged(int index)
 {
-    panes_[0].first->blockSignals(true);
-    if (panes_[0].first->selectedItems().size() > 0)
-        panes_[0].first->clearSelection();
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return;
+
+    panes_[i].first->blockSignals(true);
+    if (panes_[i].first->selectedItems().size() > 0)
+        panes_[i].first->clearSelection();
     propertyEditor_->clear();
-    panes_[0].first->blockSignals(false);
+    panes_[i].first->blockSignals(false);
     if (index == 0)
         return;
 
     QString name = comboBoxUnits_->currentText();
-    for (const auto& item : panes_[0].first->items())
+    for (const auto& item : panes_[i].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (di->getName() == name)
@@ -1329,9 +1372,13 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     if (item != nullptr)
         qDebug() << item->property()->propertyName();
 
-    if (panes_[0].first->selectedItems().size() > 0)
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return;
+
+    if (panes_[i].first->selectedItems().size() > 0)
     {
-        auto di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+        auto di = reinterpret_cast<diagram_item*>(panes_[i].first->selectedItems()[0]);
         if (item != nullptr)
             plainTextEditHint_->setPlainText(di->getProperties()->GetPropertyDescription(item->property()));
         else

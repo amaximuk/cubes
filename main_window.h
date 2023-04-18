@@ -104,6 +104,8 @@ private slots:
     void selectionChanged();
     void test2(QPointF ppp);
 
+    void on_Tab_currentChanged(int index);
+
 public slots:
     void itemPositionChanged(QString id, QPointF newPos);
     void afterItemCreated(diagram_item* item);
