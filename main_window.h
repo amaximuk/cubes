@@ -111,6 +111,7 @@ public slots:
     void afterItemCreated(diagram_item* item);
     void beforeItemDeleted(diagram_item* item);
     void itemNameChanged(diagram_item* item, QString oldName);
+    void itemFileChanged(diagram_item* item);
 
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);

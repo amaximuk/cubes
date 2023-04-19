@@ -32,6 +32,11 @@ void diagram_scene::informItemNameChanged(diagram_item* item, QString oldName)
     emit itemNameChanged(item, oldName);
 }
 
+void diagram_scene::informItemFileChanged(diagram_item* item)
+{
+    emit itemFileChanged(item);
+}
+
 void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();

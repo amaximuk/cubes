@@ -187,10 +187,13 @@ void diagram_item::InformPositionZChanged(double z)
     }
 }
 
-void diagram_item::InformColorChanged()
+void diagram_item::InformFileChanged()
 {
     if (scene() != nullptr)
+    {
+        reinterpret_cast<diagram_scene*>(scene())->informItemFileChanged(this);
         scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+    }
 }
 
 void diagram_item::InformNameChanged(QString name, QString oldName)

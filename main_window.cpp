@@ -173,6 +173,7 @@ void MainWindow::CreateScene(int index)
     qDebug() << connect(panes_[index].first, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
     qDebug() << connect(panes_[index].first, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
     qDebug() << connect(panes_[index].first, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
+    qDebug() << connect(panes_[index].first, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
 }
 
 void MainWindow::CreateView(int index)
@@ -540,23 +541,28 @@ QColor MainWindow::GetFileColor(const QString& fileId)
 QString MainWindow::GetNewUnitName(const QString& baseName)
 {
     QString n = baseName;
-    int i = baseName.lastIndexOf("#");
-    if (i != -1)
-        n = baseName.left(i);
+    int sharp_index = baseName.lastIndexOf("#");
+    if (sharp_index != -1)
+        n = baseName.left(sharp_index);
 
     QString name = n;
     int counter = 0;
     while (true)
     {
         bool found = false;
-        for (const auto& item : panes_[0].first->items())
+        for (int i = 0; i < panes_.count(); ++i)
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
-            if (di->getName() == name)
+            for (const auto& item : panes_[i].first->items())
             {
-                found = true;
-                break;
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                if (di->getName() == name)
+                {
+                    found = true;
+                    break;
+                }
             }
+            if (found)
+                break;
         }
         if (found)
             name = QString("%1#%2").arg(n).arg(++counter);
@@ -749,10 +755,12 @@ void MainWindow::on_Tab_currentChanged(int index)
 
     if (index == 0)
     {
+        comboBoxFiles_->setEnabled(true);
         filesPropertyEditor_->setEnabled(true);
     }
     else
     {
+        comboBoxFiles_->setEnabled(false);
         filesPropertyEditor_->setEnabled(false);
     }
 
@@ -840,11 +848,32 @@ void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
     }
 }
 
+void MainWindow::itemFileChanged(diagram_item* item)
+{
+    if (item->getProperties()->GetId() == "group")
+    {
+        QString name = item->getProperties()->GetName();
+        QString fileName = item->getProperties()->GetFileName();
+        for (int i = 0; i < tabWidget_->count(); ++i)
+        {
+            if (tabWidget_->tabText(i) == name)
+            {
+                for (auto& item : panes_[i].first->items())
+                {
+                    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                    di->getProperties()->SetFileName(fileName);
+                }
+                break;
+            }
+        }
+    }
+}
+
 void MainWindow::collapsed(QtBrowserItem* item)
 {
     if (panes_[0].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
+        diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
         di->getProperties()->ExpandedChanged(item->property(), false);
     }
 }
@@ -853,7 +882,7 @@ void MainWindow::expanded(QtBrowserItem* item)
 {
     if (panes_[0].first->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
+        diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
         di->getProperties()->ExpandedChanged(item->property(), true);
     }
 }
@@ -1328,10 +1357,17 @@ void MainWindow::on_AddFile_clicked()
     for (auto& file : files_items_)
         fileNames.push_back(file->GetName());
 
-    for (auto& item : panes_[0].first->items())
-        reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        for (auto& item : panes_[i].first->items())
+            reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+    }
 
-    if (panes_[0].first->selectedItems().size() > 0)
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return;
+
+    if (panes_[i].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 }
 

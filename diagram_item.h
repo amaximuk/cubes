@@ -51,7 +51,7 @@ public:
     void InformPositionXChanged(double x);
     void InformPositionYChanged(double y);
     void InformPositionZChanged(double z);
-    void InformColorChanged();
+    void InformFileChanged();
     void InformNameChanged(QString name, QString oldName);
     void SetBorderOnly(bool borderOnly);
 };

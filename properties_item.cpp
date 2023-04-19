@@ -787,8 +787,11 @@ void properties_item::valueChanged(QtProperty* property, int value)
 
     if (pm->id.startsWith("BASE"))
     {
-        pm->value = property->valueText();
-        diagramItem_->InformColorChanged();
+        if (pm->id == "BASE/FILE")
+        {
+            pm->value = property->valueText();
+            diagramItem_->InformFileChanged();
+        }
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {
