@@ -24,16 +24,18 @@ public:
     explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);
 
 public:
-    void informItemPositionChanged(QString id, QPointF newPos);
-    void informItemCreated(QString id, diagram_item* item);
+    void informItemPositionChanged(diagram_item* item);
+    void informItemCreated(diagram_item* item);
+    void informItemNameChanged(diagram_item* item, QString oldName);
     bool isItemMoving() { return is_item_moving_; };
     MainWindow* getMain() { return main_; };
 
 signals:
      void xxx(QPointF ppp);
-     void itemPositionChanged(QString id, QPointF newPos);
+     void itemPositionChanged(diagram_item* item);
      void afterItemCreated(diagram_item* item);
      void beforeItemDeleted(diagram_item* item);
+     void itemNameChanged(diagram_item* item, QString oldName);
 
 protected slots:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);

@@ -470,8 +470,11 @@ void properties_item::SetName(QString name)
 {
     const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
     if (pm != nullptr)
+    {
+        QString oldName = pm->value.toString();
         pm->value = name;
-    diagramItem_->InformNameChanged(name);
+        diagramItem_->InformNameChanged(name, oldName);
+    }
 }
 
 QString properties_item::GetName()
@@ -889,12 +892,13 @@ void properties_item::valueChanged(QtProperty* property, const QString& value)
     if (pm == nullptr)
         return;
 
+    QString oldValue = pm->value.toString();
     qDebug() << "valueChanged " << pm->id << " = " << value;
     pm->value = value;
 
     if (pm->id == "BASE/INSTANCE_NAME")
     {
-        diagramItem_->InformNameChanged(value);
+        diagramItem_->InformNameChanged(value, oldValue);
     }
     //    if (!propertyToId.contains(property))
     //        return;

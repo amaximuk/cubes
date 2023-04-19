@@ -64,15 +64,17 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->setPen(Qt::blue);
         painter->drawText(textRect_, properties_->GetName());
 
-
-        QColor c = QColor("Black");
-        diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
-        if (ds != nullptr)
-            c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileName());
-        //c.setAlpha(0x20);
-        painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        painter->setRenderHint(QPainter::Antialiasing);
-        painter->drawRect(iconRect_);
+        if (scene() != nullptr)
+        {
+            QColor c = QColor("Black");
+            diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
+            if (ds != nullptr)
+                c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileName());
+            //c.setAlpha(0x20);
+            painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter->setRenderHint(QPainter::Antialiasing);
+            painter->drawRect(iconRect_);
+        }
 
         if (this->isSelected())
         {
@@ -104,31 +106,33 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
 {
     if (change == ItemPositionChange)
     {
-        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-        if (this->isSelected() && sc->isItemMoving())
+        if (scene() != nullptr)
         {
-            QPointF newPos = value.toPointF();
+            diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+            if (this->isSelected() && sc->isItemMoving())
+            {
+                QPointF newPos = value.toPointF();
 
-            //QRectF rect = scene()->sceneRect();
-            //rect.setBottomRight({rect.bottom() - iconRect_.width(), rect.right() - iconRect_.height()});
-            //if (!rect.contains(newPos)) {
-            //    // Keep the item inside the scene rect.
-            //    newPos.setX(qMin(rect.right(), qMax(newPos.x(), rect.left())));
-            //    newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));
-            //    properties_->PositionChanged(newPos);
-            //    return newPos;
-            //}
-            //properties_->PositionChanged(newPos);
+                //QRectF rect = scene()->sceneRect();
+                //rect.setBottomRight({rect.bottom() - iconRect_.width(), rect.right() - iconRect_.height()});
+                //if (!rect.contains(newPos)) {
+                //    // Keep the item inside the scene rect.
+                //    newPos.setX(qMin(rect.right(), qMax(newPos.x(), rect.left())));
+                //    newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));
+                //    properties_->PositionChanged(newPos);
+                //    return newPos;
+                //}
+                //properties_->PositionChanged(newPos);
 
-            // Grid
-            int gridSize = 20;
-            qreal xV = round(newPos.x() / gridSize) * gridSize;
-            qreal yV = round(newPos.y() / gridSize) * gridSize;
-            properties_->PositionChanged(QPointF(xV, yV));
-            return QPointF(xV, yV);
+                // Grid
+                int gridSize = 20;
+                qreal xV = round(newPos.x() / gridSize) * gridSize;
+                qreal yV = round(newPos.y() / gridSize) * gridSize;
+                properties_->PositionChanged(QPointF(xV, yV));
+                return QPointF(xV, yV);
 
+            }
         }
-
 
  
         //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
@@ -155,23 +159,32 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
 
 void diagram_item::InformPositionXChanged(double x)
 {
-    diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
-        setX(x);
+    if (scene() != nullptr)
+    {
+        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+            setX(x);
+    }
 }
 
 void diagram_item::InformPositionYChanged(double y)
 {
-    diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
-        setY(y);
+    if (scene() != nullptr)
+    {
+        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+            setY(y);
+    }
 }
 
 void diagram_item::InformPositionZChanged(double z)
 {
-    diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
-    if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
-        setZValue(z);
+    if (scene() != nullptr)
+    {
+        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+            setZValue(z);
+    }
 }
 
 void diagram_item::InformColorChanged()
@@ -180,7 +193,7 @@ void diagram_item::InformColorChanged()
         scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
 }
 
-void diagram_item::InformNameChanged(QString name)
+void diagram_item::InformNameChanged(QString name, QString oldName)
 {
     QFontMetricsF fontMetrics(font_);
     //textRect_ = fontMetrics.boundingRect(name);
@@ -190,7 +203,10 @@ void diagram_item::InformNameChanged(QString name)
     //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
     if (scene() != nullptr)
+    {
+        reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);
         scene()->invalidate(mapRectToScene(textRect_));
+    }
 }
 
 void diagram_item::SetBorderOnly(bool borderOnly)

@@ -172,6 +172,7 @@ void MainWindow::CreateScene(int index)
     qDebug() << connect(panes_[index].first, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
     qDebug() << connect(panes_[index].first, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
     qDebug() << connect(panes_[index].first, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(panes_[index].first, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
 }
 
 void MainWindow::CreateView(int index)
@@ -764,7 +765,7 @@ void MainWindow::on_Tab_currentChanged(int index)
     }
 }
 
-void MainWindow::itemPositionChanged(QString id, QPointF newPos)
+void MainWindow::itemPositionChanged(diagram_item* item)
 {
     //QtProperty* p = idToProperty[id];
     //if (p != nullptr)
@@ -809,7 +810,7 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
     if (item->getProperties()->GetId() == "group")
     {
         QString name = item->getProperties()->GetName();
-        for (int i = 0l; i < tabWidget_->count(); ++i)
+        for (int i = 0; i < tabWidget_->count(); ++i)
         {
             if (tabWidget_->tabText(i) == name)
             {
@@ -817,6 +818,22 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
                 delete panes_[i].first; // Use Smart pointers!!!
                 delete panes_[i].second; // Use Smart pointers!!!
                 panes_.removeAt(i);
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
+{
+    if (item->getProperties()->GetId() == "group")
+    {
+        QString name = item->getProperties()->GetName();
+        for (int i = 0; i < tabWidget_->count(); ++i)
+        {
+            if (tabWidget_->tabText(i) == oldName)
+            {
+                tabWidget_->setTabText(i, name);
                 break;
             }
         }

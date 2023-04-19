@@ -107,9 +107,10 @@ private slots:
     void on_Tab_currentChanged(int index);
 
 public slots:
-    void itemPositionChanged(QString id, QPointF newPos);
+    void itemPositionChanged(diagram_item* item);
     void afterItemCreated(diagram_item* item);
     void beforeItemDeleted(diagram_item* item);
+    void itemNameChanged(diagram_item* item, QString oldName);
 
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);

@@ -17,14 +17,19 @@ diagram_scene::diagram_scene(MainWindow* main, QObject *parent) : QGraphicsScene
     moving_item_ = 0;
 }
 
-void diagram_scene::informItemPositionChanged(QString id, QPointF newPos)
+void diagram_scene::informItemPositionChanged(diagram_item* item)
 {
-    emit itemPositionChanged(id, newPos);
+    emit itemPositionChanged(item);
 }
 
-void diagram_scene::informItemCreated(QString id, diagram_item* item)
+void diagram_scene::informItemCreated(diagram_item* item)
 {
     emit afterItemCreated(item);
+}
+
+void diagram_scene::informItemNameChanged(diagram_item* item, QString oldName)
+{
+    emit itemNameChanged(item, oldName);
 }
 
 void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -155,7 +160,7 @@ void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
               //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
               item->SetBorderOnly(false);
-              informItemCreated(item->getProperties()->GetName(), item);
+              informItemCreated(item);
 
               QPointF position = item->pos() - delta;
               //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
