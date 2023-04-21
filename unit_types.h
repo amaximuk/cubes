@@ -137,6 +137,13 @@ namespace unit_types
 		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;
 		QList<ParameterModel> parameters;
+		bool readOnly;
+
+	public:
+		ParameterModel()
+		{
+			readOnly = false;
+		}
 	};
 
 	struct ParametersModel

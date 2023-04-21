@@ -81,6 +81,7 @@ public:
     void ApplyXmlProperties(xml::Unit xu);
     void SetFileNames(QStringList fileNames);
     void SetFileName(QString fileName);
+    void SetFileNameReadOnly();
     QString GetFileName();
     void SetName(QString name);
     QString GetName();

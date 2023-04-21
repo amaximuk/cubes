@@ -376,7 +376,6 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr = enumManager->addProperty(model.name);
         enumManager->blockSignals(true);
         enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
-        
 
 
         //enumManager->setValue(pr, model.value.toInt());
@@ -415,6 +414,9 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr->addSubProperty(GetPropertyForModel(sp));
     }
 
+    if (model.readOnly)
+        pr->setEnabled(false);
+
     return pr;
 }
 
@@ -451,6 +453,13 @@ void properties_item::SetFileName(QString fileName)
     const auto pm = GetParameterModel("BASE/FILE");
     if (pm != nullptr)
         pm->value = fileName;
+}
+
+void properties_item::SetFileNameReadOnly()
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        pm->readOnly = true;
 }
 
 QString properties_item::GetFileName()

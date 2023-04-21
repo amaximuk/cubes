@@ -802,6 +802,24 @@ void MainWindow::afterItemCreated(diagram_item* item)
         tabWidget_->addTab(widgetTab, item->getName());
     }
     comboBoxUnits_->addItem(item->getName());
+
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i > 0)
+    {
+        QString name = tabWidget_->tabText(i);
+        for (const auto& pi : panes_[0].first->items())
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+            if (di->getProperties()->GetName() == name)
+            {
+                QString fileName = di->getProperties()->GetFileName();
+                item->getProperties()->SetFileName(fileName);
+                item->getProperties()->SetFileNameReadOnly();
+                break;
+            }
+        }
+
+    }
 }
 
 void MainWindow::beforeItemDeleted(diagram_item* item)
