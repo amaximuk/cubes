@@ -864,6 +864,9 @@ void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
             }
         }
     }
+    int i = comboBoxUnits_->findText(oldName);
+    if (i != -1)
+        comboBoxUnits_->setItemText(i, item->getProperties()->GetName());
 }
 
 void MainWindow::itemFileChanged(diagram_item* item)
