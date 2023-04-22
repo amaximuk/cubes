@@ -826,7 +826,7 @@ void properties_item::valueChanged(QtProperty* property, int value)
             diagramItem_->InformFileChanged();
         }
     }
-    else if (pm->id.startsWith("PROPERTIES"))
+    else if (pm->id.startsWith("PARAMETERS"))
     {
         auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
