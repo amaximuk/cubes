@@ -101,6 +101,7 @@ public:
     void SetName(QString name);
     QString GetName();
     QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
+    QList<QPair<QString, QString>> GetVariables();
 
 private:
     QMap<QtProperty*, QString> propertyToId;

@@ -25,6 +25,7 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
 
     // Adjust iconRect_ for colored frame
     boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect());
+    groupName_ = "Main";
 }
 
 diagram_item::diagram_item(const diagram_item& other)
@@ -39,6 +40,7 @@ diagram_item::diagram_item(const diagram_item& other)
     boundingRect_ = other.boundingRect_;
     setPos(other.pos() + QPointF{0, 0});
     setZValue(other.zValue() - 1);
+    groupName_ = other.groupName_;
 }
 
 diagram_item::~diagram_item()
@@ -64,18 +66,17 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
     else
     {
-        painter->drawPixmap(iconRect_, pixmap_);
-        painter->setFont(font_);
-        painter->setPen(Qt::blue);
-        painter->drawText(textRect_, properties_->GetName());
-
         if (scene() != nullptr)
         {
-            QColor c = QColor("Black");
             diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
-            if (ds != nullptr)
-                c = reinterpret_cast<MainWindow*>(ds->getMain())->GetFileColor(properties_->GetFileName());
-            //c.setAlpha(0x20);
+
+            painter->drawPixmap(iconRect_, pixmap_);
+            painter->setFont(font_);
+            painter->setPen(Qt::blue);
+            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_));
+
+            QColor c = QColor("Black");
+            c = ds->getMain()->GetFileColor(properties_->GetFileName());
             painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             painter->setRenderHint(QPainter::Antialiasing);
             painter->drawRect(iconRect_);

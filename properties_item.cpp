@@ -506,6 +506,24 @@ QString properties_item::GetName()
     return "";
 }
 
+QList<QPair<QString, QString>> properties_item::GetVariables()
+{
+    QList<QPair<QString, QString>> result;
+    const auto pm = GetParameterModel("PARAMETERS/VARIABLES");
+    if (pm != nullptr)
+    {
+        int count = pm->value.toInt();
+        for (int i = 0; i < count; i++)
+        {
+            const auto pm_n = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/NAME").arg(i));
+            const auto pm_v = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/VALUE").arg(i));
+            if (pm_n != nullptr && pm_v != nullptr)
+                result.push_back({ pm_n->value.toString(), pm_v->value.toString() });
+        }
+    }
+    return result;
+}
+
 void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
     propertyEditor_ = propertyEditor;

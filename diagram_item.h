@@ -28,6 +28,7 @@ private:
     QRectF textRect_;
     QRectF boundingRect_;
     bool borderOnly_;
+    QString groupName_;
 
 public:
     diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
@@ -51,6 +52,8 @@ public:
     void InformFileChanged();
     void InformNameChanged(QString name, QString oldName);
     void SetBorderOnly(bool borderOnly);
+    void SetGroupName(QString name) { groupName_ = name; }
+    QString GetGroupName() { return groupName_; }
 };
 
 #endif // DIAGRAM_ITEM_H

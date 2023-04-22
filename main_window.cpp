@@ -552,10 +552,29 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
         bool found = false;
         for (int i = 0; i < panes_.count(); ++i)
         {
+            QList<QPair<QString, QString>> variables;
+
+            QString tabName = tabWidget_->tabText(i);
+            for (const auto& pi : panes_[0].first->items())
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+                if (di->getProperties()->GetName() == tabName)
+                {
+                    variables = di->getProperties()->GetVariables();
+                    break;
+                }
+            }
+
             for (const auto& item : panes_[i].first->items())
             {
                 diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                if (di->getName() == name)
+                QString realName = di->getName();
+                for (const auto& v : variables)
+                {
+                    QString replace = QString("@%1@").arg(v.first);
+                    realName.replace(replace, v.second);
+                }
+                if (realName == name)
                 {
                     found = true;
                     break;
@@ -570,6 +589,43 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
             break;
     }
     return name;
+}
+
+QString MainWindow::GetDisplayName(const QString& baseName, const QString& groupName)
+{
+    QList<QPair<QString, QString>> variables;
+
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        for (const auto& pi : panes_[0].first->items())
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+            if (di->getProperties()->GetName() == tabName)
+            {
+                variables = di->getProperties()->GetVariables();
+                break;
+            }
+        }
+    }
+
+    QString realName = baseName;
+    for (const auto& v : variables)
+    {
+        QString replace = QString("@%1@").arg(v.first);
+        realName.replace(replace, v.second);
+    }
+
+    return realName;
+}
+
+QString MainWindow::GetCurrentGroup()
+{
+    int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (i == -1)
+        return "";
+
+    return tabWidget_->tabText(i);
 }
 
 unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)

@@ -67,6 +67,8 @@ public:
     QString GetCurrentFileName();
     QColor GetFileColor(const QString& fileId);
     QString GetNewUnitName(const QString& baseName);
+    QString GetDisplayName(const QString& baseName, const QString& groupName);
+    QString GetCurrentGroup();
 
 private:
     QVector<QPair<diagram_scene*, diagram_view*>> panes_;

@@ -84,6 +84,7 @@ void diagram_view::dropEvent(QDropEvent *event)
             di->getProperties()->SetFileNames(main_->GetFileNames());
             di->getProperties()->SetFileName(main_->GetCurrentFileName());
             di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
+            di->SetGroupName(main_->GetCurrentGroup());
             ds->informItemCreated(di);
 
 
