@@ -22,7 +22,6 @@ class diagram_item : public QGraphicsItem
 {
 private:
     QPixmap pixmap_;
-    //QString name_;
     QSharedPointer<properties_item> properties_;
     QFont font_;
     QRect iconRect_;
@@ -31,13 +30,11 @@ private:
     bool borderOnly_;
 
 public:
-    enum { Type = UserType + 15 };
-
     diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
     diagram_item(const diagram_item& other);
+    ~diagram_item();
 
 public:
-    int type() const override { return Type; }
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;

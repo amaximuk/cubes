@@ -23,6 +23,12 @@ class QtBoolPropertyManager;
 class QtProperty;
 class QtTreePropertyBrowser;
 class QtBrowserItem;
+class QtSpinBoxFactory;
+class QtDoubleSpinBoxFactory;
+class QtCheckBoxFactory;
+class QtSpinBoxFactory;
+class QtLineEditFactory;
+class QtEnumEditorFactory;
 
 class properties_item : public QObject
 {
@@ -33,12 +39,19 @@ private:
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
-    QtGroupPropertyManager* groupManager;
-    QtIntPropertyManager* intManager;
-    QtDoublePropertyManager* doubleManager;
-    QtStringPropertyManager* stringManager;
-    QtEnumPropertyManager* enumManager;
-    QtBoolPropertyManager* boolManager;
+    QScopedPointer<QtGroupPropertyManager> groupManager;
+    QScopedPointer<QtIntPropertyManager> intManager;
+    QScopedPointer<QtDoublePropertyManager> doubleManager;
+    QScopedPointer<QtStringPropertyManager> stringManager;
+    QScopedPointer<QtEnumPropertyManager> enumManager;
+    QScopedPointer<QtBoolPropertyManager> boolManager;
+
+    QScopedPointer<QtSpinBoxFactory> intSpinBoxFactory;
+    QScopedPointer<QtDoubleSpinBoxFactory> doubleSpinBoxFactory;
+    QScopedPointer<QtCheckBoxFactory> checkBoxFactory;
+    QScopedPointer<QtSpinBoxFactory> spinBoxFactory;
+    QScopedPointer<QtLineEditFactory> lineEditFactory;
+    QScopedPointer<QtEnumEditorFactory> comboBoxFactory;
 
     diagram_item* diagramItem_;
     QtTreePropertyBrowser* propertyEditor_;
@@ -48,6 +61,7 @@ private:
 public:
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
     properties_item(const properties_item& other, diagram_item* diagramItem);
+    ~properties_item();
 
 private:
     void CreateParametersModel();
@@ -71,6 +85,7 @@ private slots:
 
 public:
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
+    void UnApplyToBrowser();
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
     void ZOrderChanged(double value);

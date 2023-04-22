@@ -841,6 +841,8 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
             if (tabWidget_->tabText(i) == name)
             {
                 tabWidget_->removeTab(i);
+                for (auto item : panes_[i].first->items())
+                    delete item;
                 delete panes_[i].first; // Use Smart pointers!!!
                 delete panes_[i].second; // Use Smart pointers!!!
                 panes_.removeAt(i);

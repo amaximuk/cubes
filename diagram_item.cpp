@@ -41,6 +41,11 @@ diagram_item::diagram_item(const diagram_item& other)
     setZValue(other.zValue() - 1);
 }
 
+diagram_item::~diagram_item()
+{
+    qDebug() << "~diagram_item";
+}
+
 QRectF diagram_item::boundingRect() const
 {
     return boundingRect_;

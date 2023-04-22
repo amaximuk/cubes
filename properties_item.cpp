@@ -74,6 +74,11 @@ properties_item::properties_item(const properties_item& other, diagram_item* dia
     //bool ignoreEvents_;
 }
 
+properties_item::~properties_item()
+{
+    UnApplyToBrowser();
+}
+
 void properties_item::CreateEditorModel()
 {
     unit_types::ParameterModel editor_group;
@@ -422,18 +427,25 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
 
 void properties_item::CreatePropertyBrowser()
 {
-    groupManager = new QtGroupPropertyManager(this);
-    intManager = new QtIntPropertyManager(this);
-    doubleManager = new QtDoublePropertyManager(this);
-    stringManager = new QtStringPropertyManager(this);
-    enumManager = new QtEnumPropertyManager(this);
-    boolManager = new QtBoolPropertyManager(this);
+    groupManager.reset(new QtGroupPropertyManager(this));
+    intManager.reset(new QtIntPropertyManager(this));
+    doubleManager.reset(new QtDoublePropertyManager(this));
+    stringManager.reset(new QtStringPropertyManager(this));
+    enumManager.reset(new QtEnumPropertyManager(this));
+    boolManager.reset(new QtBoolPropertyManager(this));
 
-    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
-    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
-    qDebug() << connect(enumManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
+    qDebug() << connect(intManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+    qDebug() << connect(doubleManager.get(), SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
+    qDebug() << connect(stringManager.get(), SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+    qDebug() << connect(enumManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+    qDebug() << connect(boolManager.get(), SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
+
+    intSpinBoxFactory.reset(new QtSpinBoxFactory(this));
+    doubleSpinBoxFactory.reset(new QtDoubleSpinBoxFactory(this));
+    checkBoxFactory.reset(new QtCheckBoxFactory(this));
+    spinBoxFactory.reset(new QtSpinBoxFactory(this));
+    lineEditFactory.reset(new QtLineEditFactory(this));
+    comboBoxFactory.reset(new QtEnumEditorFactory(this));
 }
 
 void properties_item::SetFileNames(QStringList fileNames)
@@ -498,18 +510,18 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
     propertyEditor_ = propertyEditor;
 
-    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
-    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
-    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
-    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
-    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+    //QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
+    //QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+    //QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+    //QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
+    //QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+    //QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
 
-    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
-    propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
-    propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
-    propertyEditor->setFactoryForManager(enumManager, comboBoxFactory);
-    propertyEditor->setFactoryForManager(boolManager, checkBoxFactory);
+    propertyEditor->setFactoryForManager(intManager.get(), intSpinBoxFactory.get());
+    propertyEditor->setFactoryForManager(doubleManager.get(), doubleSpinBoxFactory.get());
+    propertyEditor->setFactoryForManager(stringManager.get(), lineEditFactory.get());
+    propertyEditor->setFactoryForManager(enumManager.get(), comboBoxFactory.get());
+    propertyEditor->setFactoryForManager(boolManager.get(), checkBoxFactory.get());
 
 
     propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
@@ -543,6 +555,18 @@ void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     ignoreEvents_ = false;
 
     ApplyExpandState();
+}
+
+void properties_item::UnApplyToBrowser()
+{
+    if (propertyEditor_ == nullptr)
+        return;
+
+    propertyEditor_->unsetFactoryForManager(intManager.get());
+    propertyEditor_->unsetFactoryForManager(doubleManager.get());
+    propertyEditor_->unsetFactoryForManager(stringManager.get());
+    propertyEditor_->unsetFactoryForManager(enumManager.get());
+    propertyEditor_->unsetFactoryForManager(boolManager.get());
 }
 
 QPixmap properties_item::GetPixmap()
