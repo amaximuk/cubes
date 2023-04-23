@@ -101,6 +101,7 @@ public:
     void SetName(QString name);
     QString GetName();
     QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
+    //QString GetUnitName() { return parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo); };
     QList<QPair<QString, QString>> GetVariables();
 
 private:

@@ -584,6 +584,9 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
             di->getProperties()->SetFileName(fileName);
             di->SetGroupName(groupName);
 
+            if (tabIndex != 0)
+                di->getProperties()->SetFileNameReadOnly();
+
             panes_[tabIndex].first->addItem(di);
             panes_[tabIndex].first->clearSelection();
 
@@ -779,10 +782,38 @@ QColor MainWindow::GetFileColor(const QString& fileId)
 
 QString MainWindow::GetNewUnitName(const QString& baseName, const QString& groupName)
 {
+    //int tabIndex = -1;
+    //for (int i = 0; i < panes_.count(); ++i)
+    //{
+    //    QString tabName = tabWidget_->tabText(i);
+    //    if (groupName == tabName)
+    //    {
+    //        tabIndex = i;
+    //        break;
+    //    }
+    //}
+
+    //if (tabIndex == -1)
+    //    return false;
+
+    //QString unitName = baseName;
+    //for (const auto& pi : panes_[tabIndex].first->items())
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+    //    if (di->getProperties()->GetName() == baseName)
+    //    {
+    //        unitName = di->getProperties()->GetUnitName();
+    //        break;
+    //    }
+    //}
+
+    //QString name = unitName;
+
     QString name = baseName;
     int sharp_index = baseName.lastIndexOf("#");
     if (sharp_index != -1)
         name = baseName.left(sharp_index);
+    QString varName = name;
 
     {
         QList<QPair<QString, QString>> variables;
@@ -799,11 +830,11 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
         for (const auto& v : variables)
         {
             QString replace = QString("@%1@").arg(v.first);
-            name.replace(replace, v.second);
+            varName.replace(replace, v.second);
         }
     }
+    QString newName = varName;
 
-    QString newName = name;
     int counter = 0;
     while (true)
     {
@@ -841,11 +872,11 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
                 break;
         }
         if (found)
-            newName = QString("%1#%2").arg(name).arg(++counter);
+            newName = QString("%1#%2").arg(varName).arg(++counter);
         else
             break;
     }
-    return newName;
+    return QString("%1#%2").arg(name).arg(counter);
 }
 
 QString MainWindow::GetDisplayName(const QString& baseName, const QString& groupName)
@@ -1391,11 +1422,10 @@ void MainWindow::on_ImportXmlFile_action()
     {
         if (!AddMainFile(f))
             return;
-
     }
     else
     {
-        // included config
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Это подключаемый файл, нельзя его импортировать."));
     }
 }
 
