@@ -10,6 +10,7 @@
 
 #include "parameters_compiler_types.h"
 #include "files_item.h"
+#include "xml_parser.h"
 #include "unit_types.h"
 
 class QPlainTextEdit;
@@ -61,14 +62,19 @@ protected:
     void FillTreeView();
     void FillParametersInfo();
 
+    bool AddUnits(const QString& groupName, const QString& fileName, const xml::File& file);
+    bool SortUnits(const QString& groupName);
+    bool AddMainFile(xml::File& file);
+
 public:
     unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
     QColor GetFileColor(const QString& fileId);
-    QString GetNewUnitName(const QString& baseName);
+    QString GetNewUnitName(const QString& baseName, const QString& groupName);
     QString GetDisplayName(const QString& baseName, const QString& groupName);
     QString GetCurrentGroup();
+    void ActivateGroup(const QString& groupName);
 
 private:
     QVector<QPair<diagram_scene*, diagram_view*>> panes_;

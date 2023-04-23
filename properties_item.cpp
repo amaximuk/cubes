@@ -708,12 +708,17 @@ QString properties_item::GetInstanceName()
 void properties_item::ApplyXmlProperties(xml::Unit xu)
 {
     auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    if (pm == nullptr)
+        return;
     pm->value = xu.name;
 
     for (auto& pm : parametersModel_.parameters)
     {
         ApplyXmlPropertiesInternal(pm, xu);
     }
+
+    QString oldName = pm->value.toString();
+    diagramItem_->InformNameChanged(xu.name, "");
 }
 
 QList<QString> properties_item::GetConnectedNames()
