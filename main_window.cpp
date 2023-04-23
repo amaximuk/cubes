@@ -665,13 +665,15 @@ bool MainWindow::SortUnits(const QString& groupName)
 
         int i = nameToIndex[di->getProperties()->GetInstanceName()];
 
-        QPoint position(vr.left() + 60 + coordinates[i].first * 60,
-            vr.top() + 60 + coordinates[i].second * 60);
+        //QPoint position(vr.left() + 60 + coordinates[i].first * 60,
+        //    vr.top() + 60 + coordinates[i].second * 60);
 
         int gridSize = 20;
-        qreal xV = round(position.x() / gridSize) * gridSize;
-        qreal yV = round(position.y() / gridSize) * gridSize;
-        position = QPoint(xV, yV);
+        //qreal xV = round(position.x() / gridSize) * gridSize;
+        //qreal yV = round(position.y() / gridSize) * gridSize;
+
+        QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
+        position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
 
         di->setPos(position);
         //di->setSelected(true);
@@ -876,7 +878,10 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
         else
             break;
     }
-    return QString("%1#%2").arg(name).arg(counter);
+    if (counter == 0)
+        return name;
+    else
+        return QString("%1#%2").arg(name).arg(counter);
 }
 
 QString MainWindow::GetDisplayName(const QString& baseName, const QString& groupName)
@@ -885,11 +890,11 @@ QString MainWindow::GetDisplayName(const QString& baseName, const QString& group
 
     for (int i = 0; i < panes_.count(); ++i)
     {
-        QString tabName = tabWidget_->tabText(i);
+        //QString tabName = tabWidget_->tabText(i);
         for (const auto& pi : panes_[0].first->items())
         {
             diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-            if (di->getProperties()->GetName() == tabName)
+            if (di->getProperties()->GetName() == groupName)
             {
                 variables = di->getProperties()->GetVariables();
                 break;
@@ -1416,7 +1421,6 @@ void MainWindow::on_ImportXmlFile_action()
 
         xml::parser::parse(fileNames[0], f);
     }
-
 
     if (f.config.networking_is_set)
     {
