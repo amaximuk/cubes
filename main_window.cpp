@@ -1101,23 +1101,76 @@ void MainWindow::on_ImportXmlFile_action()
     //        return;
     //}
 
-    QFileDialog dialog(this);
-    dialog.setNameFilter("Settings XML Files (*.xml)");
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-    QStringList fileNames;
-    if (dialog.exec())
-        fileNames = dialog.selectedFiles();
-
-    if (fileNames.size() == 0)
-        return;
-
     xml::File f{};
-    xml::parser::parse(fileNames[0], f);
+    {
+        QFileDialog dialog(this);
+        dialog.setNameFilter("Settings XML Files (*.xml)");
+        dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+        QStringList fileNames;
+        if (dialog.exec())
+            fileNames = dialog.selectedFiles();
+
+        if (fileNames.size() == 0)
+            return;
+
+        xml::parser::parse(fileNames[0], f);
+    }
 
     if (f.config.networking_is_set)
     {
         // main
+
+
+        if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
+        {
+            filesPropertyEditor_->clear();
+            files_items_.clear();
+            comboBoxFiles_->clear();
+            defaultColorIndex_ = 0;
+        }
+
+        auto fi = new files_item();
+        fi->SetName(f.fileName);
+        if (defaultColorIndex_ < defaultColors_.size())
+            fi->SetColor(defaultColors_[defaultColorIndex_++]);
+        else
+            fi->SetColor(QColor("White"));
+        fi->ApplyToBrowser(filesPropertyEditor_);
+        files_items_.push_back(fi);
+        comboBoxFiles_->addItem(f.fileName);
+        comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+
+        QStringList fileNames;
+        for (auto& file : files_items_)
+            fileNames.push_back(file->GetName());
+
+        for (int i = 0; i < panes_.count(); ++i)
+        {
+            for (auto& item : panes_[i].first->items())
+                reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+        }
+
+        //int i = tabWidget_->indexOf(tabWidget_->currentWidget());
+        //if (i == -1)
+        //    return;
+
+        //if (panes_[i].first->selectedItems().size() > 0)
+        //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         QDir dir = QFileInfo(fileNames[0]).absoluteDir();
 
@@ -1173,6 +1226,13 @@ void MainWindow::on_ImportXmlFile_action()
         // included config
     }
 
+
+
+
+
+
+
+
     QVector<xml::Unit> all_units;
     for (const auto& g : f.config.groups)
     {
@@ -1201,8 +1261,14 @@ void MainWindow::on_ImportXmlFile_action()
         {
             diagram_item* di = new diagram_item(*up);
 
-            auto pi = di->getProperties();
-            pi->ApplyXmlProperties(all_units[i]);
+            di->getProperties()->ApplyXmlProperties(all_units[i]);
+            
+            QStringList fileNames;
+            for (auto& file : files_items_)
+                fileNames.push_back(file->GetName());
+
+            di->getProperties()->SetFileNames(fileNames);
+            di->getProperties()->SetFileName(f.fileName);
 
             panes_[0].first->addItem(di);
             panes_[0].first->clearSelection();

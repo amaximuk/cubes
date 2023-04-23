@@ -13,6 +13,7 @@ using namespace xml;
 
 bool parser::parse(const QString& filename, File& fi)
 {
+	fi.fileName = QFileInfo(filename).fileName();
 	//QFile xmlFile(filename);
 	//if (!xmlFile.open(QIODevice::ReadOnly))
 	//{

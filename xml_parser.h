@@ -131,6 +131,7 @@ namespace xml
 
 	struct File
 	{
+		QString fileName;
 		QList<Include> includes;
 		Config config;
 	};
