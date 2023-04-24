@@ -672,12 +672,17 @@ bool MainWindow::SortUnits(const QString& groupName)
         //qreal xV = round(position.x() / gridSize) * gridSize;
         //qreal yV = round(position.y() / gridSize) * gridSize;
 
-        QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
-        position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
-
+        //QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
+        //position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
+        QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
         di->setPos(position);
+
+
         //di->setSelected(true);
     }
+    QPointF center = panes_[tabIndex].first->itemsBoundingRect().center();
+    //QPointF centerMapped = panes_[tabIndex].second->mapFromScene(center);
+    panes_[tabIndex].second->centerOn(center);
 
     panes_[tabIndex].first->invalidate();
     return true;
