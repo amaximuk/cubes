@@ -48,6 +48,7 @@ protected:
     void CreateMenu();
     QWidget* CreateMainWidget();
     QWidget* CreateTabWidget(int index);
+    QWidget* CreateLogWidget();
     void CreateScene(int index);
     void CreateView(int index);
     void CreateFilesPropertyBrowser();

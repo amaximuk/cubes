@@ -13,6 +13,7 @@
 #include "base64.h"
 #include "graph.h"
 #include "arrow_item.h"
+#include "log_table_model.h"
 
 #include <vector>
 
@@ -42,6 +43,7 @@
 #include <QFileDialog>
 #include <QStandardItemModel>
 #include <QLabel>
+#include <QHeaderView>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -91,6 +93,18 @@ QWidget* MainWindow::CreateMainWidget()
 
     table_view_log_ = new QTableView;
 
+    log_table_model* tm = new log_table_model();
+    MySortFilterProxyModel* pm = new MySortFilterProxyModel();
+    pm->setSourceModel(tm);
+    table_view_log_->setModel(pm);
+    table_view_log_->setSortingEnabled(true);
+    table_view_log_->verticalHeader()->hide();
+    table_view_log_->horizontalHeader()->setHighlightSections(false);
+    table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    //table_view_log_->sortByColumn(1, Qt::AscendingOrder);
+
     tabWidget_ = new QTabWidget;
     QWidget* widgetMainTab= CreateTabWidget(0);
     tabWidget_->addTab(widgetMainTab, "Main");
@@ -133,6 +147,15 @@ QWidget* MainWindow::CreateTabWidget(int index)
     CreateScene(index);
     CreateView(index);
     return panes_[index].second;
+}
+
+QWidget* MainWindow::CreateLogWidget()
+{
+    QWidget* mainWidget = new QWidget;
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    //mainLayout->addWidget(tableView_);
+    mainWidget->setLayout(mainLayout);
+    return mainWidget;
 }
 
 //QWidget* MainWindow::CreateMainTabWidget()
