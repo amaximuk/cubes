@@ -6,31 +6,49 @@
 
 log_table_model::log_table_model(QObject *parent) : QAbstractTableModel(parent)
 {
-    //this->setHeaderData(0, Qt::Horizontal, QObject::tr("Annual Pay"), Qt::DisplayRole);
-    //this->setHeaderData(1, Qt::Horizontal, QObject::tr("First Name"), Qt::DisplayRole);
-    //this->setHeaderData(2, Qt::Horizontal, QObject::tr("Last Name"), Qt::DisplayRole);
-
 }
+
+void log_table_model::addMessage(log_message message)
+{
+    insertRows(log_messages.size(), 1);
+    QModelIndex topLeft = createIndex(log_messages.size() - 1, 0);
+    QModelIndex bottomRight = createIndex(log_messages.size() - 1, 1);
+
+    // emit a signal to make the view reread identified data
+    emit dataChanged(topLeft, bottomRight, { Qt::DisplayRole });
+
+    log_messages[log_messages.size() - 1] = message;
+    //log_messages.push_back(message);
+}
+
 int log_table_model::rowCount(const QModelIndex& parent) const
 {
-    return 20; // сделаем фиксированно 5 строк в таблице
-    //если вы станете использовать скажем QList, то пишите return list.size();
+    return log_messages.size();
 }
+
 int log_table_model::columnCount(const QModelIndex& parent) const
 {
-    return 4; // количество колонок сделаем также фиксированным
+    return 2;
 }
 
 QVariant log_table_model::data(const QModelIndex& index, int role) const
 {
-    if (index.column() == 0 && role == Qt::DecorationRole)
+    if (!index.isValid())
+        return QVariant();
+
+    if (index.row() >= log_messages.size())
+        return QVariant();
+
+    if (index.column() == 1 && role == Qt::DecorationRole)
     {
         return QIcon(":/images/cubes.png");
     }
-    if (role == Qt::DisplayRole) {
-        QString unswer = QString("row = ") + QString::number(index.row()) + "  col = " + QString::number(index.column());
-        // строкой выше мы формируем ответ. QString::number преобразует число в текст
-        return QVariant(unswer);
+    if (role == Qt::DisplayRole)
+    {
+        if (index.column() == 0)
+            return QVariant((int)log_messages[index.row()].type);
+        else if (index.column() == 1)
+             return log_messages[index.row()].description;
     }
     return QVariant();
 }
@@ -69,97 +87,26 @@ QVariant log_table_model::headerData(int section, Qt::Orientation orientation, i
     return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-
-
-#include <QtWidgets>
-
-//! [0]
-MySortFilterProxyModel::MySortFilterProxyModel(QObject* parent)
-    : QSortFilterProxyModel(parent)
+bool log_table_model::insertRows(int position, int rows, const QModelIndex& parent)
 {
-}
-//! [0]
+    beginInsertRows(QModelIndex(), position, position + rows - 1);
 
-//! [1]
-void MySortFilterProxyModel::setFilterMinimumDate(QDate date)
-{
-    minDate = date;
-    invalidateFilter();
-}
-//! [1]
-
-//! [2]
-void MySortFilterProxyModel::setFilterMaximumDate(QDate date)
-{
-    maxDate = date;
-    invalidateFilter();
-}
-//! [2]
-
-//! [3]
-bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
-    const QModelIndex& sourceParent) const
-{
-
-    QModelIndex index0 = sourceModel()->index(sourceRow, 0, sourceParent);
-    QModelIndex index1 = sourceModel()->index(sourceRow, 1, sourceParent);
-    QModelIndex index2 = sourceModel()->index(sourceRow, 2, sourceParent);
-    QString s1 = sourceModel()->data(index0).toString();
-    QString s2 = sourceModel()->data(index1).toString();
-    QString s3 = sourceModel()->data(index2).toString();
-    if (s1 == "row = 1  col = 0")
-        return false;
-    return true;
-    return (sourceModel()->data(index0).toString().contains(filterRegExp())
-        || sourceModel()->data(index1).toString().contains(filterRegExp()))
-        && dateInRange(sourceModel()->data(index2).toDate());
-}
-//! [3]
-
-//! [4] //! [5]
-bool MySortFilterProxyModel::lessThan(const QModelIndex& left,
-    const QModelIndex& right) const
-{
-
-    QVariant leftData = sourceModel()->data(left);
-    QVariant rightData = sourceModel()->data(right);
-    //! [4]
-
-    
-    if (leftData.toString() < rightData.toString())
-        return false;
-    
-    return true;
-
-    //! [6]
-    if (leftData.userType() == QMetaType::QDateTime) {
-        return leftData.toDateTime() < rightData.toDateTime();
+    for (int row = 0; row < rows; ++row) {
+        log_messages.insert(position, {});
     }
-    else {
-        static const QRegularExpression emailPattern("[\\w\\.]*@[\\w\\.]*");
 
-        QString leftString = leftData.toString();
-        if (left.column() == 1) {
-            const QRegularExpressionMatch match = emailPattern.match(leftString);
-            if (match.hasMatch())
-                leftString = match.captured(0);
-        }
-        QString rightString = rightData.toString();
-        if (right.column() == 1) {
-            const QRegularExpressionMatch match = emailPattern.match(rightString);
-            if (match.hasMatch())
-                rightString = match.captured(0);
-        }
-
-        return QString::localeAwareCompare(leftString, rightString) < 0;
-    }
+    endInsertRows();
+    return true;
 }
-//! [5] //! [6]
 
-//! [7]
-bool MySortFilterProxyModel::dateInRange(QDate date) const
+bool log_table_model::removeRows(int position, int rows, const QModelIndex& parent)
 {
-    return (!minDate.isValid() || date > minDate)
-        && (!maxDate.isValid() || date < maxDate);
+    beginRemoveRows(QModelIndex(), position, position + rows - 1);
+
+    for (int row = 0; row < rows; ++row) {
+        log_messages.removeAt(position);
+    }
+
+    endRemoveRows();
+    return true;
 }
-//! [7]

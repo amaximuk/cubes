@@ -12,6 +12,8 @@
 #include "files_item.h"
 #include "xml_parser.h"
 #include "unit_types.h"
+#include "log_table_model.h"
+#include "sort_filter_model.h"
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -76,22 +78,25 @@ public:
     QString GetDisplayName(const QString& baseName, const QString& groupName);
     QString GetCurrentGroup();
     void ActivateGroup(const QString& groupName);
+    //void AddLogMessage(QString message);
 
 private:
-    QVector<QPair<diagram_scene*, diagram_view*>> panes_;
+    QVector<QPair<QPointer<diagram_scene>, QPointer<diagram_view>>> panes_;
     //diagram_scene* scene_;
     //QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
-    QTabWidget* tabWidget_;
+    QPointer<QTabWidget> tabWidget_;
     QPlainTextEdit* plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
-    QtTreePropertyBrowser* filesPropertyEditor_;
-    QtTreePropertyBrowser* propertyEditor_;
+    QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
+    QPointer<QtTreePropertyBrowser> propertyEditor_;
     QList<files_item*> files_items_;
-    QComboBox* comboBoxFiles_;
-    QComboBox* comboBoxUnits_;
+    QPointer<QComboBox> comboBoxFiles_;
+    QPointer<QComboBox> comboBoxUnits_;
+    QPointer<log_table_model> log_table_model_;
+    QPointer<sort_filter_model> sort_filter_model_;
 
 private slots:
     void on_NewFile_action();

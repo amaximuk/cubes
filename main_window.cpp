@@ -12,7 +12,6 @@
 #include "xml_parser.h"
 #include "base64.h"
 #include "graph.h"
-#include "arrow_item.h"
 #include "log_table_model.h"
 
 #include <vector>
@@ -91,20 +90,6 @@ QWidget* MainWindow::CreateMainWidget()
     FillParametersInfo();
     FillTreeView();
 
-    table_view_log_ = new QTableView;
-
-    log_table_model* tm = new log_table_model();
-    MySortFilterProxyModel* pm = new MySortFilterProxyModel();
-    pm->setSourceModel(tm);
-    table_view_log_->setModel(pm);
-    table_view_log_->setSortingEnabled(true);
-    table_view_log_->verticalHeader()->hide();
-    table_view_log_->horizontalHeader()->setHighlightSections(false);
-    table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    //table_view_log_->sortByColumn(1, Qt::AscendingOrder);
-
     tabWidget_ = new QTabWidget;
     QWidget* widgetMainTab= CreateTabWidget(0);
     tabWidget_->addTab(widgetMainTab, "Main");
@@ -117,9 +102,10 @@ QWidget* MainWindow::CreateMainWidget()
     splitterTreeTab->setStretchFactor(0, 0);
     splitterTreeTab->setStretchFactor(1, 1);
 
+    QWidget* logWidget = CreateLogWidget();
     QSplitter* splitterTreeTabLog = new QSplitter(Qt::Vertical);
     splitterTreeTabLog->addWidget(splitterTreeTab);
-    splitterTreeTabLog->addWidget(table_view_log_);
+    splitterTreeTabLog->addWidget(logWidget);
     splitterTreeTabLog->setStretchFactor(0, 1);
     splitterTreeTabLog->setStretchFactor(1, 0);
 
@@ -151,9 +137,29 @@ QWidget* MainWindow::CreateTabWidget(int index)
 
 QWidget* MainWindow::CreateLogWidget()
 {
+    table_view_log_ = new QTableView;
+
+    log_table_model_ = new log_table_model;
+    sort_filter_model_ = new sort_filter_model;
+    sort_filter_model_->setSourceModel(log_table_model_);
+
+    //tm->addMessage({message_type::information, "messsage1"});
+    //tm->addMessage({message_type::warning, "messsage2"});
+    table_view_log_->setModel(sort_filter_model_);
+    table_view_log_->setSortingEnabled(true);
+    table_view_log_->verticalHeader()->hide();
+    table_view_log_->horizontalHeader()->setHighlightSections(false);
+    //table_view_log_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
+    table_view_log_->sortByColumn(0, Qt::AscendingOrder);
+
+
     QWidget* mainWidget = new QWidget;
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    //mainLayout->addWidget(tableView_);
+    mainLayout->addWidget(table_view_log_);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainWidget->setLayout(mainLayout);
     return mainWidget;
 }
@@ -580,10 +586,12 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
             }
             else
             {
-                // !!! error
+                log_table_model_->addMessage({message_type::error, QString::fromLocal8Bit("Нет параметров для юнита %1").arg(name)});
             }
         }
     }
+    log_table_model_->submit();
+    table_view_log_->update();
 
     // Transform
     for (int i = 0; i < all_units.size(); i++)
