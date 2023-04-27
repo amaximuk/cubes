@@ -143,8 +143,6 @@ QWidget* MainWindow::CreateLogWidget()
     sort_filter_model_ = new sort_filter_model;
     sort_filter_model_->setSourceModel(log_table_model_);
 
-    //tm->addMessage({message_type::information, "messsage1"});
-    //tm->addMessage({message_type::warning, "messsage2"});
     table_view_log_->setModel(sort_filter_model_);
     table_view_log_->setSortingEnabled(true);
     table_view_log_->verticalHeader()->hide();
@@ -155,6 +153,9 @@ QWidget* MainWindow::CreateLogWidget()
     table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
     table_view_log_->sortByColumn(0, Qt::AscendingOrder);
 
+    log_table_model_->addMessage({ message_type::information, "messsage1" });
+    log_table_model_->addMessage({ message_type::warning, "messsage2" });
+    log_table_model_->addMessage({ message_type::error, "messsage3" });
 
     QWidget* mainWidget = new QWidget;
     QVBoxLayout* mainLayout = new QVBoxLayout;

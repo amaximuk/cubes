@@ -41,12 +41,17 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
 
     if (index.column() == 1 && role == Qt::DecorationRole)
     {
-        return QIcon(":/images/cubes.png");
+        if (log_messages[index.row()].type == message_type::information)
+            return QIcon(":/images/information.png");
+        else if (log_messages[index.row()].type == message_type::warning)
+            return QIcon(":/images/warning.png");
+        else if (log_messages[index.row()].type == message_type::error)
+            return QIcon(":/images/error.png");
     }
     if (role == Qt::DisplayRole)
     {
         if (index.column() == 0)
-            return QVariant((int)log_messages[index.row()].type);
+            return QVariant();
         else if (index.column() == 1)
              return log_messages[index.row()].description;
     }

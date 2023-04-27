@@ -8,5 +8,8 @@
         <file>images/module.png</file>
         <file>images/cubes.png</file>
         <file>images/ice.png</file>
+        <file>images/information.png</file>
+        <file>images/error.png</file>
+        <file>images/warning.png</file>
     </qresource>
 </RCC>
