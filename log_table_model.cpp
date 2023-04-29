@@ -10,15 +10,18 @@ log_table_model::log_table_model(QObject *parent) : QAbstractTableModel(parent)
 
 void log_table_model::addMessage(log_message message)
 {
-    insertRows(log_messages.size(), 1);
+    beginInsertRows(QModelIndex(), log_messages.size(), log_messages.size());
+    log_messages.push_back(message);
+    endInsertRows();
+
+    //insertRows(log_messages.size(), 1);
     QModelIndex topLeft = createIndex(log_messages.size() - 1, 0);
     QModelIndex bottomRight = createIndex(log_messages.size() - 1, 1);
 
     // emit a signal to make the view reread identified data
     emit dataChanged(topLeft, bottomRight, { Qt::DisplayRole });
 
-    log_messages[log_messages.size() - 1] = message;
-    //log_messages.push_back(message);
+    //log_messages[log_messages.size() - 1] = message;
 }
 
 int log_table_model::rowCount(const QModelIndex& parent) const
@@ -39,21 +42,45 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
     if (index.row() >= log_messages.size())
         return QVariant();
 
-    if (index.column() == 1 && role == Qt::DecorationRole)
-    {
-        if (log_messages[index.row()].type == message_type::information)
-            return QIcon(":/images/information.png");
-        else if (log_messages[index.row()].type == message_type::warning)
-            return QIcon(":/images/warning.png");
-        else if (log_messages[index.row()].type == message_type::error)
-            return QIcon(":/images/error.png");
-    }
-    if (role == Qt::DisplayRole)
+    if (role == Qt::DecorationRole)
     {
         if (index.column() == 0)
-            return QVariant();
+        {
+            if (log_messages[index.row()].type == message_type::information)
+                return QIcon(":/images/information.png");
+            else if (log_messages[index.row()].type == message_type::warning)
+                return QIcon(":/images/warning.png");
+            else if (log_messages[index.row()].type == message_type::error)
+                return QIcon(":/images/error.png");
+        }
+    }
+    else if (role == Qt::DisplayRole)
+    {
+        if (index.column() == 0)
+        {
+            //if (log_messages[index.row()].type == message_type::information)
+            //    return QString::fromLocal8Bit("information");
+            //else if (log_messages[index.row()].type == message_type::warning)
+            //    return QString::fromLocal8Bit("warning");
+            //else if (log_messages[index.row()].type == message_type::error)
+            //    return QString::fromLocal8Bit("error");
+        }
         else if (index.column() == 1)
-             return log_messages[index.row()].description;
+            return log_messages[index.row()].description;
+    }
+    else if (role == Qt::UserRole)
+    {
+        if (index.column() == 0)
+        {
+            if (log_messages[index.row()].type == message_type::information)
+                return QString::fromLocal8Bit("0-information");
+            else if (log_messages[index.row()].type == message_type::warning)
+                return QString::fromLocal8Bit("1-warning");
+            else if (log_messages[index.row()].type == message_type::error)
+                return QString::fromLocal8Bit("2-error");
+        }
+        else if (index.column() == 1)
+            return log_messages[index.row()].description;
     }
     return QVariant();
 }
@@ -63,7 +90,12 @@ QVariant log_table_model::headerData(int section, Qt::Orientation orientation, i
     if (role == Qt::DisplayRole)
     {
         if (orientation == Qt::Horizontal)
-            return QString("Header #%1").arg(section);
+        {
+            if (section == 0)
+                return "";
+            else if (section == 1)
+                return QString::fromLocal8Bit("Описание");
+        }
         //else
         //    return {};
     }
@@ -92,26 +124,26 @@ QVariant log_table_model::headerData(int section, Qt::Orientation orientation, i
     return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-bool log_table_model::insertRows(int position, int rows, const QModelIndex& parent)
-{
-    beginInsertRows(QModelIndex(), position, position + rows - 1);
-
-    for (int row = 0; row < rows; ++row) {
-        log_messages.insert(position, {});
-    }
-
-    endInsertRows();
-    return true;
-}
-
-bool log_table_model::removeRows(int position, int rows, const QModelIndex& parent)
-{
-    beginRemoveRows(QModelIndex(), position, position + rows - 1);
-
-    for (int row = 0; row < rows; ++row) {
-        log_messages.removeAt(position);
-    }
-
-    endRemoveRows();
-    return true;
-}
+//bool log_table_model::insertRows(int position, int rows, const QModelIndex& parent)
+//{
+//    beginInsertRows(QModelIndex(), position, position + rows - 1);
+//
+//    for (int row = 0; row < rows; ++row) {
+//        log_messages.insert(position, {});
+//    }
+//
+//    endInsertRows();
+//    return true;
+//}
+//
+//bool log_table_model::removeRows(int position, int rows, const QModelIndex& parent)
+//{
+//    beginRemoveRows(QModelIndex(), position, position + rows - 1);
+//
+//    for (int row = 0; row < rows; ++row) {
+//        log_messages.removeAt(position);
+//    }
+//
+//    endRemoveRows();
+//    return true;
+//}

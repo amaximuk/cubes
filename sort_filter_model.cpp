@@ -44,13 +44,18 @@ bool sort_filter_model::lessThan(const QModelIndex& left,
     const QModelIndex& right) const
 {
 
-    QVariant leftData = sourceModel()->data(left);
-    QVariant rightData = sourceModel()->data(right);
-    
+    QVariant leftData = sourceModel()->data(left, Qt::UserRole);
+    QVariant rightData = sourceModel()->data(right, Qt::UserRole);
+    QString leftString = leftData.toString();
+    QString rightString = rightData.toString();
+
+    qDebug() << left.row() << " : " << leftString << " --- " << right.row() << " : " <<
+        rightString << " --- " << (leftData.toString() < rightData.toString());
+
     if (leftData.toString() < rightData.toString())
-        return false;
+        return true;
     
-    return true;
+    return false;
 
     if (leftData.userType() == QMetaType::QDateTime) {
         return leftData.toDateTime() < rightData.toDateTime();

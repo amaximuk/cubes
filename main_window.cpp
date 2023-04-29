@@ -152,10 +152,20 @@ QWidget* MainWindow::CreateLogWidget()
     table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
     table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
     table_view_log_->sortByColumn(0, Qt::AscendingOrder);
+    table_view_log_->resizeColumnsToContents();
 
     log_table_model_->addMessage({ message_type::information, "messsage1" });
     log_table_model_->addMessage({ message_type::warning, "messsage2" });
+    log_table_model_->addMessage({ message_type::warning, "messsage2" });
+    log_table_model_->addMessage({ message_type::warning, "messsage2" });
+    log_table_model_->addMessage({ message_type::warning, "messsage2" });
     log_table_model_->addMessage({ message_type::error, "messsage3" });
+    log_table_model_->addMessage({ message_type::error, "messsage3" });
+    log_table_model_->addMessage({ message_type::error, "messsage3" });
+    log_table_model_->addMessage({ message_type::error, "messsage3" });
+    log_table_model_->addMessage({ message_type::error, "messsageA3" });
+    log_table_model_->addMessage({ message_type::error, "messsageC3" });
+    log_table_model_->addMessage({ message_type::error, "messsageB3" });
 
     QWidget* mainWidget = new QWidget;
     QVBoxLayout* mainLayout = new QVBoxLayout;
