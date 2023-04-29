@@ -15,6 +15,18 @@ enum class message_type
     error
 };
 
+inline message_type operator|(message_type lhs, message_type rhs)
+{
+    return static_cast<message_type>(
+        static_cast<std::underlying_type<message_type>::type>(lhs) |
+        static_cast<std::underlying_type<message_type>::type>(rhs));
+}
+
+inline uint qHash(message_type key, uint seed)
+{
+    return qHash(static_cast<uint>(key), seed);
+}
+
 struct log_message
 {
     message_type type;

@@ -58,12 +58,6 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
     {
         if (index.column() == 0)
         {
-            //if (log_messages[index.row()].type == message_type::information)
-            //    return QString::fromLocal8Bit("information");
-            //else if (log_messages[index.row()].type == message_type::warning)
-            //    return QString::fromLocal8Bit("warning");
-            //else if (log_messages[index.row()].type == message_type::error)
-            //    return QString::fromLocal8Bit("error");
         }
         else if (index.column() == 1)
             return log_messages[index.row()].description;
@@ -72,12 +66,18 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
     {
         if (index.column() == 0)
         {
+            //if (log_messages[index.row()].type == message_type::information)
+            //    return QString::fromLocal8Bit("0-information");
+            //else if (log_messages[index.row()].type == message_type::warning)
+            //    return QString::fromLocal8Bit("1-warning");
+            //else if (log_messages[index.row()].type == message_type::error)
+            //    return QString::fromLocal8Bit("2-error");
             if (log_messages[index.row()].type == message_type::information)
-                return QString::fromLocal8Bit("0-information");
+                return static_cast<uint32_t>(message_type::information);
             else if (log_messages[index.row()].type == message_type::warning)
-                return QString::fromLocal8Bit("1-warning");
+                return static_cast<uint32_t>(message_type::warning);
             else if (log_messages[index.row()].type == message_type::error)
-                return QString::fromLocal8Bit("2-error");
+                return static_cast<uint32_t>(message_type::error);
         }
         else if (index.column() == 1)
             return log_messages[index.row()].description;

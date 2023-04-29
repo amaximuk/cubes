@@ -120,6 +120,10 @@ private slots:
 
     void on_Tab_currentChanged(int index);
 
+    void on_ErrorButton_clicked(bool checked);
+    void on_WarningButton_clicked(bool checked);
+    void on_InformationButton_clicked(bool checked);
+
 public slots:
     void itemPositionChanged(diagram_item* item);
     void afterItemCreated(diagram_item* item);

@@ -142,6 +142,7 @@ QWidget* MainWindow::CreateLogWidget()
     log_table_model_ = new log_table_model;
     sort_filter_model_ = new sort_filter_model;
     sort_filter_model_->setSourceModel(log_table_model_);
+    sort_filter_model_->setFilter({ message_type::error, message_type::warning, message_type::information });
 
     table_view_log_->setModel(sort_filter_model_);
     table_view_log_->setSortingEnabled(true);
@@ -151,7 +152,7 @@ QWidget* MainWindow::CreateLogWidget()
     table_view_log_->horizontalHeader()->setStretchLastSection(true);
     table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
     table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
-    table_view_log_->sortByColumn(0, Qt::AscendingOrder);
+    //table_view_log_->sortByColumn(0, Qt::AscendingOrder);
     table_view_log_->resizeColumnsToContents();
 
     log_table_model_->addMessage({ message_type::information, "messsage1" });
@@ -159,16 +160,51 @@ QWidget* MainWindow::CreateLogWidget()
     log_table_model_->addMessage({ message_type::warning, "messsage2" });
     log_table_model_->addMessage({ message_type::warning, "messsage2" });
     log_table_model_->addMessage({ message_type::warning, "messsage2" });
+    log_table_model_->addMessage({ message_type::information, QString::fromLocal8Bit("messsage1 Информация") });
     log_table_model_->addMessage({ message_type::error, "messsage3" });
     log_table_model_->addMessage({ message_type::error, "messsage3" });
     log_table_model_->addMessage({ message_type::error, "messsage3" });
     log_table_model_->addMessage({ message_type::error, "messsage3" });
+    log_table_model_->addMessage({ message_type::information, QString::fromLocal8Bit("messsage1 Информация 2") });
     log_table_model_->addMessage({ message_type::error, "messsageA3" });
     log_table_model_->addMessage({ message_type::error, "messsageC3" });
     log_table_model_->addMessage({ message_type::error, "messsageB3" });
 
+    QToolButton* buttonError = new QToolButton;
+    buttonError->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    buttonError->setCheckable(true);
+    buttonError->setIcon(QIcon(":/images/error.png"));
+    buttonError->setText(QString::fromLocal8Bit("Ошибка"));
+    buttonError->setChecked(true);
+    qDebug() << connect(buttonError, &QToolButton::clicked, this, &MainWindow::on_ErrorButton_clicked);
+    QToolButton* buttonWarning = new QToolButton;
+    buttonWarning->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    buttonWarning->setCheckable(true);
+    buttonWarning->setIcon(QIcon(":/images/warning.png"));
+    buttonWarning->setText(QString::fromLocal8Bit("Предупреждение"));
+    buttonWarning->setChecked(true);
+    qDebug() << connect(buttonWarning, &QToolButton::clicked, this, &MainWindow::on_WarningButton_clicked);
+    QToolButton* buttonInformation = new QToolButton;
+    buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    buttonInformation->setCheckable(true);
+    buttonInformation->setIcon(QIcon(":/images/information.png"));
+    buttonInformation->setText(QString::fromLocal8Bit("Информация"));
+    buttonInformation->setChecked(true);
+    qDebug() << connect(buttonInformation, &QToolButton::clicked, this, &MainWindow::on_InformationButton_clicked);
+
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    buttonsLayout->addWidget(buttonError);
+    buttonsLayout->addWidget(buttonWarning);
+    buttonsLayout->addWidget(buttonInformation);
+    buttonsLayout->addStretch();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    QWidget* buttonsWidget = new QWidget;
+    buttonsWidget->setLayout(buttonsLayout);
+
     QWidget* mainWidget = new QWidget;
     QVBoxLayout* mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(buttonsWidget);
     mainLayout->addWidget(table_view_log_);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainWidget->setLayout(mainLayout);
@@ -1180,6 +1216,30 @@ void MainWindow::on_Tab_currentChanged(int index)
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         comboBoxUnits_->addItem(di->getName());
     }
+}
+
+void MainWindow::on_ErrorButton_clicked(bool checked)
+{
+    if (checked)
+        sort_filter_model_->addToFilter(message_type::error);
+    else
+        sort_filter_model_->removeFromFilter(message_type::error);
+}
+
+void MainWindow::on_WarningButton_clicked(bool checked)
+{
+    if (checked)
+        sort_filter_model_->addToFilter(message_type::warning);
+    else
+        sort_filter_model_->removeFromFilter(message_type::warning);
+}
+
+void MainWindow::on_InformationButton_clicked(bool checked)
+{
+    if (checked)
+        sort_filter_model_->addToFilter(message_type::information);
+    else
+        sort_filter_model_->removeFromFilter(message_type::information);
 }
 
 void MainWindow::itemPositionChanged(diagram_item* item)
