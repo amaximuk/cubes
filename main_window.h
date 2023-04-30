@@ -79,6 +79,7 @@ public:
     QString GetCurrentGroup();
     void ActivateGroup(const QString& groupName);
     //void AddLogMessage(QString message);
+    QStringList GetGroupConnectedNames(const QString& groupName);
 
 private:
     QVector<QPair<QPointer<diagram_scene>, QPointer<diagram_view>>> panes_;

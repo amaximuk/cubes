@@ -8,7 +8,7 @@ log_table_model::log_table_model(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
-void log_table_model::addMessage(log_message message)
+void log_table_model::addMessage(const log_message& message)
 {
     beginInsertRows(QModelIndex(), log_messages.size(), log_messages.size());
     log_messages.push_back(message);
@@ -24,6 +24,16 @@ void log_table_model::addMessage(log_message message)
     //log_messages[log_messages.size() - 1] = message;
 }
 
+void log_table_model::clear()
+{
+    if (log_messages.size() > 0)
+    {
+        beginRemoveRows(QModelIndex(), 0, log_messages.size() - 1);
+        log_messages.clear();
+        endRemoveRows();
+    }
+}
+
 int log_table_model::rowCount(const QModelIndex& parent) const
 {
     return log_messages.size();
@@ -31,7 +41,7 @@ int log_table_model::rowCount(const QModelIndex& parent) const
 
 int log_table_model::columnCount(const QModelIndex& parent) const
 {
-    return 2;
+    return 3;
 }
 
 QVariant log_table_model::data(const QModelIndex& index, int role) const
@@ -56,10 +66,9 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
     }
     else if (role == Qt::DisplayRole)
     {
-        if (index.column() == 0)
-        {
-        }
-        else if (index.column() == 1)
+        if (index.column() == 1)
+            return log_messages[index.row()].source;
+        else if (index.column() == 2)
             return log_messages[index.row()].description;
     }
     else if (role == Qt::UserRole)
@@ -80,6 +89,8 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
                 return static_cast<uint32_t>(message_type::error);
         }
         else if (index.column() == 1)
+            return log_messages[index.row()].source;
+        else if (index.column() == 2)
             return log_messages[index.row()].description;
     }
     return QVariant();
@@ -94,10 +105,10 @@ QVariant log_table_model::headerData(int section, Qt::Orientation orientation, i
             if (section == 0)
                 return "";
             else if (section == 1)
+                return QString::fromLocal8Bit("Источник");
+            else if (section == 2)
                 return QString::fromLocal8Bit("Описание");
         }
-        //else
-        //    return {};
     }
 
     //if (role == Qt::FontRole)

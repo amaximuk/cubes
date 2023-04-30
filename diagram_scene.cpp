@@ -286,14 +286,20 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
 {
-    QMap<QString, QList<QString>> connections;
+    QMap<QString, QStringList> connections;
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         QString name = di->getInstanceName();
-        if (name != "")
+
+        if (di->getProperties()->GetId() == "group")
         {
-            QList<QString> conn = di->getConnectedNames();
+            QStringList conn = main_->GetGroupConnectedNames(name);
+            connections[name].append(conn);
+        }
+        else
+        {
+            QStringList conn = di->getConnectedNames();
             connections[name].append(conn);
         }
     }

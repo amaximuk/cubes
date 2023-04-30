@@ -30,6 +30,7 @@ inline uint qHash(message_type key, uint seed)
 struct log_message
 {
     message_type type;
+    QString source;
     QString description;
 };
 
@@ -42,7 +43,8 @@ public:
     explicit log_table_model(QObject *parent = nullptr);
 
 public:
-    void addMessage(log_message message);
+    void addMessage(const log_message& message);
+    void clear();
 
 private:
     int rowCount(const QModelIndex& parent) const override;

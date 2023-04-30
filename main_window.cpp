@@ -155,21 +155,6 @@ QWidget* MainWindow::CreateLogWidget()
     //table_view_log_->sortByColumn(0, Qt::AscendingOrder);
     table_view_log_->resizeColumnsToContents();
 
-    log_table_model_->addMessage({ message_type::information, "messsage1" });
-    log_table_model_->addMessage({ message_type::warning, "messsage2" });
-    log_table_model_->addMessage({ message_type::warning, "messsage2" });
-    log_table_model_->addMessage({ message_type::warning, "messsage2" });
-    log_table_model_->addMessage({ message_type::warning, "messsage2" });
-    log_table_model_->addMessage({ message_type::information, QString::fromLocal8Bit("messsage1 Информация") });
-    log_table_model_->addMessage({ message_type::error, "messsage3" });
-    log_table_model_->addMessage({ message_type::error, "messsage3" });
-    log_table_model_->addMessage({ message_type::error, "messsage3" });
-    log_table_model_->addMessage({ message_type::error, "messsage3" });
-    log_table_model_->addMessage({ message_type::information, QString::fromLocal8Bit("messsage1 Информация 2") });
-    log_table_model_->addMessage({ message_type::error, "messsageA3" });
-    log_table_model_->addMessage({ message_type::error, "messsageC3" });
-    log_table_model_->addMessage({ message_type::error, "messsageB3" });
-
     QToolButton* buttonError = new QToolButton;
     buttonError->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     buttonError->setCheckable(true);
@@ -625,19 +610,23 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
     {
         for (const auto& u : g.units)
         {
-            QString name = u.id;
-            auto up = GetUnitParameters(name);
+            auto up = GetUnitParameters(u.id);
             if (up != nullptr)
             {
                 all_units.push_back(u);
             }
             else
             {
-                log_table_model_->addMessage({message_type::error, QString::fromLocal8Bit("Нет параметров для юнита %1").arg(name)});
+                log_message m{};
+                m.type = message_type::error;
+                m.source = QFileInfo(file.fileName).fileName();
+                m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+                log_table_model_->addMessage(m);
             }
         }
     }
     log_table_model_->submit();
+    table_view_log_->resizeColumnsToContents();
     table_view_log_->update();
 
     // Transform
@@ -1015,6 +1004,30 @@ void MainWindow::ActivateGroup(const QString& groupName)
             break;
         }
     }
+}
+
+QStringList MainWindow::GetGroupConnectedNames(const QString& groupName)
+{
+    QList<QString> connections;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            for (const auto& item : panes_[i].first->items())
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                QList<QString> conn = di->getConnectedNames();
+                for (const auto& c : conn)
+                {
+                    if (!connections.contains(c))
+                        connections.push_back(c);
+                }
+            }
+            break;
+        }
+    }
+    return connections;
 }
 
 unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
@@ -1416,6 +1429,7 @@ void MainWindow::CreateMenu()
     connect(openAct, &QAction::triggered, this, &MainWindow::on_OpenFile_action);
 
     QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
+    importXmlAct->setShortcut(QKeySequence("Ctrl+I"));
     importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
     connect(importXmlAct, &QAction::triggered, this, &MainWindow::on_ImportXmlFile_action);
 
@@ -1425,7 +1439,8 @@ void MainWindow::CreateMenu()
     connect(saveAct, &QAction::triggered, this, &MainWindow::on_SaveFile_action);
 
     QAction* saveAsAct = new QAction(QString::fromLocal8Bit("Сохранить как..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    //saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setShortcut(QKeySequence("Ctrl+Shift+S"));
     saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
     connect(saveAsAct, &QAction::triggered, this, &MainWindow::on_SaveAsFile_action);
 
@@ -1531,6 +1546,8 @@ void MainWindow::on_ImportXmlFile_action()
 
     if (f.config.networking_is_set)
     {
+        log_table_model_->clear();
+
         if (!AddMainFile(f))
             return;
     }
