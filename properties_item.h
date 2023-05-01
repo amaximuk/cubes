@@ -92,6 +92,7 @@ public:
     QString GetPropertyDescription(QtProperty* property);
     void ExpandedChanged(QtProperty* property, bool is_expanded);
     QList<QString> GetConnectedNames();
+    QList<QString> GetDependentNames();
     QString GetInstanceName();
     void ApplyXmlProperties(xml::Unit xu);
     void SetFileNames(QStringList fileNames);
@@ -118,6 +119,7 @@ private:
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(QtProperty* property);
     void GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
+    void GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
     void ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu);
 
     void SaveExpandState();

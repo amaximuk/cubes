@@ -1028,6 +1028,30 @@ QStringList MainWindow::GetGroupConnectedNames(const QString& groupName)
     return connections;
 }
 
+QStringList MainWindow::GetGroupDependentNames(const QString& groupName)
+{
+    QList<QString> connections;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            for (const auto& item : panes_[i].first->items())
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                QList<QString> conn = di->getDependentNames();
+                for (const auto& c : conn)
+                {
+                    if (!connections.contains(c))
+                        connections.push_back(c);
+                }
+            }
+            break;
+        }
+    }
+    return connections;
+}
+
 unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 {
     for (auto& up : unitParameters_)

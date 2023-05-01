@@ -39,17 +39,19 @@ signals:
      void itemNameChanged(diagram_item* item, QString oldName);
      void itemFileChanged(diagram_item* item);
 
-protected slots:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-    void keyPressEvent(QKeyEvent* keyEvent);
-    void keyReleaseEvent(QKeyEvent* keyEvent);
-    void drawBackground(QPainter* painter, const QRectF& rect);
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* keyEvent) override;
+    void keyReleaseEvent(QKeyEvent* keyEvent) override;
+    void drawBackground(QPainter* painter, const QRectF& rect) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     diagram_item* getDiagramItem(QString name);
+    void drawConnections(QPainter* painter, const QRectF& rect);
+    void drawDependencies(QPainter* painter, const QRectF& rect);
 };
 
 #endif // SCENE_H

@@ -651,6 +651,27 @@ void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel
         GetConnectedNamesInternal(pm, list);
 }
 
+void properties_item::GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+{
+    auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+
+    if (pi != nullptr && pi->type == "unit")
+    {
+        for (const auto& sub : model.parameters)
+        {
+            if (sub.id.endsWith("/DEPENDS") && sub.valueType == "bool" && sub.value.toBool() == true)
+            {
+                QString name = model.value.toString();
+                list.push_back(name);
+                break;
+            }
+        }
+    }
+    for (const auto& pm : model.parameters)
+        GetDependentNamesInternal(pm, list);
+}
+
 void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
@@ -726,12 +747,19 @@ QList<QString> properties_item::GetConnectedNames()
     QList<QString> list;
     for (const auto& pm : parametersModel_.parameters)
     {
-        GetConnectedNamesInternal(pm, list);
-        // auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
-        //if (pm.parameterInfoId.type == "unit")
-        //{
-        //    list.push_back(pm.name);
-        //}
+        if (pm.id == "PARAMETERS")
+            GetConnectedNamesInternal(pm, list);
+    }
+    return list;
+}
+
+QList<QString> properties_item::GetDependentNames()
+{
+    QList<QString> list;
+    for (const auto& pm : parametersModel_.parameters)
+    {
+        if (pm.id == "PARAMETERS")
+            GetDependentNamesInternal(pm, list);
     }
     return list;
 }

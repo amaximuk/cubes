@@ -42,6 +42,7 @@ public:
     QString getName() { return properties_->GetName(); };
     QSharedPointer<properties_item> getProperties() { return properties_; };
     QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
+    QList<QString> getDependentNames() { return properties_->GetDependentNames(); }
     QString getInstanceName() { return properties_->GetInstanceName(); }
     QPointF getLineAncorPosition() { return mapToScene(iconRect_.center()); }
 

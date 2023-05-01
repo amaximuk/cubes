@@ -286,6 +286,27 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
 {
+    drawConnections(painter, rect);
+    drawDependencies(painter, rect);
+    QGraphicsScene::drawBackground(painter, rect);
+}
+
+diagram_item* diagram_scene::getDiagramItem(QString name)
+{
+    for (const auto& item : items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (name == di->getInstanceName())
+        {
+            return di;
+        }
+        qDebug() << name << " - " << di->getInstanceName();
+    }
+    return nullptr;
+}
+
+void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
+{
     QMap<QString, QStringList> connections;
     for (const auto& item : items())
     {
@@ -303,7 +324,7 @@ void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
             connections[name].append(conn);
         }
     }
-    
+
     //painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
     painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->setRenderHint(QPainter::Antialiasing);
@@ -324,21 +345,48 @@ void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
             }
         }
     }
-    QGraphicsScene::drawBackground(painter, rect);
 }
 
-diagram_item* diagram_scene::getDiagramItem(QString name)
+void diagram_scene::drawDependencies(QPainter* painter, const QRectF& rect)
 {
+    QMap<QString, QStringList> connections;
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        if (name == di->getInstanceName())
+        QString name = di->getInstanceName();
+
+        if (di->getProperties()->GetId() == "group")
         {
-            return di;
+            QStringList conn = main_->GetGroupDependentNames(name);
+            connections[name].append(conn);
         }
-        qDebug() << name << " - " << di->getInstanceName();
+        else
+        {
+            QStringList conn = di->getDependentNames();
+            connections[name].append(conn);
+        }
     }
-    return nullptr;
+
+    //painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
+    painter->setPen(QPen(QBrush(QColor(0, 0, 0, 0x80), Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    for (const auto& kvp : connections.toStdMap())
+    {
+        auto di1 = getDiagramItem(kvp.first);
+        if (di1 != nullptr)
+        {
+            for (const auto& item : kvp.second)
+            {
+                auto di2 = getDiagramItem(item);
+                if (di2 != nullptr)
+                {
+                    //painter->drawLine(di1->scenePos(), di2->scenePos());
+                    painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+                }
+            }
+        }
+    }
 }
 
 void diagram_scene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
