@@ -629,6 +629,11 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
     table_view_log_->resizeColumnsToContents();
     table_view_log_->update();
 
+    // Get fileNames list
+    QStringList fileNames;
+    for (auto& file : files_items_)
+        fileNames.push_back(file->GetName());
+
     // Transform
     for (int i = 0; i < all_units.size(); i++)
     {
@@ -640,13 +645,6 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
             diagram_item* di = new diagram_item(*up);
 
             di->getProperties()->ApplyXmlProperties(all_units[i]);
-
-            QStringList fileNames;
-            for (auto& file : files_items_)
-                fileNames.push_back(file->GetName());
-
-            //QString fileName = QFileInfo(file.fileName).fileName();
-
             di->getProperties()->SetFileNames(fileNames);
             di->getProperties()->SetFileName(fileName);
             di->SetGroupName(groupName);
@@ -1278,14 +1276,33 @@ void MainWindow::itemPositionChanged(diagram_item* item)
 
 void MainWindow::afterItemCreated(diagram_item* item)
 {
+    int tabIndex = -1;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (item->GetGroupName() == tabName)
+        {
+            tabIndex = i;
+            break;
+        }
+    }
+
+    if (tabIndex == -1)
+        return;
+
+    // Если создали группу, создаем под нее вкладку
     if (item->getProperties()->GetId() == "group")
     {
         QWidget* widgetTab = CreateTabWidget(tabWidget_->count());
         tabWidget_->addTab(widgetTab, item->getName());
     }
-    comboBoxUnits_->addItem(item->getName());
 
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов
+    int currentTabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (tabIndex == currentTabIndex)
+        comboBoxUnits_->addItem(item->getName());
+
+    // Проверяем, что юнит в группе и ставим ему имя файла только на чтение
     if (tabIndex > 0)
     {
         QString name = tabWidget_->tabText(tabIndex);
