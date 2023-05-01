@@ -79,9 +79,15 @@ public:
     QString GetCurrentGroup();
     void ActivateGroup(const QString& groupName);
     //void AddLogMessage(QString message);
-    QStringList GetGroupConnectedNames(const QString& groupName);
-    QStringList GetGroupDependentNames(const QString& groupName);
+    QMap<QString, QStringList> GetGroupUnitsConnections(const QString& groupName);
+    QMap<QString, QStringList> GetGroupDependsConnections(const QString& groupName);
+    QMap<QString, QStringList> GetGroupUnitsConnections(int groupId);
+    QMap<QString, QStringList> GetGroupDependsConnections(int groupId);
+
+private:
     QStringList GetGroupUnitsNames(const QString& groupName);
+    QStringList GetGroupConnectedNames(const QString& groupName, bool depends);
+    QMap<QString, QStringList> GetGroupConnectionsInternal(const QString& groupName, bool depends);
 
 private:
     QVector<QPair<QPointer<diagram_scene>, QPointer<diagram_view>>> panes_;

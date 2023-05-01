@@ -19,9 +19,10 @@ private:
     bool is_item_moving_;
     QGraphicsItem* moving_item_;
     QList<diagram_item*> drag_items_;
+    const int id_;
 
 public:
-    explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);
+    explicit diagram_scene(MainWindow* main, int id, QObject *parent = nullptr);
 
 public:
     void informItemPositionChanged(diagram_item* item);
@@ -52,6 +53,9 @@ private:
     diagram_item* getDiagramItem(QString name);
     void drawConnections(QPainter* painter, const QRectF& rect);
     void drawDependencies(QPainter* painter, const QRectF& rect);
+
+public:
+    diagram_item* GetDiagramItem(QString name) { return getDiagramItem(name); }
 };
 
 #endif // SCENE_H

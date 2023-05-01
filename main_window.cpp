@@ -226,7 +226,7 @@ QWidget* MainWindow::CreateLogWidget()
 
 void MainWindow::CreateScene(int index)
 {
-    panes_[index].first = new diagram_scene(this);
+    panes_[index].first = new diagram_scene(this, index);
     panes_[index].first->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(panes_[index].first, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
@@ -1019,54 +1019,6 @@ void MainWindow::ActivateGroup(const QString& groupName)
     }
 }
 
-QStringList MainWindow::GetGroupConnectedNames(const QString& groupName)
-{
-    QList<QString> connections;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            for (const auto& item : panes_[i].first->items())
-            {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                QList<QString> conn = di->getConnectedNames();
-                for (const auto& c : conn)
-                {
-                    if (!connections.contains(c))
-                        connections.push_back(c);
-                }
-            }
-            break;
-        }
-    }
-    return connections;
-}
-
-QStringList MainWindow::GetGroupDependentNames(const QString& groupName)
-{
-    QList<QString> connections;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            for (const auto& item : panes_[i].first->items())
-            {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                QList<QString> conn = di->getDependentNames();
-                for (const auto& c : conn)
-                {
-                    if (!connections.contains(c))
-                        connections.push_back(c);
-                }
-            }
-            break;
-        }
-    }
-    return connections;
-}
-
 QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
 {
     QList<QString> connections;
@@ -1085,6 +1037,168 @@ QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
         }
     }
     return connections;
+}
+
+QStringList MainWindow::GetGroupConnectedNames(const QString& groupName, bool depends)
+{
+    QList<QString> connections;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            for (const auto& item : panes_[i].first->items())
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
+                for (const auto& c : conn)
+                {
+                    if (!connections.contains(c))
+                        connections.push_back(c);
+                }
+            }
+            break;
+        }
+    }
+    return connections;
+}
+
+QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(const QString& groupName)
+{
+    return GetGroupConnectionsInternal(groupName, false);
+}
+
+QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(const QString& groupName)
+{
+    return GetGroupConnectionsInternal(groupName, true);
+}
+
+QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(int groupId)
+{
+    QString groupName = tabWidget_->tabText(groupId);
+    return GetGroupConnectionsInternal(groupName, false);
+}
+
+QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
+{
+    QString groupName = tabWidget_->tabText(groupId);
+    return GetGroupConnectionsInternal(groupName, true);
+}
+
+QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString& groupName, bool depends)
+{
+    // Сюда будем собирать реальные соединения на этой сцене
+    QMap<QString, QStringList> result;
+
+    // Получим индекс страницы, он же индекс в массиве panes_
+    int tabIndex = -1;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            tabIndex = i;
+            break;
+        }
+    }
+
+    if (tabIndex == -1)
+        return result;
+
+    // Соберем имена юнитов на главной панели
+    QStringList mainUnits;
+    for (const auto& item : panes_[tabIndex].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        QString name = di->getInstanceName();
+        mainUnits.push_back(name);
+    }
+
+    // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
+    QMap<QString, QStringList> connections;
+    QMap<QString, QStringList> groups;
+    for (const auto& item : panes_[tabIndex].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        QString name = di->getInstanceName();
+
+        if (di->getProperties()->GetId() == "group")
+        {
+            QStringList uni = GetGroupUnitsNames(name);
+            if (uni.size() > 0)
+                groups[name].append(uni);
+            QStringList conn = GetGroupConnectedNames(name, depends);
+            if (conn.size() > 0)
+                connections[name].append(conn);
+        }
+        else
+        {
+            QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
+            if (conn.size() > 0)
+                connections[name].append(conn);
+        }
+    }
+
+    // Перебираем юниты сцены и для них рисуем соединения
+    for (const auto& kvp : connections.toStdMap())
+    {
+        // Проверяем этот юнит
+        QString unitName = kvp.first;
+
+        // Перебираем все соединения
+        for (const auto& name : kvp.second)
+        {
+            // Проверяем, что соединение с юнитом, который на этой сцене
+            if (mainUnits.contains(name))
+            {
+                // Отсеиваем дубликаты
+                if ((result.contains(unitName) && result[unitName].contains(name)) ||
+                    (result.contains(name) && result[name].contains(unitName)))
+                {
+                    // Уже есть
+                }
+                else
+                {
+                    // Добавляем
+                    result[unitName].push_back(name);
+                }
+            }
+            else
+            {
+                // Проверяем, что соединение с юнитом одной из групп
+                for (const auto& kvp2 : groups.toStdMap())
+                {
+                    // Проверяем эту группу
+                    QString groupName = kvp.first;
+
+                    // Перебираем юниты группы
+                    for (const auto& name2 : kvp2.second)
+                    {
+                        if (name == name2)
+                        {
+                            // Соединение с юнитом группы, в которой совпадение
+                            
+                            // Отсеиваем дубликаты
+                            if ((result.contains(unitName) && result[unitName].contains(groupName)) ||
+                                (result.contains(groupName) && result[groupName].contains(unitName)))
+                            {
+                                // Уже есть
+                            }
+                            else
+                            {
+                                // Добавляем
+                                result[unitName].push_back(groupName);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)

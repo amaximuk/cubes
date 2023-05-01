@@ -215,7 +215,8 @@ void diagram_item::InformNameChanged(QString name, QString oldName)
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);
-        scene()->invalidate(mapRectToScene(oldTextRect.united(textRect_)));
+        //scene()->invalidate(mapRectToScene(oldTextRect.united(textRect_)));
+        scene()->invalidate();
     }
 }
 
