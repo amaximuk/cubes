@@ -52,7 +52,6 @@ protected:
 private:
     diagram_item* getDiagramItem(QString name);
     void drawConnections(QPainter* painter, const QRectF& rect);
-    void drawDependencies(QPainter* painter, const QRectF& rect);
 
 public:
     diagram_item* GetDiagramItem(QString name) { return getDiagramItem(name); }
