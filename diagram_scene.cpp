@@ -300,14 +300,16 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
         {
             return di;
         }
-        qDebug() << name << " - " << di->getInstanceName();
+        //qDebug() << name << " - " << di->getInstanceName();
     }
     return nullptr;
 }
 
 void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
 {
+    // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
     QMap<QString, QStringList> connections;
+    QMap<QString, QStringList> groups;
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
@@ -315,41 +317,108 @@ void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
 
         if (di->getProperties()->GetId() == "group")
         {
+            QStringList uni = main_->GetGroupUnitsNames(name);
+            if (uni.size() > 0)
+                groups[name].append(uni);
             QStringList conn = main_->GetGroupConnectedNames(name);
-            connections[name].append(conn);
+            if (conn.size() > 0)
+                connections[name].append(conn);
         }
         else
         {
             QStringList conn = di->getConnectedNames();
-            connections[name].append(conn);
+            if (conn.size() > 0)
+                connections[name].append(conn);
         }
     }
 
-    //painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
     painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->setRenderHint(QPainter::Antialiasing);
 
+    // Перебираем юниты сцены и для них рисуем соединения
     for (const auto& kvp : connections.toStdMap())
     {
+        // Берем юнит по имени
         auto di1 = getDiagramItem(kvp.first);
         if (di1 != nullptr)
         {
-            for (const auto& item : kvp.second)
+            // Перебираем все соединения
+            for (const auto& name : kvp.second)
             {
-                auto di2 = getDiagramItem(item);
+                // Проверяем, что соединение с юнитом, который на этой сцене
+                auto di2 = getDiagramItem(name);
                 if (di2 != nullptr)
                 {
-                    //painter->drawLine(di1->scenePos(), di2->scenePos());
                     painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+                }
+
+                // Проверяем, что соединение с юнитом одной из групп
+                for (const auto& kvp2 : groups.toStdMap())
+                {
+                    // Перебираем юниты группы
+                    for (const auto& name2 : kvp2.second)
+                    {
+                        if (name == name2)
+                        {
+                            // Берем юнит группы, в которой совпадение
+                            auto di3 = getDiagramItem(kvp2.first);
+                            if (di3 != nullptr)
+                            {
+                                painter->drawLine(di1->getLineAncorPosition(), di3->getLineAncorPosition());
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
     }
+
+    //QMap<QString, QStringList> connections;
+    //for (const auto& item : items())
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //    QString name = di->getInstanceName();
+
+    //    if (di->getProperties()->GetId() == "group")
+    //    {
+    //        QStringList conn = main_->GetGroupConnectedNames(name);
+    //        connections[name].append(conn);
+    //    }
+    //    else
+    //    {
+    //        QStringList conn = di->getConnectedNames();
+    //        connections[name].append(conn);
+    //    }
+    //}
+
+    ////painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
+    //painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    //painter->setRenderHint(QPainter::Antialiasing);
+
+    //for (const auto& kvp : connections.toStdMap())
+    //{
+    //    auto di1 = getDiagramItem(kvp.first);
+    //    if (di1 != nullptr)
+    //    {
+    //        for (const auto& item : kvp.second)
+    //        {
+    //            auto di2 = getDiagramItem(item);
+    //            if (di2 != nullptr)
+    //            {
+    //                //painter->drawLine(di1->scenePos(), di2->scenePos());
+    //                painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void diagram_scene::drawDependencies(QPainter* painter, const QRectF& rect)
 {
+    // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
     QMap<QString, QStringList> connections;
+    QMap<QString, QStringList> groups;
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
@@ -357,32 +426,58 @@ void diagram_scene::drawDependencies(QPainter* painter, const QRectF& rect)
 
         if (di->getProperties()->GetId() == "group")
         {
+            QStringList uni = main_->GetGroupUnitsNames(name);
+            if (uni.size() > 0)
+                groups[name].append(uni);
             QStringList conn = main_->GetGroupDependentNames(name);
-            connections[name].append(conn);
+            if (conn.size() > 0)
+                connections[name].append(conn);
         }
         else
         {
             QStringList conn = di->getDependentNames();
-            connections[name].append(conn);
+            if (conn.size() > 0)
+                connections[name].append(conn);
         }
     }
 
-    //painter->fillRect(sceneRect(), Qt::blue);RadialGradientPattern
     painter->setPen(QPen(QBrush(QColor(0, 0, 0, 0x80), Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->setRenderHint(QPainter::Antialiasing);
 
+    // Перебираем юниты сцены и для них рисуем соединения
     for (const auto& kvp : connections.toStdMap())
     {
+        // Берем юнит по имени
         auto di1 = getDiagramItem(kvp.first);
         if (di1 != nullptr)
         {
-            for (const auto& item : kvp.second)
+            // Перебираем все соединения
+            for (const auto& name : kvp.second)
             {
-                auto di2 = getDiagramItem(item);
+                // Проверяем, что соединение с юнитом, который на этой сцене
+                auto di2 = getDiagramItem(name);
                 if (di2 != nullptr)
                 {
-                    //painter->drawLine(di1->scenePos(), di2->scenePos());
                     painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+                }
+
+                // Проверяем, что соединение с юнитом одной из групп
+                for (const auto& kvp2 : groups.toStdMap())
+                {
+                    // Перебираем юниты группы
+                    for (const auto& name2 : kvp2.second)
+                    {
+                        if (name == name2)
+                        {
+                            // Берем юнит группы, в которой совпадение
+                            auto di3 = getDiagramItem(kvp2.first);
+                            if (di3 != nullptr)
+                            {
+                                painter->drawLine(di1->getLineAncorPosition(), di3->getLineAncorPosition());
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

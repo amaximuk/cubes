@@ -579,8 +579,23 @@ void MainWindow::FillParametersInfo()
                 parameters_compiler::file_info fi{};
                 if (!yaml::parser::parse(fullPath.toStdString(), fi))
                 {
-                    //!!!!!!!!!!!!!!!
+                    log_message m{};
+                    m.type = message_type::error;
+                    m.source = filename;
+                    m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
+                    log_table_model_->addMessage(m);
                 }
+
+                if (fi.info.id != "group")
+                {
+                    parameters_compiler::parameter_info pi{};
+                    pi.type = "array<string>";
+                    pi.name = "DEPENDS";
+                    pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
+                    pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
+                    fi.parameters.push_back(std::move(pi));
+                }
+
                 auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
                 up.fileInfo = fi;
                 up.platforms.insert(QFileInfo(platformDir).baseName());
@@ -1045,6 +1060,26 @@ QStringList MainWindow::GetGroupDependentNames(const QString& groupName)
                     if (!connections.contains(c))
                         connections.push_back(c);
                 }
+            }
+            break;
+        }
+    }
+    return connections;
+}
+
+QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
+{
+    QList<QString> connections;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            for (const auto& item : panes_[i].first->items())
+            {
+                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                if (!connections.contains(di->getName()))
+                    connections.push_back(di->getName());
             }
             break;
         }

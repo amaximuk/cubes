@@ -204,6 +204,7 @@ void diagram_item::InformFileChanged()
 
 void diagram_item::InformNameChanged(QString name, QString oldName)
 {
+    QRectF oldTextRect = textRect_;
     QFontMetricsF fontMetrics(font_);
     //textRect_ = fontMetrics.boundingRect(name);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
@@ -214,7 +215,15 @@ void diagram_item::InformNameChanged(QString name, QString oldName)
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);
-        scene()->invalidate(mapRectToScene(textRect_));
+        scene()->invalidate(mapRectToScene(oldTextRect.united(textRect_)));
+    }
+}
+
+void diagram_item::InformDependencyChanged()
+{
+    if (scene() != nullptr)
+    {
+        scene()->invalidate();
     }
 }
 

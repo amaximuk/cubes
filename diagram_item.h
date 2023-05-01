@@ -52,6 +52,7 @@ public:
     void InformPositionZChanged(double z);
     void InformFileChanged();
     void InformNameChanged(QString name, QString oldName);
+    void InformDependencyChanged();
     void SetBorderOnly(bool borderOnly);
     void SetGroupName(QString name) { groupName_ = name; }
     QString GetGroupName() { return groupName_; }

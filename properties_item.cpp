@@ -190,6 +190,18 @@ void properties_item::CreateParametersModel()
         properties_group.parameters.push_back(std::move(pm));
     }
 
+    //unit_types::ParameterModel pmd;
+    //pmd.id = "PARAMETERS/DEPENDS";
+    //pmd.name = QString::fromLocal8Bit("Зависимости");
+    //pmd.value = 0;
+    //pmd.valueType = "string";
+    ////properties_group.parameterInfoId = "";
+    //pmd.editorSettings.type = unit_types::EditorType::SpinInterger;
+    //pmd.editorSettings.SpinIntergerMax = 100;
+    //pmd.editorSettings.is_expanded = false;
+
+    //properties_group.parameters.push_back(std::move(pmd));
+
     parametersModel_.parameters.push_back(std::move(properties_group));
 }
 
@@ -656,6 +668,15 @@ void properties_item::GetDependentNamesInternal(const unit_types::ParameterModel
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
+    if (model.id == "PARAMETERS/DEPENDS")
+    {
+        for (const auto& sub : model.parameters)
+        {
+            QString name = sub.value.toString();
+            list.push_back(name);
+        }
+    }
+
     if (pi != nullptr && pi->type == "unit")
     {
         for (const auto& sub : model.parameters)
@@ -815,6 +836,7 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
             //model.valueType = "none";
             model.parameterInfoId = pm.parameterInfoId;
             FillParameterModel(model);
+            pm.parameters.push_back(model);
 
             //parameters_compiler::parameter_info pi_new = pm.parameterInfo;
             //pi_new.type = at;
@@ -882,7 +904,7 @@ void properties_item::valueChanged(QtProperty* property, int value)
         auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
         bool is_array = parameters_compiler::helper::is_array_type(pi.type);
-        if (is_array)
+        if (is_array && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name))
         {
             SaveExpandState();
 
@@ -1102,6 +1124,11 @@ void properties_item::valueChanged(QtProperty* property, bool value)
 
     qDebug() << "valueChanged " << pm->id << " = " << value;
     pm->value = value;
+
+    if (pm->id.endsWith("/DEPENDS") && pm->valueType == "bool")
+    {
+        diagramItem_->InformDependencyChanged();
+    }
 }
 
 void properties_item::RegisterProperty(QtProperty* property, const QString& id)
