@@ -586,7 +586,7 @@ void MainWindow::FillParametersInfo()
                     log_table_model_->addMessage(m);
                 }
 
-                if (fi.info.id != "group")
+                if (fi.info.id != "group" && fi.info.id != "group_mock")
                 {
                     parameters_compiler::parameter_info pi{};
                     pi.type = "array<string>";
@@ -1085,6 +1085,43 @@ QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
     return GetGroupConnectionsInternal(groupName, true);
 }
 
+QStringList MainWindow::GetGroupNames()
+{
+    QStringList list;
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        list.push_back(tabName);
+    }
+    return list;
+}
+
+int MainWindow::GetTabIndex(const QString& groupName)
+{
+    int tabIndex = -1;
+    for (int i = 0; i < tabWidget_->count(); ++i)
+    {
+        QString tabName = tabWidget_->tabText(i);
+        if (groupName == tabName)
+        {
+            tabIndex = i;
+            break;
+        }
+    }
+    return tabIndex;
+}
+
+diagram_item* MainWindow::GetGroupItem(const QString& groupName)
+{
+    for (const auto& pi : panes_[0].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+        if (di->getProperties()->GetName() == groupName)
+            return di;
+    }
+    return nullptr;
+}
+
 QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString& groupName, bool depends)
 {
     // Сюда будем собирать реальные соединения на этой сцене
@@ -1449,25 +1486,64 @@ void MainWindow::itemPositionChanged(diagram_item* item)
 
 void MainWindow::afterItemCreated(diagram_item* item)
 {
-    int tabIndex = -1;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (item->GetGroupName() == tabName)
-        {
-            tabIndex = i;
-            break;
-        }
-    }
-
+    int tabIndex = GetTabIndex(item->GetGroupName());
     if (tabIndex == -1)
         return;
 
     // Если создали группу, создаем под нее вкладку
     if (item->getProperties()->GetId() == "group")
     {
-        QWidget* widgetTab = CreateTabWidget(tabWidget_->count());
+        // Получаем список вкладок
+        QStringList groupNames = GetGroupNames();
+
+        // Добавляем вкладку
+        int newTabIndex = tabWidget_->count();
+        QWidget* widgetTab = CreateTabWidget(newTabIndex);
         tabWidget_->addTab(widgetTab, item->getName());
+        QStringList fileNames = GetFileNames();
+
+
+
+
+
+
+        // Добавляем обязательные юниты на вкладку группы
+        auto up = GetUnitParameters("group_mock");
+        if (up != nullptr)
+        {
+            for (const auto& s : groupNames)
+            {
+                // Берем имя файла, для Main берем первый, т.к. нет юнита группы Main
+                QString fileName = fileNames[0];
+                diagram_item* gdi = GetGroupItem(s);
+                if (gdi != nullptr)
+                    fileName = gdi->getProperties()->GetFileName();
+
+                diagram_item* di = new diagram_item(*up);
+
+                //di->getProperties()->ApplyXmlProperties(all_units[i]);
+                di->getProperties()->SetFileNames(fileNames);
+                di->getProperties()->SetFileName(fileName);
+                di->SetGroupName(item->getName());
+                //di->getProperties()->SetName(QString("@%1").arg(s));
+                di->getProperties()->SetName(s);
+
+                if (newTabIndex != 0)
+                    di->getProperties()->SetInstanceNameReadOnly();
+
+                panes_[newTabIndex].first->addItem(di);
+                panes_[newTabIndex].first->clearSelection();
+
+                afterItemCreated(di);
+            }
+        }
+        else
+        {
+            // error
+        }
+
+        // Добавляем юнит новой группы на остальные вкладки групп
+
     }
 
     // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов

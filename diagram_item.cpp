@@ -75,11 +75,14 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
             painter->setPen(Qt::blue);
             painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_));
 
-            QColor c = QColor("Black");
-            c = ds->getMain()->GetFileColor(properties_->GetFileName());
-            painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            painter->setRenderHint(QPainter::Antialiasing);
-            painter->drawRect(iconRect_);
+            if (properties_->GetId() != "group_mock")
+            {
+                QColor c = QColor("Black");
+                c = ds->getMain()->GetFileColor(properties_->GetFileName());
+                painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter->setRenderHint(QPainter::Antialiasing);
+                painter->drawRect(iconRect_);
+            }
         }
 
         if (this->isSelected())

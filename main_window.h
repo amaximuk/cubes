@@ -83,6 +83,9 @@ public:
     QMap<QString, QStringList> GetGroupDependsConnections(const QString& groupName);
     QMap<QString, QStringList> GetGroupUnitsConnections(int groupId);
     QMap<QString, QStringList> GetGroupDependsConnections(int groupId);
+    QStringList GetGroupNames();
+    int GetTabIndex(const QString& groupName);
+    diagram_item* GetGroupItem(const QString& groupName);
 
 private:
     QStringList GetGroupUnitsNames(const QString& groupName);

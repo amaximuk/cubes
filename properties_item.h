@@ -98,6 +98,7 @@ public:
     void SetFileNames(QStringList fileNames);
     void SetFileName(QString fileName);
     void SetFileNameReadOnly();
+    void SetInstanceNameReadOnly();
     QString GetFileName();
     void SetName(QString name);
     QString GetName();

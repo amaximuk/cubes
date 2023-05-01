@@ -6,6 +6,7 @@
 #include <QtWidgets>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
+#include <QErrorMessage>
 
 diagram_view::diagram_view(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
     QGraphicsView(scene, parent)
@@ -73,6 +74,13 @@ void diagram_view::dropEvent(QDropEvent *event)
         qDebug() << "name: " << name << offset;
         QString vvv = QString::number(counter++);
 
+
+        if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
+        {
+            event->ignore();
+            QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Группы допускается создавать только в главном окне"));
+            return;
+        }
 
         if (scene() != nullptr)
         {
