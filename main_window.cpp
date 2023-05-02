@@ -468,6 +468,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
 QWidget* MainWindow::CreateGroupsButtonsWidget()
 {
     comboBoxGroups_ = new QComboBox;
+    comboBoxGroups_->addItem("<not selected>");
     connect(comboBoxGroups_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Groups_currentIndexChanged);
 
     QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
@@ -2161,6 +2162,9 @@ void MainWindow::on_RemoveGroup_clicked()
 
 void MainWindow::on_Groups_currentIndexChanged(int index)
 {
+    if (index == 0)
+        groupsPropertyEditor_->clear();
+
     QString name = comboBoxGroups_->currentText();
     for (const auto& fi : groups_items_)
     {

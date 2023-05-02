@@ -72,29 +72,15 @@ void group_item::CreateParametersModel()
     name.editorSettings.is_expanded = false;
     base_group.parameters.push_back(std::move(name));
 
-    unit_types::ParameterModel platform;
-    platform.id = "BASE/PLATFORM";
-    platform.name = QString::fromLocal8Bit("Платформа");
-    platform.value = "";
-    platform.valueType = "string";
-    //platform.parameterInfoId = "";
-    platform.editorSettings.type = unit_types::EditorType::ComboBox;
-    platform.editorSettings.is_expanded = false;
-    for(const auto& pl : unit_types::platform_names_)
-        platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
-    if (unit_types::platform_names_.size() > 0)
-        platform.value = QString::fromStdString(unit_types::platform_names_[0]);
-    base_group.parameters.push_back(std::move(platform));
-    
-    unit_types::ParameterModel file_path;
-    file_path.id = "BASE/FILE_PATH";
-    file_path.name = QString::fromLocal8Bit("Имя файла");
-    file_path.value = QString::fromLocal8Bit("config.xml");
-    file_path.valueType = "string";
-    //file_path.parameterInfoId = "";
-    file_path.editorSettings.type = unit_types::EditorType::String;
-    file_path.editorSettings.is_expanded = false;
-    base_group.parameters.push_back(std::move(file_path));
+    unit_types::ParameterModel file;
+    file.id = "BASE/FILE";
+    file.name = QString::fromLocal8Bit("Файл");
+    file.value = "";
+    file.valueType = "string";
+    //file.parameterInfoId = "";
+    file.editorSettings.type = unit_types::EditorType::ComboBox;
+    file.editorSettings.is_expanded = false;
+    base_group.parameters.push_back(std::move(file));
 
     parametersModel_.parameters.push_back(std::move(base_group));
 
@@ -107,49 +93,25 @@ void group_item::CreateParametersModel()
     properties_group.editorSettings.type = unit_types::EditorType::None;
     properties_group.editorSettings.is_expanded = true;
 
-    {
-        unit_types::ParameterModel pm_connection;
-        pm_connection.id = "PARAMETERS/CONNECTION";
-        pm_connection.name = QString::fromLocal8Bit("Соединение");
-        pm_connection.value = "";
-        pm_connection.valueType = "none";
-        //pm_connection.parameterInfoId = "";
-        pm_connection.editorSettings.type = unit_types::EditorType::None;
+    unit_types::ParameterModel file_path;
+    file_path.id = "PARAMETERS/FILE_PATH";
+    file_path.name = QString::fromLocal8Bit("Имя файла");
+    file_path.value = QString::fromLocal8Bit("config.xml");
+    file_path.valueType = "string";
+    file_path.editorSettings.type = unit_types::EditorType::String;
+    file_path.editorSettings.is_expanded = false;
+    properties_group.parameters.push_back(std::move(file_path));
 
-        unit_types::ParameterModel pm_host;
-        pm_host.id = "PARAMETERS/CONNECTION/HOST";
-        pm_host.name = QString::fromLocal8Bit("Хост");
-        pm_host.value = "";
-        pm_host.valueType= "string";
-        //pm_host.parameterInfoId = "";
-        pm_host.editorSettings.type = unit_types::EditorType::String;
-        pm_host.value = "127.0.0.1";
-        pm_connection.parameters.push_back(std::move(pm_host));
-
-        unit_types::ParameterModel pm_port;
-        pm_port.id = "PARAMETERS/CONNECTION/PORT";
-        pm_port.name = QString::fromLocal8Bit("Порт");
-        pm_port.value = 50000;
-        pm_port.valueType = "int";
-        //pm_port.parameterInfoId = "";
-        pm_port.editorSettings.type = unit_types::EditorType::SpinInterger;
-        pm_port.editorSettings.SpinIntergerMin = 1000;
-        pm_port.editorSettings.SpinIntergerMin = 65535;
-        pm_connection.parameters.push_back(std::move(pm_port));
-
-        properties_group.parameters.push_back(std::move(pm_connection));
-    }
-
-    {
-        unit_types::ParameterModel pm;
-        pm.id = "PARAMETERS/LOG";
-        pm.name = QString::fromLocal8Bit("Логирование");
-        pm.value = "";
-        pm.valueType = "none";
-        //pm.parameterInfoId = "";
-        pm.editorSettings.type = unit_types::EditorType::None;
-        properties_group.parameters.push_back(pm);
-    }
+    unit_types::ParameterModel variables;
+    variables.id = "PARAMETERS/VARIABLES";
+    variables.name = QString::fromLocal8Bit("Переменные");
+    variables.value = 0;
+    variables.valueType = "int";
+    variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+    variables.editorSettings.is_expanded = true;
+    variables.editorSettings.SpinIntergerMin = 0;
+    variables.editorSettings.SpinIntergerMax = 100;
+    properties_group.parameters.push_back(std::move(variables));
 
     parametersModel_.parameters.push_back(std::move(properties_group));
 }
@@ -545,41 +507,30 @@ void group_item::SetColor(QColor color)
 
 void group_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
-    //auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
-    //auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
-    //if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
-    //{
-    //    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
-    //    {
-    //        parameters_compiler::parameter_info pi_new = pm.parameterInfo;
-    //        pi_new.type = at;
-    //        pi_new.name = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i).toStdString();
-    //        pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
-    //        unit_types::ParameterModel model;
-    //        CreateParameterModel(pi_new, pm.id, model);
-    //        pm.parameters.push_back(model);
-    //    }
-    //}
-    //else if (ti != nullptr) // yml type
-    //{
-    //    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
-    //    {
-    //        unit_types::ParameterModel group_model;
-    //        group_model.editorSettings.type = unit_types::EditorType::None;
-    //        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-    //        group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
-    //        for (auto p : ti->parameters)
-    //        {
-    //            unit_types::ParameterModel model;
-    //            CreateParameterModel(p, group_model.id, model);
-    //            group_model.parameters.push_back(model);
-    //        }
-    //        pm.parameters.push_back(group_model);
-    //    }
-    //}
+    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    {
+        unit_types::ParameterModel group_model;
+        group_model.editorSettings.type = unit_types::EditorType::None;
+        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
-    //while (pm.parameters.size() > pm.value.toInt())
-    //    pm.parameters.pop_back();
+        unit_types::ParameterModel name;
+        name.editorSettings.type = unit_types::EditorType::String;
+        name.id = QString("%1/%2").arg(group_model.id, "NAME");
+        name.name = QString::fromLocal8Bit("Имя");
+        group_model.parameters.push_back(name);
+
+        unit_types::ParameterModel value;
+        value.editorSettings.type = unit_types::EditorType::String;
+        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
+        value.name = QString::fromLocal8Bit("Значение");
+        group_model.parameters.push_back(value);
+
+        pm.parameters.push_back(group_model);
+    }
+
+    while (pm.parameters.size() > pm.value.toInt())
+        pm.parameters.pop_back();
 }
 
 void group_item::valueChanged(QtProperty* property, int value)
@@ -594,46 +545,42 @@ void group_item::valueChanged(QtProperty* property, int value)
     {
         pm->value = property->valueText();
     }
-    else if (pm->id.startsWith("PROPERTIES"))
+    else if (pm->id == "PARAMETERS/VARIABLES")
     {
-        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
-        if (is_array)
+        SaveExpandState();
+
+        int count = std::stoi(property->valueText().toStdString());
+        pm->value = count;
+        UpdateArrayModel(*pm);
+
+        for (int i = property->subProperties().size(); i < count; ++i)
+            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+        QList<QtProperty*> to_remove;
+        for (int i = count; i < property->subProperties().size(); ++i)
         {
-            SaveExpandState();
-
-            int count = std::stoi(property->valueText().toStdString());
-            pm->value = count;
-            UpdateArrayModel(*pm);
-
-            for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-            QList<QtProperty*> to_remove;
-            for (int i = count; i < property->subProperties().size(); ++i)
-            {
-                auto p = property->subProperties()[i];
-                to_remove.push_back(p);
-                UnregisterProperty(p);
-            }
-
-            for (auto& p : to_remove)
-                property->removeSubProperty(p);
-
-            ApplyExpandState();
+            auto p = property->subProperties()[i];
+            to_remove.push_back(p);
+            UnregisterProperty(p);
         }
-        else
-        {
-            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
-                pm->value = property->valueText();
-            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
-                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
-                pm->value = std::stoi(property->valueText().toStdString());
-            else if (pm->valueType == "double" || pm->valueType == "float")
-                pm->value = std::stod(property->valueText().toStdString());
-            else // enum
-                pm->value = property->valueText();
 
-        }
+        for (auto& p : to_remove)
+            property->removeSubProperty(p);
+
+        ApplyExpandState();
+    }
+    else
+    {
+        if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
+            pm->value = property->valueText();
+        else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+            pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
+            pm->value = std::stoi(property->valueText().toStdString());
+        else if (pm->valueType == "double" || pm->valueType == "float")
+            pm->value = std::stod(property->valueText().toStdString());
+        else // enum
+            pm->value = property->valueText();
+
     }
 }
 
