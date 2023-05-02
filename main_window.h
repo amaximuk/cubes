@@ -10,6 +10,7 @@
 
 #include "parameters_compiler_types.h"
 #include "files_item.h"
+#include "group_item.h"
 #include "xml_parser.h"
 #include "unit_types.h"
 #include "log_table_model.h"
@@ -54,12 +55,15 @@ protected:
     void CreateScene(int index);
     void CreateView(int index);
     void CreateFilesPropertyBrowser();
+    void CreateGroupsPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
     QWidget* CreateFilesPropertiesWidget();
+    QWidget* CreateGroupsPropertiesWidget();
     QWidget* CreatePropertiesWidget();
     QWidget* CreateFilesButtonsWidget();
+    QWidget* CreateGroupsButtonsWidget();
     QWidget* CreateUnitsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
@@ -103,9 +107,12 @@ private:
     QPlainTextEdit* plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
     QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
+    QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
     QList<files_item*> files_items_;
+    QList<group_item*> groups_items_;
     QPointer<QComboBox> comboBoxFiles_;
+    QPointer<QComboBox> comboBoxGroups_;
     QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
@@ -122,6 +129,9 @@ private slots:
     void on_AddFile_clicked();
     void on_RemoveFile_clicked();
     void on_Files_currentIndexChanged(int index);
+    void on_AddGroup_clicked();
+    void on_RemoveGroup_clicked();
+    void on_Groups_currentIndexChanged(int index);
     void on_Units_currentIndexChanged(int index);
 
     void currentItemChanged(QtBrowserItem* item);

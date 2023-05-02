@@ -85,6 +85,7 @@ void MainWindow::CreateUi()
 QWidget* MainWindow::CreateMainWidget()
 {
     CreateFilesPropertyBrowser();
+    CreateGroupsPropertyBrowser();
     CreatePropertyBrowser();
     CreateTreeView();
     FillParametersInfo();
@@ -289,6 +290,14 @@ void MainWindow::CreateFilesPropertyBrowser()
     //qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
 }
 
+void MainWindow::CreateGroupsPropertyBrowser()
+{
+    groupsPropertyEditor_ = new QtTreePropertyBrowser();
+    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+    //qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
+    //qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+}
+
 void MainWindow::CreatePropertyBrowser()
 {
     propertyEditor_ = new QtTreePropertyBrowser();
@@ -310,16 +319,19 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
     QWidget* propertiesPanelWidget = new QWidget;
 
     QWidget* filesPropertiesWidget = CreateFilesPropertiesWidget();
+    QWidget* groupsPropertiesWidget = CreateGroupsPropertiesWidget();
     QWidget* propertiesWidget = CreatePropertiesWidget();
     QWidget* hintWidget = CreateHintWidget();
 
     QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
     tabVSplitter->addWidget(filesPropertiesWidget);
+    tabVSplitter->addWidget(groupsPropertiesWidget);
     tabVSplitter->addWidget(propertiesWidget);
     tabVSplitter->addWidget(hintWidget);
     tabVSplitter->setStretchFactor(0, 0);
-    tabVSplitter->setStretchFactor(1, 1);
-    tabVSplitter->setStretchFactor(2, 0);
+    tabVSplitter->setStretchFactor(1, 0);
+    tabVSplitter->setStretchFactor(2, 1);
+    tabVSplitter->setStretchFactor(3, 0);
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(tabVSplitter);
@@ -339,6 +351,22 @@ QWidget* MainWindow::CreateFilesPropertiesWidget()
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
     propertiesPaneLayout->addWidget(filesPropertyEditor_);
+    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+
+    propertiesPanelWidget->setLayout(propertiesPaneLayout);
+
+    return propertiesPanelWidget;
+}
+
+QWidget* MainWindow::CreateGroupsPropertiesWidget()
+{
+    QWidget* propertiesPanelWidget = new QWidget;
+
+    QWidget* hostsButtonsWidget = CreateGroupsButtonsWidget();
+
+    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+    propertiesPaneLayout->addWidget(hostsButtonsWidget);
+    propertiesPaneLayout->addWidget(groupsPropertyEditor_);
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -398,23 +426,37 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     QWidget* buttonsWidget = new QWidget;
     buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
 
-    QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
-    splitterComboButtons->addWidget(comboBoxFiles_);
-    splitterComboButtons->addWidget(buttonsWidget);
-    splitterComboButtons->setStretchFactor(0, 1);
-    splitterComboButtons->setStretchFactor(1, 0);
+    QLabel* label = new QLabel;
+    label->setText(QString::fromLocal8Bit("Файлы:"));
+    //label->setStyleSheet("font-weight: bold; font-size: 14px");
+
+    QHBoxLayout* headerLayout = new QHBoxLayout;
+    headerLayout->addWidget(label, 0);
+    headerLayout->addWidget(comboBoxFiles_, 1);
+    headerLayout->addWidget(buttonsWidget, 0);
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+
+    //QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
+    //splitterComboButtons->addWidget(lable);
+    //splitterComboButtons->addWidget(comboBoxFiles_);
+    //splitterComboButtons->addWidget(buttonsWidget);
+    //splitterComboButtons->setStretchFactor(0, 0);
+    //splitterComboButtons->setStretchFactor(1, 1);
+    //splitterComboButtons->setStretchFactor(2, 0);
 
     //QLabel* label = new QLabel;
     //label->setStyleSheet("font-weight: bold; font-size: 14px");
     //label->setText(QString::fromLocal8Bit("Файлы"));
 
+    //QVBoxLayout* mainLayout = new QVBoxLayout;
+    //mainLayout->setMargin(0);
+    //mainLayout->setContentsMargins(0, 0, 0, 0);
+    ////mainLayout->addWidget(label, 1, Qt::AlignCenter);
+    //mainLayout->addWidget(splitterComboButtons);
+
+
     QWidget* mainWidget = new QWidget;
-    QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    //mainLayout->addWidget(label, 1, Qt::AlignCenter);
-    mainLayout->addWidget(splitterComboButtons);
-    mainWidget->setLayout(mainLayout);
+    mainWidget->setLayout(headerLayout);
     return mainWidget;
 
     //QFrame* widgetPropertyListButtons = new QFrame;
@@ -423,6 +465,56 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     //return widgetPropertyListButtons;
 }
 
+QWidget* MainWindow::CreateGroupsButtonsWidget()
+{
+    comboBoxGroups_ = new QComboBox;
+    connect(comboBoxGroups_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Groups_currentIndexChanged);
+
+    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
+    hBoxLayoutPropertyListButtons->setMargin(0);
+    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
+
+    QToolButton* toolButtonPropertyListAdd = new QToolButton;
+    toolButtonPropertyListAdd->setFixedSize(24, 24);
+    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить группу"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddGroup_clicked);
+
+    QToolButton* toolButtonPropertyListRemove = new QToolButton;
+    toolButtonPropertyListRemove->setFixedSize(24, 24);
+    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+    //toolButtonPropertyListAdd->setProperty("type", type);
+    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+    //toolButtonPropertyListAdd->setProperty("name", name);
+    //toolButtonPropertyListAdd->setProperty("action", "add");
+    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить группу"));
+    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveGroup_clicked);
+
+    QWidget* buttonsWidget = new QWidget;
+    buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
+
+    QLabel* label = new QLabel;
+    label->setText(QString::fromLocal8Bit("Группы:"));
+    //label->setStyleSheet("font-weight: bold; font-size: 14px");
+
+    QHBoxLayout* headerLayout = new QHBoxLayout;
+    headerLayout->addWidget(label, 0);
+    headerLayout->addWidget(comboBoxGroups_, 1);
+    headerLayout->addWidget(buttonsWidget, 0);
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+
+    QWidget* mainWidget = new QWidget;
+    mainWidget->setLayout(headerLayout);
+    return mainWidget;
+}
 
 QWidget* MainWindow::CreateUnitsButtonsWidget()
 {
@@ -430,11 +522,16 @@ QWidget* MainWindow::CreateUnitsButtonsWidget()
     comboBoxUnits_->addItem("<not selected>");
     connect(comboBoxUnits_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Units_currentIndexChanged);
 
-    QWidget* mainWidget = new QWidget;
-    QVBoxLayout* mainLayout = new QVBoxLayout;
+    QLabel* label = new QLabel;
+    label->setText(QString::fromLocal8Bit("Юниты:"));
+
+    QHBoxLayout* mainLayout = new QHBoxLayout;
+    mainLayout->addWidget(label, 0);
+    mainLayout->addWidget(comboBoxUnits_, 1);
     mainLayout->setMargin(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->addWidget(comboBoxUnits_);
+
+    QWidget* mainWidget = new QWidget;
     mainWidget->setLayout(mainLayout);
     return mainWidget;
 }
@@ -2002,14 +2099,6 @@ void MainWindow::on_AddFile_clicked()
 
 void MainWindow::on_RemoveFile_clicked()
 {
-    //if (panes_[0].first->items().size() > 1)
-    //{
-    //    Arrow* a = new Arrow(reinterpret_cast<diagram_item*>(panes_[0].first->items()[0]), reinterpret_cast<diagram_item*>(panes_[0].first->items()[1]));
-    //    panes_[0].first->addItem(a);
-
-    //}
-    
-
     QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
         QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes)
@@ -2023,6 +2112,60 @@ void MainWindow::on_Files_currentIndexChanged(int index)
     {
         if (fi->GetName() == name)
             fi->ApplyToBrowser(filesPropertyEditor_);
+    }
+}
+
+void MainWindow::on_AddGroup_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, "Add hroup", QString::fromLocal8Bit("Имя группы:"), QLineEdit::Normal, "", &ok);
+    if (!ok || text.isEmpty())
+        return;
+
+    auto gi = new group_item();
+    gi->SetName(text);
+    if (defaultColorIndex_ < defaultColors_.size())
+        gi->SetColor(defaultColors_[defaultColorIndex_++]);
+    else
+        gi->SetColor(QColor("White"));
+    gi->ApplyToBrowser(groupsPropertyEditor_);
+    groups_items_.push_back(gi);
+    comboBoxGroups_->addItem(text);
+    comboBoxGroups_->setCurrentIndex(comboBoxGroups_->count() - 1);
+
+    //QStringList fileNames;
+    //for (auto& file : groups_items_)
+    //    fileNames.push_back(file->GetName());
+
+    //for (int i = 0; i < panes_.count(); ++i)
+    //{
+    //    for (auto& item : panes_[i].first->items())
+    //        reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+    //}
+
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
+
+    //if (panes_[tabIndex].first->selectedItems().size() > 0)
+    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+}
+
+void MainWindow::on_RemoveGroup_clicked()
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+    if (resBtn == QMessageBox::Yes)
+        QApplication::quit();
+}
+
+void MainWindow::on_Groups_currentIndexChanged(int index)
+{
+    QString name = comboBoxGroups_->currentText();
+    for (const auto& fi : groups_items_)
+    {
+        if (fi->GetName() == name)
+            fi->ApplyToBrowser(groupsPropertyEditor_);
     }
 }
 
