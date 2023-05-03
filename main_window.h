@@ -36,8 +36,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    QVector<QColor> defaultColors_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-    int defaultColorIndex_;
+    QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+    int defaultColorFileIndex_;
+    QVector<QColor> defaultColorsGroup_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+    int defaultColorGroupIndex_;
 
 private:
     bool modified_;
@@ -77,9 +79,11 @@ public:
     unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
-    QStringList GetFileGroupNames();
+    QStringList GetGroupNames();
+    QString GetCurrentGroupName();
     QColor GetFileColor(const QString& fileId);
     QColor GetGroupColor(const QString& groupId);
+    QString GetGroupFile(const QString& groupId);
     QString GetNewUnitName(const QString& baseName, const QString& groupName);
     QString GetDisplayName(const QString& baseName, const QString& groupName);
     QString GetCurrentGroup();
@@ -89,7 +93,6 @@ public:
     QMap<QString, QStringList> GetGroupDependsConnections(const QString& groupName);
     QMap<QString, QStringList> GetGroupUnitsConnections(int groupId);
     QMap<QString, QStringList> GetGroupDependsConnections(int groupId);
-    QStringList GetGroupNames();
     int GetTabIndex(const QString& groupName);
     diagram_item* GetGroupItem(const QString& groupName);
 

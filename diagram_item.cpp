@@ -14,7 +14,7 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     pixmap_ = properties_->GetPixmap();
 
     font_ = QFont("Arial", 10);
-    groupFont_ = QFont("Times", 14, 3);
+    groupFont_ = QFont("Times", 14, 5);
     iconRect_ = QRect(0, 0, 32, 32);
 
     QFontMetricsF fontMetrics(font_);
@@ -87,18 +87,18 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
             if (properties_->GetId() != "group_mock")
             {
-                QStringList sl = properties_->GetFileName().split("/");
-                if (sl.size() > 0)
+                QString fileName = properties_->GetFileName();
+                QColor colorFile(ds->getMain()->GetFileColor(fileName));
+                painter->setPen(QPen(QBrush(colorFile, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter->drawRect(iconRect_);
+
+                QString groupName = properties_->GetGroupName();
+                if (groupName != "<not selected>")
                 {
-                    QColor c(ds->getMain()->GetFileColor(sl[0]));
-                    painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-                    painter->drawRect(iconRect_);
-                }
-                if (sl.size() > 1)
-                {
-                    QColor c(ds->getMain()->GetGroupColor(sl[1]));
+                    QColor colorGroup(ds->getMain()->GetGroupColor(groupName));
                     painter->setFont(groupFont_);
-                    painter->setPen(Qt::blue);
+                    painter->setPen(colorGroup);
+                    //painter->setPen(Qt::blue);
                     //painter->setPen(Qt::black);
                     //painter->drawRect(groupTextRect_);
                     painter->drawText(groupTextRect_, "G", Qt::AlignCenter | Qt::AlignHCenter);

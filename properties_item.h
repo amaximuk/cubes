@@ -97,9 +97,13 @@ public:
     void ApplyXmlProperties(xml::Unit xu);
     void SetFileNames(QStringList fileNames);
     void SetFileName(QString fileName);
-    void SetFileNameReadOnly();
+    void SetFileNameReadOnly(bool readonly);
     void SetInstanceNameReadOnly();
     QString GetFileName();
+    QString GetGroupName();
+    void SetGroupNames(QStringList groupNames);
+    void SetGroupName(QString groupName);
+    void SetGroupNameReadOnly(bool readonly);
     void SetName(QString name);
     QString GetName();
     QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };

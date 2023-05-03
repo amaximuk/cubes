@@ -167,6 +167,16 @@ void properties_item::CreateParametersModel()
         file.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(file));
 
+        unit_types::ParameterModel group;
+        group.id = "BASE/GROUP";
+        group.name = QString::fromLocal8Bit("Группа");
+        group.value = "";
+        group.valueType = "string";
+        //group.parameterInfoId = "";
+        group.editorSettings.type = unit_types::EditorType::ComboBox;
+        group.editorSettings.is_expanded = false;
+        base_group.parameters.push_back(std::move(group));
+
         //auto sc = diagramItem_->scene();
         //auto m = sc->parent();
         //auto mw = reinterpret_cast<MainWindow*>(diagramItem_->scene()->parent());
@@ -484,11 +494,18 @@ void properties_item::SetFileName(QString fileName)
         pm->value = fileName;
 }
 
-void properties_item::SetFileNameReadOnly()
+void properties_item::SetFileNameReadOnly(bool readonly)
 {
     const auto pm = GetParameterModel("BASE/FILE");
     if (pm != nullptr)
-        pm->readOnly = true;
+        pm->readOnly = readonly;
+}
+
+void properties_item::SetGroupNameReadOnly(bool readonly)
+{
+    const auto pm = GetParameterModel("BASE/GROUP");
+    if (pm != nullptr)
+        pm->readOnly = readonly;
 }
 
 void properties_item::SetInstanceNameReadOnly()
@@ -498,9 +515,41 @@ void properties_item::SetInstanceNameReadOnly()
         pm->readOnly = true;
 }
 
+void properties_item::SetGroupNames(QStringList groupNames)
+{
+    const auto pm = GetParameterModel("BASE/GROUP");
+    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
+    if (pm != nullptr)
+    {
+        pm->editorSettings.ComboBoxValues = groupNames;
+        if (pm->value.toString() == "" && groupNames.size() > 0)
+            pm->value = groupNames[0];
+    }
+}
+
+void properties_item::SetGroupName(QString groupName)
+{
+    const auto pm = GetParameterModel("BASE/GROUP");
+    if (pm != nullptr)
+        pm->value = groupName;
+}
+
 QString properties_item::GetFileName()
 {
     const auto pm = GetParameterModel("BASE/FILE");
+    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
+    if (pm != nullptr)
+    {
+        return pm->value.toString();
+        //if (pm->value.toInt() < pm->editorSettings.ComboBoxValues.size())
+        //    return pm->editorSettings.ComboBoxValues[pm->value.toInt()];
+    }
+    return "";
+}
+
+QString properties_item::GetGroupName()
+{
+    const auto pm = GetParameterModel("BASE/GROUP");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
@@ -910,6 +959,26 @@ void properties_item::valueChanged(QtProperty* property, int value)
             pm->value = property->valueText();
             diagramItem_->InformFileChanged();
         }
+        else if (pm->id == "BASE/GROUP")
+        {
+            if (property->valueText() == "<not selected>")
+            {
+                SetFileNameReadOnly(false);
+            }
+            else
+            {
+                if (diagramItem_->scene() != nullptr)
+                {
+                    // Не обновляется заменить на Inform!!!
+                    QString group = reinterpret_cast<diagram_scene*>(diagramItem_->scene())->getMain()->GetGroupFile(property->valueText());
+                    SetGroupName(group);
+                }
+                SetFileNameReadOnly(true);
+            }
+            pm->value = property->valueText();
+            diagramItem_->InformFileChanged();
+        }
+
     }
     else if (pm->id.startsWith("PARAMETERS"))
     {
