@@ -14,7 +14,9 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     pixmap_ = properties_->GetPixmap();
 
     font_ = QFont("Arial", 10);
+    groupFont_ = QFont("Times", 14, 3);
     iconRect_ = QRect(0, 0, 32, 32);
+
     QFontMetricsF fontMetrics(font_);
     //textRect_ = fontMetrics.boundingRect(properties_->GetName());
     QString x = properties_->GetName();
@@ -23,8 +25,13 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
     //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
 
+    QFontMetricsF groupFontMetrics(groupFont_);
+    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, "G");
+    groupTextRect_.adjust(-1, 0, 1, 0);
+    groupTextRect_.translate(iconRect_.width(), iconRect_.height() - groupTextRect_.height() / 2 + 5);
+
     // Adjust iconRect_ for colored frame
-    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect());
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     groupName_ = "Main";
 }
 
@@ -35,8 +42,10 @@ diagram_item::diagram_item(const diagram_item& other)
     pixmap_ = QPixmap(other.pixmap_);
     properties_.reset(new properties_item(*other.properties_, this));
     font_ = QFont(other.font_);
+    groupFont_ = QFont(other.groupFont_);
     iconRect_ = other.iconRect_;
     textRect_ = other.textRect_;
+    groupTextRect_ = other.groupTextRect_;
     boundingRect_ = other.boundingRect_;
     setPos(other.pos() + QPointF{0, 0});
     setZValue(other.zValue() - 1);
@@ -70,18 +79,33 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         {
             diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
 
+            painter->setRenderHint(QPainter::Antialiasing);
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_));
+            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_), Qt::AlignCenter | Qt::AlignHCenter);
 
             if (properties_->GetId() != "group_mock")
             {
-                QColor c = QColor("Black");
-                c = ds->getMain()->GetFileColor(properties_->GetFileName());
-                painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-                painter->setRenderHint(QPainter::Antialiasing);
-                painter->drawRect(iconRect_);
+                QStringList sl = properties_->GetFileName().split("/");
+                if (sl.size() > 0)
+                {
+                    QColor c(ds->getMain()->GetFileColor(sl[0]));
+                    painter->setPen(QPen(QBrush(c, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                    painter->drawRect(iconRect_);
+                }
+                if (sl.size() > 1)
+                {
+                    QColor c(ds->getMain()->GetGroupColor(sl[1]));
+                    painter->setFont(groupFont_);
+                    painter->setPen(Qt::blue);
+                    //painter->setPen(Qt::black);
+                    //painter->drawRect(groupTextRect_);
+                    painter->drawText(groupTextRect_, "G", Qt::AlignCenter | Qt::AlignHCenter);
+                    //painter->drawText(groupTextRect_.topLeft(), "G");
+                    //painter->setPen(c);
+                    //painter->drawText(0, 0, "G");
+                }
             }
         }
 
@@ -214,7 +238,7 @@ void diagram_item::InformNameChanged(QString name, QString oldName)
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
     //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect());
+    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);

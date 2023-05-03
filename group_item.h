@@ -73,6 +73,10 @@ public:
     void ExpandedChanged(QtProperty* property, bool is_expanded);
     void SetName(QString name);
     void SetColor(QColor color);
+    void SetFileNames(QStringList fileNames);
+    void SetFileName(QString fileName);
+    void SetFileNameReadOnly();
+    QString GetFileName();
 
 private:
     QMap<QtProperty*, QString> propertyToId;

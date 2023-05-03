@@ -77,7 +77,9 @@ public:
     unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
+    QStringList GetFileGroupNames();
     QColor GetFileColor(const QString& fileId);
+    QColor GetGroupColor(const QString& groupId);
     QString GetNewUnitName(const QString& baseName, const QString& groupName);
     QString GetDisplayName(const QString& baseName, const QString& groupName);
     QString GetCurrentGroup();

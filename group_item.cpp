@@ -505,6 +505,41 @@ void group_item::SetColor(QColor color)
     pm->value = color.rgba();
 }
 
+void group_item::SetFileNames(QStringList fileNames)
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
+    if (pm != nullptr)
+    {
+        pm->editorSettings.ComboBoxValues = fileNames;
+        if (pm->value.toString() == "" && fileNames.size() > 0)
+            pm->value = fileNames[0];
+    }
+}
+
+void group_item::SetFileName(QString fileName)
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        pm->value = fileName;
+}
+
+void group_item::SetFileNameReadOnly()
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        pm->readOnly = true;
+}
+
+QString group_item::GetFileName()
+{
+    const auto pm = GetParameterModel("BASE/FILE");
+    if (pm != nullptr)
+        return pm->value.toString();
+    else
+        return "";
+}
+
 void group_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)

@@ -24,8 +24,10 @@ private:
     QPixmap pixmap_;
     QSharedPointer<properties_item> properties_;
     QFont font_;
+    QFont groupFont_;
     QRect iconRect_;
     QRectF textRect_;
+    QRectF groupTextRect_;
     QRectF boundingRect_;
     bool borderOnly_;
     QString groupName_;

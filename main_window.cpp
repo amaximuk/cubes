@@ -965,6 +965,16 @@ QColor MainWindow::GetFileColor(const QString& fileId)
     return QColor("Black");
 }
 
+QColor MainWindow::GetGroupColor(const QString& groupId)
+{
+    for (auto& gi : groups_items_)
+    {
+        if (gi->GetName() == groupId)
+            return gi->GetColor();
+    }
+    return QColor("Black");
+}
+
 QString MainWindow::GetNewUnitName(const QString& baseName, const QString& groupName)
 {
     //int tabIndex = -1;
@@ -1357,6 +1367,17 @@ QStringList MainWindow::GetFileNames()
 QString MainWindow::GetCurrentFileName()
 {
     return comboBoxFiles_->currentText();
+}
+
+QStringList MainWindow::GetFileGroupNames()
+{
+    QStringList result;
+    for (const auto& fi : files_items_)
+        result.push_back(fi->GetName());
+    for (const auto& gi : groups_items_)
+        result.push_back(QString("%1/%2").arg(gi->GetFileName(), gi->GetName()));
+    result.sort();
+    return result;
 }
 
 QGraphicsItemGroup *group;
@@ -2080,14 +2101,19 @@ void MainWindow::on_AddFile_clicked()
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
-    QStringList fileNames;
-    for (auto& file : files_items_)
-        fileNames.push_back(file->GetName());
+    QStringList fileNames = GetFileNames();
+    for (auto& group : groups_items_)
+    {
+        group->SetFileNames(fileNames);
+        if (comboBoxGroups_->currentIndex() > 0)
+            groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
+    }
 
+    QStringList fileGroupNames = GetFileGroupNames();
     for (int i = 0; i < panes_.count(); ++i)
     {
         for (auto& item : panes_[i].first->items())
-            reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
+            reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileGroupNames);
     }
 
     int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
@@ -2130,9 +2156,26 @@ void MainWindow::on_AddGroup_clicked()
     else
         gi->SetColor(QColor("White"));
     gi->ApplyToBrowser(groupsPropertyEditor_);
+    gi->SetFileNames(GetFileNames());
+    gi->SetFileName(GetCurrentFileName());
+
     groups_items_.push_back(gi);
     comboBoxGroups_->addItem(text);
     comboBoxGroups_->setCurrentIndex(comboBoxGroups_->count() - 1);
+
+    QStringList fileGroupNames = GetFileGroupNames();
+    for (int i = 0; i < panes_.count(); ++i)
+    {
+        for (auto& item : panes_[i].first->items())
+            reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileGroupNames);
+    }
+
+    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (tabIndex == -1)
+        return;
+
+    if (panes_[tabIndex].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
     //QStringList fileNames;
     //for (auto& file : groups_items_)

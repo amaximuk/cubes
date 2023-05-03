@@ -165,6 +165,7 @@ void properties_item::CreateParametersModel()
         //file.parameterInfoId = "";
         file.editorSettings.type = unit_types::EditorType::ComboBox;
         file.editorSettings.is_expanded = false;
+        base_group.parameters.push_back(std::move(file));
 
         //auto sc = diagramItem_->scene();
         //auto m = sc->parent();
@@ -172,7 +173,6 @@ void properties_item::CreateParametersModel()
         //
         //for (const auto& pl : mw->GetFileNames())
         //    file.editorSettings.ComboBoxValues.push_back(pl);
-        base_group.parameters.push_back(std::move(file));
     }
     parametersModel_.parameters.push_back(std::move(base_group));
 
