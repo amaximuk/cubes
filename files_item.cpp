@@ -95,8 +95,19 @@ void files_item::CreateParametersModel()
     file_path.editorSettings.type = unit_types::EditorType::String;
     file_path.editorSettings.is_expanded = false;
     base_group.parameters.push_back(std::move(file_path));
-
     parametersModel_.parameters.push_back(std::move(base_group));
+
+    unit_types::ParameterModel includes;
+    includes.id = "INCLUDES";
+    includes.name = QString::fromLocal8Bit("Включения");
+    includes.value = 0;
+    includes.valueType = "int";
+    includes.editorSettings.type = unit_types::EditorType::SpinInterger;
+    includes.editorSettings.is_expanded = true;
+    includes.editorSettings.SpinIntergerMin = 0;
+    includes.editorSettings.SpinIntergerMax = 100;
+    parametersModel_.parameters.push_back(std::move(includes));
+
 
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
@@ -545,6 +556,73 @@ void files_item::SetColor(QColor color)
 
 void files_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
+    if (pm.id == "INCLUDES")
+    {
+        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        {
+            unit_types::ParameterModel group_model;
+            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+            unit_types::ParameterModel name;
+            name.editorSettings.type = unit_types::EditorType::String;
+            name.id = QString("%1/%2").arg(group_model.id, "NAME");
+            name.name = QString::fromLocal8Bit("Имя");
+            group_model.parameters.push_back(name);
+
+            unit_types::ParameterModel file_path;
+            file_path.editorSettings.type = unit_types::EditorType::String;
+            file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
+            file_path.name = QString::fromLocal8Bit("Имя файла");
+            file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
+            file_path.valueType = "string";
+            file_path.editorSettings.type = unit_types::EditorType::String;
+            file_path.editorSettings.is_expanded = false;
+            group_model.parameters.push_back(file_path);
+
+            unit_types::ParameterModel variables;
+            variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
+            variables.name = QString::fromLocal8Bit("Переменные");
+            variables.value = 0;
+            variables.valueType = "int";
+            variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+            variables.editorSettings.is_expanded = true;
+            variables.editorSettings.SpinIntergerMin = 0;
+            variables.editorSettings.SpinIntergerMax = 100;
+            group_model.parameters.push_back(std::move(variables));
+
+            pm.parameters.push_back(group_model);
+        }
+    }
+    else
+    {
+        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        {
+            unit_types::ParameterModel group_model;
+            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+            unit_types::ParameterModel name;
+            name.editorSettings.type = unit_types::EditorType::String;
+            name.id = QString("%1/%2").arg(group_model.id, "NAME");
+            name.name = QString::fromLocal8Bit("Имя");
+            group_model.parameters.push_back(name);
+
+            unit_types::ParameterModel value;
+            value.editorSettings.type = unit_types::EditorType::String;
+            value.id = QString("%1/%2").arg(group_model.id, "VALUE");
+            value.name = QString::fromLocal8Bit("Значение");
+            group_model.parameters.push_back(value);
+
+            pm.parameters.push_back(group_model);
+        }
+    }
+
+    while (pm.parameters.size() > pm.value.toInt())
+        pm.parameters.pop_back();
+
     //auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
     //auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
     //if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
@@ -593,6 +671,30 @@ void files_item::valueChanged(QtProperty* property, int value)
     if (pm->id.startsWith("BASE"))
     {
         pm->value = property->valueText();
+    }
+    else if (pm->id.startsWith("INCLUDES"))
+    {
+        SaveExpandState();
+
+        int count = std::stoi(property->valueText().toStdString());
+        pm->value = count;
+        UpdateArrayModel(*pm);
+
+        for (int i = property->subProperties().size(); i < count; ++i)
+            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+        QList<QtProperty*> to_remove;
+        for (int i = count; i < property->subProperties().size(); ++i)
+        {
+            auto p = property->subProperties()[i];
+            to_remove.push_back(p);
+            UnregisterProperty(p);
+        }
+
+        for (auto& p : to_remove)
+            property->removeSubProperty(p);
+
+        ApplyExpandState();
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {
@@ -953,6 +1055,11 @@ void files_item::SaveExpandState(QtBrowserItem* index)
     auto pm = GetParameterModel(prop);
     if (pm != nullptr)
         pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
+
+
+
+    //if (pm != nullptr)
+    //    qDebug() << propertyEditor_->isExpanded(index);
 }
 
 void files_item::SaveExpandState()

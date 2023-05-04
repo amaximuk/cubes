@@ -67,11 +67,30 @@ MainWindow::MainWindow(QWidget *parent)
     fi->ApplyToBrowser(filesPropertyEditor_);
     files_items_.push_back(fi);
     comboBoxFiles_->addItem(QString::fromLocal8Bit("АРМ"));
+
+
+    filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu); 
+    connect(filesPropertyEditor_, SIGNAL(customContextMenuRequested(const QPoint&)),
+        this, SLOT(ShowContextMenu(const QPoint&)));
+}
+
+void MainWindow::ShowContextMenu(const QPoint& pos)
+{
+    QString name = filesPropertyEditor_->currentItem()->property()->propertyName();
+    if (name == QString::fromLocal8Bit("Логирование"))
+    {
+        QMenu contextMenu(tr("Context menu"), this);
+
+        QAction action1("Remove Data Point", this);
+        connect(&action1, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
+        contextMenu.addAction(&action1);
+
+        contextMenu.exec(mapToGlobal(filesPropertyEditor_->mapTo(this, pos)));
+    }
 }
 
 MainWindow::~MainWindow()
 {
-
 }
 
 void MainWindow::CreateUi()
@@ -289,8 +308,8 @@ void MainWindow::CreateFilesPropertyBrowser()
 {
     filesPropertyEditor_ = new QtTreePropertyBrowser();
     //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-    //qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
-    //qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+    qDebug() << connect(filesPropertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
+    qDebug() << connect(filesPropertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
 }
 
 void MainWindow::CreateGroupsPropertyBrowser()
@@ -1815,20 +1834,35 @@ void MainWindow::itemGroupChanged(diagram_item* item)
 
 void MainWindow::collapsed(QtBrowserItem* item)
 {
-    if (panes_[0].first->selectedItems().count() > 0)
+    QString name = comboBoxFiles_->currentText();
+    for (const auto& fi : files_items_)
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
-        di->getProperties()->ExpandedChanged(item->property(), false);
+        if (fi->GetName() == name)
+            fi->ExpandedChanged(item->property(), false);
+        break;
     }
+
+    //if (panes_[0].first->selectedItems().count() > 0)
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+    //    di->getProperties()->ExpandedChanged(item->property(), false);
+    //}
 }
 
 void MainWindow::expanded(QtBrowserItem* item)
 {
-    if (panes_[0].first->selectedItems().count() > 0)
+    QString name = comboBoxFiles_->currentText();
+    for (const auto& fi : files_items_)
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
-        di->getProperties()->ExpandedChanged(item->property(), true);
+        if (fi->GetName() == name)
+            fi->ExpandedChanged(item->property(), true);
+        break;
     }
+    //if (panes_[0].first->selectedItems().count() > 0)
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+    //    di->getProperties()->ExpandedChanged(item->property(), true);
+    //}
 }
 
 //void MainWindow::CreateToolBox()
@@ -2206,7 +2240,7 @@ void MainWindow::on_Files_currentIndexChanged(int index)
 void MainWindow::on_AddGroup_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, "Add hroup", QString::fromLocal8Bit("Имя группы:"), QLineEdit::Normal, "", &ok);
+    QString text = QInputDialog::getText(this, "Add group", QString::fromLocal8Bit("Имя группы:"), QLineEdit::Normal, "", &ok);
     if (!ok || text.isEmpty())
         return;
 

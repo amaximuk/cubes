@@ -162,4 +162,6 @@ public slots:
 
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);
+
+    void ShowContextMenu(const QPoint& pos);
 };
