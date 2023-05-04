@@ -238,6 +238,7 @@ void MainWindow::CreateScene(int index)
     qDebug() << connect(panes_[index].first, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
     qDebug() << connect(panes_[index].first, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
     qDebug() << connect(panes_[index].first, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
+    qDebug() << connect(panes_[index].first, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
 void MainWindow::CreateView(int index)
@@ -968,6 +969,18 @@ QColor MainWindow::GetFileColor(const QString& fileId)
     return QColor("Black");
 }
 
+QStringList MainWindow::GetFileGroups(const QString& fileId)
+{
+    QStringList result;
+    result.push_back("<not selected>");
+    for (auto& gi : groups_items_)
+    {
+        if (gi->GetFileName() == fileId)
+            result.push_back(gi->GetName());
+    }
+    return result;
+}
+
 QColor MainWindow::GetGroupColor(const QString& groupId)
 {
     for (auto& gi : groups_items_)
@@ -1663,8 +1676,8 @@ void MainWindow::afterItemCreated(diagram_item* item)
                 //di->getProperties()->SetName(QString("@%1").arg(s));
                 di->getProperties()->SetName(s);
 
-                if (newTabIndex != 0)
-                    di->getProperties()->SetInstanceNameReadOnly();
+                //if (newTabIndex != 0)
+                //    di->getProperties()->SetInstanceNameReadOnly();
 
                 panes_[newTabIndex].first->addItem(di);
                 panes_[newTabIndex].first->clearSelection();
@@ -1754,6 +1767,31 @@ void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
 }
 
 void MainWindow::itemFileChanged(diagram_item* item)
+{
+    item->getProperties()->SetGroupNames(GetFileGroups(item->getProperties()->GetFileName()));
+    item->getProperties()->SetGroupName("<not selected>");
+    item->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    if (item->getProperties()->GetId() == "group")
+    {
+        QString name = item->getProperties()->GetName();
+        QString fileName = item->getProperties()->GetFileName();
+        for (int i = 0; i < tabWidget_->count(); ++i)
+        {
+            if (tabWidget_->tabText(i) == name)
+            {
+                for (auto& item : panes_[i].first->items())
+                {
+                    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                    di->getProperties()->SetFileName(fileName);
+                }
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::itemGroupChanged(diagram_item* item)
 {
     item->getProperties()->ApplyToBrowser(propertyEditor_);
     if (item->getProperties()->GetId() == "group")
@@ -2130,7 +2168,13 @@ void MainWindow::on_AddFile_clicked()
     for (int i = 0; i < panes_.count(); ++i)
     {
         for (auto& item : panes_[i].first->items())
-            reinterpret_cast<diagram_item*>(item)->getProperties()->SetGroupNames(groupNames);
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            QString fileName = di->getProperties()->GetFileName();
+            QStringList groupNames = GetFileGroups(fileName);
+            di->getProperties()->SetGroupNames(groupNames);
+            //di->getProperties()->SetGroupName("<not selected>");
+        }
     }
 
     int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
@@ -2184,7 +2228,14 @@ void MainWindow::on_AddGroup_clicked()
     for (int i = 0; i < panes_.count(); ++i)
     {
         for (auto& item : panes_[i].first->items())
-            reinterpret_cast<diagram_item*>(item)->getProperties()->SetGroupNames(groupNames);
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            QString fileName = di->getProperties()->GetFileName();
+            QStringList groupNames = GetFileGroups(fileName);
+            di->getProperties()->SetGroupNames(groupNames);
+            //di->getProperties()->SetGroupName("<not selected>");
+
+        }
     }
 
     int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());

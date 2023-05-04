@@ -82,6 +82,7 @@ public:
     QStringList GetGroupNames();
     QString GetCurrentGroupName();
     QColor GetFileColor(const QString& fileId);
+    QStringList GetFileGroups(const QString& fileId);
     QColor GetGroupColor(const QString& groupId);
     QString GetGroupFile(const QString& groupId);
     QString GetNewUnitName(const QString& baseName, const QString& groupName);
@@ -157,6 +158,7 @@ public slots:
     void beforeItemDeleted(diagram_item* item);
     void itemNameChanged(diagram_item* item, QString oldName);
     void itemFileChanged(diagram_item* item);
+    void itemGroupChanged(diagram_item* item);
 
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);

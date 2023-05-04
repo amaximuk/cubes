@@ -57,6 +57,7 @@ private:
     QtTreePropertyBrowser* propertyEditor_;
 
     bool ignoreEvents_;
+    QList<QPair<QString, QString>> groupList_;
 
 public:
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
@@ -98,12 +99,11 @@ public:
     void SetFileNames(QStringList fileNames);
     void SetFileName(QString fileName);
     void SetFileNameReadOnly(bool readonly);
-    void SetInstanceNameReadOnly();
     QString GetFileName();
-    QString GetGroupName();
     void SetGroupNames(QStringList groupNames);
     void SetGroupName(QString groupName);
     void SetGroupNameReadOnly(bool readonly);
+    QString GetGroupName();
     void SetName(QString name);
     QString GetName();
     QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };

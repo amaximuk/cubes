@@ -29,6 +29,7 @@ public:
     void informItemCreated(diagram_item* item);
     void informItemNameChanged(diagram_item* item, QString oldName);
     void informItemFileChanged(diagram_item* item);
+    void informItemGroupChanged(diagram_item* item);
     bool isItemMoving() { return is_item_moving_; };
     MainWindow* getMain() { return main_; };
 
@@ -39,6 +40,7 @@ signals:
      void beforeItemDeleted(diagram_item* item);
      void itemNameChanged(diagram_item* item, QString oldName);
      void itemFileChanged(diagram_item* item);
+     void itemGroupChanged(diagram_item* item);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

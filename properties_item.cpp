@@ -508,13 +508,6 @@ void properties_item::SetGroupNameReadOnly(bool readonly)
         pm->readOnly = readonly;
 }
 
-void properties_item::SetInstanceNameReadOnly()
-{
-    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
-    if (pm != nullptr)
-        pm->readOnly = true;
-}
-
 void properties_item::SetGroupNames(QStringList groupNames)
 {
     const auto pm = GetParameterModel("BASE/GROUP");
@@ -961,22 +954,23 @@ void properties_item::valueChanged(QtProperty* property, int value)
         }
         else if (pm->id == "BASE/GROUP")
         {
-            if (property->valueText() == "<not selected>")
-            {
-                SetFileNameReadOnly(false);
-            }
-            else
-            {
-                if (diagramItem_->scene() != nullptr)
-                {
-                    // Не обновляется заменить на Inform!!!
-                    QString group = reinterpret_cast<diagram_scene*>(diagramItem_->scene())->getMain()->GetGroupFile(property->valueText());
-                    SetGroupName(group);
-                }
-                SetFileNameReadOnly(true);
-            }
+            //diagramItem_->InformGroupChanged();
+            //if (property->valueText() == "<not selected>")
+            //{
+            //    SetFileNameReadOnly(false);
+            //}
+            //else
+            //{
+            //    //if (diagramItem_->scene() != nullptr)
+            //    //{
+            //    //    // Не обновляется заменить на Inform!!!
+            //    //    QString group = reinterpret_cast<diagram_scene*>(diagramItem_->scene())->getMain()->GetGroupFile(property->valueText());
+            //    //    SetGroupName(group);
+            //    //}
+            //    //SetFileNameReadOnly(true);
+            //}
             pm->value = property->valueText();
-            diagramItem_->InformFileChanged();
+            diagramItem_->InformGroupChanged();
         }
 
     }

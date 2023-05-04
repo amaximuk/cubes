@@ -53,6 +53,7 @@ public:
     void InformPositionYChanged(double y);
     void InformPositionZChanged(double z);
     void InformFileChanged();
+    void InformGroupChanged();
     void InformNameChanged(QString name, QString oldName);
     void InformDependencyChanged();
     void SetBorderOnly(bool borderOnly);

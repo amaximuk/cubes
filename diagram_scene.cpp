@@ -39,6 +39,11 @@ void diagram_scene::informItemFileChanged(diagram_item* item)
     emit itemFileChanged(item);
 }
 
+void diagram_scene::informItemGroupChanged(diagram_item* item)
+{
+    emit itemGroupChanged(item);
+}
+
 void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();

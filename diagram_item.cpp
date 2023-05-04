@@ -229,6 +229,15 @@ void diagram_item::InformFileChanged()
     }
 }
 
+void diagram_item::InformGroupChanged()
+{
+    if (scene() != nullptr)
+    {
+        reinterpret_cast<diagram_scene*>(scene())->informItemGroupChanged(this);
+        scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+    }
+}
+
 void diagram_item::InformNameChanged(QString name, QString oldName)
 {
     QRectF oldTextRect = textRect_;
