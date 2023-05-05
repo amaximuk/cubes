@@ -90,9 +90,9 @@ void diagram_view::dropEvent(QDropEvent *event)
             diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
 
             di->getProperties()->SetFileNames(main_->GetFileNames());
-            di->getProperties()->SetGroupNames(main_->GetGroupNames());
             di->getProperties()->SetFileName(main_->GetCurrentFileName());
-            di->getProperties()->SetGroupName(main_->GetCurrentGroupName());
+            di->getProperties()->SetGroupNames(main_->GetFileGroups(main_->GetCurrentFileName()));
+            di->getProperties()->SetGroupName("<not selected>");
             di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName(), main_->GetCurrentGroup()));
             di->SetGroupName(main_->GetCurrentGroup());
             ds->informItemCreated(di);
