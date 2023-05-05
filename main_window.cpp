@@ -70,19 +70,24 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu); 
-    connect(filesPropertyEditor_, SIGNAL(customContextMenuRequested(const QPoint&)),
-        this, SLOT(ShowContextMenu(const QPoint&)));
+    connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::ShowContextMenu);
 }
 
 void MainWindow::ShowContextMenu(const QPoint& pos)
 {
+    if (filesPropertyEditor_->currentItem() == nullptr)
+        return;
+    if (filesPropertyEditor_->currentItem()->parent() == nullptr)
+        return;
+
     QString name = filesPropertyEditor_->currentItem()->property()->propertyName();
-    if (name == QString::fromLocal8Bit("Логирование"))
+    QString parentName = filesPropertyEditor_->currentItem()->parent()->property()->propertyName();
+    if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
     {
         QMenu contextMenu(tr("Context menu"), this);
 
-        QAction action1("Remove Data Point", this);
-        connect(&action1, SIGNAL(triggered()), this, SLOT(removeDataPoint()));
+        QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
+        connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
         contextMenu.addAction(&action1);
 
         contextMenu.exec(mapToGlobal(filesPropertyEditor_->mapTo(this, pos)));
@@ -106,7 +111,7 @@ void MainWindow::CreateUi()
 QWidget* MainWindow::CreateMainWidget()
 {
     CreateFilesPropertyBrowser();
-    CreateGroupsPropertyBrowser();
+    //CreateGroupsPropertyBrowser();
     CreatePropertyBrowser();
     CreateTreeView();
     FillParametersInfo();
@@ -132,7 +137,7 @@ QWidget* MainWindow::CreateMainWidget()
     splitterTreeTabLog->setStretchFactor(1, 0);
 
     QWidget* propertiesPanelWidget = CreatePropertiesPanelWidget();
-    propertiesPanelWidget->setMinimumWidth(360);
+    propertiesPanelWidget->setMinimumWidth(400);
     QSplitter* splitterMain = new QSplitter(Qt::Horizontal);
     splitterMain->addWidget(splitterTreeTabLog);
     splitterMain->addWidget(propertiesPanelWidget);
@@ -312,14 +317,6 @@ void MainWindow::CreateFilesPropertyBrowser()
     qDebug() << connect(filesPropertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
 }
 
-void MainWindow::CreateGroupsPropertyBrowser()
-{
-    groupsPropertyEditor_ = new QtTreePropertyBrowser();
-    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-    //qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
-    //qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
-}
-
 void MainWindow::CreatePropertyBrowser()
 {
     propertyEditor_ = new QtTreePropertyBrowser();
@@ -341,19 +338,16 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
     QWidget* propertiesPanelWidget = new QWidget;
 
     QWidget* filesPropertiesWidget = CreateFilesPropertiesWidget();
-    QWidget* groupsPropertiesWidget = CreateGroupsPropertiesWidget();
     QWidget* propertiesWidget = CreatePropertiesWidget();
     QWidget* hintWidget = CreateHintWidget();
 
     QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
     tabVSplitter->addWidget(filesPropertiesWidget);
-    tabVSplitter->addWidget(groupsPropertiesWidget);
     tabVSplitter->addWidget(propertiesWidget);
     tabVSplitter->addWidget(hintWidget);
     tabVSplitter->setStretchFactor(0, 0);
-    tabVSplitter->setStretchFactor(1, 0);
-    tabVSplitter->setStretchFactor(2, 1);
-    tabVSplitter->setStretchFactor(3, 0);
+    tabVSplitter->setStretchFactor(1, 1);
+    tabVSplitter->setStretchFactor(2, 0);
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(tabVSplitter);
@@ -373,22 +367,6 @@ QWidget* MainWindow::CreateFilesPropertiesWidget()
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
     propertiesPaneLayout->addWidget(filesPropertyEditor_);
-    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
-
-    propertiesPanelWidget->setLayout(propertiesPaneLayout);
-
-    return propertiesPanelWidget;
-}
-
-QWidget* MainWindow::CreateGroupsPropertiesWidget()
-{
-    QWidget* propertiesPanelWidget = new QWidget;
-
-    QWidget* hostsButtonsWidget = CreateGroupsButtonsWidget();
-
-    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-    propertiesPaneLayout->addWidget(hostsButtonsWidget);
-    propertiesPaneLayout->addWidget(groupsPropertyEditor_);
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -485,58 +463,6 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
     //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
     //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
     //return widgetPropertyListButtons;
-}
-
-QWidget* MainWindow::CreateGroupsButtonsWidget()
-{
-    comboBoxGroups_ = new QComboBox;
-    comboBoxGroups_->addItem("<not selected>");
-    connect(comboBoxGroups_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Groups_currentIndexChanged);
-
-    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
-    hBoxLayoutPropertyListButtons->setMargin(0);
-    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
-
-    QToolButton* toolButtonPropertyListAdd = new QToolButton;
-    toolButtonPropertyListAdd->setFixedSize(24, 24);
-    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-    //toolButtonPropertyListAdd->setProperty("type", type);
-    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    //toolButtonPropertyListAdd->setProperty("name", name);
-    //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить группу"));
-    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddGroup_clicked);
-
-    QToolButton* toolButtonPropertyListRemove = new QToolButton;
-    toolButtonPropertyListRemove->setFixedSize(24, 24);
-    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-    //toolButtonPropertyListAdd->setProperty("type", type);
-    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    //toolButtonPropertyListAdd->setProperty("name", name);
-    //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить группу"));
-    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveGroup_clicked);
-
-    QWidget* buttonsWidget = new QWidget;
-    buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
-
-    QLabel* label = new QLabel;
-    label->setText(QString::fromLocal8Bit("Группы:"));
-    //label->setStyleSheet("font-weight: bold; font-size: 14px");
-
-    QHBoxLayout* headerLayout = new QHBoxLayout;
-    headerLayout->addWidget(label, 0);
-    headerLayout->addWidget(comboBoxGroups_, 1);
-    headerLayout->addWidget(buttonsWidget, 0);
-    headerLayout->setContentsMargins(0, 0, 0, 0);
-
-    QWidget* mainWidget = new QWidget;
-    mainWidget->setLayout(headerLayout);
-    return mainWidget;
 }
 
 QWidget* MainWindow::CreateUnitsButtonsWidget()
@@ -1414,20 +1340,6 @@ QString MainWindow::GetCurrentFileName()
     return comboBoxFiles_->currentText();
 }
 
-QStringList MainWindow::GetGroupNames()
-{
-    QStringList result;
-    result.push_back("<not selected>");
-    for (auto& gi : groups_items_)
-        result.push_back(gi->GetName());
-    return result;
-}
-
-QString MainWindow::GetCurrentGroupName()
-{
-    return comboBoxGroups_->currentText();
-}
-
 QGraphicsItemGroup *group;
 void MainWindow::MyFirstBtnClicked()
 {
@@ -1630,6 +1542,11 @@ void MainWindow::on_InformationButton_clicked(bool checked)
         sort_filter_model_->removeFromFilter(message_type::information);
 }
 
+void MainWindow::on_DeleteFileInclude_action(bool checked)
+{
+    qDebug() << qobject_cast<QAction*>(sender())->text();
+}
+
 void MainWindow::itemPositionChanged(diagram_item* item)
 {
     //QtProperty* p = idToProperty[id];
@@ -1657,83 +1574,25 @@ void MainWindow::afterItemCreated(diagram_item* item)
     if (tabIndex == -1)
         return;
 
-    // Если создали группу, создаем под нее вкладку
-    if (item->getProperties()->GetId() == "group")
-    {
-        // Получаем список вкладок
-        QStringList groupNames = GetGroupNames();
-
-        // Добавляем вкладку
-        int newTabIndex = tabWidget_->count();
-        QWidget* widgetTab = CreateTabWidget(newTabIndex);
-        tabWidget_->addTab(widgetTab, item->getName());
-        QStringList fileNames = GetFileNames();
-
-
-
-
-
-
-        // Добавляем обязательные юниты на вкладку группы
-        auto up = GetUnitParameters("group_mock");
-        if (up != nullptr)
-        {
-            for (const auto& s : groupNames)
-            {
-                // Берем имя файла, для Main берем первый, т.к. нет юнита группы Main
-                QString fileName = fileNames[0];
-                diagram_item* gdi = GetGroupItem(s);
-                if (gdi != nullptr)
-                    fileName = gdi->getProperties()->GetFileName();
-
-                diagram_item* di = new diagram_item(*up);
-
-                //di->getProperties()->ApplyXmlProperties(all_units[i]);
-                di->getProperties()->SetFileNames(fileNames);
-                di->getProperties()->SetFileName(fileName);
-                di->SetGroupName(item->getName());
-                //di->getProperties()->SetName(QString("@%1").arg(s));
-                di->getProperties()->SetName(s);
-
-                //if (newTabIndex != 0)
-                //    di->getProperties()->SetInstanceNameReadOnly();
-
-                panes_[newTabIndex].first->addItem(di);
-                panes_[newTabIndex].first->clearSelection();
-
-                afterItemCreated(di);
-            }
-        }
-        else
-        {
-            // error
-        }
-
-        // Добавляем юнит новой группы на остальные вкладки групп
-
-    }
-
     // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов
-    int currentTabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == currentTabIndex)
-        comboBoxUnits_->addItem(item->getName());
+    comboBoxUnits_->addItem(item->getName());
 
-    // Проверяем, что юнит в группе и ставим ему имя файла только на чтение
-    if (tabIndex > 0)
-    {
-        QString name = tabWidget_->tabText(tabIndex);
-        for (const auto& pi : panes_[0].first->items())
-        {
-            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-            if (di->getProperties()->GetName() == name)
-            {
-                QString fileName = di->getProperties()->GetFileName();
-                item->getProperties()->SetFileName(fileName);
-                item->getProperties()->SetFileNameReadOnly(true);
-                break;
-            }
-        }
-    }
+    //// Проверяем, что юнит в группе и ставим ему имя файла только на чтение
+    //if (tabIndex > 0)
+    //{
+    //    QString name = tabWidget_->tabText(tabIndex);
+    //    for (const auto& pi : panes_[0].first->items())
+    //    {
+    //        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+    //        if (di->getProperties()->GetName() == name)
+    //        {
+    //            QString fileName = di->getProperties()->GetFileName();
+    //            item->getProperties()->SetFileName(fileName);
+    //            item->getProperties()->SetFileNameReadOnly(true);
+    //            break;
+    //        }
+    //    }
+    //}
 }
 
 void MainWindow::beforeItemDeleted(diagram_item* item)
@@ -2190,26 +2049,26 @@ void MainWindow::on_AddFile_clicked()
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
-    QStringList fileNames = GetFileNames();
-    for (auto& group : groups_items_)
-    {
-        group->SetFileNames(fileNames);
-        if (comboBoxGroups_->currentIndex() > 0)
-            groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
-    }
+    //QStringList fileNames = GetFileNames();
+    //for (auto& group : groups_items_)
+    //{
+    //    group->SetFileNames(fileNames);
+    //    if (comboBoxGroups_->currentIndex() > 0)
+    //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
+    //}
 
-    QStringList groupNames = GetGroupNames();
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        for (auto& item : panes_[i].first->items())
-        {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
-            QString fileName = di->getProperties()->GetFileName();
-            QStringList groupNames = GetFileGroups(fileName);
-            di->getProperties()->SetGroupNames(groupNames);
-            //di->getProperties()->SetGroupName("<not selected>");
-        }
-    }
+    //QStringList groupNames = GetGroupNames();
+    //for (int i = 0; i < panes_.count(); ++i)
+    //{
+    //    for (auto& item : panes_[i].first->items())
+    //    {
+    //        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //        QString fileName = di->getProperties()->GetFileName();
+    //        QStringList groupNames = GetFileGroups(fileName);
+    //        di->getProperties()->SetGroupNames(groupNames);
+    //        //di->getProperties()->SetGroupName("<not selected>");
+    //    }
+    //}
 
     int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
     if (tabIndex == -1)
@@ -2237,85 +2096,12 @@ void MainWindow::on_Files_currentIndexChanged(int index)
     }
 }
 
-void MainWindow::on_AddGroup_clicked()
-{
-    bool ok;
-    QString text = QInputDialog::getText(this, "Add group", QString::fromLocal8Bit("Имя группы:"), QLineEdit::Normal, "", &ok);
-    if (!ok || text.isEmpty())
-        return;
-
-    auto gi = new group_item();
-    gi->SetName(text);
-    if (defaultColorGroupIndex_ < defaultColorsGroup_.size())
-        gi->SetColor(defaultColorsGroup_[defaultColorGroupIndex_++]);
-    else
-        gi->SetColor(QColor("White"));
-    gi->ApplyToBrowser(groupsPropertyEditor_);
-    gi->SetFileNames(GetFileNames());
-    gi->SetFileName(GetCurrentFileName());
-
-    groups_items_.push_back(gi);
-    comboBoxGroups_->addItem(text);
-    comboBoxGroups_->setCurrentIndex(comboBoxGroups_->count() - 1);
-
-    QStringList groupNames = GetGroupNames();
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        for (auto& item : panes_[i].first->items())
-        {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
-            QString fileName = di->getProperties()->GetFileName();
-            QStringList groupNames = GetFileGroups(fileName);
-            di->getProperties()->SetGroupNames(groupNames);
-            //di->getProperties()->SetGroupName("<not selected>");
-
-        }
-    }
-
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
-
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    //QStringList fileNames;
-    //for (auto& file : groups_items_)
-    //    fileNames.push_back(file->GetName());
-
-    //for (int i = 0; i < panes_.count(); ++i)
-    //{
-    //    for (auto& item : panes_[i].first->items())
-    //        reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
-    //}
-
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
-
-    //if (panes_[tabIndex].first->selectedItems().size() > 0)
-    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-}
-
 void MainWindow::on_RemoveGroup_clicked()
 {
     QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
         QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes)
         QApplication::quit();
-}
-
-void MainWindow::on_Groups_currentIndexChanged(int index)
-{
-    if (index == 0)
-        groupsPropertyEditor_->clear();
-
-    QString name = comboBoxGroups_->currentText();
-    for (const auto& fi : groups_items_)
-    {
-        if (fi->GetName() == name)
-            fi->ApplyToBrowser(groupsPropertyEditor_);
-    }
 }
 
 void MainWindow::on_Units_currentIndexChanged(int index)

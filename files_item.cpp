@@ -99,7 +99,7 @@ void files_item::CreateParametersModel()
 
     unit_types::ParameterModel includes;
     includes.id = "INCLUDES";
-    includes.name = QString::fromLocal8Bit("Включения");
+    includes.name = QString::fromLocal8Bit("Включаемые файлы");
     includes.value = 0;
     includes.valueType = "int";
     includes.editorSettings.type = unit_types::EditorType::SpinInterger;
@@ -569,6 +569,9 @@ void files_item::UpdateArrayModel(unit_types::ParameterModel& pm)
             name.editorSettings.type = unit_types::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
+            name.value = QString::fromLocal8Bit("Файл %1").arg(i);
+            name.valueType = "string";
+            name.editorSettings.type = unit_types::EditorType::String;
             group_model.parameters.push_back(name);
 
             unit_types::ParameterModel file_path;

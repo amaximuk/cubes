@@ -57,15 +57,12 @@ protected:
     void CreateScene(int index);
     void CreateView(int index);
     void CreateFilesPropertyBrowser();
-    void CreateGroupsPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
     QWidget* CreateFilesPropertiesWidget();
-    QWidget* CreateGroupsPropertiesWidget();
     QWidget* CreatePropertiesWidget();
     QWidget* CreateFilesButtonsWidget();
-    QWidget* CreateGroupsButtonsWidget();
     QWidget* CreateUnitsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
@@ -79,8 +76,6 @@ public:
     unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
-    QStringList GetGroupNames();
-    QString GetCurrentGroupName();
     QColor GetFileColor(const QString& fileId);
     QStringList GetFileGroups(const QString& fileId);
     QColor GetGroupColor(const QString& groupId);
@@ -135,9 +130,7 @@ private slots:
     void on_AddFile_clicked();
     void on_RemoveFile_clicked();
     void on_Files_currentIndexChanged(int index);
-    void on_AddGroup_clicked();
     void on_RemoveGroup_clicked();
-    void on_Groups_currentIndexChanged(int index);
     void on_Units_currentIndexChanged(int index);
 
     void currentItemChanged(QtBrowserItem* item);
@@ -151,6 +144,8 @@ private slots:
     void on_ErrorButton_clicked(bool checked);
     void on_WarningButton_clicked(bool checked);
     void on_InformationButton_clicked(bool checked);
+
+    void on_DeleteFileInclude_action(bool checked = false);
 
 public slots:
     void itemPositionChanged(diagram_item* item);
