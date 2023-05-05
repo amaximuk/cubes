@@ -9,8 +9,7 @@
 #include <QVector>
 
 #include "parameters_compiler_types.h"
-#include "files_item.h"
-#include "group_item.h"
+#include "file_item.h"
 #include "xml_parser.h"
 #include "unit_types.h"
 #include "log_table_model.h"
@@ -78,8 +77,8 @@ public:
     QString GetCurrentFileName();
     QColor GetFileColor(const QString& fileId);
     QStringList GetFileGroups(const QString& fileId);
-    QColor GetGroupColor(const QString& groupId);
-    QString GetGroupFile(const QString& groupId);
+    //QColor GetGroupColor(const QString& groupId);
+    //QString GetGroupFile(const QString& groupId);
     QString GetNewUnitName(const QString& baseName, const QString& groupName);
     QString GetDisplayName(const QString& baseName, const QString& groupName);
     QString GetCurrentGroup();
@@ -110,8 +109,7 @@ private:
     QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
     QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
-    QList<files_item*> files_items_;
-    QList<group_item*> groups_items_;
+    QList<file_item*> file_items_;
     QPointer<QComboBox> comboBoxFiles_;
     QPointer<QComboBox> comboBoxGroups_;
     QPointer<QComboBox> comboBoxUnits_;

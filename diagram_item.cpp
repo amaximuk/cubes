@@ -95,7 +95,9 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
                 QString groupName = properties_->GetGroupName();
                 if (groupName != "<not selected>")
                 {
-                    QColor colorGroup(ds->getMain()->GetGroupColor(groupName));
+                    QColor colorGroup(colorFile);
+                    colorGroup.setAlpha(0xFF);
+                    //QColor colorGroup(ds->getMain()->GetGroupColor(groupName));
                     painter->setFont(groupFont_);
                     painter->setPen(colorGroup);
                     //painter->setPen(Qt::blue);

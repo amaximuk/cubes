@@ -21,7 +21,7 @@ class QtProperty;
 class QtTreePropertyBrowser;
 class QtBrowserItem;
 
-class group_item : public QObject
+class file_item : public QObject
 {
     Q_OBJECT
 
@@ -42,7 +42,7 @@ private:
     bool ignoreEvents_;
 
 public:
-    group_item(QObject* parent = nullptr);
+    file_item(QObject* parent = nullptr);
 
 private:
     void CreateParametersModel();
@@ -73,10 +73,7 @@ public:
     void ExpandedChanged(QtProperty* property, bool is_expanded);
     void SetName(QString name);
     void SetColor(QColor color);
-    void SetFileNames(QStringList fileNames);
-    void SetFileName(QString fileName);
-    void SetFileNameReadOnly();
-    QString GetFileName();
+    QStringList GetIncludeNames();
 
 private:
     QMap<QtProperty*, QString> propertyToId;

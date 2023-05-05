@@ -10,9 +10,9 @@
 #include "base64.h"
 #include "diagram_item.h"
 #include "parameters_compiler_helper.h"
-#include "group_item.h"
+#include "file_item.h"
 
-group_item::group_item(QObject* parent):
+file_item::file_item(QObject* parent):
     QObject(parent)
 {
     //diagramItem_ = diagramItem;
@@ -26,7 +26,7 @@ group_item::group_item(QObject* parent):
     CreatePropertyBrowser();
 }
 
-void group_item::CreateEditorModel()
+void file_item::CreateEditorModel()
 {
     unit_types::ParameterModel editor_group;
     editor_group.id = "EDITOR";
@@ -51,7 +51,7 @@ void group_item::CreateEditorModel()
     parametersModel_.parameters.push_back(std::move(editor_group));
 }
 
-void group_item::CreateParametersModel()
+void file_item::CreateParametersModel()
 {
     unit_types::ParameterModel base_group;
     base_group.id = "BASE";
@@ -72,17 +72,42 @@ void group_item::CreateParametersModel()
     name.editorSettings.is_expanded = false;
     base_group.parameters.push_back(std::move(name));
 
-    unit_types::ParameterModel file;
-    file.id = "BASE/FILE";
-    file.name = QString::fromLocal8Bit("Файл");
-    file.value = "";
-    file.valueType = "string";
-    //file.parameterInfoId = "";
-    file.editorSettings.type = unit_types::EditorType::ComboBox;
-    file.editorSettings.is_expanded = false;
-    base_group.parameters.push_back(std::move(file));
-
+    unit_types::ParameterModel platform;
+    platform.id = "BASE/PLATFORM";
+    platform.name = QString::fromLocal8Bit("Платформа");
+    platform.value = "";
+    platform.valueType = "string";
+    //platform.parameterInfoId = "";
+    platform.editorSettings.type = unit_types::EditorType::ComboBox;
+    platform.editorSettings.is_expanded = false;
+    for(const auto& pl : unit_types::platform_names_)
+        platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
+    if (unit_types::platform_names_.size() > 0)
+        platform.value = QString::fromStdString(unit_types::platform_names_[0]);
+    base_group.parameters.push_back(std::move(platform));
+    
+    unit_types::ParameterModel file_path;
+    file_path.id = "BASE/FILE_PATH";
+    file_path.name = QString::fromLocal8Bit("Имя файла");
+    file_path.value = QString::fromLocal8Bit("config.xml");
+    file_path.valueType = "string";
+    //file_path.parameterInfoId = "";
+    file_path.editorSettings.type = unit_types::EditorType::String;
+    file_path.editorSettings.is_expanded = false;
+    base_group.parameters.push_back(std::move(file_path));
     parametersModel_.parameters.push_back(std::move(base_group));
+
+    unit_types::ParameterModel includes;
+    includes.id = "INCLUDES";
+    includes.name = QString::fromLocal8Bit("Включаемые файлы");
+    includes.value = 0;
+    includes.valueType = "int";
+    includes.editorSettings.type = unit_types::EditorType::SpinInterger;
+    includes.editorSettings.is_expanded = true;
+    includes.editorSettings.SpinIntergerMin = 0;
+    includes.editorSettings.SpinIntergerMax = 100;
+    parametersModel_.parameters.push_back(std::move(includes));
+
 
     unit_types::ParameterModel properties_group;
     properties_group.id = "PARAMETERS";
@@ -93,25 +118,49 @@ void group_item::CreateParametersModel()
     properties_group.editorSettings.type = unit_types::EditorType::None;
     properties_group.editorSettings.is_expanded = true;
 
-    unit_types::ParameterModel file_path;
-    file_path.id = "PARAMETERS/FILE_PATH";
-    file_path.name = QString::fromLocal8Bit("Имя файла");
-    file_path.value = QString::fromLocal8Bit("config.xml");
-    file_path.valueType = "string";
-    file_path.editorSettings.type = unit_types::EditorType::String;
-    file_path.editorSettings.is_expanded = false;
-    properties_group.parameters.push_back(std::move(file_path));
+    {
+        unit_types::ParameterModel pm_connection;
+        pm_connection.id = "PARAMETERS/CONNECTION";
+        pm_connection.name = QString::fromLocal8Bit("Соединение");
+        pm_connection.value = "";
+        pm_connection.valueType = "none";
+        //pm_connection.parameterInfoId = "";
+        pm_connection.editorSettings.type = unit_types::EditorType::None;
 
-    unit_types::ParameterModel variables;
-    variables.id = "PARAMETERS/VARIABLES";
-    variables.name = QString::fromLocal8Bit("Переменные");
-    variables.value = 0;
-    variables.valueType = "int";
-    variables.editorSettings.type = unit_types::EditorType::SpinInterger;
-    variables.editorSettings.is_expanded = true;
-    variables.editorSettings.SpinIntergerMin = 0;
-    variables.editorSettings.SpinIntergerMax = 100;
-    properties_group.parameters.push_back(std::move(variables));
+        unit_types::ParameterModel pm_host;
+        pm_host.id = "PARAMETERS/CONNECTION/HOST";
+        pm_host.name = QString::fromLocal8Bit("Хост");
+        pm_host.value = "";
+        pm_host.valueType= "string";
+        //pm_host.parameterInfoId = "";
+        pm_host.editorSettings.type = unit_types::EditorType::String;
+        pm_host.value = "127.0.0.1";
+        pm_connection.parameters.push_back(std::move(pm_host));
+
+        unit_types::ParameterModel pm_port;
+        pm_port.id = "PARAMETERS/CONNECTION/PORT";
+        pm_port.name = QString::fromLocal8Bit("Порт");
+        pm_port.value = 50000;
+        pm_port.valueType = "int";
+        //pm_port.parameterInfoId = "";
+        pm_port.editorSettings.type = unit_types::EditorType::SpinInterger;
+        pm_port.editorSettings.SpinIntergerMin = 1000;
+        pm_port.editorSettings.SpinIntergerMin = 65535;
+        pm_connection.parameters.push_back(std::move(pm_port));
+
+        properties_group.parameters.push_back(std::move(pm_connection));
+    }
+
+    {
+        unit_types::ParameterModel pm;
+        pm.id = "PARAMETERS/LOG";
+        pm.name = QString::fromLocal8Bit("Логирование");
+        pm.value = "";
+        pm.valueType = "none";
+        //pm.parameterInfoId = "";
+        pm.editorSettings.type = unit_types::EditorType::None;
+        properties_group.parameters.push_back(pm);
+    }
 
     parametersModel_.parameters.push_back(std::move(properties_group));
 }
@@ -125,7 +174,7 @@ void group_item::CreateParametersModel()
 //    }
 //}
 
-void group_item::CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model)
+void file_item::CreateParameterModel(const parameters_compiler::parameter_info pi, const QString& parent_model_id, unit_types::ParameterModel& model)
 {
     //bool is_array = parameters_compiler::helper::is_array_type(pi.type);
 
@@ -271,7 +320,7 @@ void group_item::CreateParameterModel(const parameters_compiler::parameter_info 
     //model = pm;
 }
 
-QtProperty* group_item::GetPropertyForModel(unit_types::ParameterModel& model)
+QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
 {
     // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
@@ -359,7 +408,7 @@ QtProperty* group_item::GetPropertyForModel(unit_types::ParameterModel& model)
     return pr;
 }
 
-void group_item::CreatePropertyBrowser()
+void file_item::CreatePropertyBrowser()
 {
     groupManager = new QtGroupPropertyManager(this);
     intManager = new QtIntPropertyManager(this);
@@ -377,7 +426,7 @@ void group_item::CreatePropertyBrowser()
     qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
 }
 
-QString group_item::GetName()
+QString file_item::GetName()
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -386,7 +435,7 @@ QString group_item::GetName()
     return pm->value.toString();
 };
 
-QColor group_item::GetColor()
+QColor file_item::GetColor()
 {
     auto pm = GetParameterModel("EDITOR/COLOR");
     if (pm == nullptr)
@@ -395,7 +444,7 @@ QColor group_item::GetColor()
     return QColor::fromRgba(pm->value.toInt());
 };
 
-void group_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
+void file_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
     propertyEditor_ = propertyEditor;
 
@@ -440,7 +489,7 @@ void group_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     ApplyExpandState();
 }
 
-QPixmap group_item::GetPixmap()
+QPixmap file_item::GetPixmap()
 {
     QPixmap px;
     bool loaded = false;
@@ -462,24 +511,24 @@ QPixmap group_item::GetPixmap()
     return px;
 }
 
-void group_item::PositionChanged(QPointF point)
+void file_item::PositionChanged(QPointF point)
 {
     doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
     doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
 }
 
-void group_item::ZOrderChanged(double value)
+void file_item::ZOrderChanged(double value)
 {
     doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
 }
 
-QString group_item::GetPropertyDescription(QtProperty* property)
+QString file_item::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property);
     return id;
 }
 
-void group_item::ExpandedChanged(QtProperty* property, bool is_expanded)
+void file_item::ExpandedChanged(QtProperty* property, bool is_expanded)
 {
     if (!ignoreEvents_)
     {
@@ -489,7 +538,7 @@ void group_item::ExpandedChanged(QtProperty* property, bool is_expanded)
     }
 }
 
-void group_item::SetName(QString name)
+void file_item::SetName(QString name)
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -497,7 +546,7 @@ void group_item::SetName(QString name)
     pm->value = name;
 }
 
-void group_item::SetColor(QColor color)
+void file_item::SetColor(QColor color)
 {
     auto pm = GetParameterModel("EDITOR/COLOR");
     if (pm == nullptr)
@@ -505,70 +554,133 @@ void group_item::SetColor(QColor color)
     pm->value = color.rgba();
 }
 
-void group_item::SetFileNames(QStringList fileNames)
+QStringList file_item::GetIncludeNames()
 {
-    const auto pm = GetParameterModel("BASE/FILE");
-    //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
-    if (pm != nullptr)
+    QStringList result;
+
+    const auto pm = GetParameterModel("INCLUDES");
+    if (pm == nullptr)
+        return result;
+
+    for (int i = 0; i < pm->value.toInt(); i++)
     {
-        pm->editorSettings.ComboBoxValues = fileNames;
-        if (pm->value.toString() == "" && fileNames.size() > 0)
-            pm->value = fileNames[0];
+        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        result.push_back(pmi->value.toString());
     }
+
+    return result;
 }
 
-void group_item::SetFileName(QString fileName)
+void file_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
-    const auto pm = GetParameterModel("BASE/FILE");
-    if (pm != nullptr)
-        pm->value = fileName;
-}
-
-void group_item::SetFileNameReadOnly()
-{
-    const auto pm = GetParameterModel("BASE/FILE");
-    if (pm != nullptr)
-        pm->readOnly = true;
-}
-
-QString group_item::GetFileName()
-{
-    const auto pm = GetParameterModel("BASE/FILE");
-    if (pm != nullptr)
-        return pm->value.toString();
-    else
-        return "";
-}
-
-void group_item::UpdateArrayModel(unit_types::ParameterModel& pm)
-{
-    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    if (pm.id == "INCLUDES")
     {
-        unit_types::ParameterModel group_model;
-        group_model.editorSettings.type = unit_types::EditorType::None;
-        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        {
+            unit_types::ParameterModel group_model;
+            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
-        unit_types::ParameterModel name;
-        name.editorSettings.type = unit_types::EditorType::String;
-        name.id = QString("%1/%2").arg(group_model.id, "NAME");
-        name.name = QString::fromLocal8Bit("Имя");
-        group_model.parameters.push_back(name);
+            unit_types::ParameterModel name;
+            name.editorSettings.type = unit_types::EditorType::String;
+            name.id = QString("%1/%2").arg(group_model.id, "NAME");
+            name.name = QString::fromLocal8Bit("Имя");
+            name.value = QString::fromLocal8Bit("Файл %1").arg(i);
+            name.valueType = "string";
+            name.editorSettings.type = unit_types::EditorType::String;
+            group_model.parameters.push_back(name);
 
-        unit_types::ParameterModel value;
-        value.editorSettings.type = unit_types::EditorType::String;
-        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
-        value.name = QString::fromLocal8Bit("Значение");
-        group_model.parameters.push_back(value);
+            unit_types::ParameterModel file_path;
+            file_path.editorSettings.type = unit_types::EditorType::String;
+            file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
+            file_path.name = QString::fromLocal8Bit("Имя файла");
+            file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
+            file_path.valueType = "string";
+            file_path.editorSettings.type = unit_types::EditorType::String;
+            file_path.editorSettings.is_expanded = false;
+            group_model.parameters.push_back(file_path);
 
-        pm.parameters.push_back(group_model);
+            unit_types::ParameterModel variables;
+            variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
+            variables.name = QString::fromLocal8Bit("Переменные");
+            variables.value = 0;
+            variables.valueType = "int";
+            variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+            variables.editorSettings.is_expanded = true;
+            variables.editorSettings.SpinIntergerMin = 0;
+            variables.editorSettings.SpinIntergerMax = 100;
+            group_model.parameters.push_back(std::move(variables));
+
+            pm.parameters.push_back(group_model);
+        }
+    }
+    else
+    {
+        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        {
+            unit_types::ParameterModel group_model;
+            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+            unit_types::ParameterModel name;
+            name.editorSettings.type = unit_types::EditorType::String;
+            name.id = QString("%1/%2").arg(group_model.id, "NAME");
+            name.name = QString::fromLocal8Bit("Имя");
+            group_model.parameters.push_back(name);
+
+            unit_types::ParameterModel value;
+            value.editorSettings.type = unit_types::EditorType::String;
+            value.id = QString("%1/%2").arg(group_model.id, "VALUE");
+            value.name = QString::fromLocal8Bit("Значение");
+            group_model.parameters.push_back(value);
+
+            pm.parameters.push_back(group_model);
+        }
     }
 
     while (pm.parameters.size() > pm.value.toInt())
         pm.parameters.pop_back();
+
+    //auto at = parameters_compiler::helper::get_array_type(pm.parameterInfo.type);
+    //auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fiileInfo, at);
+    //if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
+    //{
+    //    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    //    {
+    //        parameters_compiler::parameter_info pi_new = pm.parameterInfo;
+    //        pi_new.type = at;
+    //        pi_new.name = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i).toStdString();
+    //        pi_new.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+    //        unit_types::ParameterModel model;
+    //        CreateParameterModel(pi_new, pm.id, model);
+    //        pm.parameters.push_back(model);
+    //    }
+    //}
+    //else if (ti != nullptr) // yml type
+    //{
+    //    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    //    {
+    //        unit_types::ParameterModel group_model;
+    //        group_model.editorSettings.type = unit_types::EditorType::None;
+    //        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+    //        group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+    //        for (auto p : ti->parameters)
+    //        {
+    //            unit_types::ParameterModel model;
+    //            CreateParameterModel(p, group_model.id, model);
+    //            group_model.parameters.push_back(model);
+    //        }
+    //        pm.parameters.push_back(group_model);
+    //    }
+    //}
+
+    //while (pm.parameters.size() > pm.value.toInt())
+    //    pm.parameters.pop_back();
 }
 
-void group_item::valueChanged(QtProperty* property, int value)
+void file_item::valueChanged(QtProperty* property, int value)
 {
     qDebug() << "valueChanged value = " << value;
 
@@ -580,7 +692,7 @@ void group_item::valueChanged(QtProperty* property, int value)
     {
         pm->value = property->valueText();
     }
-    else if (pm->id == "PARAMETERS/VARIABLES")
+    else if (pm->id.startsWith("INCLUDES"))
     {
         SaveExpandState();
 
@@ -604,22 +716,50 @@ void group_item::valueChanged(QtProperty* property, int value)
 
         ApplyExpandState();
     }
-    else
+    else if (pm->id.startsWith("PROPERTIES"))
     {
-        if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
-            pm->value = property->valueText();
-        else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
-            pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
-            pm->value = std::stoi(property->valueText().toStdString());
-        else if (pm->valueType == "double" || pm->valueType == "float")
-            pm->value = std::stod(property->valueText().toStdString());
-        else // enum
-            pm->value = property->valueText();
+        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
+        if (is_array)
+        {
+            SaveExpandState();
 
+            int count = std::stoi(property->valueText().toStdString());
+            pm->value = count;
+            UpdateArrayModel(*pm);
+
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+            QList<QtProperty*> to_remove;
+            for (int i = count; i < property->subProperties().size(); ++i)
+            {
+                auto p = property->subProperties()[i];
+                to_remove.push_back(p);
+                UnregisterProperty(p);
+            }
+
+            for (auto& p : to_remove)
+                property->removeSubProperty(p);
+
+            ApplyExpandState();
+        }
+        else
+        {
+            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
+                pm->value = property->valueText();
+            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
+                pm->value = std::stoi(property->valueText().toStdString());
+            else if (pm->valueType == "double" || pm->valueType == "float")
+                pm->value = std::stod(property->valueText().toStdString());
+            else // enum
+                pm->value = property->valueText();
+
+        }
     }
 }
 
-void group_item::valueChanged(QtProperty* property, double value)
+void file_item::valueChanged(QtProperty* property, double value)
 {
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
@@ -671,7 +811,7 @@ void group_item::valueChanged(QtProperty* property, double value)
     //}
 }
 
-void group_item::valueChanged(QtProperty* property, const QString& value)
+void file_item::valueChanged(QtProperty* property, const QString& value)
 {
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
@@ -696,7 +836,7 @@ void group_item::valueChanged(QtProperty* property, const QString& value)
     //    canvas->update();
 }
 
-void group_item::valueChanged(QtProperty* property, const QColor& value)
+void file_item::valueChanged(QtProperty* property, const QColor& value)
 {
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
@@ -738,7 +878,7 @@ void group_item::valueChanged(QtProperty* property, const QColor& value)
     //    canvas->update();
 }
 
-void group_item::valueChanged(QtProperty* property, const QFont& value)
+void file_item::valueChanged(QtProperty* property, const QFont& value)
 {
     //    if (!propertyToId.contains(property))
     //        return;
@@ -756,7 +896,7 @@ void group_item::valueChanged(QtProperty* property, const QFont& value)
     //    canvas->update();
 }
 
-void group_item::valueChanged(QtProperty* property, const QPoint& value)
+void file_item::valueChanged(QtProperty* property, const QPoint& value)
 {
     //    if (!propertyToId.contains(property))
     //        return;
@@ -774,7 +914,7 @@ void group_item::valueChanged(QtProperty* property, const QPoint& value)
     //    canvas->update();
 }
 
-void group_item::valueChanged(QtProperty* property, const QSize& value)
+void file_item::valueChanged(QtProperty* property, const QSize& value)
 {
     //    if (!propertyToId.contains(property))
     //        return;
@@ -795,7 +935,7 @@ void group_item::valueChanged(QtProperty* property, const QSize& value)
     //    canvas->update();
 }
 
-void group_item::valueChanged(QtProperty* property, bool value)
+void file_item::valueChanged(QtProperty* property, bool value)
 {
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
@@ -805,18 +945,18 @@ void group_item::valueChanged(QtProperty* property, bool value)
     pm->value = value;
 }
 
-void group_item::RegisterProperty(QtProperty* property, const QString& id)
+void file_item::RegisterProperty(QtProperty* property, const QString& id)
 {
     propertyToId[property] = id;
     idToProperty[id] = property;
 }
 
-void group_item::UnregisterProperty(const QString& id)
+void file_item::UnregisterProperty(const QString& id)
 {
     UnregisterProperty(idToProperty[id]);
 }
 
-void group_item::UnregisterProperty(QtProperty* property)
+void file_item::UnregisterProperty(QtProperty* property)
 {
     for (auto p : property->subProperties())
         UnregisterProperty(p);
@@ -825,7 +965,7 @@ void group_item::UnregisterProperty(QtProperty* property)
     propertyToId.remove(property);
 }
 
-QtProperty* group_item::GetProperty(const QString& id)
+QtProperty* file_item::GetProperty(const QString& id)
 {
     auto it = idToProperty.find(id);
     if (it != idToProperty.end())
@@ -838,7 +978,7 @@ QtProperty* group_item::GetProperty(const QString& id)
     //    return nullptr;
 }
 
-QString group_item::GetPropertyId(QtProperty* property)
+QString file_item::GetPropertyId(QtProperty* property)
 {
     auto it = propertyToId.find(property);
     if (it != propertyToId.end())
@@ -851,7 +991,7 @@ QString group_item::GetPropertyId(QtProperty* property)
     //    return QString();
 }
 
-unit_types::ParameterModel* group_item::GetParameterModel(const QString& id)
+unit_types::ParameterModel* file_item::GetParameterModel(const QString& id)
 {
     unit_types::ParameterModel* pm = nullptr;
 
@@ -907,7 +1047,7 @@ unit_types::ParameterModel* group_item::GetParameterModel(const QString& id)
     return pm;
 }
 
-unit_types::ParameterModel* group_item::GetParameterModel(QtProperty* property)
+unit_types::ParameterModel* file_item::GetParameterModel(QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")
@@ -916,12 +1056,12 @@ unit_types::ParameterModel* group_item::GetParameterModel(QtProperty* property)
     return GetParameterModel(id);
 }
 
-bool group_item::GetExpanded(QtProperty* property)
+bool file_item::GetExpanded(QtProperty* property)
 {
     return false;
 }
 
-void group_item::SaveExpandState(QtBrowserItem* index)
+void file_item::SaveExpandState(QtBrowserItem* index)
 {
     if (propertyEditor_ == nullptr)
         return;
@@ -935,9 +1075,14 @@ void group_item::SaveExpandState(QtBrowserItem* index)
     auto pm = GetParameterModel(prop);
     if (pm != nullptr)
         pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
+
+
+
+    //if (pm != nullptr)
+    //    qDebug() << propertyEditor_->isExpanded(index);
 }
 
-void group_item::SaveExpandState()
+void file_item::SaveExpandState()
 {
     if (propertyEditor_ == nullptr)
         return;
@@ -948,7 +1093,7 @@ void group_item::SaveExpandState()
         SaveExpandState(itItem.next());
 }
 
-void group_item::ApplyExpandState(QtBrowserItem* index)
+void file_item::ApplyExpandState(QtBrowserItem* index)
 {
     if (propertyEditor_ == nullptr)
         return;
@@ -964,7 +1109,7 @@ void group_item::ApplyExpandState(QtBrowserItem* index)
         propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
 }
 
-void group_item::ApplyExpandState()
+void file_item::ApplyExpandState()
 {
     if (propertyEditor_ == nullptr)
         return;

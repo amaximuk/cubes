@@ -58,14 +58,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    auto fi = new files_item();
+    auto fi = new file_item();
     fi->SetName(QString::fromLocal8Bit("ÀÐÌ"));
     if (defaultColorFileIndex_ < defaultColorsFile_.size())
         fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
     else
         fi->SetColor(QColor("White"));
     fi->ApplyToBrowser(filesPropertyEditor_);
-    files_items_.push_back(fi);
+    file_items_.push_back(fi);
     comboBoxFiles_->addItem(QString::fromLocal8Bit("ÀÐÌ"));
 
 
@@ -692,7 +692,7 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
 
     // Get fileNames list
     QStringList fileNames;
-    for (auto& file : files_items_)
+    for (auto& file : file_items_)
         fileNames.push_back(file->GetName());
 
     // Transform
@@ -819,7 +819,7 @@ bool MainWindow::AddMainFile(xml::File& file)
     if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
     {
         filesPropertyEditor_->clear();
-        files_items_.clear();
+        file_items_.clear();
         comboBoxFiles_->clear();
         defaultColorFileIndex_ = 0;
         defaultColorGroupIndex_ = 0;
@@ -827,19 +827,19 @@ bool MainWindow::AddMainFile(xml::File& file)
 
     QString fileName = QFileInfo(file.fileName).fileName();
 
-    auto fi = new files_item();
+    auto fi = new file_item();
     fi->SetName(fileName);
     if (defaultColorFileIndex_ < defaultColorsFile_.size())
         fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
     else
         fi->SetColor(QColor("White"));
     fi->ApplyToBrowser(filesPropertyEditor_);
-    files_items_.push_back(fi);
+    file_items_.push_back(fi);
     comboBoxFiles_->addItem(fileName);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
     QStringList fileNames;
-    for (auto& file : files_items_)
+    for (auto& file : file_items_)
         fileNames.push_back(file->GetName());
 
     for (int i = 0; i < panes_.count(); ++i)
@@ -906,7 +906,7 @@ bool MainWindow::AddMainFile(xml::File& file)
 
 QColor MainWindow::GetFileColor(const QString& fileId)
 {
-    for (auto& fi : files_items_)
+    for (auto& fi : file_items_)
     {
         if (fi->GetName() == fileId)
             return fi->GetColor();
@@ -918,33 +918,36 @@ QStringList MainWindow::GetFileGroups(const QString& fileId)
 {
     QStringList result;
     result.push_back("<not selected>");
-    for (auto& gi : groups_items_)
+    for (auto& fi : file_items_)
     {
-        if (gi->GetFileName() == fileId)
-            result.push_back(gi->GetName());
+        if (fi->GetName() == fileId)
+        {
+            result.append(fi->GetIncludeNames());
+            break;
+        }
     }
     return result;
 }
 
-QColor MainWindow::GetGroupColor(const QString& groupId)
-{
-    for (auto& gi : groups_items_)
-    {
-        if (gi->GetName() == groupId)
-            return gi->GetColor();
-    }
-    return QColor("Black");
-}
-
-QString MainWindow::GetGroupFile(const QString& groupId)
-{
-    for (auto& gi : groups_items_)
-    {
-        if (gi->GetName() == groupId)
-            return gi->GetFileName();
-    }
-    return "";
-}
+//QColor MainWindow::GetGroupColor(const QString& groupId)
+//{
+//    for (auto& gi : groups_items_)
+//    {
+//        if (gi->GetName() == groupId)
+//            return gi->GetColor();
+//    }
+//    return QColor("Black");
+//}
+//
+//QString MainWindow::GetGroupFile(const QString& groupId)
+//{
+//    for (auto& gi : groups_items_)
+//    {
+//        if (gi->GetName() == groupId)
+//            return gi->GetFileName();
+//    }
+//    return "";
+//}
 
 QString MainWindow::GetNewUnitName(const QString& baseName, const QString& groupName)
 {
@@ -1330,7 +1333,7 @@ unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 QStringList MainWindow::GetFileNames()
 {
     QStringList result;
-    for (auto& fi : files_items_)
+    for (auto& fi : file_items_)
         result.push_back(fi->GetName());
     return result;
 }
@@ -1694,7 +1697,7 @@ void MainWindow::itemGroupChanged(diagram_item* item)
 void MainWindow::collapsed(QtBrowserItem* item)
 {
     QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : files_items_)
+    for (const auto& fi : file_items_)
     {
         if (fi->GetName() == name)
             fi->ExpandedChanged(item->property(), false);
@@ -1711,7 +1714,7 @@ void MainWindow::collapsed(QtBrowserItem* item)
 void MainWindow::expanded(QtBrowserItem* item)
 {
     QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : files_items_)
+    for (const auto& fi : file_items_)
     {
         if (fi->GetName() == name)
             fi->ExpandedChanged(item->property(), true);
@@ -2038,14 +2041,14 @@ void MainWindow::on_AddFile_clicked()
     if (!ok || text.isEmpty())
         return;
 
-    auto fi = new files_item();
+    auto fi = new file_item();
     fi->SetName(text);
     if (defaultColorFileIndex_ < defaultColorsFile_.size())
         fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
     else
         fi->SetColor(QColor("White"));
     fi->ApplyToBrowser(filesPropertyEditor_);
-    files_items_.push_back(fi);
+    file_items_.push_back(fi);
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
@@ -2089,7 +2092,7 @@ void MainWindow::on_RemoveFile_clicked()
 void MainWindow::on_Files_currentIndexChanged(int index)
 {
     QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : files_items_)
+    for (const auto& fi : file_items_)
     {
         if (fi->GetName() == name)
             fi->ApplyToBrowser(filesPropertyEditor_);
