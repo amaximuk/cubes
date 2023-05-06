@@ -158,5 +158,6 @@ public slots:
     void expanded(QtBrowserItem* item);
 
     void showFileContextMenu(const QPoint& pos);
+    void fileItemNameChanged(QString itemName, QString oldName);
     void fileItemChanged(QString itemName);
 };

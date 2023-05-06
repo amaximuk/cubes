@@ -76,6 +76,7 @@ public:
     void SetName(QString name);
     void SetColor(QColor color);
     QStringList GetIncludeNames();
+    void SetNameRegExp(QString regexp);
 
 private:
     QMap<const QtProperty*, QString> propertyToId;

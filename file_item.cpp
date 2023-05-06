@@ -336,6 +336,9 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
         pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
         //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
+        if (model.id == "BASE/NAME")
+            stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp));
+        //stringManager->setRegExp(pr, QRegExp("(?!ignoreme|ignoreme2|ignoremeN)(.+)"));
         stringManager->setValue(pr, model.value.toString());
         stringManager->blockSignals(false);
     }
@@ -571,6 +574,14 @@ QStringList file_item::GetIncludeNames()
     return result;
 }
 
+void file_item::SetNameRegExp(QString regexp)
+{
+    auto pm = GetParameterModel("BASE/NAME");
+    if (pm == nullptr)
+        return;
+    pm->editorSettings.RegExp = regexp;
+}
+
 void file_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     if (pm.id == "INCLUDES")
@@ -691,11 +702,6 @@ void file_item::valueChanged(QtProperty* property, int value)
     if (pm->id.startsWith("BASE"))
     {
         pm->value = property->valueText();
-        if (pm->id == "BASE/INSTANCE_NAME")
-        {
-            // Сообщаем об изменении имени
-            file_items_manager_->InformNameChanged(this);
-        }
     }
     else if (pm->id.startsWith("INCLUDES"))
     {
@@ -722,7 +728,7 @@ void file_item::valueChanged(QtProperty* property, int value)
         ApplyExpandState();
 
         // Сообщаем об изменении списка включаемых файлов
-        file_items_manager_->InformIncludeNameChanged(this);
+        file_items_manager_->InformIncludeChanged(this);
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {
@@ -825,23 +831,18 @@ void file_item::valueChanged(QtProperty* property, const QString& value)
     if (pm == nullptr)
         return;
 
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("text")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setText(value);
-    //        }
-    //    }
-    //    canvas->update();
+    if (pm->id == "BASE/NAME")
+    {
+        // Проверяем, что нет дубликатов, если есть не отсылаем событие, чтобы все не испортить
+        // еще надо сохранить oldName, чтобы корректно переименовалось, когда событие все-таки будет отправлено
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        file_items_manager_->InformNameChanged(this, oldName);
+    }
+    else
+    {
+        pm->value = value;
+    }
 }
 
 void file_item::valueChanged(QtProperty* property, const QColor& value)
