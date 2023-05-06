@@ -14,21 +14,22 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     pixmap_ = properties_->GetPixmap();
 
     font_ = QFont("Arial", 10);
-    groupFont_ = QFont("Times", 14, 5);
+    groupFont_ = QFont("Times", 10);
     iconRect_ = QRect(0, 0, 32, 32);
 
     QFontMetricsF fontMetrics(font_);
-    //textRect_ = fontMetrics.boundingRect(properties_->GetName());
-    QString x = properties_->GetName();
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetName());
     textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
-    //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
+    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
 
+    //QFontMetricsF groupFontMetrics(groupFont_);
+    //groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, "G");
+    //groupTextRect_.adjust(-1, 0, 1, 0);
+    //groupTextRect_.translate(iconRect_.width(), iconRect_.height() - groupTextRect_.height() / 2 + 5);
     QFontMetricsF groupFontMetrics(groupFont_);
-    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, "G");
+    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetGroupName());
     groupTextRect_.adjust(-1, 0, 1, 0);
-    groupTextRect_.translate(iconRect_.width(), iconRect_.height() - groupTextRect_.height() / 2 + 5);
+    groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
 
     // Adjust iconRect_ for colored frame
     boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
@@ -83,7 +84,23 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_), Qt::AlignCenter | Qt::AlignHCenter);
+            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_),
+                Qt::AlignCenter | Qt::AlignHCenter);
+
+            QString fileName = properties_->GetFileName();
+            QColor colorFile(ds->getMain()->GetFileColor(fileName));
+            painter->setPen(QPen(QBrush(colorFile, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter->drawRect(iconRect_);
+
+            QString groupName = properties_->GetGroupName();
+            if (groupName != "<not selected>")
+            {
+                QColor colorGroup(colorFile);
+                colorGroup.setAlpha(0xFF);
+                painter->setFont(groupFont_);
+                painter->setPen(colorGroup);
+                painter->drawText(groupTextRect_, groupName, Qt::AlignCenter | Qt::AlignHCenter);
+            }
 
             //if (properties_->GetId() != "group_mock")
             //{
@@ -227,33 +244,40 @@ void diagram_item::InformFileChanged()
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemFileChanged(this);
-        scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+        scene()->invalidate();
     }
 }
 
 void diagram_item::InformGroupChanged()
 {
+    //if (scene() != nullptr)
+    //{
+    //    reinterpret_cast<diagram_scene*>(scene())->informItemGroupChanged(this);
+    //    scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+    //}
+
+    QFontMetricsF groupFontMetrics(groupFont_);
+    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetGroupName());
+    groupTextRect_.adjust(-1, 0, 1, 0);
+    groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
+    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemGroupChanged(this);
-        scene()->invalidate(mapRectToScene(iconRect_.adjusted(-5, -5, 5, 5)));
+        scene()->invalidate();
     }
 }
 
 void diagram_item::InformNameChanged(QString name, QString oldName)
 {
-    QRectF oldTextRect = textRect_;
     QFontMetricsF fontMetrics(font_);
-    //textRect_ = fontMetrics.boundingRect(name);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
     textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height());
-    //textRect_.translate(iconRect_.width() / 2 - textRect_.width() / 2, iconRect_.height() + textRect_.height());
+    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
         reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);
-        //scene()->invalidate(mapRectToScene(oldTextRect.united(textRect_)));
         scene()->invalidate();
     }
 }

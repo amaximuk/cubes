@@ -775,7 +775,12 @@ bool MainWindow::SortUnits(const QString& groupName)
 
         //QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
         //position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
-        QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
+
+
+
+
+        QPoint position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
+        //QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
         di->setPos(position);
 
 
@@ -1311,6 +1316,11 @@ QString MainWindow::GetCurrentFileName()
 QStringList MainWindow::GetCurrentFileIncludeNames()
 {
     return file_items_manager_->GetFileIncludeNames(comboBoxFiles_->currentText());
+}
+
+QColor MainWindow::GetFileColor(const QString& fileName)
+{
+    return file_items_manager_->GetFileColor(fileName);
 }
 
 void MainWindow::selectionChanged()

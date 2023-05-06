@@ -77,7 +77,7 @@ public:
     QStringList GetFileNames();
     QString GetCurrentFileName();
     QStringList GetCurrentFileIncludeNames();
-    //QColor GetFileColor(const QString& fileId);
+    QColor GetFileColor(const QString& fileName);
     //QStringList GetFileGroups(const QString& fileId);
     //QColor GetGroupColor(const QString& groupId);
     //QString GetGroupFile(const QString& groupId);
