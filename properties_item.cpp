@@ -515,7 +515,7 @@ void properties_item::SetGroupNames(QStringList groupNames)
     if (pm != nullptr)
     {
         pm->editorSettings.ComboBoxValues = groupNames;
-        if (pm->value.toString() == "" && groupNames.size() > 0)
+        if (!groupNames.contains(pm->value.toString()) && groupNames.size() > 0)
             pm->value = groupNames[0];
     }
 }

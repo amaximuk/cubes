@@ -45,7 +45,6 @@ void diagram_view::dragMoveEvent(QDragMoveEvent *event)
     }
 }
 
-int counter = 0;
 void diagram_view::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata"))
@@ -72,7 +71,6 @@ void diagram_view::dropEvent(QDropEvent *event)
         QString name;
         dataStream >> name >> offset;
         qDebug() << "name: " << name << offset;
-        QString vvv = QString::number(counter++);
 
 
         if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
@@ -91,7 +89,7 @@ void diagram_view::dropEvent(QDropEvent *event)
 
             di->getProperties()->SetFileNames(main_->GetFileNames());
             di->getProperties()->SetFileName(main_->GetCurrentFileName());
-            di->getProperties()->SetGroupNames(main_->GetFileGroups(main_->GetCurrentFileName()));
+            di->getProperties()->SetGroupNames(main_->GetCurrentFileIncludeNames());
             di->getProperties()->SetGroupName("<not selected>");
             di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName(), main_->GetCurrentGroup()));
             di->SetGroupName(main_->GetCurrentGroup());

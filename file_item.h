@@ -5,6 +5,7 @@
 #include <QPixmap>
 
 #include "unit_types.h"
+#include "file_items_manager_api.h"
 class diagram_item;
 
 class QtGroupPropertyManager;
@@ -23,9 +24,10 @@ class QtBrowserItem;
 
 class file_item : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 
 private:
+    file_items_manager_interface* file_items_manager_;
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
@@ -42,7 +44,7 @@ private:
     bool ignoreEvents_;
 
 public:
-    file_item(QObject* parent = nullptr);
+    file_item(file_items_manager_interface* file_items_manager);
 
 private:
     void CreateParametersModel();
@@ -69,25 +71,25 @@ public:
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
     void ZOrderChanged(double value);
-    QString GetPropertyDescription(QtProperty* property);
-    void ExpandedChanged(QtProperty* property, bool is_expanded);
+    QString GetPropertyDescription(const QtProperty* property);
+    void ExpandedChanged(const QtProperty* property, bool is_expanded);
     void SetName(QString name);
     void SetColor(QColor color);
     QStringList GetIncludeNames();
 
 private:
-    QMap<QtProperty*, QString> propertyToId;
-    QMap<QString, QtProperty*> idToProperty;
+    QMap<const QtProperty*, QString> propertyToId;
+    QMap<QString, const QtProperty*> idToProperty;
 
 private:
-    void RegisterProperty(QtProperty* property, const QString& id);
+    void RegisterProperty(const QtProperty* property, const QString& id);
     void UnregisterProperty(const QString& id);
-    void UnregisterProperty(QtProperty* property);
+    void UnregisterProperty(const QtProperty* property);
     QtProperty* GetProperty(const QString& id);
-    QString GetPropertyId(QtProperty* property);
-    bool GetExpanded(QtProperty* property);
+    QString GetPropertyId(const QtProperty* property);
+    bool GetExpanded(const QtProperty* property);
     unit_types::ParameterModel* GetParameterModel(const QString& id);
-    unit_types::ParameterModel* GetParameterModel(QtProperty* property);
+    unit_types::ParameterModel* GetParameterModel(const QtProperty* property);
 
     void SaveExpandState();
     void SaveExpandState(QtBrowserItem* index);

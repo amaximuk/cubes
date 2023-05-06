@@ -14,6 +14,7 @@
 #include "unit_types.h"
 #include "log_table_model.h"
 #include "sort_filter_model.h"
+#include "file_items_manager.h"
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -75,8 +76,9 @@ public:
     unit_types::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
-    QColor GetFileColor(const QString& fileId);
-    QStringList GetFileGroups(const QString& fileId);
+    QStringList GetCurrentFileIncludeNames();
+    //QColor GetFileColor(const QString& fileId);
+    //QStringList GetFileGroups(const QString& fileId);
     //QColor GetGroupColor(const QString& groupId);
     //QString GetGroupFile(const QString& groupId);
     QString GetNewUnitName(const QString& baseName, const QString& groupName);
@@ -104,17 +106,17 @@ private:
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
     QPointer<QTabWidget> tabWidget_;
-    QPlainTextEdit* plainTextEditHint_;
+    QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
     QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
     QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
-    QList<file_item*> file_items_;
     QPointer<QComboBox> comboBoxFiles_;
     QPointer<QComboBox> comboBoxGroups_;
     QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
+    QPointer<file_items_manager> file_items_manager_;
 
 private slots:
     void on_NewFile_action();
@@ -132,7 +134,6 @@ private slots:
     void on_Units_currentIndexChanged(int index);
 
     void currentItemChanged(QtBrowserItem* item);
-    void MyFirstBtnClicked();
 
     void selectionChanged();
     void test2(QPointF ppp);
@@ -156,5 +157,6 @@ public slots:
     void collapsed(QtBrowserItem* item);
     void expanded(QtBrowserItem* item);
 
-    void ShowContextMenu(const QPoint& pos);
+    void showFileContextMenu(const QPoint& pos);
+    void fileItemChanged(QString itemName);
 };

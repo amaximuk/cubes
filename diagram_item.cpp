@@ -85,30 +85,30 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
             painter->setPen(Qt::blue);
             painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_), Qt::AlignCenter | Qt::AlignHCenter);
 
-            if (properties_->GetId() != "group_mock")
-            {
-                QString fileName = properties_->GetFileName();
-                QColor colorFile(ds->getMain()->GetFileColor(fileName));
-                painter->setPen(QPen(QBrush(colorFile, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-                painter->drawRect(iconRect_);
+            //if (properties_->GetId() != "group_mock")
+            //{
+            //    QString fileName = properties_->GetFileName();
+            //    QColor colorFile(ds->getMain()->GetFileColor(fileName));
+            //    painter->setPen(QPen(QBrush(colorFile, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            //    painter->drawRect(iconRect_);
 
-                QString groupName = properties_->GetGroupName();
-                if (groupName != "<not selected>")
-                {
-                    QColor colorGroup(colorFile);
-                    colorGroup.setAlpha(0xFF);
-                    //QColor colorGroup(ds->getMain()->GetGroupColor(groupName));
-                    painter->setFont(groupFont_);
-                    painter->setPen(colorGroup);
-                    //painter->setPen(Qt::blue);
-                    //painter->setPen(Qt::black);
-                    //painter->drawRect(groupTextRect_);
-                    painter->drawText(groupTextRect_, "G", Qt::AlignCenter | Qt::AlignHCenter);
-                    //painter->drawText(groupTextRect_.topLeft(), "G");
-                    //painter->setPen(c);
-                    //painter->drawText(0, 0, "G");
-                }
-            }
+            //    QString groupName = properties_->GetGroupName();
+            //    if (groupName != "<not selected>")
+            //    {
+            //        QColor colorGroup(colorFile);
+            //        colorGroup.setAlpha(0xFF);
+            //        //QColor colorGroup(ds->getMain()->GetGroupColor(groupName));
+            //        painter->setFont(groupFont_);
+            //        painter->setPen(colorGroup);
+            //        //painter->setPen(Qt::blue);
+            //        //painter->setPen(Qt::black);
+            //        //painter->drawRect(groupTextRect_);
+            //        painter->drawText(groupTextRect_, "G", Qt::AlignCenter | Qt::AlignHCenter);
+            //        //painter->drawText(groupTextRect_.topLeft(), "G");
+            //        //painter->setPen(c);
+            //        //painter->drawText(0, 0, "G");
+            //    }
+            //}
         }
 
         if (this->isSelected())

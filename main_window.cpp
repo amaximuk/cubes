@@ -58,40 +58,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    auto fi = new file_item();
-    fi->SetName(QString::fromLocal8Bit("АРМ"));
-    if (defaultColorFileIndex_ < defaultColorsFile_.size())
-        fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
-    else
-        fi->SetColor(QColor("White"));
+    file_items_manager_ = new file_items_manager();
+    connect(file_items_manager_, &file_items_manager::ItemChanged, this, &MainWindow::fileItemChanged);
+
+    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+    auto fi = file_items_manager_->Create(QString::fromLocal8Bit("АРМ"), fileColor);
     fi->ApplyToBrowser(filesPropertyEditor_);
-    file_items_.push_back(fi);
     comboBoxFiles_->addItem(QString::fromLocal8Bit("АРМ"));
-
-
-    filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu); 
-    connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::ShowContextMenu);
-}
-
-void MainWindow::ShowContextMenu(const QPoint& pos)
-{
-    if (filesPropertyEditor_->currentItem() == nullptr)
-        return;
-    if (filesPropertyEditor_->currentItem()->parent() == nullptr)
-        return;
-
-    QString name = filesPropertyEditor_->currentItem()->property()->propertyName();
-    QString parentName = filesPropertyEditor_->currentItem()->parent()->property()->propertyName();
-    if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-    {
-        QMenu contextMenu(tr("Context menu"), this);
-
-        QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
-        connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
-        contextMenu.addAction(&action1);
-
-        contextMenu.exec(mapToGlobal(filesPropertyEditor_->mapTo(this, pos)));
-    }
 }
 
 MainWindow::~MainWindow()
@@ -315,6 +289,9 @@ void MainWindow::CreateFilesPropertyBrowser()
     //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
     qDebug() << connect(filesPropertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
     qDebug() << connect(filesPropertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+
+    filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
 }
 
 void MainWindow::CreatePropertyBrowser()
@@ -691,9 +668,7 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
     table_view_log_->update();
 
     // Get fileNames list
-    QStringList fileNames;
-    for (auto& file : file_items_)
-        fileNames.push_back(file->GetName());
+    QStringList fileNames = file_items_manager_->GetFileNames();
 
     // Transform
     for (int i = 0; i < all_units.size(); i++)
@@ -819,7 +794,7 @@ bool MainWindow::AddMainFile(xml::File& file)
     if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
     {
         filesPropertyEditor_->clear();
-        file_items_.clear();
+        file_items_manager_->Clear();
         comboBoxFiles_->clear();
         defaultColorFileIndex_ = 0;
         defaultColorGroupIndex_ = 0;
@@ -827,21 +802,14 @@ bool MainWindow::AddMainFile(xml::File& file)
 
     QString fileName = QFileInfo(file.fileName).fileName();
 
-    auto fi = new file_item();
-    fi->SetName(fileName);
-    if (defaultColorFileIndex_ < defaultColorsFile_.size())
-        fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
-    else
-        fi->SetColor(QColor("White"));
+    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+    auto fi = file_items_manager_->Create(fileName, fileColor);
     fi->ApplyToBrowser(filesPropertyEditor_);
-    file_items_.push_back(fi);
     comboBoxFiles_->addItem(fileName);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
-    QStringList fileNames;
-    for (auto& file : file_items_)
-        fileNames.push_back(file->GetName());
-
+    QStringList fileNames = file_items_manager_->GetFileNames();
     for (int i = 0; i < panes_.count(); ++i)
     {
         for (auto& item : panes_[i].first->items())
@@ -904,30 +872,30 @@ bool MainWindow::AddMainFile(xml::File& file)
     return true;
 }
 
-QColor MainWindow::GetFileColor(const QString& fileId)
-{
-    for (auto& fi : file_items_)
-    {
-        if (fi->GetName() == fileId)
-            return fi->GetColor();
-    }
-    return QColor("Black");
-}
-
-QStringList MainWindow::GetFileGroups(const QString& fileId)
-{
-    QStringList result;
-    result.push_back("<not selected>");
-    for (auto& fi : file_items_)
-    {
-        if (fi->GetName() == fileId)
-        {
-            result.append(fi->GetIncludeNames());
-            break;
-        }
-    }
-    return result;
-}
+//QColor MainWindow::GetFileColor(const QString& fileId)
+//{
+//    for (auto& fi : file_items_)
+//    {
+//        if (fi->GetName() == fileId)
+//            return fi->GetColor();
+//    }
+//    return QColor("Black");
+//}
+//
+//QStringList MainWindow::GetFileGroups(const QString& fileId)
+//{
+//    QStringList result;
+//    result.push_back("<not selected>");
+//    for (auto& fi : file_items_)
+//    {
+//        if (fi->GetName() == fileId)
+//        {
+//            result.append(fi->GetIncludeNames());
+//            break;
+//        }
+//    }
+//    return result;
+//}
 
 //QColor MainWindow::GetGroupColor(const QString& groupId)
 //{
@@ -1332,10 +1300,7 @@ unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 
 QStringList MainWindow::GetFileNames()
 {
-    QStringList result;
-    for (auto& fi : file_items_)
-        result.push_back(fi->GetName());
-    return result;
+    return file_items_manager_->GetFileNames();
 }
 
 QString MainWindow::GetCurrentFileName()
@@ -1343,51 +1308,9 @@ QString MainWindow::GetCurrentFileName()
     return comboBoxFiles_->currentText();
 }
 
-QGraphicsItemGroup *group;
-void MainWindow::MyFirstBtnClicked()
+QStringList MainWindow::GetCurrentFileIncludeNames()
 {
-
-    // Group all selected items together
-    group = panes_[0].first->createItemGroup(panes_[0].first->selectedItems());
-
-    // Destroy the group, and delete the group item
-    panes_[0].first->destroyItemGroup(group);
-
-
-
-
-//    qDebug() <<"xxxxxxxxx";
-//    QtProperty *property;
-
-//    QtProperty *mainProperty = groupManager->addProperty("Item1");
-
-//    property = doubleManager->addProperty(tr("Position X"));
-//    doubleManager->setRange(property, 0, 100);
-//    doubleManager->setValue(property, 50);
-//    addProperty(property, QLatin1String("xpos"));
-//    mainProperty->addSubProperty(property);
-
-//    property = doubleManager->addProperty(tr("Position Y"));
-//    doubleManager->setRange(property, 0, 100);
-//    doubleManager->setValue(property, 70);
-//    addProperty(property, QLatin1String("ypos"));
-//    mainProperty->addSubProperty(property);
-
-//    property = doubleManager->addProperty(tr("Position Z"));
-//    doubleManager->setRange(property, 0, 256);
-//    doubleManager->setValue(property, 33);
-//    addProperty(property, QLatin1String("zpos"));
-//    mainProperty->addSubProperty(property);
-
-//    property = colorManager->addProperty(tr("Color"));
-//    colorManager->setValue(property, Qt::GlobalColor::darkRed);
-//    addProperty(property, QLatin1String("color"));
-//    mainProperty->addSubProperty(property);
-
-//    addProperty(mainProperty, QLatin1String("Item1-XXX"));
-
-    //updateExpandState();
-
+    return file_items_manager_->GetFileIncludeNames(comboBoxFiles_->currentText());
 }
 
 void MainWindow::selectionChanged()
@@ -1649,7 +1572,9 @@ void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
 
 void MainWindow::itemFileChanged(diagram_item* item)
 {
-    item->getProperties()->SetGroupNames(GetFileGroups(item->getProperties()->GetFileName()));
+    QString fileName = item->getProperties()->GetFileName();
+    QStringList includeNames = file_items_manager_->GetFileIncludeNames(fileName);
+    item->getProperties()->SetGroupNames(includeNames);
     item->getProperties()->SetGroupName("<not selected>");
     item->getProperties()->ApplyToBrowser(propertyEditor_);
 
@@ -1696,13 +1621,16 @@ void MainWindow::itemGroupChanged(diagram_item* item)
 
 void MainWindow::collapsed(QtBrowserItem* item)
 {
-    QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : file_items_)
-    {
-        if (fi->GetName() == name)
-            fi->ExpandedChanged(item->property(), false);
-        break;
-    }
+    QString fileName = comboBoxFiles_->currentText();
+    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), false);
+
+    //QString name = comboBoxFiles_->currentText();
+    //for (const auto& fi : file_items_)
+    //{
+    //    if (fi->GetName() == name)
+    //        fi->ExpandedChanged(item->property(), false);
+    //    break;
+    //}
 
     //if (panes_[0].first->selectedItems().count() > 0)
     //{
@@ -1713,13 +1641,17 @@ void MainWindow::collapsed(QtBrowserItem* item)
 
 void MainWindow::expanded(QtBrowserItem* item)
 {
-    QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : file_items_)
-    {
-        if (fi->GetName() == name)
-            fi->ExpandedChanged(item->property(), true);
-        break;
-    }
+    QString fileName = comboBoxFiles_->currentText();
+    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), true);
+
+    //QString name = comboBoxFiles_->currentText();
+    //for (const auto& fi : file_items_)
+    //{
+    //    if (fi->GetName() == name)
+    //        fi->ExpandedChanged(item->property(), true);
+    //    break;
+    //}
+
     //if (panes_[0].first->selectedItems().count() > 0)
     //{
     //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
@@ -2037,20 +1969,29 @@ void MainWindow::on_Sort_action()
 void MainWindow::on_AddFile_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, "Add host", QString::fromLocal8Bit("Имя хоста:"), QLineEdit::Normal, "", &ok);
+    QString text = QInputDialog::getText(this, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
     if (!ok || text.isEmpty())
         return;
 
-    auto fi = new file_item();
-    fi->SetName(text);
-    if (defaultColorFileIndex_ < defaultColorsFile_.size())
-        fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
-    else
-        fi->SetColor(QColor("White"));
+    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+    auto fi = file_items_manager_->Create(text, fileColor);
     fi->ApplyToBrowser(filesPropertyEditor_);
-    file_items_.push_back(fi);
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+
+    fileItemChanged(text);
+
+    //auto fi = new file_item();
+    //fi->SetName(text);
+    //if (defaultColorFileIndex_ < defaultColorsFile_.size())
+    //    fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
+    //else
+    //    fi->SetColor(QColor("White"));
+    //fi->ApplyToBrowser(filesPropertyEditor_);
+    //file_items_.push_back(fi);
+    //comboBoxFiles_->addItem(text);
+    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
     //QStringList fileNames = GetFileNames();
     //for (auto& group : groups_items_)
@@ -2060,25 +2001,21 @@ void MainWindow::on_AddFile_clicked()
     //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
     //}
 
-    //QStringList groupNames = GetGroupNames();
-    //for (int i = 0; i < panes_.count(); ++i)
+    //for (auto& item : panes_[0].first->items())
     //{
-    //    for (auto& item : panes_[i].first->items())
-    //    {
-    //        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-    //        QString fileName = di->getProperties()->GetFileName();
-    //        QStringList groupNames = GetFileGroups(fileName);
-    //        di->getProperties()->SetGroupNames(groupNames);
-    //        //di->getProperties()->SetGroupName("<not selected>");
-    //    }
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //    QString fileName = di->getProperties()->GetFileName();
+    //    QStringList groupNames = GetFileGroups(fileName);
+    //    di->getProperties()->SetGroupNames(groupNames);
+    //    //di->getProperties()->SetGroupName("<not selected>");
     //}
 
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    //if (panes_[tabIndex].first->selectedItems().size() > 0)
+    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 }
 
 void MainWindow::on_RemoveFile_clicked()
@@ -2091,12 +2028,13 @@ void MainWindow::on_RemoveFile_clicked()
 
 void MainWindow::on_Files_currentIndexChanged(int index)
 {
-    QString name = comboBoxFiles_->currentText();
-    for (const auto& fi : file_items_)
-    {
-        if (fi->GetName() == name)
-            fi->ApplyToBrowser(filesPropertyEditor_);
-    }
+    QString fileName = comboBoxFiles_->currentText();
+    file_items_manager_->ApplyFileToBrowser(fileName, filesPropertyEditor_);
+    //for (const auto& fi : file_items_)
+    //{
+    //    if (fi->GetName() == name)
+    //        fi->ApplyToBrowser(filesPropertyEditor_);
+    //}
 }
 
 void MainWindow::on_RemoveGroup_clicked()
@@ -2149,6 +2087,48 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     }
 }
 
+void MainWindow::showFileContextMenu(const QPoint& pos)
+{
+    if (filesPropertyEditor_->currentItem() == nullptr)
+        return;
+    if (filesPropertyEditor_->currentItem()->parent() == nullptr)
+        return;
+
+    QString name = filesPropertyEditor_->currentItem()->property()->propertyName();
+    QString parentName = filesPropertyEditor_->currentItem()->parent()->property()->propertyName();
+    if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
+    {
+        QMenu contextMenu(tr("Context menu"), this);
+
+        QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
+        connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
+        contextMenu.addAction(&action1);
+
+        contextMenu.exec(mapToGlobal(filesPropertyEditor_->mapTo(this, pos)));
+    }
+}
+
+void MainWindow::fileItemChanged(QString itemName)
+{
+    QStringList fileNames = file_items_manager_->GetFileNames();
+    QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(itemName);
+    for (auto& item : panes_[0].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        di->getProperties()->SetFileNames(fileNames);
+
+        QString fileName = di->getProperties()->GetFileName();
+        if (fileName == itemName)
+            di->getProperties()->SetGroupNames(fileIncludeNames);
+    }
+
+    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    if (tabIndex == -1)
+        return;
+
+    if (panes_[tabIndex].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+}
 
 //
 //void MainWindow::valueChanged(QtProperty* property, int value)

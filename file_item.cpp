@@ -12,9 +12,9 @@
 #include "parameters_compiler_helper.h"
 #include "file_item.h"
 
-file_item::file_item(QObject* parent):
-    QObject(parent)
+file_item::file_item(file_items_manager_interface* file_items_manager)
 {
+    file_items_manager_ = file_items_manager;
     //diagramItem_ = diagramItem;
     parametersModel_ = {};
     //editorModel_ = {};
@@ -522,13 +522,13 @@ void file_item::ZOrderChanged(double value)
     doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
 }
 
-QString file_item::GetPropertyDescription(QtProperty* property)
+QString file_item::GetPropertyDescription(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     return id;
 }
 
-void file_item::ExpandedChanged(QtProperty* property, bool is_expanded)
+void file_item::ExpandedChanged(const QtProperty* property, bool is_expanded)
 {
     if (!ignoreEvents_)
     {
@@ -691,6 +691,11 @@ void file_item::valueChanged(QtProperty* property, int value)
     if (pm->id.startsWith("BASE"))
     {
         pm->value = property->valueText();
+        if (pm->id == "BASE/INSTANCE_NAME")
+        {
+            // Сообщаем об изменении имени
+            file_items_manager_->InformNameChanged(this);
+        }
     }
     else if (pm->id.startsWith("INCLUDES"))
     {
@@ -715,6 +720,9 @@ void file_item::valueChanged(QtProperty* property, int value)
             property->removeSubProperty(p);
 
         ApplyExpandState();
+
+        // Сообщаем об изменении списка включаемых файлов
+        file_items_manager_->InformIncludeNameChanged(this);
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {
@@ -945,7 +953,7 @@ void file_item::valueChanged(QtProperty* property, bool value)
     pm->value = value;
 }
 
-void file_item::RegisterProperty(QtProperty* property, const QString& id)
+void file_item::RegisterProperty(const QtProperty* property, const QString& id)
 {
     propertyToId[property] = id;
     idToProperty[id] = property;
@@ -956,7 +964,7 @@ void file_item::UnregisterProperty(const QString& id)
     UnregisterProperty(idToProperty[id]);
 }
 
-void file_item::UnregisterProperty(QtProperty* property)
+void file_item::UnregisterProperty(const QtProperty* property)
 {
     for (auto p : property->subProperties())
         UnregisterProperty(p);
@@ -969,7 +977,7 @@ QtProperty* file_item::GetProperty(const QString& id)
 {
     auto it = idToProperty.find(id);
     if (it != idToProperty.end())
-        return *it;
+        return const_cast<QtProperty*>(*it);
     return nullptr;
 
     //if (idToProperty.contains(id))
@@ -978,7 +986,7 @@ QtProperty* file_item::GetProperty(const QString& id)
     //    return nullptr;
 }
 
-QString file_item::GetPropertyId(QtProperty* property)
+QString file_item::GetPropertyId(const QtProperty* property)
 {
     auto it = propertyToId.find(property);
     if (it != propertyToId.end())
@@ -1047,7 +1055,7 @@ unit_types::ParameterModel* file_item::GetParameterModel(const QString& id)
     return pm;
 }
 
-unit_types::ParameterModel* file_item::GetParameterModel(QtProperty* property)
+unit_types::ParameterModel* file_item::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")
@@ -1056,7 +1064,7 @@ unit_types::ParameterModel* file_item::GetParameterModel(QtProperty* property)
     return GetParameterModel(id);
 }
 
-bool file_item::GetExpanded(QtProperty* property)
+bool file_item::GetExpanded(const QtProperty* property)
 {
     return false;
 }
