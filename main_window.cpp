@@ -59,7 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     CreateUi();
 
     file_items_manager_ = new file_items_manager();
-    connect(file_items_manager_, &file_items_manager::ItemChanged, this, &MainWindow::fileItemChanged);
+    connect(file_items_manager_, &file_items_manager::NameChanged, this, &MainWindow::fileNameChanged);
+    connect(file_items_manager_, &file_items_manager::IncludeChanged, this, &MainWindow::fileIncludeChanged);
+    connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
 
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -1990,7 +1992,24 @@ void MainWindow::on_AddFile_clicked()
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
-    fileItemChanged(text);
+    for (auto& item : panes_[0].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        QStringList fileNames = file_items_manager_->GetFileNames();
+        di->getProperties()->SetFileNames(fileNames);
+    }
+
+    if (panes_[0].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    panes_[0].first->invalidate();
+
+
+
+
+
+
+    //fileNameChanged(text, "");
 
     //auto fi = new file_item();
     //fi->SetName(text);
@@ -2118,50 +2137,68 @@ void MainWindow::showFileContextMenu(const QPoint& pos)
     }
 }
 
-void MainWindow::fileItemNameChanged(QString itemName, QString oldName)
+void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
 {
     QStringList fileNames = file_items_manager_->GetFileNames();
-    QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(itemName);
+    QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
     for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
-
+        QString currentName = di->getProperties()->GetFileName();
         di->getProperties()->SetFileNames(fileNames);
+        if (currentName == oldFileName)
+            di->getProperties()->SetFileName(fileName);
 
-        QString fileName = di->getProperties()->GetFileName();
-        if (fileName == itemName)
-            di->getProperties()->SetGroupNames(fileIncludeNames);
+        //if (fileName == di->getProperties()->GetFileName())
+        //    di->getProperties()->SetGroupNames(fileIncludeNames);
     }
 
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    for (int i = 0; i < comboBoxFiles_->count(); ++i)
+    {
+        if (comboBoxFiles_->itemText(i) == oldFileName)
+            comboBoxFiles_->setItemText(i, fileName);
+    }
 
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
+    if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    panes_[0].first->invalidate();
 }
 
-void MainWindow::fileItemChanged(QString itemName)
+void MainWindow::fileIncludeChanged(QString fileName, QStringList includeNames)
 {
-    QStringList fileNames = file_items_manager_->GetFileNames();
-    QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(itemName);
+    for (auto& item : panes_[0].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (fileName == di->getProperties()->GetFileName())
+            di->getProperties()->SetGroupNames(includeNames);
+    }
+
+    if (panes_[0].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    panes_[0].first->invalidate();
+}
+
+void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName)
+{
+    QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
     for (auto& item : panes_[0].first->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
-
-        di->getProperties()->SetFileNames(fileNames);
-
-        QString fileName = di->getProperties()->GetFileName();
-        if (fileName == itemName)
+        if (fileName == di->getProperties()->GetFileName())
+        {
+            QString currentName = di->getProperties()->GetGroupName();
             di->getProperties()->SetGroupNames(fileIncludeNames);
+            if (currentName == oldIncludeName)
+                di->getProperties()->SetGroupName(includeName);
+        }
     }
 
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
-
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
+    if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    panes_[0].first->invalidate();
 }

@@ -335,10 +335,9 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
     {
         pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
-        //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
         if (model.id == "BASE/NAME")
             stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp));
-        //stringManager->setRegExp(pr, QRegExp("(?!ignoreme|ignoreme2|ignoremeN)(.+)"));
+            //stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp, Qt::CaseSensitive, QRegExp::Wildcard));
         stringManager->setValue(pr, model.value.toString());
         stringManager->blockSignals(false);
     }
@@ -728,7 +727,7 @@ void file_item::valueChanged(QtProperty* property, int value)
         ApplyExpandState();
 
         // Сообщаем об изменении списка включаемых файлов
-        file_items_manager_->InformIncludeChanged(this);
+        file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
     }
     else if (pm->id.startsWith("PROPERTIES"))
     {
@@ -833,11 +832,15 @@ void file_item::valueChanged(QtProperty* property, const QString& value)
 
     if (pm->id == "BASE/NAME")
     {
-        // Проверяем, что нет дубликатов, если есть не отсылаем событие, чтобы все не испортить
-        // еще надо сохранить oldName, чтобы корректно переименовалось, когда событие все-таки будет отправлено
         QString oldName = pm->value.toString();
         pm->value = value;
-        file_items_manager_->InformNameChanged(this, oldName);
+        file_items_manager_->InformNameChanged(value, oldName);
+    }
+    if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
+    {
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        file_items_manager_->InformIncludeNameChanged(GetName(), value, oldName);
     }
     else
     {

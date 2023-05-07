@@ -26,7 +26,7 @@ public:
 		fi->SetName(name);
 		fi->SetColor(color);
 		file_items_.push_back(fi);
-		Update();
+		UpdateFileNameRegExp();
 		return fi;
 	}
 
@@ -85,46 +85,55 @@ public:
 	}
 
 signals:
-	void ItemNameChanged(QString itemName, QString oldName);
-	void ItemChanged(QString itemName);
+	void NameChanged(QString fileName, QString oldFileName);
+	void IncludeChanged(QString fileName, QStringList includeNames);
+	void IncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName);
 
 public:
-	void InformNameChanged(file_item* fi, QString oldName) override
+	void InformNameChanged(QString fileName, QString oldFileName) override
 	{
-		Update();
-		emit ItemNameChanged(fi->GetName(), oldName);
+		UpdateFileNameRegExp();
+		emit NameChanged(fileName, oldFileName);
 	}
 
-	void InformIncludeChanged(file_item* fi) override
+	void InformIncludeChanged(QString fileName, QStringList includeNames) override
 	{
-		emit ItemChanged(fi->GetName());
+		QStringList fileIncludeNames;
+		fileIncludeNames.push_back("<not selected>");
+		fileIncludeNames.append(includeNames);
+		emit IncludeChanged(fileName, fileIncludeNames);
+	}
+
+	void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
+	{
+		emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 	}
 
 private:
-	void Update()
+	void UpdateFileNameRegExp()
 	{
-		if (file_items_.size() > 1)
+		for (auto& fi : file_items_)
 		{
-			for (auto& fi : file_items_)
+			if (file_items_.size() > 1)
 			{
-				//"(?!ignoreme|ignoreme2|ignoremeN)(.+)"
-				QString regexp("(?!");
+				QString regexp("^(?!");
 				bool insert = false;
 				for (int i = 0; i < file_items_.size(); ++i)
 				{
 					if (fi->GetName() != file_items_[i]->GetName())
 					{
 						if (insert)
-							regexp += "|";
+							regexp += "$|";
 						else
 							insert = true;
 						regexp += file_items_[i]->GetName();
 					}
 				}
-				regexp += ")(.+)";
+				regexp += "$)(.+)";
 				fi->SetNameRegExp(regexp);
 			}
+			else
+				fi->SetNameRegExp("*");
 		}
-
 	}
 };

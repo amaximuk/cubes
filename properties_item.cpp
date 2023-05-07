@@ -525,6 +525,7 @@ void properties_item::SetGroupName(QString groupName)
     const auto pm = GetParameterModel("BASE/GROUP");
     if (pm != nullptr)
         pm->value = groupName;
+    diagramItem_->InformGroupChanged();
 }
 
 QString properties_item::GetFileName()
