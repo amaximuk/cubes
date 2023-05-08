@@ -6,21 +6,7 @@
 
 #include "unit_types.h"
 #include "file_items_manager_api.h"
-class diagram_item;
-
-class QtGroupPropertyManager;
-class QtIntPropertyManager;
-class QtDoublePropertyManager;
-class QtStringPropertyManager;
-class QtEnumPropertyManager;
-class QtColorPropertyManager;
-class QtFontPropertyManager;
-class QtPointPropertyManager;
-class QtSizePropertyManager;
-class QtBoolPropertyManager;
-class QtProperty;
-class QtTreePropertyBrowser;
-class QtBrowserItem;
+#include "properties_editor.h"
 
 class file_item : public QObject
 {
@@ -29,16 +15,6 @@ Q_OBJECT
 private:
     file_items_manager_interface* file_items_manager_;
     unit_types::ParametersModel parametersModel_;
-
-    QtGroupPropertyManager* groupManager;
-    QtIntPropertyManager* intManager;
-    QtDoublePropertyManager* doubleManager;
-    QtStringPropertyManager* stringManager;
-    QtEnumPropertyManager* enumManager;
-    QtBoolPropertyManager* boolManager;
-    QtColorPropertyManager* colorManager;
-
-    QtTreePropertyBrowser* propertyEditor_;
 
     bool ignoreEvents_;
 
@@ -54,22 +30,33 @@ private:
     void CreatePropertyBrowser();
 
 private slots:
-    void valueChanged(QtProperty* property, int value);
-    void valueChanged(QtProperty* property, double value);
-    void valueChanged(QtProperty* property, const QString& value);
-    void valueChanged(QtProperty* property, const QColor& value);
-    void valueChanged(QtProperty* property, const QFont& value);
-    void valueChanged(QtProperty* property, const QPoint& value);
-    void valueChanged(QtProperty* property, const QSize& value);
-    void valueChanged(QtProperty* property, bool value);
+    //void valueChanged(QtProperty* property, int value);
+    //void valueChanged(QtProperty* property, double value);
+    //void valueChanged(QtProperty* property, const QString& value);
+    //void valueChanged(QtProperty* property, const QColor& value);
+    //void valueChanged(QtProperty* property, const QFont& value);
+    //void valueChanged(QtProperty* property, const QPoint& value);
+    //void valueChanged(QtProperty* property, const QSize& value);
+    //void valueChanged(QtProperty* property, bool value);
+    //void IntValueChanged(QtProperty* property, int value);
+    //void DoubleValueChanged(QtProperty* property, double value);
+    //void StringValueChanged(QtProperty* property, const QString& value);
+    //void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
+    //void EnumValueChanged(QtProperty* property, int value);
+    //void BoolValueChanged(QtProperty* property, bool value);
+    //void ColorValueChanged(QtProperty* property, const QColor& value);
+    void ValueChanged(QtProperty* property, const QVariant& value);
 
 public:
+    void Select(QSharedPointer<properties_editor> editor);
+    void UnSelect(QSharedPointer<properties_editor> editor);
+
     QString GetName();
     QColor GetColor();
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
 
-    void UpdateRegExp(QtBrowserItem* index);
-    void UpdateRegExp();
+    //void UpdateRegExp(QtBrowserItem* index);
+    //void UpdateRegExp();
 
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
@@ -95,9 +82,9 @@ private:
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(const QtProperty* property);
 
-    void SaveExpandState();
-    void SaveExpandState(QtBrowserItem* index);
-    void ApplyExpandState();
-    void ApplyExpandState(QtBrowserItem* index);
+    //void SaveExpandState();
+    //void SaveExpandState(QtBrowserItem* index);
+    //void ApplyExpandState();
+    //void ApplyExpandState(QtBrowserItem* index);
     void UpdateIncludeNameRegExp();
 };

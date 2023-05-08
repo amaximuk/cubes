@@ -4,6 +4,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QColor>
+#include <QComboBox>
 #include "file_items_manager_api.h"
 #include "file_item.h"
 
@@ -12,28 +13,42 @@ class file_items_manager : public QObject, file_items_manager_interface
 Q_OBJECT
 
 private:
-	QList<QSharedPointer<file_item>> files_;
-	QString selectedFile_;
+	QSharedPointer<properties_editor> editor_;
+	QSharedPointer<QComboBox> selector_;
+	QList<QSharedPointer<file_item>> items_;
+	QString selected_;
 
 public:
-	file_items_manager()
+	file_items_manager(QSharedPointer<properties_editor> editor, QSharedPointer<QComboBox> selector)
 	{
+		editor_ = editor;
+		selector_ = selector;
 	}
 
 public:
-	QSharedPointer<file_item> Create(const QString& fileName, const QColor& color)
+	void Create(const QString& fileName, const QColor& color)
 	{
 		QSharedPointer<file_item> fi(new file_item(this));
 		fi->SetName(fileName);
 		fi->SetColor(color);
-		files_.push_back(fi);
+		items_.push_back(fi);
+		selector_->addItem(QString::fromLocal8Bit("ÀÐÌ"));
+		selector_->setCurrentIndex(selector_->count() - 1);
+
 		UpdateFileNameRegExp();
-		return fi;
+	}
+
+	void Select(const QString& fileName)
+	{
+		if (selected_ != "" && selected_ != fileName)
+			GetItem(selected_)->UnSelect(editor_);
+		GetItem(fileName)->Select(editor_);
+		selected_ = fileName;
 	}
 
 	QSharedPointer<file_item> GetItem(const QString& fileName)
 	{
-		for (auto& file : files_)
+		for (auto& file : items_)
 		{
 			if (file->GetName() == fileName)
 				return file;
@@ -44,14 +59,14 @@ public:
 	QStringList GetFileNames()
 	{
 		QStringList fileNames;
-		for (auto& file : files_)
+		for (auto& file : items_)
 			fileNames.push_back(file->GetName());
 		return fileNames;
 	}
 
 	QColor GetFileColor(const QString& fileName)
 	{
-		for (auto& fi : files_)
+		for (auto& fi : items_)
 		{
 			if (fi->GetName() == fileName)
 				return fi->GetColor();
@@ -63,7 +78,7 @@ public:
 	{
 		QStringList fileIncludeNames;
 		fileIncludeNames.push_back("<not selected>");
-		for (auto& fi : files_)
+		for (auto& fi : items_)
 		{
 			if (fi->GetName() == fileName)
 				fileIncludeNames.append(fi->GetIncludeNames());
@@ -74,25 +89,25 @@ public:
 	void SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
 	{
 		QStringList fileIncludeNames;
-		for (auto& fi : files_)
+		for (auto& fi : items_)
 		{
 			if (fi->GetName() == fileName)
 				fi->ExpandedChanged(property, is_expanded);
 		}
 	}
 
-	void ApplyFileToBrowser(const QString& fileName, QtTreePropertyBrowser* propertyEditor)
-	{
-		for (auto& fi : files_)
-		{
-			if (fi->GetName() == fileName)
-				fi->ApplyToBrowser(propertyEditor);
-		}
-	}
+	//void ApplyFileToBrowser(const QString& fileName, QtTreePropertyBrowser* propertyEditor)
+	//{
+	//	for (auto& fi : items_)
+	//	{
+	//		if (fi->GetName() == fileName)
+	//			fi->ApplyToBrowser(propertyEditor);
+	//	}
+	//}
 
 	void Clear()
 	{
-		files_.clear();
+		items_.clear();
 	}
 
 signals:
@@ -123,13 +138,13 @@ public:
 private:
 	void UpdateFileNameRegExp()
 	{
-		for (int i = 0; i < files_.size(); ++i)
+		for (int i = 0; i < items_.size(); ++i)
 		{
-			if (files_.size() > 1)
+			if (items_.size() > 1)
 			{
 				QString regexp("^(?!");
 				bool insert = false;
-				for (int j = 0; j < files_.size(); ++j)
+				for (int j = 0; j < items_.size(); ++j)
 				{
 					if (i != j)
 					{
@@ -137,14 +152,14 @@ private:
 							regexp += "$|";
 						else
 							insert = true;
-						regexp += files_[j]->GetName();
+						regexp += items_[j]->GetName();
 					}
 				}
 				regexp += "$)(.+)";
-				files_[i]->SetNameRegExp(regexp);
+				items_[i]->SetNameRegExp(regexp);
 			}
 			else
-				files_[i]->SetNameRegExp("*");
+				items_[i]->SetNameRegExp("*");
 		}
 	}
 };

@@ -18,7 +18,7 @@ file_item::file_item(file_items_manager_interface* file_items_manager)
     //diagramItem_ = diagramItem;
     parametersModel_ = {};
     //editorModel_ = {};
-    propertyEditor_ = nullptr;
+    //propertyEditor_ = nullptr;
     ignoreEvents_ = false;
 
     CreateParametersModel();
@@ -322,83 +322,7 @@ void file_item::CreateParameterModel(const parameters_compiler::parameter_info p
 
 QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
 {
-    // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
-
     QtProperty* pr = nullptr;
-    if (model.editorSettings.type == unit_types::EditorType::None)
-    {
-        pr = groupManager->addProperty(model.name);
-        groupManager->blockSignals(true);
-        groupManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::String)
-    {
-        pr = stringManager->addProperty(model.name);
-        stringManager->blockSignals(true);
-        //if (model.id == "BASE/NAME")
-            stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp));
-            //stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp, Qt::CaseSensitive, QRegExp::Wildcard));
-        stringManager->setValue(pr, model.value.toString());
-        stringManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
-    {
-        pr = intManager->addProperty(model.name);
-        intManager->blockSignals(true);
-        intManager->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
-        intManager->setValue(pr, model.value.toInt());
-        intManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
-    {
-        pr = doubleManager->addProperty(model.name);
-        doubleManager->blockSignals(true);
-        doubleManager->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
-        doubleManager->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
-        doubleManager->setValue(pr, model.value.toDouble());
-        doubleManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
-    {
-        pr = enumManager->addProperty(model.name);
-        enumManager->blockSignals(true);
-        enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
-        
-        int pos = 0;
-        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
-        {
-            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
-                break;
-            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
-                break;
-        }
-
-        //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
-        if (pos == model.editorSettings.ComboBoxValues.size())
-            pos = 0;
-
-        enumManager->setValue(pr, pos);
-        enumManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
-    {
-        pr = boolManager->addProperty(model.name);
-        boolManager->blockSignals(true);
-        boolManager->setValue(pr, model.value.toBool());
-        boolManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::Color)
-    {
-        pr = colorManager->addProperty(model.name);
-        colorManager->blockSignals(true);
-        colorManager->setValue(pr, QColor::fromRgba(model.value.toUInt()));
-        colorManager->blockSignals(false);
-    }
-    else assert(false);
 
     RegisterProperty(pr, model.id);
 
@@ -412,20 +336,187 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
 
 void file_item::CreatePropertyBrowser()
 {
-    groupManager = new QtGroupPropertyManager(this);
-    intManager = new QtIntPropertyManager(this);
-    doubleManager = new QtDoublePropertyManager(this);
-    stringManager = new QtStringPropertyManager(this);
-    enumManager = new QtEnumPropertyManager(this);
-    boolManager = new QtBoolPropertyManager(this);
-    colorManager = new QtColorPropertyManager(this);
+    //groupManager = new QtGroupPropertyManager(this);
+    //intManager = new QtIntPropertyManager(this);
+    //doubleManager = new QtDoublePropertyManager(this);
+    //stringManager = new QtStringPropertyManager(this);
+    //enumManager = new QtEnumPropertyManager(this);
+    //boolManager = new QtBoolPropertyManager(this);
+    //colorManager = new QtColorPropertyManager(this);
 
-    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
-    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
-    qDebug() << connect(enumManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
-    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
+    //qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+    //qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
+    //qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+    //qDebug() << connect(enumManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+    //qDebug() << connect(boolManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
+    //qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
+}
+
+//void file_item::IntValueChanged(QtProperty* property, int value)
+//{
+//
+//}
+//
+//void file_item::DoubleValueChanged(QtProperty* property, double value)
+//{
+//
+//}
+//
+//void file_item::StringValueChanged(QtProperty* property, const QString& value)
+//{
+//
+//}
+//
+//void file_item::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+//{
+//
+//}
+//
+//void file_item::EnumValueChanged(QtProperty* property, int value)
+//{
+//
+//}
+//
+//void file_item::BoolValueChanged(QtProperty* property, bool value)
+//{
+//
+//}
+//
+//void file_item::ColorValueChanged(QtProperty* property, const QColor& value)
+//{
+//
+//}
+void file_item::ValueChanged(QtProperty* property, const QVariant& value)
+{
+    qDebug() << "valueChanged value = " << value;
+
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
+
+
+
+
+
+    if (pm->id == "BASE/NAME")
+    {
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        //file_items_manager_->InformNameChanged(value, oldName);
+    }
+    if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
+    {
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        //file_items_manager_->InformIncludeNameChanged(GetName(), value, oldName);
+    }
+
+
+
+
+
+
+
+
+
+    if (pm->id.startsWith("BASE"))
+    {
+        pm->value = property->valueText();
+    }
+    else if (pm->id.startsWith("INCLUDES"))
+    {
+        //SaveExpandState();
+
+        int count = std::stoi(property->valueText().toStdString());
+        pm->value = count;
+        UpdateArrayModel(*pm);
+
+        for (int i = property->subProperties().size(); i < count; ++i)
+            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+        QList<QtProperty*> to_remove;
+        for (int i = count; i < property->subProperties().size(); ++i)
+        {
+            auto p = property->subProperties()[i];
+            to_remove.push_back(p);
+            UnregisterProperty(p);
+        }
+
+        for (auto& p : to_remove)
+            property->removeSubProperty(p);
+
+        //ApplyExpandState();
+
+        // Обновляем regexp
+        UpdateIncludeNameRegExp();
+
+        // Сообщаем об изменении списка включаемых файлов
+        file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
+    }
+    else if (pm->id.startsWith("PROPERTIES"))
+    {
+        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
+        if (is_array)
+        {
+            //SaveExpandState();
+
+            int count = std::stoi(property->valueText().toStdString());
+            pm->value = count;
+            UpdateArrayModel(*pm);
+
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+
+            QList<QtProperty*> to_remove;
+            for (int i = count; i < property->subProperties().size(); ++i)
+            {
+                auto p = property->subProperties()[i];
+                to_remove.push_back(p);
+                UnregisterProperty(p);
+            }
+
+            for (auto& p : to_remove)
+                property->removeSubProperty(p);
+
+            //ApplyExpandState();
+        }
+        else
+        {
+            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
+                pm->value = property->valueText();
+            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
+                pm->value = std::stoi(property->valueText().toStdString());
+            else if (pm->valueType == "double" || pm->valueType == "float")
+                pm->value = std::stod(property->valueText().toStdString());
+            else // enum
+                pm->value = property->valueText();
+
+        }
+    }
+}
+
+void file_item::Select(QSharedPointer<properties_editor> editor)
+{
+    auto pe = editor->GetPropertyEditor();
+    pe->clear();
+
+
+    qDebug() << connect(editor.get(), &properties_editor::ValueChanged, this, &file_item::ValueChanged);
+
+
+
+    ignoreEvents_ = true;
+    for (auto& pm : parametersModel_.parameters)
+        editor->AddPropertyForModel(pm);
+    ignoreEvents_ = false;
+
+}
+
+void file_item::UnSelect(QSharedPointer<properties_editor> editor)
+{
+    qDebug() << disconnect(editor.get(), &properties_editor::ValueChanged, this, &file_item::ValueChanged);
+
 }
 
 QString file_item::GetName()
@@ -448,7 +539,7 @@ QColor file_item::GetColor()
 
 void file_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
-    propertyEditor_ = propertyEditor;
+    //propertyEditor_ = propertyEditor;
 
     //QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
     //QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
@@ -476,35 +567,35 @@ void file_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     //propertyEditor->addProperty(mainGroup);
     ignoreEvents_ = false;
 
-    ApplyExpandState();
+    //ApplyExpandState();
 }
 
-void file_item::UpdateRegExp(QtBrowserItem* index)
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> children = index->children();
-    QListIterator<QtBrowserItem*> itChild(children);
-    while (itChild.hasNext())
-        UpdateRegExp(itChild.next());
-    QtProperty* prop = index->property();
-
-    auto pm = GetParameterModel(prop);
-    if (pm != nullptr && pm->valueType == "string")
-        stringManager->setRegExp(prop, QRegExp(pm->editorSettings.RegExp));
-}
-
-void file_item::UpdateRegExp()
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
-    QListIterator<QtBrowserItem*> itItem(indexes);
-    while (itItem.hasNext())
-        UpdateRegExp(itItem.next());
-}
+//void file_item::UpdateRegExp(QtBrowserItem* index)
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> children = index->children();
+//    QListIterator<QtBrowserItem*> itChild(children);
+//    while (itChild.hasNext())
+//        UpdateRegExp(itChild.next());
+//    QtProperty* prop = index->property();
+//
+//    auto pm = GetParameterModel(prop);
+//    if (pm != nullptr && pm->valueType == "string")
+//        stringManager->setRegExp(prop, QRegExp(pm->editorSettings.RegExp));
+//}
+//
+//void file_item::UpdateRegExp()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+//    QListIterator<QtBrowserItem*> itItem(indexes);
+//    while (itItem.hasNext())
+//        UpdateRegExp(itItem.next());
+//}
 
 QPixmap file_item::GetPixmap()
 {
@@ -530,13 +621,13 @@ QPixmap file_item::GetPixmap()
 
 void file_item::PositionChanged(QPointF point)
 {
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
+    //doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
+    //doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
 }
 
 void file_item::ZOrderChanged(double value)
 {
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
+    //doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
 }
 
 QString file_item::GetPropertyDescription(const QtProperty* property)
@@ -704,276 +795,276 @@ void file_item::UpdateArrayModel(unit_types::ParameterModel& pm)
     //while (pm.parameters.size() > pm.value.toInt())
     //    pm.parameters.pop_back();
 }
-
-void file_item::valueChanged(QtProperty* property, int value)
-{
-    qDebug() << "valueChanged value = " << value;
-
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    if (pm->id.startsWith("BASE"))
-    {
-        pm->value = property->valueText();
-    }
-    else if (pm->id.startsWith("INCLUDES"))
-    {
-        SaveExpandState();
-
-        int count = std::stoi(property->valueText().toStdString());
-        pm->value = count;
-        UpdateArrayModel(*pm);
-
-        for (int i = property->subProperties().size(); i < count; ++i)
-            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-        QList<QtProperty*> to_remove;
-        for (int i = count; i < property->subProperties().size(); ++i)
-        {
-            auto p = property->subProperties()[i];
-            to_remove.push_back(p);
-            UnregisterProperty(p);
-        }
-
-        for (auto& p : to_remove)
-            property->removeSubProperty(p);
-
-        ApplyExpandState();
-
-        // Обновляем regexp
-        UpdateIncludeNameRegExp();
-
-        // Сообщаем об изменении списка включаемых файлов
-        file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
-    }
-    else if (pm->id.startsWith("PROPERTIES"))
-    {
-        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
-        if (is_array)
-        {
-            SaveExpandState();
-
-            int count = std::stoi(property->valueText().toStdString());
-            pm->value = count;
-            UpdateArrayModel(*pm);
-
-            for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-            QList<QtProperty*> to_remove;
-            for (int i = count; i < property->subProperties().size(); ++i)
-            {
-                auto p = property->subProperties()[i];
-                to_remove.push_back(p);
-                UnregisterProperty(p);
-            }
-
-            for (auto& p : to_remove)
-                property->removeSubProperty(p);
-
-            ApplyExpandState();
-        }
-        else
-        {
-            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
-                pm->value = property->valueText();
-            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
-                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
-                pm->value = std::stoi(property->valueText().toStdString());
-            else if (pm->valueType == "double" || pm->valueType == "float")
-                pm->value = std::stod(property->valueText().toStdString());
-            else // enum
-                pm->value = property->valueText();
-
-        }
-    }
-}
-
-void file_item::valueChanged(QtProperty* property, double value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-
-    int gridSize = 20;
-    if (pm->id == "EDITOR/POSITION_X")
-    {
-        qreal xV = round(value / gridSize) * gridSize;
-        if (xV != value)
-            doubleManager->setValue(property, xV);
-        //diagramItem_->InformPositionXChanged(xV);
-        pm->value = xV;
-    }
-    else if (pm->id == "EDITOR/POSITION_Y")
-    {
-        qreal yV = round(value / gridSize) * gridSize;
-        if (yV != value)
-            doubleManager->setValue(property, yV);
-        //diagramItem_->InformPositionYChanged(yV);
-        pm->value = yV;
-    }
-    else if (pm->id == "EDITOR/POSITION_Z")
-    {
-        //diagramItem_->InformPositionZChanged(value);
-    }
-
-    
-    //if (!propertyToId.contains(property))
-    //    return;
-
-    ////if (!currentItem)
-    ////    return;
-
-    //if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
-    //{
-    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-    //    diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
-    //    qDebug() << gi->getName();
-
-    //    QString id = propertyToId[property];
-    //    if (id == "Position X")
-    //        gi->setX(value);
-    //    else if (id == "Position Y")
-    //        gi->setY(value);
-    //}
-}
-
-void file_item::valueChanged(QtProperty* property, const QString& value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    if (pm->id == "BASE/NAME")
-    {
-        QString oldName = pm->value.toString();
-        pm->value = value;
-        file_items_manager_->InformNameChanged(value, oldName);
-    }
-    if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
-    {
-        QString oldName = pm->value.toString();
-        pm->value = value;
-        file_items_manager_->InformIncludeNameChanged(GetName(), value, oldName);
-    }
-    else
-    {
-        pm->value = value;
-    }
-}
-
-void file_item::valueChanged(QtProperty* property, const QColor& value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value.rgba();
-
-
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("color")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setColor(value);
-    //        }
-    //    } else if (id == QLatin1String("brush")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-    //                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-    //            QBrush b = i->brush();
-    //            b.setColor(value);
-    //            i->setBrush(b);
-    //        }
-    //    } else if (id == QLatin1String("pen")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-    //                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-    //            QPen p = i->pen();
-    //            p.setColor(value);
-    //            i->setPen(p);
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void file_item::valueChanged(QtProperty* property, const QFont& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("font")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setFont(value);
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void file_item::valueChanged(QtProperty* property, const QPoint& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-    //        QtCanvasLine *i = (QtCanvasLine *)currentItem;
-    //        if (id == QLatin1String("endpoint")) {
-    //            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void file_item::valueChanged(QtProperty* property, const QSize& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("size")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
-    //            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
-    //            i->setSize(value.width(), value.height());
-    //        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-    //            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
-    //            i->setSize(value.width(), value.height());
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void file_item::valueChanged(QtProperty* property, bool value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-}
+//
+//void file_item::valueChanged(QtProperty* property, int value)
+//{
+//    qDebug() << "valueChanged value = " << value;
+//
+//    auto pm = GetParameterModel(property);
+//    if (pm == nullptr)
+//        return;
+//
+//    if (pm->id.startsWith("BASE"))
+//    {
+//        pm->value = property->valueText();
+//    }
+//    else if (pm->id.startsWith("INCLUDES"))
+//    {
+//        //SaveExpandState();
+//
+//        int count = std::stoi(property->valueText().toStdString());
+//        pm->value = count;
+//        UpdateArrayModel(*pm);
+//
+//        for (int i = property->subProperties().size(); i < count; ++i)
+//            property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+//
+//        QList<QtProperty*> to_remove;
+//        for (int i = count; i < property->subProperties().size(); ++i)
+//        {
+//            auto p = property->subProperties()[i];
+//            to_remove.push_back(p);
+//            UnregisterProperty(p);
+//        }
+//
+//        for (auto& p : to_remove)
+//            property->removeSubProperty(p);
+//
+//        //ApplyExpandState();
+//
+//        // Обновляем regexp
+//        UpdateIncludeNameRegExp();
+//
+//        // Сообщаем об изменении списка включаемых файлов
+//        file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
+//    }
+//    else if (pm->id.startsWith("PROPERTIES"))
+//    {
+//        bool is_array = parameters_compiler::helper::is_array_type(pm->valueType.toStdString());
+//        if (is_array)
+//        {
+//            //SaveExpandState();
+//
+//            int count = std::stoi(property->valueText().toStdString());
+//            pm->value = count;
+//            UpdateArrayModel(*pm);
+//
+//            for (int i = property->subProperties().size(); i < count; ++i)
+//                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+//
+//            QList<QtProperty*> to_remove;
+//            for (int i = count; i < property->subProperties().size(); ++i)
+//            {
+//                auto p = property->subProperties()[i];
+//                to_remove.push_back(p);
+//                UnregisterProperty(p);
+//            }
+//
+//            for (auto& p : to_remove)
+//                property->removeSubProperty(p);
+//
+//            //ApplyExpandState();
+//        }
+//        else
+//        {
+//            if (pm->valueType == "unit" || pm->valueType == "path" || pm->valueType == "string")
+//                pm->value = property->valueText();
+//            else if (pm->valueType == "int" || pm->valueType == "int8_t" || pm->valueType == "int16_t" || pm->valueType == "int32_t" ||
+//                pm->valueType == "int64_t" || pm->valueType == "uint8_t" || pm->valueType == "uint16_t" || pm->valueType == "uint32_t" || pm->valueType == "uint64_t")
+//                pm->value = std::stoi(property->valueText().toStdString());
+//            else if (pm->valueType == "double" || pm->valueType == "float")
+//                pm->value = std::stod(property->valueText().toStdString());
+//            else // enum
+//                pm->value = property->valueText();
+//
+//        }
+//    }
+//}
+//
+//void file_item::valueChanged(QtProperty* property, double value)
+//{
+//    auto pm = GetParameterModel(property);
+//    if (pm == nullptr)
+//        return;
+//
+//    qDebug() << "valueChanged " << pm->id << " = " << value;
+//    pm->value = value;
+//
+//    //int gridSize = 20;
+//    //if (pm->id == "EDITOR/POSITION_X")
+//    //{
+//    //    qreal xV = round(value / gridSize) * gridSize;
+//    //    if (xV != value)
+//    //        doubleManager->setValue(property, xV);
+//    //    //diagramItem_->InformPositionXChanged(xV);
+//    //    pm->value = xV;
+//    //}
+//    //else if (pm->id == "EDITOR/POSITION_Y")
+//    //{
+//    //    qreal yV = round(value / gridSize) * gridSize;
+//    //    if (yV != value)
+//    //        doubleManager->setValue(property, yV);
+//    //    //diagramItem_->InformPositionYChanged(yV);
+//    //    pm->value = yV;
+//    //}
+//    //else if (pm->id == "EDITOR/POSITION_Z")
+//    //{
+//    //    //diagramItem_->InformPositionZChanged(value);
+//    //}
+//
+//    
+//    //if (!propertyToId.contains(property))
+//    //    return;
+//
+//    ////if (!currentItem)
+//    ////    return;
+//
+//    //if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
+//    //{
+//    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+//    //    diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
+//    //    qDebug() << gi->getName();
+//
+//    //    QString id = propertyToId[property];
+//    //    if (id == "Position X")
+//    //        gi->setX(value);
+//    //    else if (id == "Position Y")
+//    //        gi->setY(value);
+//    //}
+//}
+//
+//void file_item::valueChanged(QtProperty* property, const QString& value)
+//{
+//    auto pm = GetParameterModel(property);
+//    if (pm == nullptr)
+//        return;
+//
+//    if (pm->id == "BASE/NAME")
+//    {
+//        QString oldName = pm->value.toString();
+//        pm->value = value;
+//        file_items_manager_->InformNameChanged(value, oldName);
+//    }
+//    if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
+//    {
+//        QString oldName = pm->value.toString();
+//        pm->value = value;
+//        file_items_manager_->InformIncludeNameChanged(GetName(), value, oldName);
+//    }
+//    else
+//    {
+//        pm->value = value;
+//    }
+//}
+//
+//void file_item::valueChanged(QtProperty* property, const QColor& value)
+//{
+//    auto pm = GetParameterModel(property);
+//    if (pm == nullptr)
+//        return;
+//
+//    qDebug() << "valueChanged " << pm->id << " = " << value;
+//    pm->value = value.rgba();
+//
+//
+//    //    if (!propertyToId.contains(property))
+//    //        return;
+//
+//    //    if (!currentItem)
+//    //        return;
+//
+//    //    QString id = propertyToId[property];
+//    //    if (id == QLatin1String("color")) {
+//    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+//    //            QtCanvasText *i = (QtCanvasText *)currentItem;
+//    //            i->setColor(value);
+//    //        }
+//    //    } else if (id == QLatin1String("brush")) {
+//    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+//    //                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+//    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+//    //            QBrush b = i->brush();
+//    //            b.setColor(value);
+//    //            i->setBrush(b);
+//    //        }
+//    //    } else if (id == QLatin1String("pen")) {
+//    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+//    //                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+//    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+//    //            QPen p = i->pen();
+//    //            p.setColor(value);
+//    //            i->setPen(p);
+//    //        }
+//    //    }
+//    //    canvas->update();
+//}
+//
+//void file_item::valueChanged(QtProperty* property, const QFont& value)
+//{
+//    //    if (!propertyToId.contains(property))
+//    //        return;
+//
+//    //    if (!currentItem)
+//    //        return;
+//
+//    //    QString id = propertyToId[property];
+//    //    if (id == QLatin1String("font")) {
+//    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+//    //            QtCanvasText *i = (QtCanvasText *)currentItem;
+//    //            i->setFont(value);
+//    //        }
+//    //    }
+//    //    canvas->update();
+//}
+//
+//void file_item::valueChanged(QtProperty* property, const QPoint& value)
+//{
+//    //    if (!propertyToId.contains(property))
+//    //        return;
+//
+//    //    if (!currentItem)
+//    //        return;
+//
+//    //    QString id = propertyToId[property];
+//    //    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+//    //        QtCanvasLine *i = (QtCanvasLine *)currentItem;
+//    //        if (id == QLatin1String("endpoint")) {
+//    //            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
+//    //        }
+//    //    }
+//    //    canvas->update();
+//}
+//
+//void file_item::valueChanged(QtProperty* property, const QSize& value)
+//{
+//    //    if (!propertyToId.contains(property))
+//    //        return;
+//
+//    //    if (!currentItem)
+//    //        return;
+//
+//    //    QString id = propertyToId[property];
+//    //    if (id == QLatin1String("size")) {
+//    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
+//    //            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
+//    //            i->setSize(value.width(), value.height());
+//    //        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+//    //            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
+//    //            i->setSize(value.width(), value.height());
+//    //        }
+//    //    }
+//    //    canvas->update();
+//}
+//
+//void file_item::valueChanged(QtProperty* property, bool value)
+//{
+//    auto pm = GetParameterModel(property);
+//    if (pm == nullptr)
+//        return;
+//
+//    qDebug() << "valueChanged " << pm->id << " = " << value;
+//    pm->value = value;
+//}
 
 void file_item::RegisterProperty(const QtProperty* property, const QString& id)
 {
@@ -1091,64 +1182,64 @@ bool file_item::GetExpanded(const QtProperty* property)
     return false;
 }
 
-void file_item::SaveExpandState(QtBrowserItem* index)
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> children = index->children();
-    QListIterator<QtBrowserItem*> itChild(children);
-    while (itChild.hasNext())
-        SaveExpandState(itChild.next());
-    QtProperty* prop = index->property();
-
-    auto pm = GetParameterModel(prop);
-    if (pm != nullptr)
-        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
-
-
-
-    //if (pm != nullptr)
-    //    qDebug() << propertyEditor_->isExpanded(index);
-}
-
-void file_item::SaveExpandState()
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
-    QListIterator<QtBrowserItem*> itItem(indexes);
-    while (itItem.hasNext())
-        SaveExpandState(itItem.next());
-}
-
-void file_item::ApplyExpandState(QtBrowserItem* index)
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> children = index->children();
-    QListIterator<QtBrowserItem*> itChild(children);
-    while (itChild.hasNext())
-        ApplyExpandState(itChild.next());
-    QtProperty* prop = index->property();
-
-    auto pm = GetParameterModel(prop);
-    if (pm != nullptr)
-        propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
-}
-
-void file_item::ApplyExpandState()
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
-    QListIterator<QtBrowserItem*> itItem(indexes);
-    while (itItem.hasNext())
-        ApplyExpandState(itItem.next());
-}
+//void file_item::SaveExpandState(QtBrowserItem* index)
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> children = index->children();
+//    QListIterator<QtBrowserItem*> itChild(children);
+//    while (itChild.hasNext())
+//        SaveExpandState(itChild.next());
+//    QtProperty* prop = index->property();
+//
+//    auto pm = GetParameterModel(prop);
+//    if (pm != nullptr)
+//        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
+//
+//
+//
+//    //if (pm != nullptr)
+//    //    qDebug() << propertyEditor_->isExpanded(index);
+//}
+//
+//void file_item::SaveExpandState()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+//    QListIterator<QtBrowserItem*> itItem(indexes);
+//    while (itItem.hasNext())
+//        SaveExpandState(itItem.next());
+//}
+//
+//void file_item::ApplyExpandState(QtBrowserItem* index)
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> children = index->children();
+//    QListIterator<QtBrowserItem*> itChild(children);
+//    while (itChild.hasNext())
+//        ApplyExpandState(itChild.next());
+//    QtProperty* prop = index->property();
+//
+//    auto pm = GetParameterModel(prop);
+//    if (pm != nullptr)
+//        propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
+//}
+//
+//void file_item::ApplyExpandState()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+//    QListIterator<QtBrowserItem*> itItem(indexes);
+//    while (itItem.hasNext())
+//        ApplyExpandState(itItem.next());
+//}
 
 void file_item::UpdateIncludeNameRegExp()
 {

@@ -58,16 +58,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    file_items_manager_ = new file_items_manager();
+    file_items_manager_ = new file_items_manager(filePropertiesEditor_, comboBoxFiles_);
     connect(file_items_manager_, &file_items_manager::NameChanged, this, &MainWindow::fileNameChanged);
     connect(file_items_manager_, &file_items_manager::IncludeChanged, this, &MainWindow::fileIncludeChanged);
     connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
 
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    auto fi = file_items_manager_->Create(QString::fromLocal8Bit("ÀÐÌ"), fileColor);
-    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    comboBoxFiles_->addItem(QString::fromLocal8Bit("ÀÐÌ"));
+    file_items_manager_->Create(QString::fromLocal8Bit("ÀÐÌ"), fileColor);
+    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
+    //comboBoxFiles_->addItem(QString::fromLocal8Bit("ÀÐÌ"));
 }
 
 MainWindow::~MainWindow()
@@ -287,11 +287,11 @@ void MainWindow::CreateView(int index)
 
 void MainWindow::CreateFilesPropertyBrowser()
 {
-    filePropertiesEditor_ = new properties_editor();
+    filePropertiesEditor_.reset(new properties_editor());
 
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::Collapsed, this, &MainWindow::collapsed);
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::Expanded, this, &MainWindow::expanded);
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
+    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::Collapsed, this, &MainWindow::collapsed);
+    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::Expanded, this, &MainWindow::expanded);
+    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
 
     //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
     //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -373,8 +373,8 @@ QWidget* MainWindow::CreatePropertiesWidget()
 
 QWidget* MainWindow::CreateFilesButtonsWidget()
 {
-    comboBoxFiles_ = new QComboBox;
-    connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
+    comboBoxFiles_.reset(new QComboBox());
+    connect(comboBoxFiles_.get(), QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
 
     QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
     hBoxLayoutPropertyListButtons->setMargin(0);
@@ -413,7 +413,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
 
     QHBoxLayout* headerLayout = new QHBoxLayout;
     headerLayout->addWidget(label, 0);
-    headerLayout->addWidget(comboBoxFiles_, 1);
+    headerLayout->addWidget(comboBoxFiles_.get(), 1);
     headerLayout->addWidget(buttonsWidget, 0);
     headerLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -813,10 +813,11 @@ bool MainWindow::AddMainFile(xml::File& file)
 
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    auto fi = file_items_manager_->Create(fileName, fileColor);
-    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    comboBoxFiles_->addItem(fileName);
-    comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+    file_items_manager_->Create(fileName, fileColor);
+    file_items_manager_->Select(fileName);
+    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
+    //comboBoxFiles_->addItem(fileName);
+    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
     QStringList fileNames = file_items_manager_->GetFileNames();
     for (int i = 0; i < panes_.count(); ++i)
@@ -1989,10 +1990,11 @@ void MainWindow::on_AddFile_clicked()
 
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    auto fi = file_items_manager_->Create(text, fileColor);
-    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    comboBoxFiles_->addItem(text);
-    comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+    file_items_manager_->Create(text, fileColor);
+    file_items_manager_->Select(text);
+    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
+    //comboBoxFiles_->addItem(text);
+    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
     for (auto& item : panes_[0].first->items())
     {
@@ -2060,7 +2062,8 @@ void MainWindow::on_RemoveFile_clicked()
 void MainWindow::on_Files_currentIndexChanged(int index)
 {
     QString fileName = comboBoxFiles_->currentText();
-    file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
+    file_items_manager_->Select(fileName);
+    //file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
     //for (const auto& fi : file_items_)
     //{
     //    if (fi->GetName() == name)
@@ -2199,9 +2202,9 @@ void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, Q
         }
     }
 
-    auto fi = file_items_manager_->GetItem(fileName);
-    if (fi != nullptr)
-        fi->UpdateRegExp();
+    //auto fi = file_items_manager_->GetItem(fileName);
+    //if (fi != nullptr)
+    //    fi->UpdateRegExp();
 
     if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
