@@ -1,10 +1,12 @@
 #include <iostream>
+#include <vector>
+
+#pragma warning(push, 0)
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>
 #include <boost/ref.hpp>
-#include <vector>
 
 #include <boost/graph/planar_canonical_ordering.hpp>
 #include <boost/graph/is_straight_line_drawing.hpp>
@@ -15,7 +17,7 @@
 #include <boost/graph/planar_face_traversal.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/make_connected.hpp>
-
+#pragma warning(pop)
 
 using namespace boost;
 
@@ -246,8 +248,8 @@ bool getCoordinates(const int vertex_count, std::vector<std::pair<int, int>>& in
     // A class to hold the coordinates of the straight line embedding
     struct coord_t
     {
-        std::size_t x;
-        std::size_t y;
+        int x;
+        int y;
     };
 
     // Set up a property map to hold the mapping from vertices to coord_t's
