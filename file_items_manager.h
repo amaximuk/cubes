@@ -20,14 +20,24 @@ public:
 	}
 
 public:
-	QSharedPointer<file_item> Create(QString name, QColor color)
+	QSharedPointer<file_item> Create(const QString& fileName, const QColor& color)
 	{
 		QSharedPointer<file_item> fi(new file_item(this));
-		fi->SetName(name);
+		fi->SetName(fileName);
 		fi->SetColor(color);
 		file_items_.push_back(fi);
 		UpdateFileNameRegExp();
 		return fi;
+	}
+
+	QSharedPointer<file_item> GetItem(const QString& fileName)
+	{
+		for (auto& file : file_items_)
+		{
+			if (file->GetName() == fileName)
+				return file;
+		}
+		return nullptr;
 	}
 
 	QStringList GetFileNames()
@@ -112,28 +122,28 @@ public:
 private:
 	void UpdateFileNameRegExp()
 	{
-		for (auto& fi : file_items_)
+		for (int i = 0; i < file_items_.size(); ++i)
 		{
 			if (file_items_.size() > 1)
 			{
 				QString regexp("^(?!");
 				bool insert = false;
-				for (int i = 0; i < file_items_.size(); ++i)
+				for (int j = 0; j < file_items_.size(); ++j)
 				{
-					if (fi->GetName() != file_items_[i]->GetName())
+					if (i != j)
 					{
 						if (insert)
 							regexp += "$|";
 						else
 							insert = true;
-						regexp += file_items_[i]->GetName();
+						regexp += file_items_[j]->GetName();
 					}
 				}
 				regexp += "$)(.+)";
-				fi->SetNameRegExp(regexp);
+				file_items_[i]->SetNameRegExp(regexp);
 			}
 			else
-				fi->SetNameRegExp("*");
+				file_items_[i]->SetNameRegExp("*");
 		}
 	}
 };

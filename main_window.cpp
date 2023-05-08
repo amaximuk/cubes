@@ -2197,6 +2197,10 @@ void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, Q
         }
     }
 
+    auto fi = file_items_manager_->GetItem(fileName);
+    if (fi != nullptr)
+        fi->UpdateRegExp();
+
     if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 

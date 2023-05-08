@@ -335,7 +335,7 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
     {
         pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
-        if (model.id == "BASE/NAME")
+        //if (model.id == "BASE/NAME")
             stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp));
             //stringManager->setRegExp(pr, QRegExp(model.editorSettings.RegExp, Qt::CaseSensitive, QRegExp::Wildcard));
         stringManager->setValue(pr, model.value.toString());
@@ -489,6 +489,33 @@ void file_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
     ignoreEvents_ = false;
 
     ApplyExpandState();
+}
+
+void file_item::UpdateRegExp(QtBrowserItem* index)
+{
+    if (propertyEditor_ == nullptr)
+        return;
+
+    QList<QtBrowserItem*> children = index->children();
+    QListIterator<QtBrowserItem*> itChild(children);
+    while (itChild.hasNext())
+        UpdateRegExp(itChild.next());
+    QtProperty* prop = index->property();
+
+    auto pm = GetParameterModel(prop);
+    if (pm != nullptr && pm->valueType == "string")
+        stringManager->setRegExp(prop, QRegExp(pm->editorSettings.RegExp));
+}
+
+void file_item::UpdateRegExp()
+{
+    if (propertyEditor_ == nullptr)
+        return;
+
+    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+    QListIterator<QtBrowserItem*> itItem(indexes);
+    while (itItem.hasNext())
+        UpdateRegExp(itItem.next());
 }
 
 QPixmap file_item::GetPixmap()
@@ -725,6 +752,9 @@ void file_item::valueChanged(QtProperty* property, int value)
             property->removeSubProperty(p);
 
         ApplyExpandState();
+
+        // Обновляем regexp
+        UpdateIncludeNameRegExp();
 
         // Сообщаем об изменении списка включаемых файлов
         file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
@@ -1130,4 +1160,34 @@ void file_item::ApplyExpandState()
     QListIterator<QtBrowserItem*> itItem(indexes);
     while (itItem.hasNext())
         ApplyExpandState(itItem.next());
+}
+
+void file_item::UpdateIncludeNameRegExp()
+{
+    auto pm = GetParameterModel("INCLUDES");
+    for (int i = 0; i < pm->value.toInt(); ++i)
+    {
+        auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        if (pm->value.toInt() > 1)
+        {
+            QString regexp("^(?!");
+            bool insert = false;
+            for (int j = 0; j < pm->value.toInt(); ++j)
+            {
+                if (i != j)
+                {
+                    if (insert)
+                        regexp += "$|";
+                    else
+                        insert = true;
+                    auto pmj = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(j));
+                    regexp += pmj->value.toString();
+                }
+            }
+            regexp += "$)(.+)";
+            pmi->editorSettings.RegExp = regexp;
+        }
+        else
+            pmi->editorSettings.RegExp = "*";
+    }
 }

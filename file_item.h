@@ -68,6 +68,10 @@ public:
     QString GetName();
     QColor GetColor();
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
+
+    void UpdateRegExp(QtBrowserItem* index);
+    void UpdateRegExp();
+
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
     void ZOrderChanged(double value);
@@ -96,4 +100,5 @@ private:
     void SaveExpandState(QtBrowserItem* index);
     void ApplyExpandState();
     void ApplyExpandState(QtBrowserItem* index);
+    void UpdateIncludeNameRegExp();
 };
