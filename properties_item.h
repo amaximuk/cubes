@@ -83,6 +83,7 @@ private slots:
     void valueChanged(QtProperty* property, const QPoint& value);
     void valueChanged(QtProperty* property, const QSize& value);
     void valueChanged(QtProperty* property, bool value);
+    void editingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
 public:
     void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);

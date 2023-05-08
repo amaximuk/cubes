@@ -383,6 +383,7 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
         //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
+        stringManager->setOldValue(pr, model.value.toString());
         stringManager->setValue(pr, model.value.toString());
         stringManager->blockSignals(false);
     }
@@ -464,6 +465,7 @@ void properties_item::CreatePropertyBrowser()
     qDebug() << connect(intManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(doubleManager.get(), SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
     qDebug() << connect(stringManager.get(), SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+    qDebug() << connect(stringManager.get(), SIGNAL(editingFinished(QtProperty*, const QString&, const QString&)), this, SLOT(editingFinished(QtProperty*, const QString&, const QString&)));
     qDebug() << connect(enumManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
     qDebug() << connect(boolManager.get(), SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
 
@@ -1205,6 +1207,11 @@ void properties_item::valueChanged(QtProperty* property, bool value)
     {
         diagramItem_->InformDependencyChanged();
     }
+}
+
+void properties_item::editingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+{
+    qDebug() << "!!!" << value << "   -   " << oldValue;
 }
 
 void properties_item::RegisterProperty(QtProperty* property, const QString& id)
