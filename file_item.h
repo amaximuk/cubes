@@ -29,7 +29,6 @@ Q_OBJECT
 private:
     file_items_manager_interface* file_items_manager_;
     unit_types::ParametersModel parametersModel_;
-    //unit_types::ParametersModel editorModel_;
 
     QtGroupPropertyManager* groupManager;
     QtIntPropertyManager* intManager;

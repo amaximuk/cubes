@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
     auto fi = file_items_manager_->Create(QString::fromLocal8Bit("ÀÐÌ"), fileColor);
-    fi->ApplyToBrowser(filesPropertyEditor_);
+    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
     comboBoxFiles_->addItem(QString::fromLocal8Bit("ÀÐÌ"));
 }
 
@@ -287,13 +287,15 @@ void MainWindow::CreateView(int index)
 
 void MainWindow::CreateFilesPropertyBrowser()
 {
-    filesPropertyEditor_ = new QtTreePropertyBrowser();
-    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-    qDebug() << connect(filesPropertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
-    qDebug() << connect(filesPropertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+    filePropertiesEditor_ = new properties_editor();
 
-    filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::Collapsed, this, &MainWindow::collapsed);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::Expanded, this, &MainWindow::expanded);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
+
+    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+    //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
+    //connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
 }
 
 void MainWindow::CreatePropertyBrowser()
@@ -345,7 +347,7 @@ QWidget* MainWindow::CreateFilesPropertiesWidget()
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
-    propertiesPaneLayout->addWidget(filesPropertyEditor_);
+    propertiesPaneLayout->addWidget(filePropertiesEditor_->GetPropertyEditor().get());
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -800,7 +802,7 @@ bool MainWindow::AddMainFile(xml::File& file)
 {
     if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
     {
-        filesPropertyEditor_->clear();
+        filePropertiesEditor_->GetPropertyEditor()->clear();
         file_items_manager_->Clear();
         comboBoxFiles_->clear();
         defaultColorFileIndex_ = 0;
@@ -812,7 +814,7 @@ bool MainWindow::AddMainFile(xml::File& file)
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
     auto fi = file_items_manager_->Create(fileName, fileColor);
-    fi->ApplyToBrowser(filesPropertyEditor_);
+    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
     comboBoxFiles_->addItem(fileName);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
@@ -1439,12 +1441,12 @@ void MainWindow::on_Tab_currentChanged(int index)
     if (index == 0)
     {
         comboBoxFiles_->setEnabled(true);
-        filesPropertyEditor_->setEnabled(true);
+        filePropertiesEditor_->GetPropertyEditor()->setEnabled(true);
     }
     else
     {
         comboBoxFiles_->setEnabled(false);
-        filesPropertyEditor_->setEnabled(false);
+        filePropertiesEditor_->GetPropertyEditor()->setEnabled(false);
     }
 
     comboBoxUnits_->clear();
@@ -1988,7 +1990,7 @@ void MainWindow::on_AddFile_clicked()
     QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
         defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
     auto fi = file_items_manager_->Create(text, fileColor);
-    fi->ApplyToBrowser(filesPropertyEditor_);
+    fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
     comboBoxFiles_->addItem(text);
     comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
@@ -2058,7 +2060,7 @@ void MainWindow::on_RemoveFile_clicked()
 void MainWindow::on_Files_currentIndexChanged(int index)
 {
     QString fileName = comboBoxFiles_->currentText();
-    file_items_manager_->ApplyFileToBrowser(fileName, filesPropertyEditor_);
+    file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
     //for (const auto& fi : file_items_)
     //{
     //    if (fi->GetName() == name)
@@ -2118,13 +2120,13 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
 
 void MainWindow::showFileContextMenu(const QPoint& pos)
 {
-    if (filesPropertyEditor_->currentItem() == nullptr)
+    if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
         return;
-    if (filesPropertyEditor_->currentItem()->parent() == nullptr)
+    if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
         return;
 
-    QString name = filesPropertyEditor_->currentItem()->property()->propertyName();
-    QString parentName = filesPropertyEditor_->currentItem()->parent()->property()->propertyName();
+    QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
+    QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
     if (parentName == QString::fromLocal8Bit("Âךכ‏קאולûו פאיכû"))
     {
         QMenu contextMenu(tr("Context menu"), this);
@@ -2133,7 +2135,7 @@ void MainWindow::showFileContextMenu(const QPoint& pos)
         connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
         contextMenu.addAction(&action1);
 
-        contextMenu.exec(mapToGlobal(filesPropertyEditor_->mapTo(this, pos)));
+        contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
     }
 }
 

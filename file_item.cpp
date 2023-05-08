@@ -450,38 +450,26 @@ void file_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 {
     propertyEditor_ = propertyEditor;
 
-    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
-    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
-    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
-    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
-    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
-    QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
+    //QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
+    //QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+    //QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+    //QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
+    //QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+    //QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+    //QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
 
-    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
-    propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
-    propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
-    propertyEditor->setFactoryForManager(enumManager, comboBoxFactory);
-    propertyEditor->setFactoryForManager(boolManager, checkBoxFactory);
-    propertyEditor->setFactoryForManager(colorManager, colorEditorFactory);
+    //propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
+    //propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
+    //propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
+    //propertyEditor->setFactoryForManager(enumManager, comboBoxFactory);
+    //propertyEditor->setFactoryForManager(boolManager, checkBoxFactory);
+    //propertyEditor->setFactoryForManager(colorManager, colorEditorFactory);
 
-
-    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
-    propertyEditor->setSplitterPosition(250);
-    propertyEditor->setHeaderVisible(false);
-    //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
-    //propertyEditor->setPropertiesWithoutValueMarked(true);
-
+    //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
+    //propertyEditor->setSplitterPosition(250);
+    //propertyEditor->setHeaderVisible(false);
     propertyEditor->clear();
 
-    //QtProperty* mainGroup = groupManager->addProperty("Id");
-    //
-    //QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
-    //mainGroup->addSubProperty(propertiesGroup);
-
-    //for (auto& pm : parametersModel_.parameters)
-    //    propertiesGroup->addSubProperty(GetPropertyForModel(pm));
-    
     ignoreEvents_ = true;
     for (auto& pm : parametersModel_.parameters)
         propertyEditor->addProperty(GetPropertyForModel(pm));

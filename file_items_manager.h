@@ -12,7 +12,8 @@ class file_items_manager : public QObject, file_items_manager_interface
 Q_OBJECT
 
 private:
-	QList<QSharedPointer<file_item>> file_items_;
+	QList<QSharedPointer<file_item>> files_;
+	QString selectedFile_;
 
 public:
 	file_items_manager()
@@ -25,14 +26,14 @@ public:
 		QSharedPointer<file_item> fi(new file_item(this));
 		fi->SetName(fileName);
 		fi->SetColor(color);
-		file_items_.push_back(fi);
+		files_.push_back(fi);
 		UpdateFileNameRegExp();
 		return fi;
 	}
 
 	QSharedPointer<file_item> GetItem(const QString& fileName)
 	{
-		for (auto& file : file_items_)
+		for (auto& file : files_)
 		{
 			if (file->GetName() == fileName)
 				return file;
@@ -43,14 +44,14 @@ public:
 	QStringList GetFileNames()
 	{
 		QStringList fileNames;
-		for (auto& file : file_items_)
+		for (auto& file : files_)
 			fileNames.push_back(file->GetName());
 		return fileNames;
 	}
 
 	QColor GetFileColor(const QString& fileName)
 	{
-		for (auto& fi : file_items_)
+		for (auto& fi : files_)
 		{
 			if (fi->GetName() == fileName)
 				return fi->GetColor();
@@ -62,7 +63,7 @@ public:
 	{
 		QStringList fileIncludeNames;
 		fileIncludeNames.push_back("<not selected>");
-		for (auto& fi : file_items_)
+		for (auto& fi : files_)
 		{
 			if (fi->GetName() == fileName)
 				fileIncludeNames.append(fi->GetIncludeNames());
@@ -73,7 +74,7 @@ public:
 	void SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
 	{
 		QStringList fileIncludeNames;
-		for (auto& fi : file_items_)
+		for (auto& fi : files_)
 		{
 			if (fi->GetName() == fileName)
 				fi->ExpandedChanged(property, is_expanded);
@@ -82,7 +83,7 @@ public:
 
 	void ApplyFileToBrowser(const QString& fileName, QtTreePropertyBrowser* propertyEditor)
 	{
-		for (auto& fi : file_items_)
+		for (auto& fi : files_)
 		{
 			if (fi->GetName() == fileName)
 				fi->ApplyToBrowser(propertyEditor);
@@ -91,7 +92,7 @@ public:
 
 	void Clear()
 	{
-		file_items_.clear();
+		files_.clear();
 	}
 
 signals:
@@ -122,13 +123,13 @@ public:
 private:
 	void UpdateFileNameRegExp()
 	{
-		for (int i = 0; i < file_items_.size(); ++i)
+		for (int i = 0; i < files_.size(); ++i)
 		{
-			if (file_items_.size() > 1)
+			if (files_.size() > 1)
 			{
 				QString regexp("^(?!");
 				bool insert = false;
-				for (int j = 0; j < file_items_.size(); ++j)
+				for (int j = 0; j < files_.size(); ++j)
 				{
 					if (i != j)
 					{
@@ -136,14 +137,14 @@ private:
 							regexp += "$|";
 						else
 							insert = true;
-						regexp += file_items_[j]->GetName();
+						regexp += files_[j]->GetName();
 					}
 				}
 				regexp += "$)(.+)";
-				file_items_[i]->SetNameRegExp(regexp);
+				files_[i]->SetNameRegExp(regexp);
 			}
 			else
-				file_items_[i]->SetNameRegExp("*");
+				files_[i]->SetNameRegExp("*");
 		}
 	}
 };

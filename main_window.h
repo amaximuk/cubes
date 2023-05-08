@@ -15,6 +15,7 @@
 #include "log_table_model.h"
 #include "sort_filter_model.h"
 #include "file_items_manager.h"
+#include "properties_editor.h"
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -108,7 +109,8 @@ private:
     QPointer<QTabWidget> tabWidget_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
-    QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
+    QPointer<properties_editor> filePropertiesEditor_;
+    //QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
     QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
     QPointer<QComboBox> comboBoxFiles_;
