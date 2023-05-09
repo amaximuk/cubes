@@ -36,11 +36,11 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-private:
-    QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-    int defaultColorFileIndex_;
-    QVector<QColor> defaultColorsGroup_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-    int defaultColorGroupIndex_;
+//private:
+//    QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+//    int defaultColorFileIndex_;
+//    QVector<QColor> defaultColorsGroup_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+//    int defaultColorGroupIndex_;
 
 private:
     bool modified_;
@@ -57,13 +57,13 @@ protected:
     QWidget* CreateLogWidget();
     void CreateScene(int index);
     void CreateView(int index);
-    void CreateFilesPropertyBrowser();
+    //void CreateFilesPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
-    QWidget* CreateFilesPropertiesWidget();
+    //QWidget* CreateFilesPropertiesWidget();
     QWidget* CreatePropertiesWidget();
-    QWidget* CreateFilesButtonsWidget();
+    //QWidget* CreateFilesButtonsWidget();
     QWidget* CreateUnitsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
@@ -109,12 +109,12 @@ private:
     QPointer<QTabWidget> tabWidget_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
-    QPointer<properties_editor> filePropertiesEditor_;
+    //QPointer<properties_editor> filePropertiesEditor_;
     //QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
-    QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
+    //QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
-    QPointer<QComboBox> comboBoxFiles_;
-    QPointer<QComboBox> comboBoxGroups_;
+    //QPointer<QComboBox> comboBoxFiles_;
+    //QPointer<QComboBox> comboBoxGroups_;
     QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
@@ -129,9 +129,9 @@ private slots:
     void on_Quit_action();
     void on_Sort_action();
 
-    void on_AddFile_clicked();
-    void on_RemoveFile_clicked();
-    void on_Files_currentIndexChanged(int index);
+    //void on_AddFile_clicked();
+    //void on_RemoveFile_clicked();
+    //void on_Files_currentIndexChanged(int index);
     void on_RemoveGroup_clicked();
     void on_Units_currentIndexChanged(int index);
 
@@ -156,8 +156,8 @@ public slots:
     void itemFileChanged(diagram_item* item);
     void itemGroupChanged(diagram_item* item);
 
-    void collapsed(QtBrowserItem* item);
-    void expanded(QtBrowserItem* item);
+    //void collapsed(QtBrowserItem* item);
+    //void expanded(QtBrowserItem* item);
 
     void showFileContextMenu(const QPoint& pos);
 

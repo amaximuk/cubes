@@ -48,26 +48,17 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     modified_ = false;
-    defaultColorFileIndex_ = 0;
-    for (auto& c : defaultColorsFile_)
-        c.setAlpha(0x20);
-
-    defaultColorGroupIndex_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
-    CreateUi();
-
-    file_items_manager_ = new file_items_manager(filePropertiesEditor_, comboBoxFiles_);
+    file_items_manager_ = new file_items_manager();
     connect(file_items_manager_, &file_items_manager::NameChanged, this, &MainWindow::fileNameChanged);
     connect(file_items_manager_, &file_items_manager::IncludeChanged, this, &MainWindow::fileIncludeChanged);
     connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
+    
+    CreateUi();
 
-    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    file_items_manager_->Create(QString::fromLocal8Bit("АРМ"), fileColor);
-    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    //comboBoxFiles_->addItem(QString::fromLocal8Bit("АРМ"));
+    file_items_manager_->Create(QString::fromLocal8Bit("АРМ"));
 }
 
 MainWindow::~MainWindow()
@@ -86,7 +77,7 @@ void MainWindow::CreateUi()
 
 QWidget* MainWindow::CreateMainWidget()
 {
-    CreateFilesPropertyBrowser();
+    //CreateFilesPropertyBrowser();
     //CreateGroupsPropertyBrowser();
     CreatePropertyBrowser();
     CreateTreeView();
@@ -285,18 +276,16 @@ void MainWindow::CreateView(int index)
 //    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
 //}
 
-void MainWindow::CreateFilesPropertyBrowser()
-{
-    filePropertiesEditor_ = new properties_editor();
-
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::Collapsed, this, &MainWindow::collapsed);
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::Expanded, this, &MainWindow::expanded);
-    qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
-
-    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-    //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
-    //connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
-}
+//void MainWindow::CreateFilesPropertyBrowser()
+//{
+//    //filePropertiesEditor_ = new properties_editor();
+//
+//    //qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
+//
+//    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+//    //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
+//    //connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
+//}
 
 void MainWindow::CreatePropertyBrowser()
 {
@@ -318,7 +307,7 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
-    QWidget* filesPropertiesWidget = CreateFilesPropertiesWidget();
+    QWidget* filesPropertiesWidget = file_items_manager_->GetWidget();
     QWidget* propertiesWidget = CreatePropertiesWidget();
     QWidget* hintWidget = CreateHintWidget();
 
@@ -339,21 +328,21 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
     return propertiesPanelWidget;
 }
 
-QWidget* MainWindow::CreateFilesPropertiesWidget()
-{
-    QWidget* propertiesPanelWidget = new QWidget;
-
-    QWidget* hostsButtonsWidget = CreateFilesButtonsWidget();
-
-    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-    propertiesPaneLayout->addWidget(hostsButtonsWidget);
-    propertiesPaneLayout->addWidget(filePropertiesEditor_->GetPropertyEditor());
-    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
-
-    propertiesPanelWidget->setLayout(propertiesPaneLayout);
-
-    return propertiesPanelWidget;
-}
+//QWidget* MainWindow::CreateFilesPropertiesWidget()
+//{
+//    QWidget* propertiesPanelWidget = new QWidget;
+//
+//    QWidget* hostsButtonsWidget = CreateFilesButtonsWidget();
+//
+//    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+//    propertiesPaneLayout->addWidget(hostsButtonsWidget);
+//    propertiesPaneLayout->addWidget(file_items_manager_->GetEditor()->GetPropertyEditor());
+//    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+//
+//    propertiesPanelWidget->setLayout(propertiesPaneLayout);
+//
+//    return propertiesPanelWidget;
+//}
 
 QWidget* MainWindow::CreatePropertiesWidget()
 {
@@ -371,80 +360,80 @@ QWidget* MainWindow::CreatePropertiesWidget()
     return propertiesPanelWidget;
 }
 
-QWidget* MainWindow::CreateFilesButtonsWidget()
-{
-    comboBoxFiles_ = new QComboBox();
-    connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
-
-    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
-    hBoxLayoutPropertyListButtons->setMargin(0);
-    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
-
-    QToolButton* toolButtonPropertyListAdd = new QToolButton;
-    toolButtonPropertyListAdd->setFixedSize(24, 24);
-    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-    //toolButtonPropertyListAdd->setProperty("type", type);
-    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    //toolButtonPropertyListAdd->setProperty("name", name);
-    //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddFile_clicked);
-
-    QToolButton* toolButtonPropertyListRemove = new QToolButton;
-    toolButtonPropertyListRemove->setFixedSize(24, 24);
-    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-    //toolButtonPropertyListAdd->setProperty("type", type);
-    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-    //toolButtonPropertyListAdd->setProperty("name", name);
-    //toolButtonPropertyListAdd->setProperty("action", "add");
-    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
-    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveFile_clicked);
-
-    QWidget* buttonsWidget = new QWidget;
-    buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
-
-    QLabel* label = new QLabel;
-    label->setText(QString::fromLocal8Bit("Файлы:"));
-    //label->setStyleSheet("font-weight: bold; font-size: 14px");
-
-    QHBoxLayout* headerLayout = new QHBoxLayout;
-    headerLayout->addWidget(label, 0);
-    headerLayout->addWidget(comboBoxFiles_, 1);
-    headerLayout->addWidget(buttonsWidget, 0);
-    headerLayout->setContentsMargins(0, 0, 0, 0);
-
-    //QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
-    //splitterComboButtons->addWidget(lable);
-    //splitterComboButtons->addWidget(comboBoxFiles_);
-    //splitterComboButtons->addWidget(buttonsWidget);
-    //splitterComboButtons->setStretchFactor(0, 0);
-    //splitterComboButtons->setStretchFactor(1, 1);
-    //splitterComboButtons->setStretchFactor(2, 0);
-
-    //QLabel* label = new QLabel;
-    //label->setStyleSheet("font-weight: bold; font-size: 14px");
-    //label->setText(QString::fromLocal8Bit("Файлы"));
-
-    //QVBoxLayout* mainLayout = new QVBoxLayout;
-    //mainLayout->setMargin(0);
-    //mainLayout->setContentsMargins(0, 0, 0, 0);
-    ////mainLayout->addWidget(label, 1, Qt::AlignCenter);
-    //mainLayout->addWidget(splitterComboButtons);
-
-
-    QWidget* mainWidget = new QWidget;
-    mainWidget->setLayout(headerLayout);
-    return mainWidget;
-
-    //QFrame* widgetPropertyListButtons = new QFrame;
-    //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
-    //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
-    //return widgetPropertyListButtons;
-}
+//QWidget* MainWindow::CreateFilesButtonsWidget()
+//{
+//    //comboBoxFiles_ = new QComboBox();
+//    //connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
+//
+//    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
+//    hBoxLayoutPropertyListButtons->setMargin(0);
+//    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
+//
+//    QToolButton* toolButtonPropertyListAdd = new QToolButton;
+//    toolButtonPropertyListAdd->setFixedSize(24, 24);
+//    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+//    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+//    //toolButtonPropertyListAdd->setProperty("type", type);
+//    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+//    //toolButtonPropertyListAdd->setProperty("name", name);
+//    //toolButtonPropertyListAdd->setProperty("action", "add");
+//    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
+//    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+//    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddFile_clicked);
+//
+//    QToolButton* toolButtonPropertyListRemove = new QToolButton;
+//    toolButtonPropertyListRemove->setFixedSize(24, 24);
+//    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+//    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+//    //toolButtonPropertyListAdd->setProperty("type", type);
+//    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
+//    //toolButtonPropertyListAdd->setProperty("name", name);
+//    //toolButtonPropertyListAdd->setProperty("action", "add");
+//    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
+//    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+//    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveFile_clicked);
+//
+//    QWidget* buttonsWidget = new QWidget;
+//    buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
+//
+//    QLabel* label = new QLabel;
+//    label->setText(QString::fromLocal8Bit("Файлы:"));
+//    //label->setStyleSheet("font-weight: bold; font-size: 14px");
+//
+//    QHBoxLayout* headerLayout = new QHBoxLayout;
+//    headerLayout->addWidget(label, 0);
+//    headerLayout->addWidget(file_items_manager_->GetSelector(), 1);
+//    headerLayout->addWidget(buttonsWidget, 0);
+//    headerLayout->setContentsMargins(0, 0, 0, 0);
+//
+//    //QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
+//    //splitterComboButtons->addWidget(lable);
+//    //splitterComboButtons->addWidget(comboBoxFiles_);
+//    //splitterComboButtons->addWidget(buttonsWidget);
+//    //splitterComboButtons->setStretchFactor(0, 0);
+//    //splitterComboButtons->setStretchFactor(1, 1);
+//    //splitterComboButtons->setStretchFactor(2, 0);
+//
+//    //QLabel* label = new QLabel;
+//    //label->setStyleSheet("font-weight: bold; font-size: 14px");
+//    //label->setText(QString::fromLocal8Bit("Файлы"));
+//
+//    //QVBoxLayout* mainLayout = new QVBoxLayout;
+//    //mainLayout->setMargin(0);
+//    //mainLayout->setContentsMargins(0, 0, 0, 0);
+//    ////mainLayout->addWidget(label, 1, Qt::AlignCenter);
+//    //mainLayout->addWidget(splitterComboButtons);
+//
+//
+//    QWidget* mainWidget = new QWidget;
+//    mainWidget->setLayout(headerLayout);
+//    return mainWidget;
+//
+//    //QFrame* widgetPropertyListButtons = new QFrame;
+//    //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
+//    //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
+//    //return widgetPropertyListButtons;
+//}
 
 QWidget* MainWindow::CreateUnitsButtonsWidget()
 {
@@ -802,22 +791,14 @@ bool MainWindow::AddMainFile(xml::File& file)
 {
     if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
     {
-        filePropertiesEditor_->GetPropertyEditor()->clear();
+        file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
         file_items_manager_->Clear();
-        comboBoxFiles_->clear();
-        defaultColorFileIndex_ = 0;
-        defaultColorGroupIndex_ = 0;
     }
 
     QString fileName = QFileInfo(file.fileName).fileName();
 
-    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    file_items_manager_->Create(fileName, fileColor);
+    file_items_manager_->Create(fileName);
     file_items_manager_->Select(fileName);
-    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    //comboBoxFiles_->addItem(fileName);
-    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 
     QStringList fileNames = file_items_manager_->GetFileNames();
     for (int i = 0; i < panes_.count(); ++i)
@@ -1315,12 +1296,12 @@ QStringList MainWindow::GetFileNames()
 
 QString MainWindow::GetCurrentFileName()
 {
-    return comboBoxFiles_->currentText();
+    return file_items_manager_->GetCurrentFileName();
 }
 
 QStringList MainWindow::GetCurrentFileIncludeNames()
 {
-    return file_items_manager_->GetFileIncludeNames(comboBoxFiles_->currentText());
+    return file_items_manager_->GetFileIncludeNames(file_items_manager_->GetCurrentFileName());
 }
 
 QColor MainWindow::GetFileColor(const QString& fileName)
@@ -1441,13 +1422,13 @@ void MainWindow::on_Tab_currentChanged(int index)
 
     if (index == 0)
     {
-        comboBoxFiles_->setEnabled(true);
-        filePropertiesEditor_->GetPropertyEditor()->setEnabled(true);
+        //comboBoxFiles_->setEnabled(true);
+        file_items_manager_->GetEditor()->GetPropertyEditor()->setEnabled(true);
     }
     else
     {
-        comboBoxFiles_->setEnabled(false);
-        filePropertiesEditor_->GetPropertyEditor()->setEnabled(false);
+        //comboBoxFiles_->setEnabled(false);
+        file_items_manager_->GetEditor()->GetPropertyEditor()->setEnabled(false);
     }
 
     comboBoxUnits_->clear();
@@ -1633,46 +1614,46 @@ void MainWindow::itemGroupChanged(diagram_item* item)
         }
     }
 }
-
-void MainWindow::collapsed(QtBrowserItem* item)
-{
-    QString fileName = comboBoxFiles_->currentText();
-    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), false);
-
-    //QString name = comboBoxFiles_->currentText();
-    //for (const auto& fi : file_items_)
-    //{
-    //    if (fi->GetName() == name)
-    //        fi->ExpandedChanged(item->property(), false);
-    //    break;
-    //}
-
-    //if (panes_[0].first->selectedItems().count() > 0)
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
-    //    di->getProperties()->ExpandedChanged(item->property(), false);
-    //}
-}
-
-void MainWindow::expanded(QtBrowserItem* item)
-{
-    QString fileName = comboBoxFiles_->currentText();
-    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), true);
-
-    //QString name = comboBoxFiles_->currentText();
-    //for (const auto& fi : file_items_)
-    //{
-    //    if (fi->GetName() == name)
-    //        fi->ExpandedChanged(item->property(), true);
-    //    break;
-    //}
-
-    //if (panes_[0].first->selectedItems().count() > 0)
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
-    //    di->getProperties()->ExpandedChanged(item->property(), true);
-    //}
-}
+//
+//void MainWindow::collapsed(QtBrowserItem* item)
+//{
+//    QString fileName = comboBoxFiles_->currentText();
+//    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), false);
+//
+//    //QString name = comboBoxFiles_->currentText();
+//    //for (const auto& fi : file_items_)
+//    //{
+//    //    if (fi->GetName() == name)
+//    //        fi->ExpandedChanged(item->property(), false);
+//    //    break;
+//    //}
+//
+//    //if (panes_[0].first->selectedItems().count() > 0)
+//    //{
+//    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+//    //    di->getProperties()->ExpandedChanged(item->property(), false);
+//    //}
+//}
+//
+//void MainWindow::expanded(QtBrowserItem* item)
+//{
+//    QString fileName = comboBoxFiles_->currentText();
+//    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), true);
+//
+//    //QString name = comboBoxFiles_->currentText();
+//    //for (const auto& fi : file_items_)
+//    //{
+//    //    if (fi->GetName() == name)
+//    //        fi->ExpandedChanged(item->property(), true);
+//    //    break;
+//    //}
+//
+//    //if (panes_[0].first->selectedItems().count() > 0)
+//    //{
+//    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+//    //    di->getProperties()->ExpandedChanged(item->property(), true);
+//    //}
+//}
 
 //void MainWindow::CreateToolBox()
 //{
@@ -1980,96 +1961,96 @@ void MainWindow::on_Sort_action()
 
     //panes_[tabIndex].first->invalidate();
 }
+//
+//void MainWindow::on_AddFile_clicked()
+//{
+//    bool ok;
+//    QString text = QInputDialog::getText(this, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
+//    if (!ok || text.isEmpty())
+//        return;
+//
+//    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+//        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+//    file_items_manager_->Create(text, fileColor);
+//    file_items_manager_->Select(text);
+//    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
+//    //comboBoxFiles_->addItem(text);
+//    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+//
+//    for (auto& item : panes_[0].first->items())
+//    {
+//        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+//        QStringList fileNames = file_items_manager_->GetFileNames();
+//        di->getProperties()->SetFileNames(fileNames);
+//    }
+//
+//    if (panes_[0].first->selectedItems().size() > 0)
+//        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+//
+//    panes_[0].first->invalidate();
+//
+//
+//
+//
+//
+//
+//    //fileNameChanged(text, "");
+//
+//    //auto fi = new file_item();
+//    //fi->SetName(text);
+//    //if (defaultColorFileIndex_ < defaultColorsFile_.size())
+//    //    fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
+//    //else
+//    //    fi->SetColor(QColor("White"));
+//    //fi->ApplyToBrowser(filesPropertyEditor_);
+//    //file_items_.push_back(fi);
+//    //comboBoxFiles_->addItem(text);
+//    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
+//
+//    //QStringList fileNames = GetFileNames();
+//    //for (auto& group : groups_items_)
+//    //{
+//    //    group->SetFileNames(fileNames);
+//    //    if (comboBoxGroups_->currentIndex() > 0)
+//    //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
+//    //}
+//
+//    //for (auto& item : panes_[0].first->items())
+//    //{
+//    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+//    //    QString fileName = di->getProperties()->GetFileName();
+//    //    QStringList groupNames = GetFileGroups(fileName);
+//    //    di->getProperties()->SetGroupNames(groupNames);
+//    //    //di->getProperties()->SetGroupName("<not selected>");
+//    //}
+//
+//    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+//    //if (tabIndex == -1)
+//    //    return;
+//
+//    //if (panes_[tabIndex].first->selectedItems().size() > 0)
+//    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+//}
+//
+//void MainWindow::on_RemoveFile_clicked()
+//{
+//    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+//        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+//    if (resBtn == QMessageBox::Yes)
+//        QApplication::quit();
+//}
 
-void MainWindow::on_AddFile_clicked()
-{
-    bool ok;
-    QString text = QInputDialog::getText(this, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
-    if (!ok || text.isEmpty())
-        return;
-
-    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-    file_items_manager_->Create(text, fileColor);
-    file_items_manager_->Select(text);
-    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-    //comboBoxFiles_->addItem(text);
-    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
-
-    for (auto& item : panes_[0].first->items())
-    {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        QStringList fileNames = file_items_manager_->GetFileNames();
-        di->getProperties()->SetFileNames(fileNames);
-    }
-
-    if (panes_[0].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    panes_[0].first->invalidate();
-
-
-
-
-
-
-    //fileNameChanged(text, "");
-
-    //auto fi = new file_item();
-    //fi->SetName(text);
-    //if (defaultColorFileIndex_ < defaultColorsFile_.size())
-    //    fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
-    //else
-    //    fi->SetColor(QColor("White"));
-    //fi->ApplyToBrowser(filesPropertyEditor_);
-    //file_items_.push_back(fi);
-    //comboBoxFiles_->addItem(text);
-    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
-
-    //QStringList fileNames = GetFileNames();
-    //for (auto& group : groups_items_)
-    //{
-    //    group->SetFileNames(fileNames);
-    //    if (comboBoxGroups_->currentIndex() > 0)
-    //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
-    //}
-
-    //for (auto& item : panes_[0].first->items())
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-    //    QString fileName = di->getProperties()->GetFileName();
-    //    QStringList groupNames = GetFileGroups(fileName);
-    //    di->getProperties()->SetGroupNames(groupNames);
-    //    //di->getProperties()->SetGroupName("<not selected>");
-    //}
-
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
-
-    //if (panes_[tabIndex].first->selectedItems().size() > 0)
-    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-}
-
-void MainWindow::on_RemoveFile_clicked()
-{
-    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
-        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
-    if (resBtn == QMessageBox::Yes)
-        QApplication::quit();
-}
-
-void MainWindow::on_Files_currentIndexChanged(int index)
-{
-    QString fileName = comboBoxFiles_->currentText();
-    file_items_manager_->Select(fileName);
-    //file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
-    //for (const auto& fi : file_items_)
-    //{
-    //    if (fi->GetName() == name)
-    //        fi->ApplyToBrowser(filesPropertyEditor_);
-    //}
-}
+//void MainWindow::on_Files_currentIndexChanged(int index)
+//{
+//    QString fileName = comboBoxFiles_->currentText();
+//    file_items_manager_->Select(fileName);
+//    //file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
+//    //for (const auto& fi : file_items_)
+//    //{
+//    //    if (fi->GetName() == name)
+//    //        fi->ApplyToBrowser(filesPropertyEditor_);
+//    //}
+//}
 
 void MainWindow::on_RemoveGroup_clicked()
 {
@@ -2123,23 +2104,23 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
 
 void MainWindow::showFileContextMenu(const QPoint& pos)
 {
-    if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
-        return;
-    if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
-        return;
+    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
+    //    return;
+    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
+    //    return;
 
-    QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
-    QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
-    if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-    {
-        QMenu contextMenu(tr("Context menu"), this);
+    //QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
+    //QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
+    //if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
+    //{
+    //    QMenu contextMenu(tr("Context menu"), this);
 
-        QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
-        connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
-        contextMenu.addAction(&action1);
+    //    QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
+    //    connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
+    //    contextMenu.addAction(&action1);
 
-        contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
-    }
+    //    contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
+    //}
 }
 
 void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
@@ -2159,11 +2140,11 @@ void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
         //    di->getProperties()->SetGroupNames(fileIncludeNames);
     }
 
-    for (int i = 0; i < comboBoxFiles_->count(); ++i)
-    {
-        if (comboBoxFiles_->itemText(i) == oldFileName)
-            comboBoxFiles_->setItemText(i, fileName);
-    }
+    //for (int i = 0; i < comboBoxFiles_->count(); ++i)
+    //{
+    //    if (comboBoxFiles_->itemText(i) == oldFileName)
+    //        comboBoxFiles_->setItemText(i, fileName);
+    //}
 
     if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);

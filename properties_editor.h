@@ -17,6 +17,7 @@ class properties_editor : public QObject
 
 private:
     QPointer<QtTreePropertyBrowser> propertyEditor_;
+
     QPointer<QtGroupPropertyManager> groupManager_;
     QPointer<QtIntPropertyManager> intManager_;
     QPointer<QtDoublePropertyManager> doubleManager_;
@@ -161,6 +162,38 @@ public:
             pr->setEnabled(false);
 
         return pr;
+    }
+
+    void SetIntValue(QtProperty* property, int value)
+    {
+        intManager_->setValue(property, value);
+    }
+
+    void SetDoubleValue(QtProperty* property, int value)
+    {
+        doubleManager_->setValue(property, value);
+    }
+
+    void SetStringValue(QtProperty* property, const QString& value, bool setOldValue = false, const QString& oldValue = "")
+    {
+        if (setOldValue)
+            stringManager_->setOldValue(property, oldValue);
+        stringManager_->setValue(property, value);
+    }
+    
+    void SetEnumValue(QtProperty* property, int value)
+    {
+        enumManager_->setValue(property, value);
+    }
+    
+    void SetBoolValue(QtProperty* property, bool value)
+    {
+        boolManager_->setValue(property, value);
+    }
+    
+    void SetColorValue(QtProperty* property, QColor value)
+    {
+        colorManager_->setValue(property, value);
     }
 
 signals:

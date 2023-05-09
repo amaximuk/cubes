@@ -98,7 +98,6 @@ namespace unit_types
 		double SpinDoubleSingleStep;
 		QList<QString> ComboBoxValues;
 		bool is_expanded;
-		QString RegExp;
 
 	public:
 		EditorSettings()
@@ -110,7 +109,6 @@ namespace unit_types
 			SpinDoubleMax = 0;
 			SpinDoubleSingleStep = 1;
 			is_expanded = false;
-			RegExp = "*";
 		};
 	};
 
