@@ -31,7 +31,7 @@ private:
     void UpdateArrayModel(unit_types::ParameterModel& pm);
     void CreateEditorModel();
     QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
-    void CreatePropertyBrowser();
+    void CreateProperties();
 
 private slots:
     //void valueChanged(QtProperty* property, int value);

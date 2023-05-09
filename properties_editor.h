@@ -8,6 +8,7 @@
 #include "qttreepropertybrowser.h"
 #include "qtpropertybrowser.h"
 #include "qtpropertymanager.h"
+#include "qteditorfactory.h"
 #include "unit_types.h"
 
 class properties_editor : public QObject
@@ -50,6 +51,20 @@ public:
         qDebug() << connect(enumManager_, &QtEnumPropertyManager::valueChanged, this, &properties_editor::EnumValueChangedInternal);
         qDebug() << connect(boolManager_, &QtBoolPropertyManager::valueChanged, this, &properties_editor::BoolValueChangedInternal);
         qDebug() << connect(colorManager_, &QtColorPropertyManager::valueChanged, this, &properties_editor::ColorValueChangedInternal);
+
+        QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
+        QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+        QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+        QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+        QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+        QtColorEditorFactory* colorFactory = new QtColorEditorFactory(this);
+
+        propertyEditor_->setFactoryForManager(intManager_.data(), intSpinBoxFactory);
+        propertyEditor_->setFactoryForManager(doubleManager_.data(), doubleSpinBoxFactory);
+        propertyEditor_->setFactoryForManager(stringManager_.data(), lineEditFactory);
+        propertyEditor_->setFactoryForManager(enumManager_.data(), comboBoxFactory);
+        propertyEditor_->setFactoryForManager(boolManager_.data(), checkBoxFactory);
+        propertyEditor_->setFactoryForManager(colorManager_.data(), colorFactory);
     }
 
 public:

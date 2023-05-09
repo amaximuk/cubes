@@ -24,7 +24,7 @@ file_item::file_item(file_items_manager_interface* file_items_manager, propertie
 
     CreateParametersModel();
     CreateEditorModel();
-    CreatePropertyBrowser();
+    CreateProperties();
 }
 
 void file_item::CreateEditorModel()
@@ -335,7 +335,7 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
     return pr;
 }
 
-void file_item::CreatePropertyBrowser()
+void file_item::CreateProperties()
 {
     //ignoreEvents_ = true;
     QMap<QString, const QtProperty*> idToProperty;
