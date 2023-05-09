@@ -287,11 +287,11 @@ void MainWindow::CreateView(int index)
 
 void MainWindow::CreateFilesPropertyBrowser()
 {
-    filePropertiesEditor_.reset(new properties_editor());
+    filePropertiesEditor_ = new properties_editor();
 
-    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::Collapsed, this, &MainWindow::collapsed);
-    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::Expanded, this, &MainWindow::expanded);
-    qDebug() << connect(filePropertiesEditor_.get(), &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::Collapsed, this, &MainWindow::collapsed);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::Expanded, this, &MainWindow::expanded);
+    qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
 
     //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
     //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -347,7 +347,7 @@ QWidget* MainWindow::CreateFilesPropertiesWidget()
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(hostsButtonsWidget);
-    propertiesPaneLayout->addWidget(filePropertiesEditor_->GetPropertyEditor().get());
+    propertiesPaneLayout->addWidget(filePropertiesEditor_->GetPropertyEditor());
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -373,8 +373,8 @@ QWidget* MainWindow::CreatePropertiesWidget()
 
 QWidget* MainWindow::CreateFilesButtonsWidget()
 {
-    comboBoxFiles_.reset(new QComboBox());
-    connect(comboBoxFiles_.get(), QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
+    comboBoxFiles_ = new QComboBox();
+    connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
 
     QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
     hBoxLayoutPropertyListButtons->setMargin(0);
@@ -413,7 +413,7 @@ QWidget* MainWindow::CreateFilesButtonsWidget()
 
     QHBoxLayout* headerLayout = new QHBoxLayout;
     headerLayout->addWidget(label, 0);
-    headerLayout->addWidget(comboBoxFiles_.get(), 1);
+    headerLayout->addWidget(comboBoxFiles_, 1);
     headerLayout->addWidget(buttonsWidget, 0);
     headerLayout->setContentsMargins(0, 0, 0, 0);
 

@@ -13,13 +13,13 @@ class file_items_manager : public QObject, file_items_manager_interface
 Q_OBJECT
 
 private:
-	QSharedPointer<properties_editor> editor_;
-	QSharedPointer<QComboBox> selector_;
+	QPointer<properties_editor> editor_;
+	QPointer<QComboBox> selector_;
 	QList<QSharedPointer<file_item>> items_;
 	QString selected_;
 
 public:
-	file_items_manager(QSharedPointer<properties_editor> editor, QSharedPointer<QComboBox> selector)
+	file_items_manager(properties_editor* editor, QComboBox* selector)
 	{
 		editor_ = editor;
 		selector_ = selector;
@@ -28,7 +28,7 @@ public:
 public:
 	void Create(const QString& fileName, const QColor& color)
 	{
-		QSharedPointer<file_item> fi(new file_item(this));
+		QSharedPointer<file_item> fi(new file_item(this, editor_));
 		fi->SetName(fileName);
 		fi->SetColor(color);
 		items_.push_back(fi);
@@ -41,8 +41,8 @@ public:
 	void Select(const QString& fileName)
 	{
 		if (selected_ != "" && selected_ != fileName)
-			GetItem(selected_)->UnSelect(editor_);
-		GetItem(fileName)->Select(editor_);
+			GetItem(selected_)->UnSelect();
+		GetItem(fileName)->Select();
 		selected_ = fileName;
 	}
 

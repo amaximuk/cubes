@@ -12,9 +12,10 @@
 #include "parameters_compiler_helper.h"
 #include "file_item.h"
 
-file_item::file_item(file_items_manager_interface* file_items_manager)
+file_item::file_item(file_items_manager_interface* file_items_manager, properties_editor* editor)
 {
     file_items_manager_ = file_items_manager;
+    editor_ = editor;
     //diagramItem_ = diagramItem;
     parametersModel_ = {};
     //editorModel_ = {};
@@ -336,6 +337,16 @@ QtProperty* file_item::GetPropertyForModel(unit_types::ParameterModel& model)
 
 void file_item::CreatePropertyBrowser()
 {
+    //ignoreEvents_ = true;
+    QMap<QString, const QtProperty*> idToProperty;
+    for (auto& pm : parametersModel_.parameters)
+        topLevelProperties_.push_back(editor_->GetPropertyForModel(pm, idToProperty));
+    //ignoreEvents_ = false;
+    for (const auto& kvp : idToProperty.toStdMap())
+        RegisterProperty(kvp.second, kvp.first);
+    
+
+
     //groupManager = new QtGroupPropertyManager(this);
     //intManager = new QtIntPropertyManager(this);
     //doubleManager = new QtDoublePropertyManager(this);
@@ -496,26 +507,26 @@ void file_item::ValueChanged(QtProperty* property, const QVariant& value)
     }
 }
 
-void file_item::Select(QSharedPointer<properties_editor> editor)
+void file_item::Select()
 {
-    auto pe = editor->GetPropertyEditor();
+    auto pe = editor_->GetPropertyEditor();
     pe->clear();
 
 
-    qDebug() << connect(editor.get(), &properties_editor::ValueChanged, this, &file_item::ValueChanged);
+    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &file_item::ValueChanged);
 
 
 
-    ignoreEvents_ = true;
-    for (auto& pm : parametersModel_.parameters)
-        editor->AddPropertyForModel(pm);
-    ignoreEvents_ = false;
+    //ignoreEvents_ = true;
+    for (auto& pr : topLevelProperties_)
+        pe->addProperty(pr);
+    //ignoreEvents_ = false;
 
 }
 
-void file_item::UnSelect(QSharedPointer<properties_editor> editor)
+void file_item::UnSelect()
 {
-    qDebug() << disconnect(editor.get(), &properties_editor::ValueChanged, this, &file_item::ValueChanged);
+    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &file_item::ValueChanged);
 
 }
 

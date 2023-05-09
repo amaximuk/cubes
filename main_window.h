@@ -109,11 +109,11 @@ private:
     QPointer<QTabWidget> tabWidget_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
-    QSharedPointer<properties_editor> filePropertiesEditor_;
+    QPointer<properties_editor> filePropertiesEditor_;
     //QPointer<QtTreePropertyBrowser> filesPropertyEditor_;
     QPointer<QtTreePropertyBrowser> groupsPropertyEditor_;
     QPointer<QtTreePropertyBrowser> propertyEditor_;
-    QSharedPointer<QComboBox> comboBoxFiles_;
+    QPointer<QComboBox> comboBoxFiles_;
     QPointer<QComboBox> comboBoxGroups_;
     QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;

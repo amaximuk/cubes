@@ -12,10 +12,10 @@
 
 class properties_editor : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 private:
-    QSharedPointer<QtTreePropertyBrowser> propertyEditor_;
+    QPointer<QtTreePropertyBrowser> propertyEditor_;
     QPointer<QtGroupPropertyManager> groupManager_;
     QPointer<QtIntPropertyManager> intManager_;
     QPointer<QtDoublePropertyManager> doubleManager_;
@@ -27,12 +27,12 @@ private:
 public:
     properties_editor()
     {
-        propertyEditor_.reset(new QtTreePropertyBrowser());
+        propertyEditor_ = new QtTreePropertyBrowser();
         propertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        qDebug() << connect(propertyEditor_.get(), &QtTreePropertyBrowser::collapsed, this, &properties_editor::CollapsedInternal);
-        qDebug() << connect(propertyEditor_.get(), &QtTreePropertyBrowser::expanded, this, &properties_editor::ExpandedInternal);
-        qDebug() << connect(propertyEditor_.get(), &QWidget::customContextMenuRequested, this, &properties_editor::ContextMenuRequestedInternal);
+        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::collapsed, this, &properties_editor::CollapsedInternal);
+        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::expanded, this, &properties_editor::ExpandedInternal);
+        qDebug() << connect(propertyEditor_, &QWidget::customContextMenuRequested, this, &properties_editor::ContextMenuRequestedInternal);
 
         groupManager_ = new QtGroupPropertyManager(this);
         intManager_ = new QtIntPropertyManager(this);
@@ -53,12 +53,12 @@ public:
     }
 
 public:
-    QSharedPointer<QtTreePropertyBrowser> GetPropertyEditor()
+    QtTreePropertyBrowser* GetPropertyEditor()
     {
         return propertyEditor_;
     }
 
-    void AddPropertyForModel(unit_types::ParameterModel& model)
+    QtProperty* GetPropertyForModel(const unit_types::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
     {
         // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
@@ -135,7 +135,17 @@ public:
         }
         else assert(false);
 
-        propertyEditor_->addProperty(pr);
+        // Для регистрации
+        idToProperty[model.id] = pr;
+
+        // Идем по дереву
+        for (auto& sp : model.parameters)
+            pr->addSubProperty(GetPropertyForModel(sp, idToProperty));
+
+        if (model.readOnly)
+            pr->setEnabled(false);
+
+        return pr;
     }
 
 signals:

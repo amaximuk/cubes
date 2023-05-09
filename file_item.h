@@ -1,8 +1,9 @@
 #pragma once
 
-#include <QGraphicsItem>
 #include <QObject>
-#include <QPixmap>
+#include <QMap>
+#include <QList>
+#include <QSharedPointer>
 
 #include "unit_types.h"
 #include "file_items_manager_api.h"
@@ -14,12 +15,15 @@ Q_OBJECT
 
 private:
     file_items_manager_interface* file_items_manager_;
+    QPointer<properties_editor> editor_;
     unit_types::ParametersModel parametersModel_;
-
+    QList<QtProperty*> topLevelProperties_;
+    QMap<const QtProperty*, QString> propertyToId;
+    QMap<QString, const QtProperty*> idToProperty;
     bool ignoreEvents_;
 
 public:
-    file_item(file_items_manager_interface* file_items_manager);
+    file_item(file_items_manager_interface* file_items_manager, properties_editor* editor);
 
 private:
     void CreateParametersModel();
@@ -48,8 +52,8 @@ private slots:
     void ValueChanged(QtProperty* property, const QVariant& value);
 
 public:
-    void Select(QSharedPointer<properties_editor> editor);
-    void UnSelect(QSharedPointer<properties_editor> editor);
+    void Select();
+    void UnSelect();
 
     QString GetName();
     QColor GetColor();
@@ -68,9 +72,6 @@ public:
     QStringList GetIncludeNames();
     void SetNameRegExp(QString regexp);
 
-private:
-    QMap<const QtProperty*, QString> propertyToId;
-    QMap<QString, const QtProperty*> idToProperty;
 
 private:
     void RegisterProperty(const QtProperty* property, const QString& id);
