@@ -70,7 +70,7 @@ public:
 			defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
 		QSharedPointer<file_item> fi(new file_item(this, editor_));
-		fi->SetName(fileName);
+		fi->SetName(fileName, true, fileName);
 		fi->SetColor(color);
 		items_.push_back(fi);
 		selector_->addItem(fileName);
@@ -80,13 +80,26 @@ public:
 	void Select(const QString& fileName)
 	{
 		QString currentFileName = GetCurrentFileName();
-		if (selected_ != "" && selected_ != fileName)
-			GetItem(selected_)->UnSelect();
 		if (selected_ != fileName)
 		{
-			GetItem(fileName)->Select();
-			selected_ = fileName;
+			if (!selected_.isEmpty())
+			{
+				GetItem(selected_)->UnSelect();
+				selected_ = "";
+			}
+			if (!fileName.isEmpty())
+			{
+				GetItem(fileName)->Select();
+				selected_ = fileName;
+			}
 		}
+		//if (selected_ != "" && selected_ != fileName)
+		//	GetItem(selected_)->UnSelect();
+		//if (fileName != "" && selected_ != fileName)
+		//{
+		//	GetItem(fileName)->Select();
+		//	selected_ = fileName;
+		//}
 	}
 
 	QSharedPointer<file_item> GetItem(const QString& fileName)
@@ -137,12 +150,12 @@ public:
 	}
 
 signals:
-	void NameChanged(QString fileName, QString oldFileName);
-	void IncludeChanged(QString fileName, QStringList includeNames);
+	void FileNameChanged(QString fileName, QString oldFileName);
 	void IncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName);
+	void IncludesListChanged(QString fileName, QStringList includeNames);
 
 public:
-	void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
+	void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
 	{
 		int count = 0;
 		for (const auto& i : items_)
@@ -150,34 +163,109 @@ public:
 			if (i->GetName() == fileName)
 				count++;
 		}
-		if (count > 1)
+		if (count > 0)
 		{
 			QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-			fileItem->SetName(oldFileName, true, oldFileName);
+			cancel = true;
 		}
 		else
-		{
-			for (int i = 0; i < selector_->count(); ++i)
-			{
-			    if (selector_->itemText(i) == oldFileName)
-					selector_->setItemText(i, fileName);
-			}
-			emit NameChanged(fileName, oldFileName);
-		}
+			cancel = false;
 	}
 
-	void InformIncludeChanged(QString fileName, QStringList includeNames) override
+	void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) override
+	{
+		// Переименовываем в comboBox
+		for (int i = 0; i < selector_->count(); ++i)
+		{
+			if (selector_->itemText(i) == oldFileName)
+			{
+				selector_->setItemText(i, fileName);
+				break;
+			}
+		}
+		
+		// Переименовываем имя выбранного файла
+		// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
+		if (selected_ == oldFileName)
+			selected_ = fileName;
+
+		// Уведомляем о переименовании
+		emit FileNameChanged(fileName, oldFileName);
+	}
+
+	void BeforeFilesListChanged(const QString& fileName, Operation operation, bool& cancel) override
+	{
+
+	}
+
+	void AfterFilesListChanged(const QString& fileName, Operation operation, const QStringList& fileNames) override
+	{
+	
+	}
+
+	void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName,
+		const QString& oldIncludeName, bool& cancel) override
+	{
+	
+	}
+
+	void AfterIncludeNameChanged(const QString& fileName, const QString& includeName,
+		const QString& oldIncludeName) override
+	{
+		emit IncludeNameChanged(fileName, includeName, oldIncludeName);
+	}
+
+	void BeforeIncludesListChanged(const QString& fileName, const QString& includeName,
+		Operation operation, bool& cancel) override
+	{
+	
+	}
+	
+	void AfterIncludesListChanged(const QString& fileName, const QString& includeName,
+		Operation operation, const QStringList& includeNames) override
 	{
 		QStringList fileIncludeNames;
 		fileIncludeNames.push_back("<not selected>");
 		fileIncludeNames.append(includeNames);
-		emit IncludeChanged(fileName, fileIncludeNames);
+		emit IncludesListChanged(fileName, fileIncludeNames);
 	}
 
-	void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
-	{
-		emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-	}
+	//void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
+	//{
+	//	int count = 0;
+	//	for (const auto& i : items_)
+	//	{
+	//		if (i->GetName() == fileName)
+	//			count++;
+	//	}
+	//	if (count > 1)
+	//	{
+	//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+	//		fileItem->SetName(oldFileName, true, oldFileName);
+	//	}
+	//	else
+	//	{
+	//		for (int i = 0; i < selector_->count(); ++i)
+	//		{
+	//		    if (selector_->itemText(i) == oldFileName)
+	//				selector_->setItemText(i, fileName);
+	//		}
+	//		emit NameChanged(fileName, oldFileName);
+	//	}
+	//}
+
+	//void InformIncludeChanged(QString fileName, QStringList includeNames) override
+	//{
+	//	QStringList fileIncludeNames;
+	//	fileIncludeNames.push_back("<not selected>");
+	//	fileIncludeNames.append(includeNames);
+	//	emit IncludeChanged(fileName, fileIncludeNames);
+	//}
+
+	//void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
+	//{
+	//	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
+	//}
 
 private:
 	void OnEditorCollapsed(QtBrowserItem* item)

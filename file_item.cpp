@@ -240,9 +240,11 @@ void file_item::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else if (pm->id == "INCLUDES")
         {
-            int count = std::stoi(property->valueText().toStdString());
+            int count = value.toInt();
+
+            UpdateIncludesArrayModel(*pm, count);
             pm->value = count;
-            UpdateArrayModel(*pm);
+            editor_->SetIntValue(property, count);
 
             QMap<QString, const QtProperty*> idToProperty;
             for (int i = property->subProperties().size(); i < count; ++i)
@@ -272,9 +274,6 @@ void file_item::ValueChanged(QtProperty* property, const QVariant& value)
                 UnregisterProperty(p);
 
             ApplyExpandState();
-
-            // Сообщаем об изменении списка включаемых файлов
-            file_items_manager_->InformIncludeChanged(GetName(), GetIncludeNames());
         }
         else
             pm->value = property->valueText();
@@ -309,15 +308,37 @@ void file_item::StringEditingFinished(QtProperty* property, const QString& value
 
     if (pm->id == "BASE/NAME")
     {
-        QString oldName = pm->value.toString();
-        pm->value = value;
-        file_items_manager_->InformNameChanged(this, value, oldName);
+        bool cancel = false;
+        file_items_manager_->BeforeFileNameChanged(value, oldValue, cancel);
+
+        if (!cancel)
+        {
+            QString oldName = pm->value.toString();
+            pm->value = value;
+            file_items_manager_->AfterFileNameChanged(value, oldName);
+        }
+        else
+        {
+            // Отмена
+            editor_->SetStringValue(property, oldValue);
+        }
     }
     else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
     {
-        QString oldName = pm->value.toString();
-        pm->value = value;
-        file_items_manager_->InformIncludeNameChanged(GetName(), value, oldName);
+        bool cancel = false;
+        file_items_manager_->BeforeIncludeNameChanged(GetName(), value, oldValue, cancel);
+
+        if (!cancel)
+        {
+            QString oldName = pm->value.toString();
+            pm->value = value;
+            file_items_manager_->AfterIncludeNameChanged(GetName(), value, oldName);
+        }
+        else
+        {
+            // Отмена
+            editor_->SetStringValue(property, oldValue);
+        }
     }
 }
 
@@ -411,77 +432,257 @@ QStringList file_item::GetIncludeNames()
     return result;
 }
 
-void file_item::UpdateArrayModel(unit_types::ParameterModel& pm)
+void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count)
 {
-    if (pm.id == "INCLUDES")
+    // Получаем список имен
+    QStringList includeNames;
+    for (const auto& i : pm.parameters)
     {
-        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        for (const auto& si : i.parameters)
         {
-            unit_types::ParameterModel group_model;
-            group_model.editorSettings.type = unit_types::EditorType::None;
-            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
-
-            unit_types::ParameterModel name;
-            name.editorSettings.type = unit_types::EditorType::String;
-            name.id = QString("%1/%2").arg(group_model.id, "NAME");
-            name.name = QString::fromLocal8Bit("Имя");
-            name.value = QString::fromLocal8Bit("Файл %1").arg(i);
-            name.valueType = "string";
-            name.editorSettings.type = unit_types::EditorType::String;
-            group_model.parameters.push_back(name);
-
-            unit_types::ParameterModel file_path;
-            file_path.editorSettings.type = unit_types::EditorType::String;
-            file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
-            file_path.name = QString::fromLocal8Bit("Имя файла");
-            file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
-            file_path.valueType = "string";
-            file_path.editorSettings.type = unit_types::EditorType::String;
-            file_path.editorSettings.is_expanded = false;
-            group_model.parameters.push_back(file_path);
-
-            unit_types::ParameterModel variables;
-            variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
-            variables.name = QString::fromLocal8Bit("Переменные");
-            variables.value = 0;
-            variables.valueType = "int";
-            variables.editorSettings.type = unit_types::EditorType::SpinInterger;
-            variables.editorSettings.is_expanded = true;
-            variables.editorSettings.SpinIntergerMin = 0;
-            variables.editorSettings.SpinIntergerMax = 100;
-            group_model.parameters.push_back(std::move(variables));
-
-            pm.parameters.push_back(group_model);
+            if (si.id.endsWith("/NAME"))
+            {
+                includeNames.push_back(si.value.toString());
+                break;
+            }
         }
     }
-    else
+
+    // Сначала добавляем (если pm.parameters.size() < count)
+    for (int i = pm.parameters.size(); i < count; ++i)
     {
-        for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+        // Получаем уникальное имя
+        QString includeName = unit_types::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
+
+        // Проверяем, что можно создавать
+        bool cancel = false;
+        file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Add, cancel);
+        if (cancel)
         {
-            unit_types::ParameterModel group_model;
-            group_model.editorSettings.type = unit_types::EditorType::None;
-            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
-
-            unit_types::ParameterModel name;
-            name.editorSettings.type = unit_types::EditorType::String;
-            name.id = QString("%1/%2").arg(group_model.id, "NAME");
-            name.name = QString::fromLocal8Bit("Имя");
-            group_model.parameters.push_back(name);
-
-            unit_types::ParameterModel value;
-            value.editorSettings.type = unit_types::EditorType::String;
-            value.id = QString("%1/%2").arg(group_model.id, "VALUE");
-            value.name = QString::fromLocal8Bit("Значение");
-            group_model.parameters.push_back(value);
-
-            pm.parameters.push_back(group_model);
+            // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
+            count = i;
+            return;
         }
+
+        // Добавляем в список
+        includeNames.push_back(includeName);
+
+        // Создаем
+        unit_types::ParameterModel group_model;
+        group_model.editorSettings.type = unit_types::EditorType::None;
+        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+        unit_types::ParameterModel name;
+        name.editorSettings.type = unit_types::EditorType::String;
+        name.id = QString("%1/%2").arg(group_model.id, "NAME");
+        name.name = QString::fromLocal8Bit("Имя");
+        name.value = includeName;
+        name.valueType = "string";
+        name.editorSettings.type = unit_types::EditorType::String;
+        group_model.parameters.push_back(name);
+
+        unit_types::ParameterModel file_path;
+        file_path.editorSettings.type = unit_types::EditorType::String;
+        file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
+        file_path.name = QString::fromLocal8Bit("Имя файла");
+        file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
+        file_path.valueType = "string";
+        file_path.editorSettings.type = unit_types::EditorType::String;
+        file_path.editorSettings.is_expanded = false;
+        group_model.parameters.push_back(file_path);
+
+        unit_types::ParameterModel variables;
+        variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
+        variables.name = QString::fromLocal8Bit("Переменные");
+        variables.value = 0;
+        variables.valueType = "int";
+        variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+        variables.editorSettings.is_expanded = true;
+        variables.editorSettings.SpinIntergerMin = 0;
+        variables.editorSettings.SpinIntergerMax = 100;
+        group_model.parameters.push_back(std::move(variables));
+
+        pm.parameters.push_back(group_model);
+
+        // Информируем, что создали
+        file_items_manager_->AfterIncludesListChanged(GetName(), includeName, Operation::Add, includeNames);
     }
+
+    // Теперь удаляем (если pm.parameters.size() > count)
+    while (pm.parameters.size() > count)
+    {
+        auto& pmRemove = pm.parameters.back();
+
+        // Получаем имя
+        QString includeName;
+        for (const auto& i : pmRemove.parameters)
+        {
+            if (i.id.endsWith("/NAME"))
+            {
+                includeName = i.value.toString();
+                break;
+            }
+        }
+
+        // Проверяем, что можно удалять
+        bool cancel = false;
+        file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Remove, cancel);
+        if (cancel)
+        {
+            // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
+            count = pm.parameters.size();
+            return;
+        }
+
+        // Удаляем из списка
+        includeNames.removeAll(includeName);
+
+        // Удаляем параметр
+        pm.parameters.pop_back();
+
+        // Информируем, что удалили
+        file_items_manager_->AfterIncludesListChanged(GetName(), includeName, Operation::Add, includeNames);
+    }
+
+}
+void file_item::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count)
+{
+    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    {
+        unit_types::ParameterModel group_model;
+        group_model.editorSettings.type = unit_types::EditorType::None;
+        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+        unit_types::ParameterModel name;
+        name.editorSettings.type = unit_types::EditorType::String;
+        name.id = QString("%1/%2").arg(group_model.id, "NAME");
+        name.name = QString::fromLocal8Bit("Имя");
+        group_model.parameters.push_back(name);
+
+        unit_types::ParameterModel value;
+        value.editorSettings.type = unit_types::EditorType::String;
+        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
+        value.name = QString::fromLocal8Bit("Значение");
+        group_model.parameters.push_back(value);
+
+        pm.parameters.push_back(group_model);
+    }
+
 
     while (pm.parameters.size() > pm.value.toInt())
         pm.parameters.pop_back();
+}
+
+void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)
+{
+    if (pm.id == "INCLUDES")
+    {
+        // Получаем уникальное имя
+        QStringList namesList;
+        for (const auto& i : pm.parameters)
+        {
+            for (const auto& si : pm.parameters)
+            {
+                if (si.id.endsWith("/NAME"))
+                {
+                    namesList.push_back(si.value.toString());
+                    break;
+                }
+            }
+        }
+        QString includeName = unit_types::GetUniqueName("Файл", " ", namesList);
+
+        // Проверяем, что можно создавать
+        bool cancel = false;
+        file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Add, cancel);
+        if (cancel) return;
+
+        // Добавляем 1 элемент
+        int i = pm.parameters.size();
+
+        unit_types::ParameterModel group_model;
+        group_model.editorSettings.type = unit_types::EditorType::None;
+        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+        unit_types::ParameterModel name;
+        name.editorSettings.type = unit_types::EditorType::String;
+        name.id = QString("%1/%2").arg(group_model.id, "NAME");
+        name.name = QString::fromLocal8Bit("Имя");
+        name.value = QString::fromLocal8Bit("Файл %1").arg(i);
+        name.valueType = "string";
+        name.editorSettings.type = unit_types::EditorType::String;
+        group_model.parameters.push_back(name);
+
+        unit_types::ParameterModel file_path;
+        file_path.editorSettings.type = unit_types::EditorType::String;
+        file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
+        file_path.name = QString::fromLocal8Bit("Имя файла");
+        file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
+        file_path.valueType = "string";
+        file_path.editorSettings.type = unit_types::EditorType::String;
+        file_path.editorSettings.is_expanded = false;
+        group_model.parameters.push_back(file_path);
+
+        unit_types::ParameterModel variables;
+        variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
+        variables.name = QString::fromLocal8Bit("Переменные");
+        variables.value = 0;
+        variables.valueType = "int";
+        variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+        variables.editorSettings.is_expanded = true;
+        variables.editorSettings.SpinIntergerMin = 0;
+        variables.editorSettings.SpinIntergerMax = 100;
+        group_model.parameters.push_back(std::move(variables));
+
+        pm.parameters.push_back(group_model);
+    }
+    else // VARIABLES
+    {
+        // Получаем уникальное имя
+        QStringList namesList;
+        for (const auto& i : pm.parameters)
+        {
+            for (const auto& si : pm.parameters)
+            {
+                if (si.id.endsWith("/NAME"))
+                {
+                    namesList.push_back(si.value.toString());
+                    break;
+                }
+            }
+        }
+        QString includeName = unit_types::GetUniqueName("Файл", " ", namesList);
+
+        //// Проверяем, что можно создавать
+        //bool cancel = false;
+        //file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Add, cancel);
+        //if (cancel) return;
+
+        // Добавляем 1 элемент
+        int i = pm.parameters.size();
+
+        unit_types::ParameterModel group_model;
+        group_model.editorSettings.type = unit_types::EditorType::None;
+        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+        unit_types::ParameterModel name;
+        name.editorSettings.type = unit_types::EditorType::String;
+        name.id = QString("%1/%2").arg(group_model.id, "NAME");
+        name.name = QString::fromLocal8Bit("Имя");
+        group_model.parameters.push_back(name);
+
+        unit_types::ParameterModel value;
+        value.editorSettings.type = unit_types::EditorType::String;
+        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
+        value.name = QString::fromLocal8Bit("Значение");
+        group_model.parameters.push_back(value);
+
+        pm.parameters.push_back(group_model);
+    }
 }
 
 void file_item::RegisterProperty(const QtProperty* property, const QString& id)

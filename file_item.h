@@ -54,7 +54,9 @@ private slots:
 private:
     void CreateParametersModel();
     void CreateProperties();
-    void UpdateArrayModel(unit_types::ParameterModel& pm);
+    void UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count);
+    void UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count);
+    void AddArrayModelItem(unit_types::ParameterModel& pm);
 
     void RegisterProperty(const QtProperty* property, const QString& id);
     void UnregisterProperty(const QString& id);

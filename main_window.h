@@ -162,6 +162,6 @@ public slots:
     void showFileContextMenu(const QPoint& pos);
 
     void fileNameChanged(QString fileName, QString oldFileName);
-    void fileIncludeChanged(QString fileName, QStringList includeNames);
     void fileIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName);
+    void fileIncludesListChanged(QString fileName, QStringList includeNames);
 };

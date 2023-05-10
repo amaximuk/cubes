@@ -52,9 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/images/cubes.png"));
 
     file_items_manager_ = new file_items_manager();
-    connect(file_items_manager_, &file_items_manager::NameChanged, this, &MainWindow::fileNameChanged);
-    connect(file_items_manager_, &file_items_manager::IncludeChanged, this, &MainWindow::fileIncludeChanged);
+    connect(file_items_manager_, &file_items_manager::FileNameChanged, this, &MainWindow::fileNameChanged);
     connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
+    connect(file_items_manager_, &file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
     CreateUi();
 
@@ -2152,21 +2152,6 @@ void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
     panes_[0].first->invalidate();
 }
 
-void MainWindow::fileIncludeChanged(QString fileName, QStringList includeNames)
-{
-    for (auto& item : panes_[0].first->items())
-    {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        if (fileName == di->getProperties()->GetFileName())
-            di->getProperties()->SetGroupNames(includeNames);
-    }
-
-    if (panes_[0].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    panes_[0].first->invalidate();
-}
-
 void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName)
 {
     QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
@@ -2186,6 +2171,21 @@ void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, Q
     //auto fi = file_items_manager_->GetItem(fileName);
     //if (fi != nullptr)
     //    fi->UpdateRegExp();
+
+    if (panes_[0].first->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    panes_[0].first->invalidate();
+}
+
+void MainWindow::fileIncludesListChanged(QString fileName, QStringList includeNames)
+{
+    for (auto& item : panes_[0].first->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (fileName == di->getProperties()->GetFileName())
+            di->getProperties()->SetGroupNames(includeNames);
+    }
 
     if (panes_[0].first->selectedItems().size() > 0)
         reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
