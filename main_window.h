@@ -16,6 +16,7 @@
 #include "sort_filter_model.h"
 #include "file_items_manager.h"
 #include "properties_editor.h"
+#include "top_manager_interface.h"
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -32,7 +33,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, top_manager_interface
 {
     Q_OBJECT
 
@@ -93,6 +94,10 @@ public:
     QMap<QString, QStringList> GetGroupDependsConnections(int groupId);
     int GetTabIndex(const QString& groupName);
     diagram_item* GetGroupItem(const QString& groupName);
+
+    // top_manager_interface
+    void GetUnitsInFileList(const QString& fileName, QStringList& unitNames);
+    void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames);
 
 private:
     QStringList GetGroupUnitsNames(const QString& groupName);
@@ -161,7 +166,9 @@ public slots:
 
     void showFileContextMenu(const QPoint& pos);
 
-    void fileNameChanged(QString fileName, QString oldFileName);
-    void fileIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName);
-    void fileIncludesListChanged(QString fileName, QStringList includeNames);
+    // file_items_manager
+    void fileNameChanged(const QString& fileName, const QString& oldFileName);
+    void fileListChanged(const QStringList& fileNames);
+    void fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
+    void fileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
 };

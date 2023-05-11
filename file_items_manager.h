@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QList>
+#include <QSet>
 #include <QSharedPointer>
 #include <QString>
 #include <QColor>
@@ -12,7 +13,8 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QLabel>
-#include "file_items_manager_api.h"
+#include "top_manager_interface.h"
+#include "file_items_manager_interface.h"
 #include "file_item.h"
 
 class file_items_manager : public QObject, file_items_manager_interface
@@ -24,6 +26,7 @@ private:
 	int defaultColorFileIndex_;
 
 private:
+	top_manager_interface* top_manager_;
 	QPointer<QWidget> widget_;
 	QPointer<properties_editor> editor_;
 	QPointer<QComboBox> selector_;
@@ -31,8 +34,10 @@ private:
 	QString selected_;
 
 public:
-	file_items_manager()
+	file_items_manager(top_manager_interface* top_manager)
 	{
+		top_manager_ = top_manager;
+
 		defaultColorFileIndex_ = 0;
 		for (auto& c : defaultColorsFile_)
 			c.setAlpha(0x20);
@@ -150,9 +155,10 @@ public:
 	}
 
 signals:
-	void FileNameChanged(QString fileName, QString oldFileName);
-	void IncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName);
-	void IncludesListChanged(QString fileName, QStringList includeNames);
+	void FileNameChanged(const QString& fileName, const QString& oldFileName);
+	void FilesListChanged(const QStringList& fileNames);
+	void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
+	void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
 
 public:
 	void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
@@ -193,36 +199,70 @@ public:
 		emit FileNameChanged(fileName, oldFileName);
 	}
 
-	void BeforeFilesListChanged(const QString& fileName, Operation operation, bool& cancel) override
-	{
+	//void BeforeFileAdd(const QString& fileName, bool& cancel) override
+	//{
+	//	// Ничего не делаем
+	//	cancel = false;
+	//}
 
+	//void BeforeFileRemove(const QString& fileName, bool& cancel) override
+	//{
+	//	QStringList unitNames;
+	//	top_manager_->GetUnitsInFileList(fileName, unitNames);
+	//	if (unitNames.count() > 0)
+	//	{
+	//		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
+	//		text.append(unitNames.join('\n'));
+	//		QMessageBox::critical(widget_, "Error", text);
+	//		cancel = true;
+	//	}
+	//	else
+	//		cancel = false;
+	//}
+
+	//void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) override
+	//{
+	//	emit FilesListChanged(fileName, fileNames);
+	//}
+
+	void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel) override
+	{
+		// Ничего не делаем
+		cancel = false;
 	}
 
-	void AfterFilesListChanged(const QString& fileName, Operation operation, const QStringList& fileNames) override
-	{
-	
-	}
-
-	void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName,
-		const QString& oldIncludeName, bool& cancel) override
-	{
-	
-	}
-
-	void AfterIncludeNameChanged(const QString& fileName, const QString& includeName,
-		const QString& oldIncludeName) override
+	void AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName) override
 	{
 		emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 	}
 
-	void BeforeIncludesListChanged(const QString& fileName, const QString& includeName,
-		Operation operation, bool& cancel) override
+	void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) override
 	{
-	
+		// Ничего не делаем
+		cancel = false;
+	}
+
+	void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) override
+	{
+		QSet<QString> allUnitNames;
+		for (const auto& includeName : includeNames)
+		{
+			QStringList unitNames;
+			top_manager_->GetUnitsInFileList(fileName, unitNames);
+			allUnitNames.unite(QSet<QString>(unitNames.begin(), unitNames.end()));
+		}
+		if (allUnitNames.count() > 0)
+		{
+			QString text = QString::fromLocal8Bit("Одно или несколько из удаляемых имен используется.\nУдаление невозможно!\nЮниты:\n");
+			text.append(allUnitNames.values().join('\n'));
+			QMessageBox::critical(widget_, "Error", text);
+			cancel = true;
+		}
+		else
+			cancel = false;
 	}
 	
-	void AfterIncludesListChanged(const QString& fileName, const QString& includeName,
-		Operation operation, const QStringList& includeNames) override
+	void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) override
 	{
 		QStringList fileIncludeNames;
 		fileIncludeNames.push_back("<not selected>");
@@ -310,8 +350,7 @@ private:
 	void OnSelectorIndexChanged(int index)
 	{
 		QString currentFileName = GetCurrentFileName();
-		if (currentFileName != "")
-			Select(currentFileName);
+		Select(currentFileName);
 	}
 
 	void OnAddFileClicked()
@@ -336,7 +375,7 @@ private:
 		QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 			defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 		Create(fileName);
-		Select(fileName);
+		//Select(fileName);
 
 		//for (auto& item : panes_[0].first->items())
 		//{
@@ -354,10 +393,49 @@ private:
 
 	void OnRemoveFileClicked()
 	{
-		//QMessageBox::StandardButton resBtn = QMessageBox::question(widget_, "parameters_composer",
-		//	QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
-		//if (resBtn == QMessageBox::Yes)
-		//	QApplication::quit();
+		if (selected_.isEmpty())
+		{
+			QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
+			return;
+		}
+
+		// Проверяем возможность удаления
+		QStringList unitNames;
+		top_manager_->GetUnitsInFileList(selected_, unitNames);
+		if (unitNames.count() > 0)
+		{
+			QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
+			text.append(unitNames.join('\n'));
+			QMessageBox::critical(widget_, "Error", text);
+			return;
+		}
+
+		// Сохраняем копию, после удаления selected_ изменится
+		QString selected = selected_;
+
+		// Удаляем из селектора, автоматически происходит UnSelect
+		selector_->removeItem(selector_->findText(selected_));
+
+		// Получаем все имена, заодно запоминаем элемент для удаления
+		QStringList fileNames;
+		QSharedPointer<file_item> toRemove;
+		for (const auto& item : items_)
+		{
+			QString name = item->GetName();
+			if (name == selected)
+				toRemove = item;
+			else
+				fileNames.push_back(item->GetName());
+		}
+
+		// Удаляем из списка
+		items_.removeAll(toRemove);
+
+		// Если это был последний
+		editor_->GetPropertyEditor()->clear();
+
+		// Сообщаяем об удалении
+		emit FilesListChanged(fileNames);
 	}
 
 private:

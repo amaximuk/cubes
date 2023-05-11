@@ -51,8 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
-    file_items_manager_ = new file_items_manager();
+    file_items_manager_ = new file_items_manager(this);
     connect(file_items_manager_, &file_items_manager::FileNameChanged, this, &MainWindow::fileNameChanged);
+    connect(file_items_manager_, &file_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
     connect(file_items_manager_, &file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
@@ -1163,6 +1164,17 @@ diagram_item* MainWindow::GetGroupItem(const QString& groupName)
     return nullptr;
 }
 
+// top_manager_interface
+void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
+{
+
+}
+
+void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames)
+{
+
+}
+
 QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString& groupName, bool depends)
 {
     // —юда будем собирать реальные соединени€ на этой сцене
@@ -2123,7 +2135,7 @@ void MainWindow::showFileContextMenu(const QPoint& pos)
     //}
 }
 
-void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
+void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFileName)
 {
     QStringList fileNames = file_items_manager_->GetFileNames();
     QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
@@ -2152,7 +2164,12 @@ void MainWindow::fileNameChanged(QString fileName, QString oldFileName)
     panes_[0].first->invalidate();
 }
 
-void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName)
+void MainWindow::fileListChanged(const QStringList& fileNames)
+{
+
+}
+
+void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
     QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
     for (auto& item : panes_[0].first->items())
@@ -2178,7 +2195,7 @@ void MainWindow::fileIncludeNameChanged(QString fileName, QString includeName, Q
     panes_[0].first->invalidate();
 }
 
-void MainWindow::fileIncludesListChanged(QString fileName, QStringList includeNames)
+void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
 {
     for (auto& item : panes_[0].first->items())
     {

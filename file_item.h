@@ -6,7 +6,7 @@
 #include <QSharedPointer>
 
 #include "unit_types.h"
-#include "file_items_manager_api.h"
+#include "file_items_manager_interface.h"
 #include "properties_editor.h"
 
 class file_item : public QObject
@@ -56,7 +56,7 @@ private:
     void CreateProperties();
     void UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count);
     void UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count);
-    void AddArrayModelItem(unit_types::ParameterModel& pm);
+    //void AddArrayModelItem(unit_types::ParameterModel& pm);
 
     void RegisterProperty(const QtProperty* property, const QString& id);
     void UnregisterProperty(const QString& id);
