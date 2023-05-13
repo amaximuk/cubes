@@ -383,7 +383,7 @@ QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& mod
         pr = stringManager->addProperty(model.name);
         stringManager->blockSignals(true);
         //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
-        stringManager->setOldValue(pr, model.value.toString());
+        //stringManager->setOldValue(pr, model.value.toString());
         stringManager->setValue(pr, model.value.toString());
         stringManager->blockSignals(false);
     }
