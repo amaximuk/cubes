@@ -4,7 +4,9 @@
 #include <QAbstractItemView>
 #include <QLineEdit>
 
-//Q_NAMESPACE
+#if QT_VERSION >= 0x040400
+QT_BEGIN_NAMESPACE
+#endif
 
 // ---------- EditorFactoryPrivate :
 // Base class for editor factory private classes. Manages mapping of properties to editors and vice versa.
@@ -232,6 +234,10 @@ void QtExLineEditFactory::disconnectPropertyManager(QtExStringPropertyManager *m
     disconnect(manager, SIGNAL(regExpChanged(QtProperty *, const QRegExp &)),
                 this, SLOT(slotRegExpChanged(QtProperty *, const QRegExp &)));
 }
+
+#if QT_VERSION >= 0x040400
+QT_END_NAMESPACE
+#endif
 
 #include "moc_qtexeditorfactory.cpp"
 //#include "qtexeditorfactory.moc"

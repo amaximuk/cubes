@@ -2,7 +2,9 @@
 #include "qtexpropertymanager.h"
 #include "qtpropertybrowserutils_p.h"
 
-//Q_NAMESPACE
+#if QT_VERSION >= 0x040400
+QT_BEGIN_NAMESPACE
+#endif
 
 template <class Value, class PrivateData>
 static Value getData(const QMap<const QtProperty*, PrivateData>& propertyMap,
@@ -244,6 +246,10 @@ void QtExStringPropertyManager::uninitializeProperty(QtProperty *property)
 {
     d_ptr->m_values.remove(property);
 }
+
+#if QT_VERSION >= 0x040400
+QT_END_NAMESPACE
+#endif
 
 #include "moc_qtexpropertymanager.cpp"
 //#include "qtexpropertymanager.moc"
