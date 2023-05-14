@@ -73,12 +73,12 @@ void diagram_view::dropEvent(QDropEvent *event)
         qDebug() << "name: " << name << offset;
 
 
-        if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
-        {
-            event->ignore();
-            QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Группы допускается создавать только в главном окне"));
-            return;
-        }
+        //if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
+        //{
+        //    event->ignore();
+        //    QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Группы допускается создавать только в главном окне"));
+        //    return;
+        //}
 
         if (scene() != nullptr)
         {
@@ -91,8 +91,8 @@ void diagram_view::dropEvent(QDropEvent *event)
             di->getProperties()->SetFileName(main_->GetCurrentFileName());
             di->getProperties()->SetGroupNames(main_->GetCurrentFileIncludeNames());
             di->getProperties()->SetGroupName("<not selected>");
-            di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName(), main_->GetCurrentGroup()));
-            di->SetGroupName(main_->GetCurrentGroup());
+            di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
+            //di->SetGroupName(main_->GetCurrentGroup());
             ds->informItemCreated(di);
 
 

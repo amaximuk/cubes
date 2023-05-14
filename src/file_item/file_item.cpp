@@ -432,6 +432,33 @@ QStringList file_item::GetIncludeNames()
     return result;
 }
 
+QList<QPair<QString, QString>> file_item::GetIncludeVariables(const QString& includeName)
+{
+    QList<QPair<QString, QString>> result;
+
+    const auto pm = GetParameterModel("INCLUDES");
+    if (pm == nullptr)
+        return result;
+
+    for (int i = 0; i < pm->value.toInt(); i++)
+    {
+        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        if (pmi->name == includeName)
+        {
+            const auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(i));
+            for (int j = 0; j < pmiv->value.toInt(); j++)
+            {
+                const auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(i, j));
+                const auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(i, j));
+                result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
+            }
+            break;
+        }
+    }
+
+    return result;
+}
+
 void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count)
 {
     // Сначала добавляем

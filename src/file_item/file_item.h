@@ -5,9 +5,9 @@
 #include <QList>
 #include <QSharedPointer>
 
-#include "unit_types.h"
 #include "file_items_manager_interface.h"
-#include "properties_editor.h"
+#include "../unit_types.h"
+#include "../properties_editor.h"
 
 class file_item : public QObject
 {
@@ -46,6 +46,7 @@ public:
     QColor GetColor();
     QString GetPropertyDescription(const QtProperty* property);
     QStringList GetIncludeNames();
+    QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
 
 private slots:
     void ValueChanged(QtProperty* property, const QVariant& value);

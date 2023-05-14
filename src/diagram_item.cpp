@@ -84,7 +84,7 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName(), groupName_),
+            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName()),
                 Qt::AlignCenter | Qt::AlignHCenter);
 
             QString fileName = properties_->GetFileName();

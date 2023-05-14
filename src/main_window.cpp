@@ -85,15 +85,18 @@ QWidget* MainWindow::CreateMainWidget()
     FillParametersInfo();
     FillTreeView();
 
-    tabWidget_ = new QTabWidget;
-    QWidget* widgetMainTab= CreateTabWidget(0);
-    tabWidget_->addTab(widgetMainTab, "Main");
+    CreateScene();
+    CreateView();
 
-    qDebug() << connect(tabWidget_, &QTabWidget::currentChanged, this, &MainWindow::on_Tab_currentChanged);
+    //tabWidget_ = new QTabWidget;
+    //QWidget* widgetMainTab= CreateTabWidget(0);
+    //tabWidget_->addTab(widgetMainTab, "Main");
+
+    //qDebug() << connect(tabWidget_, &QTabWidget::currentChanged, this, &MainWindow::on_Tab_currentChanged);
 
     QSplitter* splitterTreeTab = new QSplitter(Qt::Horizontal);
     splitterTreeTab->addWidget(tree_);
-    splitterTreeTab->addWidget(tabWidget_);
+    splitterTreeTab->addWidget(view_);
     splitterTreeTab->setStretchFactor(0, 0);
     splitterTreeTab->setStretchFactor(1, 1);
 
@@ -117,17 +120,6 @@ QWidget* MainWindow::CreateMainWidget()
     mainLayout->addWidget(splitterMain);
     mainWidget->setLayout(mainLayout);
     return mainWidget;
-}
-
-QWidget* MainWindow::CreateTabWidget(int index)
-{
-    if (panes_.size() != index)
-        return nullptr;
-
-    panes_.resize(index + 1);
-    CreateScene(index);
-    CreateView(index);
-    return panes_[index].second;
 }
 
 QWidget* MainWindow::CreateLogWidget()
@@ -219,24 +211,24 @@ QWidget* MainWindow::CreateLogWidget()
 //    return widgetTabProperties;
 //}
 
-void MainWindow::CreateScene(int index)
+void MainWindow::CreateScene()
 {
-    panes_[index].first = new diagram_scene(this, index);
-    panes_[index].first->setSceneRect(-10000, -10000, 20032, 20032);
+    scene_ = new diagram_scene(this);
+    scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(panes_[index].first, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(panes_[index].first, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
-    qDebug() << connect(panes_[index].first, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
-    qDebug() << connect(panes_[index].first, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
-    qDebug() << connect(panes_[index].first, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
-    qDebug() << connect(panes_[index].first, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
-    qDebug() << connect(panes_[index].first, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
+    qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
+    qDebug() << connect(scene_, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
+    qDebug() << connect(scene_, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
+    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(scene_, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
+    qDebug() << connect(scene_, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
+    qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
-void MainWindow::CreateView(int index)
+void MainWindow::CreateView()
 {
-    panes_[index].second = new diagram_view(panes_[index].first, this);
-    panes_[index].second->setDragMode(QGraphicsView::RubberBandDrag);
+    view_ = new diagram_view(scene_, this);
+    view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 //void MainWindow::CreatePropertyBrowser()
@@ -621,22 +613,8 @@ void MainWindow::FillParametersInfo()
     }
 }
 
-bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, const xml::File& file)
+bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
 {
-    int tabIndex = -1;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            tabIndex = i;
-            break;
-        }
-    }
-
-    if (tabIndex == -1)
-        return false;
-
     QVector<xml::Unit> all_units;
     for (const auto& g : file.config.groups)
     {
@@ -677,13 +655,10 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
             di->getProperties()->ApplyXmlProperties(all_units[i]);
             di->getProperties()->SetFileNames(fileNames);
             di->getProperties()->SetFileName(fileName);
-            di->SetGroupName(groupName);
+            //di->SetGroupName(groupName);
 
-            if (tabIndex != 0)
-                di->getProperties()->SetFileNameReadOnly(true);
-
-            panes_[tabIndex].first->addItem(di);
-            panes_[tabIndex].first->clearSelection();
+            scene_->addItem(di);
+            scene_->clearSelection();
 
             afterItemCreated(di);
         }
@@ -693,34 +668,20 @@ bool MainWindow::AddUnits(const QString& groupName, const QString& fileName, con
         }
     }
 
-    if (!SortUnits(groupName))
+    if (!SortUnits())
         return false;
 
     return true;
 }
 
-bool MainWindow::SortUnits(const QString& groupName)
+bool MainWindow::SortUnits()
 {
-    int tabIndex = -1;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            tabIndex = i;
-            break;
-        }
-    }
-
-    if (tabIndex == -1)
-        return false;
-
     // Prepare sort
     int nextIndex = 0;
     QMap<QString, int> nameToIndex;
     QMap<int, QString> indexToName;
     QMap<QString, QSet<QString>> connectedNames;
-    for (auto& item : panes_[tabIndex].first->items())
+    for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -753,8 +714,8 @@ bool MainWindow::SortUnits(const QString& groupName)
         return false;
     }
 
-    auto vr = panes_[tabIndex].second->mapToScene(panes_[tabIndex].second->viewport()->geometry()).boundingRect();
-    for (auto& item : panes_[tabIndex].first->items())
+    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
+    for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -780,21 +741,21 @@ bool MainWindow::SortUnits(const QString& groupName)
 
         //di->setSelected(true);
     }
-    QPointF center = panes_[tabIndex].first->itemsBoundingRect().center();
-    //QPointF centerMapped = panes_[tabIndex].second->mapFromScene(center);
-    panes_[tabIndex].second->centerOn(center);
+    QPointF center = scene_->itemsBoundingRect().center();
+    //QPointF centerMapped = view_->mapFromScene(center);
+    view_->centerOn(center);
 
-    panes_[tabIndex].first->invalidate();
+    scene_->invalidate();
     return true;
 }
 
 bool MainWindow::AddMainFile(xml::File& file)
 {
-    if (panes_.size() == 1 && panes_[0].first->items().size() == 0)
-    {
-        file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
-        file_items_manager_->Clear();
-    }
+    //if (panes_.size() == 1 && scene_->items().size() == 0)
+    //{
+    //    file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
+    //    file_items_manager_->Clear();
+    //}
 
     QString fileName = QFileInfo(file.fileName).fileName();
 
@@ -802,11 +763,8 @@ bool MainWindow::AddMainFile(xml::File& file)
     file_items_manager_->Select(fileName);
 
     QStringList fileNames = file_items_manager_->GetFileNames();
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        for (auto& item : panes_[i].first->items())
-            reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
-    }
+    for (auto& item : scene_->items())
+        reinterpret_cast<diagram_item*>(item)->getProperties()->SetFileNames(fileNames);
 
     // Convert includes into unit
     xml::Group g{};
@@ -845,19 +803,18 @@ bool MainWindow::AddMainFile(xml::File& file)
     if (file.includes.size() > 0)
         file.config.groups.push_back(std::move(g));
 
-    if (!AddUnits("Main", fileName, file))
+    if (!AddUnits(fileName, file))
         return false;
 
     QDir dir = QFileInfo(file.fileName).absoluteDir();
     for (int i = 0; i < file.includes.size(); i++)
     {
-        QString groupName = QString::fromLocal8Bit("Группа %1").arg(i);
         QString includedFileName = dir.filePath(file.includes[i].fileName);
         xml::File includedFile{};
         if (!xml::parser::parse(includedFileName, includedFile))
             return false;
 
-        if (!AddUnits(groupName, fileName, includedFile))
+        if (!AddUnits(fileName, includedFile))
             return false;
     }
 
@@ -909,7 +866,7 @@ bool MainWindow::AddMainFile(xml::File& file)
 //    return "";
 //}
 
-QString MainWindow::GetNewUnitName(const QString& baseName, const QString& groupName)
+QString MainWindow::GetNewUnitName(const QString& baseName)
 {
     //int tabIndex = -1;
     //for (int i = 0; i < panes_.count(); ++i)
@@ -926,7 +883,7 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
     //    return false;
 
     //QString unitName = baseName;
-    //for (const auto& pi : panes_[tabIndex].first->items())
+    //for (const auto& pi : scene_->items())
     //{
     //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
     //    if (di->getProperties()->GetName() == baseName)
@@ -946,13 +903,13 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
 
     {
         QList<QPair<QString, QString>> variables;
-        for (const auto& pi : panes_[0].first->items())
+        for (const auto& pi : scene_->items())
         {
             diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-            if (di->getProperties()->GetName() == groupName)
+            if (di->getProperties()->GetGroupName() != "<not selected>")
             {
-                variables = di->getProperties()->GetVariables();
-                break;
+                variables = file_items_manager_->GetFileIncludeVariables(di->getProperties()->GetName(),
+                    di->getProperties()->GetGroupName());
             }
         }
 
@@ -967,39 +924,34 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
     int counter = 0;
     while (true)
     {
-        bool found = false;
-        for (int i = 0; i < panes_.count(); ++i)
+        QList<QPair<QString, QString>> variables;
+        for (const auto& pi : scene_->items())
         {
-            QList<QPair<QString, QString>> variables;
-            QString tabName = tabWidget_->tabText(i);
-            for (const auto& pi : panes_[0].first->items())
+            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+            if (di->getProperties()->GetGroupName() != "<not selected>")
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-                if (di->getProperties()->GetName() == tabName)
-                {
-                    variables = di->getProperties()->GetVariables();
-                    break;
-                }
+                variables = file_items_manager_->GetFileIncludeVariables(di->getProperties()->GetName(),
+                    di->getProperties()->GetGroupName());
             }
-
-            for (const auto& item : panes_[i].first->items())
-            {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                QString realName = di->getName();
-                for (const auto& v : variables)
-                {
-                    QString replace = QString("@%1@").arg(v.first);
-                    realName.replace(replace, v.second);
-                }
-                if (realName == newName)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (found)
-                break;
         }
+
+        bool found = false;
+        for (const auto& item : scene_->items())
+        {
+            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            QString realName = di->getName();
+            for (const auto& v : variables)
+            {
+                QString replace = QString("@%1@").arg(v.first);
+                realName.replace(replace, v.second);
+            }
+            if (realName == newName)
+            {
+                found = true;
+                break;
+            }
+        }
+
         if (found)
             newName = QString("%1#%2").arg(varName).arg(++counter);
         else
@@ -1011,21 +963,16 @@ QString MainWindow::GetNewUnitName(const QString& baseName, const QString& group
         return QString("%1#%2").arg(name).arg(counter);
 }
 
-QString MainWindow::GetDisplayName(const QString& baseName, const QString& groupName)
+QString MainWindow::GetDisplayName(const QString& baseName)
 {
     QList<QPair<QString, QString>> variables;
-
-    for (int i = 0; i < panes_.count(); ++i)
+    for (const auto& pi : scene_->items())
     {
-        //QString tabName = tabWidget_->tabText(i);
-        for (const auto& pi : panes_[0].first->items())
+        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+        if (di->getProperties()->GetGroupName() != "<not selected>")
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-            if (di->getProperties()->GetName() == groupName)
-            {
-                variables = di->getProperties()->GetVariables();
-                break;
-            }
+            variables = file_items_manager_->GetFileIncludeVariables(di->getProperties()->GetName(),
+                di->getProperties()->GetGroupName());
         }
     }
 
@@ -1039,93 +986,93 @@ QString MainWindow::GetDisplayName(const QString& baseName, const QString& group
     return realName;
 }
 
-QString MainWindow::GetCurrentGroup()
-{
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return "";
+//QString MainWindow::GetCurrentGroup()
+//{
+//    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+//    if (tabIndex == -1)
+//        return "";
+//
+//    return tabWidget_->tabText(tabIndex);
+//}
+//
+//void MainWindow::ActivateGroup(const QString& groupName)
+//{
+//    for (int i = 0; i < panes_.count(); ++i)
+//    {
+//        QString tabName = tabWidget_->tabText(i);
+//        if (groupName == tabName)
+//        {
+//            tabWidget_->setCurrentIndex(i);
+//            break;
+//        }
+//    }
+//}
+//
+//QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
+//{
+//    QList<QString> connections;
+//    for (int i = 0; i < panes_.count(); ++i)
+//    {
+//        QString tabName = tabWidget_->tabText(i);
+//        if (groupName == tabName)
+//        {
+//            for (const auto& item : scene_->items())
+//            {
+//                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+//                if (!connections.contains(di->getName()))
+//                    connections.push_back(di->getName());
+//            }
+//            break;
+//        }
+//    }
+//    return connections;
+//}
+//
+//QStringList MainWindow::GetGroupConnectedNames(const QString& groupName, bool depends)
+//{
+//    QList<QString> connections;
+//    for (int i = 0; i < panes_.count(); ++i)
+//    {
+//        QString tabName = tabWidget_->tabText(i);
+//        if (groupName == tabName)
+//        {
+//            for (const auto& item : scene_->items())
+//            {
+//                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+//                QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
+//                for (const auto& c : conn)
+//                {
+//                    if (!connections.contains(c))
+//                        connections.push_back(c);
+//                }
+//            }
+//            break;
+//        }
+//    }
+//    return connections;
+//}
 
-    return tabWidget_->tabText(tabIndex);
+QMap<QString, QStringList> MainWindow::GetUnitsConnections()
+{
+    return GetConnectionsInternal(false);
 }
 
-void MainWindow::ActivateGroup(const QString& groupName)
+QMap<QString, QStringList> MainWindow::GetDependsConnections()
 {
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            tabWidget_->setCurrentIndex(i);
-            break;
-        }
-    }
+    return GetConnectionsInternal(true);
 }
 
-QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
-{
-    QList<QString> connections;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            for (const auto& item : panes_[i].first->items())
-            {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                if (!connections.contains(di->getName()))
-                    connections.push_back(di->getName());
-            }
-            break;
-        }
-    }
-    return connections;
-}
-
-QStringList MainWindow::GetGroupConnectedNames(const QString& groupName, bool depends)
-{
-    QList<QString> connections;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            for (const auto& item : panes_[i].first->items())
-            {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
-                for (const auto& c : conn)
-                {
-                    if (!connections.contains(c))
-                        connections.push_back(c);
-                }
-            }
-            break;
-        }
-    }
-    return connections;
-}
-
-QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(const QString& groupName)
-{
-    return GetGroupConnectionsInternal(groupName, false);
-}
-
-QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(const QString& groupName)
-{
-    return GetGroupConnectionsInternal(groupName, true);
-}
-
-QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(int groupId)
-{
-    QString groupName = tabWidget_->tabText(groupId);
-    return GetGroupConnectionsInternal(groupName, false);
-}
-
-QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
-{
-    QString groupName = tabWidget_->tabText(groupId);
-    return GetGroupConnectionsInternal(groupName, true);
-}
+//QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(int groupId)
+//{
+//    QString groupName = tabWidget_->tabText(groupId);
+//    return GetGroupConnectionsInternal(groupName, false);
+//}
+//
+//QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
+//{
+//    QString groupName = tabWidget_->tabText(groupId);
+//    return GetGroupConnectionsInternal(groupName, true);
+//}
 
 //QStringList MainWindow::GetGroupNames()
 //{
@@ -1138,31 +1085,31 @@ QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
 //    return list;
 //}
 
-int MainWindow::GetTabIndex(const QString& groupName)
-{
-    int tabIndex = -1;
-    for (int i = 0; i < tabWidget_->count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            tabIndex = i;
-            break;
-        }
-    }
-    return tabIndex;
-}
+//int MainWindow::GetTabIndex(const QString& groupName)
+//{
+//    int tabIndex = -1;
+//    for (int i = 0; i < tabWidget_->count(); ++i)
+//    {
+//        QString tabName = tabWidget_->tabText(i);
+//        if (groupName == tabName)
+//        {
+//            tabIndex = i;
+//            break;
+//        }
+//    }
+//    return tabIndex;
+//}
 
-diagram_item* MainWindow::GetGroupItem(const QString& groupName)
-{
-    for (const auto& pi : panes_[0].first->items())
-    {
-        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-        if (di->getProperties()->GetName() == groupName)
-            return di;
-    }
-    return nullptr;
-}
+//diagram_item* MainWindow::GetGroupItem(const QString& groupName)
+//{
+//    for (const auto& pi : scene_->items())
+//    {
+//        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+//        if (di->getProperties()->GetName() == groupName)
+//            return di;
+//    }
+//    return nullptr;
+//}
 
 // top_manager_interface
 void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
@@ -1175,29 +1122,14 @@ void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QStrin
 
 }
 
-QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString& groupName, bool depends)
+QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
 {
     // Сюда будем собирать реальные соединения на этой сцене
     QMap<QString, QStringList> result;
 
-    // Получим индекс страницы, он же индекс в массиве panes_
-    int tabIndex = -1;
-    for (int i = 0; i < panes_.count(); ++i)
-    {
-        QString tabName = tabWidget_->tabText(i);
-        if (groupName == tabName)
-        {
-            tabIndex = i;
-            break;
-        }
-    }
-
-    if (tabIndex == -1)
-        return result;
-
     // Соберем имена юнитов на главной панели
     QStringList mainUnits;
-    for (const auto& item : panes_[tabIndex].first->items())
+    for (const auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         QString name = di->getInstanceName();
@@ -1206,27 +1138,13 @@ QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString
 
     // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
     QMap<QString, QStringList> connections;
-    QMap<QString, QStringList> groups;
-    for (const auto& item : panes_[tabIndex].first->items())
+    for (const auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         QString name = di->getInstanceName();
-
-        if (di->getProperties()->GetId() == "group")
-        {
-            QStringList uni = GetGroupUnitsNames(name);
-            if (uni.size() > 0)
-                groups[name].append(uni);
-            QStringList conn = GetGroupConnectedNames(name, depends);
-            if (conn.size() > 0)
-                connections[name].append(conn);
-        }
-        else
-        {
-            QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
-            if (conn.size() > 0)
-                connections[name].append(conn);
-        }
+        QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
+        if (conn.size() > 0)
+            connections[name].append(conn);
     }
 
     // Перебираем юниты сцены и для них рисуем соединения
@@ -1251,38 +1169,6 @@ QMap<QString, QStringList> MainWindow::GetGroupConnectionsInternal(const QString
                 {
                     // Добавляем
                     result[unitName].push_back(name);
-                }
-            }
-            else
-            {
-                // Проверяем, что соединение с юнитом одной из групп
-                for (const auto& kvp2 : groups.toStdMap())
-                {
-                    // Проверяем эту группу
-                    QString groupName = kvp.first;
-
-                    // Перебираем юниты группы
-                    for (const auto& name2 : kvp2.second)
-                    {
-                        if (name == name2)
-                        {
-                            // Соединение с юнитом группы, в которой совпадение
-                            
-                            // Отсеиваем дубликаты
-                            if ((result.contains(unitName) && result[unitName].contains(groupName)) ||
-                                (result.contains(groupName) && result[groupName].contains(unitName)))
-                            {
-                                // Уже есть
-                            }
-                            else
-                            {
-                                // Добавляем
-                                result[unitName].push_back(groupName);
-                            }
-
-                            break;
-                        }
-                    }
                 }
             }
         }
@@ -1323,13 +1209,13 @@ QColor MainWindow::GetFileColor(const QString& fileName)
 
 void MainWindow::selectionChanged()
 {
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
-    if (panes_[tabIndex].first->selectedItems().count() > 0)
+    if (scene_->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(panes_[tabIndex].first->selectedItems()[0]);
+        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
         di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
@@ -1347,10 +1233,10 @@ void MainWindow::selectionChanged()
 
 
     //propertyEditor->clear();
-    //if (panes_[0].first->selectedItems().count() > 0)
+    //if (scene_->selectedItems().count() > 0)
     //{
     //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-    //    diagram_item* di = (diagram_item*)(panes_[0].first->selectedItems()[0]);
+    //    diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
     //    qDebug() << di->getName();
 
     //    QtProperty* mainGroup = groupManager->addProperty(di->getName());
@@ -1428,9 +1314,9 @@ void MainWindow::test2(QPointF ppp)
 
 void MainWindow::on_Tab_currentChanged(int index)
 {
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
     if (index == 0)
     {
@@ -1445,7 +1331,7 @@ void MainWindow::on_Tab_currentChanged(int index)
 
     comboBoxUnits_->clear();
     comboBoxUnits_->addItem("<empty>");
-    for (const auto& item : panes_[tabIndex].first->items())
+    for (const auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         comboBoxUnits_->addItem(di->getName());
@@ -1504,9 +1390,9 @@ void MainWindow::itemPositionChanged(diagram_item* item)
 
 void MainWindow::afterItemCreated(diagram_item* item)
 {
-    int tabIndex = GetTabIndex(item->GetGroupName());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = GetTabIndex(item->GetGroupName());
+    //if (tabIndex == -1)
+    //    return;
 
     // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов
     comboBoxUnits_->addItem(item->getName());
@@ -1515,7 +1401,7 @@ void MainWindow::afterItemCreated(diagram_item* item)
     //if (tabIndex > 0)
     //{
     //    QString name = tabWidget_->tabText(tabIndex);
-    //    for (const auto& pi : panes_[0].first->items())
+    //    for (const auto& pi : scene_->items())
     //    {
     //        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
     //        if (di->getProperties()->GetName() == name)
@@ -1540,39 +1426,38 @@ void MainWindow::beforeItemDeleted(diagram_item* item)
         }
     }
 
-    if (item->getProperties()->GetId() == "group")
-    {
-        QString name = item->getProperties()->GetName();
-        for (int i = 0; i < tabWidget_->count(); ++i)
-        {
-            if (tabWidget_->tabText(i) == name)
-            {
-                tabWidget_->removeTab(i);
-                for (auto item : panes_[i].first->items())
-                    delete item;
-                delete panes_[i].first; // Use Smart pointers!!!
-                delete panes_[i].second; // Use Smart pointers!!!
-                panes_.removeAt(i);
-                break;
-            }
-        }
-    }
+    //if (item->getProperties()->GetId() == "group")
+    //{
+    //    QString name = item->getProperties()->GetName();
+    //    for (int i = 0; i < tabWidget_->count(); ++i)
+    //    {
+    //        if (tabWidget_->tabText(i) == name)
+    //        {
+    //            tabWidget_->removeTab(i);
+    //            for (auto item : scene_->items())
+    //                delete item;
+    //            delete scene_; // Use Smart pointers!!!
+    //            delete view_; // Use Smart pointers!!!
+    //            break;
+    //        }
+    //    }
+    //}
 }
 
 void MainWindow::itemNameChanged(diagram_item* item, QString oldName)
 {
-    if (item->getProperties()->GetId() == "group")
-    {
-        QString name = item->getProperties()->GetName();
-        for (int i = 0; i < tabWidget_->count(); ++i)
-        {
-            if (tabWidget_->tabText(i) == oldName)
-            {
-                tabWidget_->setTabText(i, name);
-                break;
-            }
-        }
-    }
+    //if (item->getProperties()->GetId() == "group")
+    //{
+    //    QString name = item->getProperties()->GetName();
+    //    for (int i = 0; i < tabWidget_->count(); ++i)
+    //    {
+    //        if (tabWidget_->tabText(i) == oldName)
+    //        {
+    //            tabWidget_->setTabText(i, name);
+    //            break;
+    //        }
+    //    }
+    //}
     int i = comboBoxUnits_->findText(oldName);
     if (i != -1)
         comboBoxUnits_->setItemText(i, item->getProperties()->GetName());
@@ -1586,45 +1471,45 @@ void MainWindow::itemFileChanged(diagram_item* item)
     item->getProperties()->SetGroupName("<not selected>");
     item->getProperties()->ApplyToBrowser(propertyEditor_);
 
-    if (item->getProperties()->GetId() == "group")
-    {
-        QString name = item->getProperties()->GetName();
-        QString fileName = item->getProperties()->GetFileName();
-        for (int i = 0; i < tabWidget_->count(); ++i)
-        {
-            if (tabWidget_->tabText(i) == name)
-            {
-                for (auto& item : panes_[i].first->items())
-                {
-                    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                    di->getProperties()->SetFileName(fileName);
-                }
-                break;
-            }
-        }
-    }
+    //if (item->getProperties()->GetId() == "group")
+    //{
+    //    QString name = item->getProperties()->GetName();
+    //    QString fileName = item->getProperties()->GetFileName();
+    //    for (int i = 0; i < tabWidget_->count(); ++i)
+    //    {
+    //        if (tabWidget_->tabText(i) == name)
+    //        {
+    //            for (auto& item : scene_->items())
+    //            {
+    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //                di->getProperties()->SetFileName(fileName);
+    //            }
+    //            break;
+    //        }
+    //    }
+    //}
 }
 
 void MainWindow::itemGroupChanged(diagram_item* item)
 {
     item->getProperties()->ApplyToBrowser(propertyEditor_);
-    if (item->getProperties()->GetId() == "group")
-    {
-        QString name = item->getProperties()->GetName();
-        QString fileName = item->getProperties()->GetFileName();
-        for (int i = 0; i < tabWidget_->count(); ++i)
-        {
-            if (tabWidget_->tabText(i) == name)
-            {
-                for (auto& item : panes_[i].first->items())
-                {
-                    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-                    di->getProperties()->SetFileName(fileName);
-                }
-                break;
-            }
-        }
-    }
+    //if (item->getProperties()->GetId() == "group")
+    //{
+    //    QString name = item->getProperties()->GetName();
+    //    QString fileName = item->getProperties()->GetFileName();
+    //    for (int i = 0; i < tabWidget_->count(); ++i)
+    //    {
+    //        if (tabWidget_->tabText(i) == name)
+    //        {
+    //            for (auto& item : scene_->items())
+    //            {
+    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //                di->getProperties()->SetFileName(fileName);
+    //            }
+    //            break;
+    //        }
+    //    }
+    //}
 }
 //
 //void MainWindow::collapsed(QtBrowserItem* item)
@@ -1640,9 +1525,9 @@ void MainWindow::itemGroupChanged(diagram_item* item)
 //    //    break;
 //    //}
 //
-//    //if (panes_[0].first->selectedItems().count() > 0)
+//    //if (scene_->selectedItems().count() > 0)
 //    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+//    //    diagram_item* di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
 //    //    di->getProperties()->ExpandedChanged(item->property(), false);
 //    //}
 //}
@@ -1660,9 +1545,9 @@ void MainWindow::itemGroupChanged(diagram_item* item)
 //    //    break;
 //    //}
 //
-//    //if (panes_[0].first->selectedItems().count() > 0)
+//    //if (scene_->selectedItems().count() > 0)
 //    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0]);
+//    //    diagram_item* di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
 //    //    di->getProperties()->ExpandedChanged(item->property(), true);
 //    //}
 //}
@@ -1910,17 +1795,17 @@ void MainWindow::on_Quit_action()
 
 void MainWindow::on_Sort_action()
 {
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
-    SortUnits(tabWidget_->tabText(tabIndex));
+    SortUnits();
 
     //int nextIndex = 0;
     //QMap<QString, int> nameToIndex;
     //QMap<int, QString> indexToName;
     //QMap<QString, QSet<QString>> connectedNames;
-    //for (auto& item : panes_[tabIndex].first->items())
+    //for (auto& item : scene_->items())
     //{
     //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -1953,8 +1838,8 @@ void MainWindow::on_Sort_action()
     //    return;
     //}
 
-    //auto vr = panes_[tabIndex].second->mapToScene(panes_[tabIndex].second->viewport()->geometry()).boundingRect();
-    //for (auto& item : panes_[tabIndex].first->items())
+    //auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
+    //for (auto& item : scene_->items())
     //{
     //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -1971,7 +1856,7 @@ void MainWindow::on_Sort_action()
     //    di->setPos(position);
     //}
 
-    //panes_[tabIndex].first->invalidate();
+    //scene_->invalidate();
 }
 //
 //void MainWindow::on_AddFile_clicked()
@@ -1989,17 +1874,17 @@ void MainWindow::on_Sort_action()
 //    //comboBoxFiles_->addItem(text);
 //    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
 //
-//    for (auto& item : panes_[0].first->items())
+//    for (auto& item : scene_->items())
 //    {
 //        diagram_item* di = reinterpret_cast<diagram_item*>(item);
 //        QStringList fileNames = file_items_manager_->GetFileNames();
 //        di->getProperties()->SetFileNames(fileNames);
 //    }
 //
-//    if (panes_[0].first->selectedItems().size() > 0)
-//        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+//    if (scene_->selectedItems().size() > 0)
+//        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 //
-//    panes_[0].first->invalidate();
+//    scene_->invalidate();
 //
 //
 //
@@ -2027,7 +1912,7 @@ void MainWindow::on_Sort_action()
 //    //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
 //    //}
 //
-//    //for (auto& item : panes_[0].first->items())
+//    //for (auto& item : scene_->items())
 //    //{
 //    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
 //    //    QString fileName = di->getProperties()->GetFileName();
@@ -2040,8 +1925,8 @@ void MainWindow::on_Sort_action()
 //    //if (tabIndex == -1)
 //    //    return;
 //
-//    //if (panes_[tabIndex].first->selectedItems().size() > 0)
-//    //    reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+//    //if (scene_->selectedItems().size() > 0)
+//    //    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 //}
 //
 //void MainWindow::on_RemoveFile_clicked()
@@ -2074,20 +1959,20 @@ void MainWindow::on_RemoveGroup_clicked()
 
 void MainWindow::on_Units_currentIndexChanged(int index)
 {
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
-    panes_[tabIndex].first->blockSignals(true);
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
-        panes_[tabIndex].first->clearSelection();
+    scene_->blockSignals(true);
+    if (scene_->selectedItems().size() > 0)
+        scene_->clearSelection();
     propertyEditor_->clear();
-    panes_[tabIndex].first->blockSignals(false);
+    scene_->blockSignals(false);
     if (index == 0)
         return;
 
     QString name = comboBoxUnits_->currentText();
-    for (const auto& item : panes_[tabIndex].first->items())
+    for (const auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (di->getName() == name)
@@ -2100,13 +1985,13 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     if (item != nullptr)
         qDebug() << item->property()->propertyName();
 
-    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    if (tabIndex == -1)
-        return;
+    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+    //if (tabIndex == -1)
+    //    return;
 
-    if (panes_[tabIndex].first->selectedItems().size() > 0)
+    if (scene_->selectedItems().size() > 0)
     {
-        auto di = reinterpret_cast<diagram_item*>(panes_[tabIndex].first->selectedItems()[0]);
+        auto di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
         if (item != nullptr)
             plainTextEditHint_->setPlainText(di->getProperties()->GetPropertyDescription(item->property()));
         else
@@ -2139,7 +2024,7 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
 {
     QStringList fileNames = file_items_manager_->GetFileNames();
     QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
-    for (auto& item : panes_[0].first->items())
+    for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -2158,10 +2043,10 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
     //        comboBoxFiles_->setItemText(i, fileName);
     //}
 
-    if (panes_[0].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    if (scene_->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
-    panes_[0].first->invalidate();
+    scene_->invalidate();
 }
 
 void MainWindow::fileListChanged(const QStringList& fileNames)
@@ -2172,7 +2057,7 @@ void MainWindow::fileListChanged(const QStringList& fileNames)
 void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
     QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
-    for (auto& item : panes_[0].first->items())
+    for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
 
@@ -2189,23 +2074,23 @@ void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& 
     //if (fi != nullptr)
     //    fi->UpdateRegExp();
 
-    if (panes_[0].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    if (scene_->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
-    panes_[0].first->invalidate();
+    scene_->invalidate();
 }
 
 void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
 {
-    for (auto& item : panes_[0].first->items())
+    for (auto& item : scene_->items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (fileName == di->getProperties()->GetFileName())
             di->getProperties()->SetGroupNames(includeNames);
     }
 
-    if (panes_[0].first->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    if (scene_->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
-    panes_[0].first->invalidate();
+    scene_->invalidate();
 }

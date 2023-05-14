@@ -19,10 +19,10 @@ private:
     bool is_item_moving_;
     QGraphicsItem* moving_item_;
     QList<diagram_item*> drag_items_;
-    const int id_;
+    //const int id_;
 
 public:
-    explicit diagram_scene(MainWindow* main, int id, QObject *parent = nullptr);
+    explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);
 
 public:
     void informItemPositionChanged(diagram_item* item);

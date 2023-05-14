@@ -37,12 +37,6 @@ class MainWindow : public QMainWindow, top_manager_interface
 {
     Q_OBJECT
 
-//private:
-//    QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-//    int defaultColorFileIndex_;
-//    QVector<QColor> defaultColorsGroup_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-//    int defaultColorGroupIndex_;
-
 private:
     bool modified_;
 
@@ -54,10 +48,10 @@ protected:
     void CreateUi();
     void CreateMenu();
     QWidget* CreateMainWidget();
-    QWidget* CreateTabWidget(int index);
+    //QWidget* CreateTabWidget(int index);
     QWidget* CreateLogWidget();
-    void CreateScene(int index);
-    void CreateView(int index);
+    void CreateScene();
+    void CreateView();
     //void CreateFilesPropertyBrowser();
     void CreatePropertyBrowser();
     void CreateTreeView();
@@ -70,8 +64,8 @@ protected:
     void FillTreeView();
     void FillParametersInfo();
 
-    bool AddUnits(const QString& groupName, const QString& fileName, const xml::File& file);
-    bool SortUnits(const QString& groupName);
+    bool AddUnits(const QString& fileName, const xml::File& file);
+    bool SortUnits();
     bool AddMainFile(xml::File& file);
 
 public:
@@ -83,35 +77,35 @@ public:
     //QStringList GetFileGroups(const QString& fileId);
     //QColor GetGroupColor(const QString& groupId);
     //QString GetGroupFile(const QString& groupId);
-    QString GetNewUnitName(const QString& baseName, const QString& groupName);
-    QString GetDisplayName(const QString& baseName, const QString& groupName);
-    QString GetCurrentGroup();
-    void ActivateGroup(const QString& groupName);
+    QString GetNewUnitName(const QString& baseName);
+    QString GetDisplayName(const QString& baseName);
+    //QString GetCurrentGroup();
+    //void ActivateGroup(const QString& groupName);
     //void AddLogMessage(QString message);
-    QMap<QString, QStringList> GetGroupUnitsConnections(const QString& groupName);
-    QMap<QString, QStringList> GetGroupDependsConnections(const QString& groupName);
-    QMap<QString, QStringList> GetGroupUnitsConnections(int groupId);
-    QMap<QString, QStringList> GetGroupDependsConnections(int groupId);
-    int GetTabIndex(const QString& groupName);
-    diagram_item* GetGroupItem(const QString& groupName);
+    QMap<QString, QStringList> GetUnitsConnections();
+    QMap<QString, QStringList> GetDependsConnections();
+    //QMap<QString, QStringList> GetUnitsConnections();
+    //QMap<QString, QStringList> GetDependsConnections();
+    //int GetTabIndex(const QString& groupName);
+    //diagram_item* GetGroupItem(const QString& groupName);
 
     // top_manager_interface
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames);
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames);
 
 private:
-    QStringList GetGroupUnitsNames(const QString& groupName);
-    QStringList GetGroupConnectedNames(const QString& groupName, bool depends);
-    QMap<QString, QStringList> GetGroupConnectionsInternal(const QString& groupName, bool depends);
+    //QStringList GetUnitsNames();
+    //QStringList GetConnectedNames(bool depends);
+    QMap<QString, QStringList> GetConnectionsInternal(bool depends);
 
 private:
-    QVector<QPair<QPointer<diagram_scene>, QPointer<diagram_view>>> panes_;
-    //diagram_scene* scene_;
-    //QPointer<diagram_view> view_;
+    //QVector<QPair<QPointer<diagram_scene>, QPointer<diagram_view>>> panes_;
+    QPointer<diagram_scene> scene_;
+    QPointer<diagram_view> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
-    QPointer<QTabWidget> tabWidget_;
+    //QPointer<QTabWidget> tabWidget_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
     //QPointer<properties_editor> filePropertiesEditor_;

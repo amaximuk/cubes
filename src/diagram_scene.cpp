@@ -10,9 +10,8 @@
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
-diagram_scene::diagram_scene(MainWindow* main, int id, QObject *parent) :
-    QGraphicsScene(parent),
-    id_(id)
+diagram_scene::diagram_scene(MainWindow* main, QObject *parent) :
+    QGraphicsScene(parent)
 {
     main_ = main;
     is_item_moving_ = false;
@@ -64,7 +63,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     for (auto& item : selectedItems())
     {
         diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
-        di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName(), di->GetGroupName()));
+        di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
 
         //di->getProperties()->SetName("<new item>");
         drag_items_.push_back(di);
@@ -314,7 +313,7 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
 void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
 {
     {
-        QMap<QString, QStringList> connections = main_->GetGroupUnitsConnections(id_);
+        QMap<QString, QStringList> connections = main_->GetUnitsConnections();
         painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())
@@ -329,7 +328,7 @@ void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
     }
 
     {
-        QMap<QString, QStringList> connections = main_->GetGroupDependsConnections(id_);
+        QMap<QString, QStringList> connections = main_->GetDependsConnections();
         painter->setPen(QPen(QBrush(QColor(0, 0, 0, 0x80), Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())
@@ -350,7 +349,7 @@ void diagram_scene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
     if (item != nullptr)
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        if (di->getProperties()->GetId() == "group")
-            main_->ActivateGroup(di->getProperties()->GetName());
+        //if (di->getProperties()->GetId() == "group")
+        //    main_->ActivateGroup(di->getProperties()->GetName());
     }
 }

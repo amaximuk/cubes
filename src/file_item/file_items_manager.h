@@ -13,7 +13,7 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QLabel>
-#include "top_manager_interface.h"
+#include "../top_manager_interface.h"
 #include "file_items_manager_interface.h"
 #include "file_item.h"
 
@@ -145,6 +145,23 @@ public:
 				fileIncludeNames.append(fi->GetIncludeNames());
 		}
 		return fileIncludeNames;
+	}
+
+	QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName)
+	{
+		QList<QPair<QString, QString>> result;
+
+		QStringList fileIncludeNames;
+		for (auto& fi : items_)
+		{
+			if (fi->GetName() == fileName)
+			{
+				result = fi->GetIncludeVariables(includeName);
+				break;
+			}
+		}
+
+		return result;
 	}
 
 	void Clear()
