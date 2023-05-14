@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QString>
-#include "common_interface_definitions.h"
 
 class top_manager_interface
 {

@@ -1,9 +1,7 @@
 #pragma once
 #include "qtexpropertymanager.h"
 
-#if QT_VERSION >= 0x040400
 QT_BEGIN_NAMESPACE
-#endif
 
 class QtExLineEditFactoryPrivate;
 
@@ -29,6 +27,4 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-#if QT_VERSION >= 0x040400
 QT_END_NAMESPACE
-#endif

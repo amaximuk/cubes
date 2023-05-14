@@ -3,7 +3,7 @@
 
 #include "diagram_scene.h"
 #include "diagram_item.h"
-#include "properties_item.h"
+#include "properties_item/properties_item.h"
 
 diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent):
     QGraphicsItem(parent)

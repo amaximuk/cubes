@@ -5,7 +5,7 @@
 #include <QList>
 #include <QtXml>
 
-#include "parameters_compiler_types.h"
+#include "parameters_compiler/parameters_compiler_types.h"
 
 namespace xml
 {

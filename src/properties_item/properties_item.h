@@ -5,8 +5,8 @@
 #include <QObject>
 #include <QPixmap>
 
-#include "unit_types.h"
-#include "xml_parser.h"
+#include "../unit_types.h"
+#include "../xml_parser.h"
 
 class diagram_item;
 

@@ -2,14 +2,14 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-#include "diagram_scene.h"
+#include "../diagram_scene.h"
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
-#include "main_window.h"
-#include "base64.h"
-#include "diagram_item.h"
-#include "parameters_compiler_helper.h"
+#include "../main_window.h"
+#include "../parameters_compiler/base64.h"
+#include "../diagram_item.h"
+#include "../parameters_compiler/parameters_compiler_helper.h"
 #include "file_item.h"
 
 file_item::file_item(file_items_manager_interface* file_items_manager, properties_editor* editor)

@@ -7,12 +7,12 @@
 #include "tree_item_model.h"
 #include "diagram_scene.h"
 #include "diagram_item.h"
-#include "properties_item.h"
-#include "yaml_parser.h"
+#include "properties_item/properties_item.h"
+#include "parameters_compiler/yaml_parser.h"
 #include "xml_parser.h"
-#include "base64.h"
+#include "parameters_compiler/base64.h"
 #include "graph.h"
-#include "log_table_model.h"
+#include "log_table/log_table_model.h"
 
 #include <vector>
 

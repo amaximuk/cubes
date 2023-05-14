@@ -8,13 +8,13 @@
 #include <QMainWindow>
 #include <QVector>
 
-#include "parameters_compiler_types.h"
-#include "file_item.h"
+#include "parameters_compiler/parameters_compiler_types.h"
+#include "file_item/file_item.h"
 #include "xml_parser.h"
 #include "unit_types.h"
-#include "log_table_model.h"
-#include "sort_filter_model.h"
-#include "file_items_manager.h"
+#include "log_table/log_table_model.h"
+#include "log_table/sort_filter_model.h"
+#include "file_item/file_items_manager.h"
 #include "properties_editor.h"
 #include "top_manager_interface.h"
 

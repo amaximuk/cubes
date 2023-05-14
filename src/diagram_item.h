@@ -6,7 +6,7 @@
 #include <QPointer>
 #include <QFont>
 
-#include "properties_item.h"
+#include "properties_item/properties_item.h"
 #include "unit_types.h"
 
 

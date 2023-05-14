@@ -10,7 +10,7 @@
 #include <QVariant>
 #include <QSet>
 
-#include "parameters_compiler_types.h"
+#include "parameters_compiler/parameters_compiler_types.h"
 
 namespace unit_types
 {
