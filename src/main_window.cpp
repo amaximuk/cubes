@@ -1114,11 +1114,31 @@ QMap<QString, QStringList> MainWindow::GetDependsConnections()
 // top_manager_interface
 void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
 {
-
+    // Соберем имена юнитов в файле
+    for (const auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (di->getProperties()->GetFileName() == fileName)
+        {
+            QString name = di->getInstanceName();
+            unitNames.push_back(name);
+        }
+    }
 }
 
 void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames)
 {
+    // Соберем имена юнитов в файле
+    for (const auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (di->getProperties()->GetFileName() == fileName &&
+            di->getProperties()->GetGroupName() == includeName)
+        {
+            QString name = di->getInstanceName();
+            unitNames.push_back(name);
+        }
+    }
 
 }
 
@@ -2051,7 +2071,16 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
 
 void MainWindow::fileListChanged(const QStringList& fileNames)
 {
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        di->getProperties()->SetFileNames(fileNames);
+    }
 
+    if (scene_->selectedItems().size() > 0)
+        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
 }
 
 void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)

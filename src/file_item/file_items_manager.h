@@ -80,6 +80,8 @@ public:
 		items_.push_back(fi);
 		selector_->addItem(fileName);
 		selector_->setCurrentIndex(selector_->count() - 1);
+
+		emit FilesListChanged(GetFileNames());
 	}
 
 	void Select(const QString& fileName)
@@ -265,7 +267,7 @@ public:
 		for (const auto& includeName : includeNames)
 		{
 			QStringList unitNames;
-			top_manager_->GetUnitsInFileList(fileName, unitNames);
+			top_manager_->GetUnitsInFileIncludeList(fileName, includeName, unitNames);
 			allUnitNames.unite(QSet<QString>(unitNames.begin(), unitNames.end()));
 		}
 		if (allUnitNames.count() > 0)
@@ -449,7 +451,8 @@ private:
 		items_.removeAll(toRemove);
 
 		// Если это был последний
-		editor_->GetPropertyEditor()->clear();
+		if (items_.count() == 0)
+			editor_->GetPropertyEditor()->clear();
 
 		// Сообщаяем об удалении
 		emit FilesListChanged(fileNames);

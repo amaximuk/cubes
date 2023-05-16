@@ -63,7 +63,11 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     for (auto& item : selectedItems())
     {
         diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
-        di->getProperties()->SetName(main_->GetNewUnitName(di->getProperties()->GetName()));
+
+        QString oldName = di->getProperties()->GetName();
+        QString newName = main_->GetNewUnitName(oldName);
+        di->getProperties()->SetName(newName);
+        qDebug() << "X1: " << oldName << " - " << newName;
 
         //di->getProperties()->SetName("<new item>");
         drag_items_.push_back(di);
@@ -77,7 +81,9 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
         for (auto& item : drag_items_)
         {
-            diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            qDebug() << "X2: " << di->getName();
+
             di->SetBorderOnly(false);
         }
     }
