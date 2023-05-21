@@ -20,4 +20,6 @@ public:
 	virtual void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) = 0;
 	virtual void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) = 0;
 	virtual void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) = 0;
+
+	virtual void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
 };

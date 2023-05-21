@@ -178,6 +178,7 @@ signals:
 	void FilesListChanged(const QStringList& fileNames);
 	void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
 	void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
+	void VariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
 
 public:
 	void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
@@ -287,6 +288,11 @@ public:
 		fileIncludeNames.push_back("<not selected>");
 		fileIncludeNames.append(includeNames);
 		emit IncludesListChanged(fileName, fileIncludeNames);
+	}
+
+	void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override
+	{
+		emit VariableChanged(fileName, includeName, variables);
 	}
 
 	//void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override

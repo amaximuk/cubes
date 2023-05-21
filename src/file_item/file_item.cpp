@@ -238,11 +238,14 @@ void file_item::ValueChanged(QtProperty* property, const QVariant& value)
             //pm->value = value;
             //file_items_manager_->InformIncludeNameChanged(GetName(), value.toString(), oldName);
         }
-        else if (pm->id == "INCLUDES")
+        else if ((pm->id == "INCLUDES") || (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("VARIABLES")))
         {
             int count = value.toInt();
 
-            UpdateIncludesArrayModel(*pm, count);
+            if (pm->id == "INCLUDES")
+                UpdateIncludesArrayModel(*pm, count);
+            else
+                UpdateVariablesArrayModel(*pm, count);
             pm->value = count;
             editor_->SetIntValue(property, count);
 
@@ -519,7 +522,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
             name.value = includeName;
             name.valueType = "string";
             name.editorSettings.type = unit_types::EditorType::String;
-            group_model.parameters.push_back(name);
+            group_model.parameters.push_back(std::move(name));
 
             unit_types::ParameterModel file_path;
             file_path.editorSettings.type = unit_types::EditorType::String;
@@ -529,7 +532,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
             file_path.valueType = "string";
             file_path.editorSettings.type = unit_types::EditorType::String;
             file_path.editorSettings.is_expanded = false;
-            group_model.parameters.push_back(file_path);
+            group_model.parameters.push_back(std::move(file_path));
 
             unit_types::ParameterModel variables;
             variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
@@ -542,7 +545,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
             variables.editorSettings.SpinIntergerMax = 100;
             group_model.parameters.push_back(std::move(variables));
 
-            pm.parameters.push_back(group_model);
+            pm.parameters.push_back(std::move(group_model));
         }
 
         // Информируем, что создали
@@ -604,31 +607,92 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
 
 void file_item::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count)
 {
-    for (int i = pm.parameters.size(); i < pm.value.toInt(); ++i)
+    // Разделяем путь на части
+    QStringList path = pm.id.split("/");
+    if (path.size() != 3 || path[0] != "INCLUDES")
+        return;
+
+    // Получаем модель (INCLUDES/ITEM_X)
+    const auto pmi = GetParameterModel(QString("%1/%2").arg(path[0], path[1]));
+    if (pmi == nullptr)
+        return;
+
+    // Получаем имя
+    QString includeName;
+    for (const auto& si : pmi->parameters)
     {
-        unit_types::ParameterModel group_model;
-        group_model.editorSettings.type = unit_types::EditorType::None;
-        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
-
-        unit_types::ParameterModel name;
-        name.editorSettings.type = unit_types::EditorType::String;
-        name.id = QString("%1/%2").arg(group_model.id, "NAME");
-        name.name = QString::fromLocal8Bit("Имя");
-        group_model.parameters.push_back(name);
-
-        unit_types::ParameterModel value;
-        value.editorSettings.type = unit_types::EditorType::String;
-        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
-        value.name = QString::fromLocal8Bit("Значение");
-        group_model.parameters.push_back(value);
-
-        pm.parameters.push_back(group_model);
+        if (si.id.endsWith("/NAME"))
+        {
+            includeName = si.value.toString();
+            break;
+        }
     }
 
+    // Сначала добавляем
+    if (pm.parameters.size() < count)
+    {
+        // Добавляем
+        for (int i = pm.parameters.size(); i < count; ++i)
+        {
+            // Создаем
+            unit_types::ParameterModel group_model;
+            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
-    while (pm.parameters.size() > pm.value.toInt())
-        pm.parameters.pop_back();
+            unit_types::ParameterModel name;
+            name.editorSettings.type = unit_types::EditorType::String;
+            name.id = QString("%1/%2").arg(group_model.id, "NAME");
+            name.name = QString::fromLocal8Bit("Имя");
+            name.value = QString::fromLocal8Bit("variable_%1").arg(i);
+            name.valueType = "string";
+            name.editorSettings.type = unit_types::EditorType::String;
+            group_model.parameters.push_back(std::move(name));
+
+            unit_types::ParameterModel variable;
+            variable.editorSettings.type = unit_types::EditorType::String;
+            variable.id = QString("%1/%2").arg(group_model.id, "VALUE");
+            variable.name = QString::fromLocal8Bit("Значение");
+            variable.value = "";
+            variable.valueType = "string";
+            variable.editorSettings.type = unit_types::EditorType::String;
+            variable.editorSettings.is_expanded = false;
+            group_model.parameters.push_back(std::move(variable));
+
+            pm.parameters.push_back(std::move(group_model));
+        }
+    }
+
+    // Теперь удаляем
+    if (pm.parameters.size() > count)
+    {
+        // Удаляем
+        while (pm.parameters.size() > count)
+        {
+            // Удаляем параметр
+            pm.parameters.pop_back();
+        }
+    }
+
+    // Получаем список имеющихся переменных
+    QList<QPair<QString, QString>> variables;
+    for (const auto& v : pm.parameters)
+    {
+        QString name;
+        QString value;
+        for (const auto& si : v.parameters)
+        {
+            if (si.id.endsWith("/NAME"))
+                name = si.value.toString();
+            else if (si.id.endsWith("/VALUE"))
+                value = si.value.toString();
+        }
+        if (!name.isEmpty())
+            variables.push_back({ name, value });
+    }
+
+    // Информируем, что создали
+    file_items_manager_->AfterVariableChanged(GetName(), includeName, variables);
 }
 
 //void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)
