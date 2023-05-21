@@ -222,7 +222,7 @@ void MainWindow::CreateScene()
     qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
     qDebug() << connect(scene_, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
     qDebug() << connect(scene_, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
-    qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
+    //qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
 void MainWindow::CreateView()
@@ -1236,7 +1236,7 @@ void MainWindow::selectionChanged()
     if (scene_->selectedItems().count() > 0)
     {
         diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
-        di->getProperties()->ApplyToBrowser(propertyEditor_);
+        //////di->getProperties()->ApplyToBrowser(propertyEditor_);
         di->getProperties()->PositionChanged(di->pos());
         di->getProperties()->ZOrderChanged(di->zValue());
         //di->getProperties()->applyExpandState(propertyEditor_);
@@ -1489,7 +1489,7 @@ void MainWindow::itemFileChanged(diagram_item* item)
     QStringList includeNames = file_items_manager_->GetFileIncludeNames(fileName);
     item->getProperties()->SetGroupNames(includeNames);
     item->getProperties()->SetGroupName("<not selected>");
-    item->getProperties()->ApplyToBrowser(propertyEditor_);
+    //////item->getProperties()->ApplyToBrowser(propertyEditor_);
 
     //if (item->getProperties()->GetId() == "group")
     //{
@@ -1510,27 +1510,27 @@ void MainWindow::itemFileChanged(diagram_item* item)
     //}
 }
 
-void MainWindow::itemGroupChanged(diagram_item* item)
-{
-    item->getProperties()->ApplyToBrowser(propertyEditor_);
-    //if (item->getProperties()->GetId() == "group")
-    //{
-    //    QString name = item->getProperties()->GetName();
-    //    QString fileName = item->getProperties()->GetFileName();
-    //    for (int i = 0; i < tabWidget_->count(); ++i)
-    //    {
-    //        if (tabWidget_->tabText(i) == name)
-    //        {
-    //            for (auto& item : scene_->items())
-    //            {
-    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-    //                di->getProperties()->SetFileName(fileName);
-    //            }
-    //            break;
-    //        }
-    //    }
-    //}
-}
+//void MainWindow::itemGroupChanged(diagram_item* item)
+//{
+//    item->getProperties()->ApplyToBrowser(propertyEditor_);
+//    //if (item->getProperties()->GetId() == "group")
+//    //{
+//    //    QString name = item->getProperties()->GetName();
+//    //    QString fileName = item->getProperties()->GetFileName();
+//    //    for (int i = 0; i < tabWidget_->count(); ++i)
+//    //    {
+//    //        if (tabWidget_->tabText(i) == name)
+//    //        {
+//    //            for (auto& item : scene_->items())
+//    //            {
+//    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+//    //                di->getProperties()->SetFileName(fileName);
+//    //            }
+//    //            break;
+//    //        }
+//    //    }
+//    //}
+//}
 //
 //void MainWindow::collapsed(QtBrowserItem* item)
 //{
@@ -2063,8 +2063,8 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
     //        comboBoxFiles_->setItemText(i, fileName);
     //}
 
-    if (scene_->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
     scene_->invalidate();
 }
@@ -2077,8 +2077,8 @@ void MainWindow::fileListChanged(const QStringList& fileNames)
         di->getProperties()->SetFileNames(fileNames);
     }
 
-    if (scene_->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
     scene_->invalidate();
 }
@@ -2103,8 +2103,8 @@ void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& 
     //if (fi != nullptr)
     //    fi->UpdateRegExp();
 
-    if (scene_->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
     scene_->invalidate();
 }
@@ -2118,8 +2118,8 @@ void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringL
             di->getProperties()->SetGroupNames(includeNames);
     }
 
-    if (scene_->selectedItems().size() > 0)
-        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
 
     scene_->invalidate();
 }

@@ -1,62 +1,47 @@
-#ifndef PROPERTIES_ITEM_H
-#define PROPERTIES_ITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 #include <QObject>
 #include <QPixmap>
 
+#include "properties_items_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml_parser.h"
+#include "../properties_editor.h"
 
 class diagram_item;
-
-class QtGroupPropertyManager;
-class QtIntPropertyManager;
-class QtDoublePropertyManager;
-class QtStringPropertyManager;
-class QtEnumPropertyManager;
-class QtColorPropertyManager;
-class QtFontPropertyManager;
-class QtPointPropertyManager;
-class QtSizePropertyManager;
-class QtBoolPropertyManager;
-class QtProperty;
-class QtTreePropertyBrowser;
-class QtBrowserItem;
-class QtSpinBoxFactory;
-class QtDoubleSpinBoxFactory;
-class QtCheckBoxFactory;
-class QtSpinBoxFactory;
-class QtLineEditFactory;
-class QtEnumEditorFactory;
 
 class properties_item : public QObject
 {
     Q_OBJECT
 
 private:
+    // UI
+    properties_items_manager_interface* file_items_manager_;
+    QPointer<properties_editor> editor_;
+
+    // ћодель параметров
+    unit_types::ParametersModel model_;
+
+    // —войства верхнего уровн€
+    QList<QtProperty*> topLevelProperties_;
+
+    // —оответствие между свойствами и id модели
+    QMap<const QtProperty*, QString> propertyToId_;
+    QMap<QString, const QtProperty*> idToProperty_;
+
+    // ѕри добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
+    bool ignoreEvents_;
+
+private:
     unit_types::UnitParameters unitParameters_;
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
-    QScopedPointer<QtGroupPropertyManager> groupManager;
-    QScopedPointer<QtIntPropertyManager> intManager;
-    QScopedPointer<QtDoublePropertyManager> doubleManager;
-    QScopedPointer<QtStringPropertyManager> stringManager;
-    QScopedPointer<QtEnumPropertyManager> enumManager;
-    QScopedPointer<QtBoolPropertyManager> boolManager;
-
-    QScopedPointer<QtSpinBoxFactory> intSpinBoxFactory;
-    QScopedPointer<QtDoubleSpinBoxFactory> doubleSpinBoxFactory;
-    QScopedPointer<QtCheckBoxFactory> checkBoxFactory;
-    QScopedPointer<QtSpinBoxFactory> spinBoxFactory;
-    QScopedPointer<QtLineEditFactory> lineEditFactory;
-    QScopedPointer<QtEnumEditorFactory> comboBoxFactory;
-
     diagram_item* diagramItem_;
     QtTreePropertyBrowser* propertyEditor_;
 
-    bool ignoreEvents_;
+    //bool ignoreEvents_;
     QList<QPair<QString, QString>> groupList_;
 
 public:
@@ -64,30 +49,12 @@ public:
     properties_item(const properties_item& other, diagram_item* diagramItem);
     ~properties_item();
 
-private:
-    void CreateParametersModel();
-    void CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model);
-    void FillParameterModel(unit_types::ParameterModel& pm);
-    void FillArrayModel(unit_types::ParameterModel& pm);
-    void UpdateArrayModel(unit_types::ParameterModel& pm);
-    void CreateEditorModel();
-    QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
-    void CreatePropertyBrowser();
-
-private slots:
-    void valueChanged(QtProperty* property, int value);
-    void valueChanged(QtProperty* property, double value);
-    void valueChanged(QtProperty* property, const QString& value);
-    void valueChanged(QtProperty* property, const QColor& value);
-    void valueChanged(QtProperty* property, const QFont& value);
-    void valueChanged(QtProperty* property, const QPoint& value);
-    void valueChanged(QtProperty* property, const QSize& value);
-    void valueChanged(QtProperty* property, bool value);
-    void editingFinished(QtProperty* property, const QString& value, const QString& oldValue);
-
 public:
-    void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
-    void UnApplyToBrowser();
+    void Select();
+    void UnSelect();
+public:
+    //void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
+    //void UnApplyToBrowser();
     QPixmap GetPixmap();
     void PositionChanged(QPointF point);
     void ZOrderChanged(double value);
@@ -111,27 +78,34 @@ public:
     //QString GetUnitName() { return parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo); };
     QList<QPair<QString, QString>> GetVariables();
 
-private:
-    QMap<QtProperty*, QString> propertyToId;
-    QMap<QString, QtProperty*> idToProperty;
+private slots:
+    void ValueChanged(QtProperty* property, const QVariant& value);
+    void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
 private:
-    void RegisterProperty(QtProperty* property, const QString& id);
-    void UnregisterProperty(const QString& id);
-    void UnregisterProperty(QtProperty* property);
-    QtProperty* GetProperty(const QString& id);
-    QString GetPropertyId(QtProperty* property);
-    bool GetExpanded(QtProperty* property);
-    unit_types::ParameterModel* GetParameterModel(const QString& id);
-    unit_types::ParameterModel* GetParameterModel(QtProperty* property);
+    void CreateParametersModel();
+    void CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model);
+    void FillParameterModel(unit_types::ParameterModel& pm);
+    void FillArrayModel(unit_types::ParameterModel& pm);
+    void UpdateArrayModel(unit_types::ParameterModel& pm);
+    void CreateEditorModel();
+    //QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
+    //void CreatePropertyBrowser();
+
     void GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
     void GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
     void ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu);
 
-    void SaveExpandState();
-    void SaveExpandState(QtBrowserItem* index);
+    void RegisterProperty(const QtProperty* property, const QString& id);
+    void UnregisterProperty(const QString& id);
+    void UnregisterProperty(const QtProperty* property);
+    QtProperty* GetProperty(const QString& id);
+    QString GetPropertyId(const QtProperty* property);
+    unit_types::ParameterModel* GetParameterModel(const QString& id);
+    unit_types::ParameterModel* GetParameterModel(const QtProperty* property);
+
+    //void SaveExpandState();
+    //void SaveExpandState(QtBrowserItem* index);
     void ApplyExpandState();
     void ApplyExpandState(QtBrowserItem* index);
 };
-
-#endif // PROPERTIES_ITEM_H

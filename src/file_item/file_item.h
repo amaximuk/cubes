@@ -11,7 +11,7 @@
 
 class file_item : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 private:
     // UI

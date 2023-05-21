@@ -24,7 +24,7 @@ properties_item::properties_item(unit_types::UnitParameters unitParameters, diag
 
     CreateParametersModel();
     CreateEditorModel();
-    CreatePropertyBrowser();
+    //CreatePropertyBrowser();
 }
 
 properties_item::properties_item(const properties_item& other, diagram_item* diagramItem)
@@ -55,7 +55,7 @@ properties_item::properties_item(const properties_item& other, diagram_item* dia
 
     //CreateParametersModel();
     //CreateEditorModel();
-    CreatePropertyBrowser();
+    //CreatePropertyBrowser();
 
     //unit_types::UnitParameters unitParameters_;
     //unit_types::ParametersModel parametersModel_;
@@ -76,7 +76,28 @@ properties_item::properties_item(const properties_item& other, diagram_item* dia
 
 properties_item::~properties_item()
 {
-    UnApplyToBrowser();
+    //UnApplyToBrowser();
+}
+
+void properties_item::Select()
+{
+    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &properties_item::ValueChanged);
+    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &properties_item::StringEditingFinished);
+
+    auto pe = editor_->GetPropertyEditor();
+    pe->clear();
+    ignoreEvents_ = true;
+    for (auto& pr : topLevelProperties_)
+        pe->addProperty(pr);
+    ignoreEvents_ = false;
+
+    ApplyExpandState();
+}
+
+void properties_item::UnSelect()
+{
+    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &properties_item::ValueChanged);
+    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &properties_item::StringEditingFinished);
 }
 
 void properties_item::CreateEditorModel()
@@ -366,116 +387,116 @@ void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
         pm.parameters.push_back(std::move(pm_optional));
     }
 }
-
-QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& model)
-{
-    // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
-
-    QtProperty* pr = nullptr;
-    if (model.editorSettings.type == unit_types::EditorType::None)
-    {
-        pr = groupManager->addProperty(model.name);
-        groupManager->blockSignals(true);
-        groupManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::String)
-    {
-        pr = stringManager->addProperty(model.name);
-        stringManager->blockSignals(true);
-        //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
-        //stringManager->setOldValue(pr, model.value.toString());
-        stringManager->setValue(pr, model.value.toString());
-        stringManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
-    {
-        pr = intManager->addProperty(model.name);
-        intManager->blockSignals(true);
-        intManager->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
-        intManager->setValue(pr, model.value.toInt());
-        intManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
-    {
-        pr = doubleManager->addProperty(model.name);
-        doubleManager->blockSignals(true);
-        doubleManager->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
-        doubleManager->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
-        doubleManager->setValue(pr, model.value.toDouble());
-        doubleManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
-    {
-        pr = enumManager->addProperty(model.name);
-        enumManager->blockSignals(true);
-        enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
-
-
-        //enumManager->setValue(pr, model.value.toInt());
-        int pos = 0;
-        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
-        {
-            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
-                break;
-            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
-                break;
-        }
-        //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
-        if (pos == model.editorSettings.ComboBoxValues.size())
-            pos = 0;
-
-        enumManager->setValue(pr, pos);
-        enumManager->blockSignals(false);
-    }
-    else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
-    {
-        pr = boolManager->addProperty(model.name);
-        boolManager->blockSignals(true);
-        boolManager->setValue(pr, model.value.toBool());
-        boolManager->blockSignals(false);
-    }
-    else assert(false);
-
-    RegisterProperty(pr, model.id);
-
-    for (auto& sp : model.parameters)
-    {
-        pr->addSubProperty(GetPropertyForModel(sp));
-    }
-
-    if (model.readOnly)
-        pr->setEnabled(false);
-
-    return pr;
-}
-
-void properties_item::CreatePropertyBrowser()
-{
-    groupManager.reset(new QtGroupPropertyManager(this));
-    intManager.reset(new QtIntPropertyManager(this));
-    doubleManager.reset(new QtDoublePropertyManager(this));
-    stringManager.reset(new QtStringPropertyManager(this));
-    enumManager.reset(new QtEnumPropertyManager(this));
-    boolManager.reset(new QtBoolPropertyManager(this));
-
-    qDebug() << connect(intManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(doubleManager.get(), SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
-    qDebug() << connect(stringManager.get(), SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
-    qDebug() << connect(stringManager.get(), SIGNAL(editingFinished(QtProperty*, const QString&, const QString&)), this, SLOT(editingFinished(QtProperty*, const QString&, const QString&)));
-    qDebug() << connect(enumManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-    qDebug() << connect(boolManager.get(), SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
-
-    intSpinBoxFactory.reset(new QtSpinBoxFactory(this));
-    doubleSpinBoxFactory.reset(new QtDoubleSpinBoxFactory(this));
-    checkBoxFactory.reset(new QtCheckBoxFactory(this));
-    spinBoxFactory.reset(new QtSpinBoxFactory(this));
-    lineEditFactory.reset(new QtLineEditFactory(this));
-    comboBoxFactory.reset(new QtEnumEditorFactory(this));
-}
+//
+//QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& model)
+//{
+//    // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
+//
+//    QtProperty* pr = nullptr;
+//    if (model.editorSettings.type == unit_types::EditorType::None)
+//    {
+//        pr = groupManager->addProperty(model.name);
+//        groupManager->blockSignals(true);
+//        groupManager->blockSignals(false);
+//    }
+//    else if (model.editorSettings.type == unit_types::EditorType::String)
+//    {
+//        pr = stringManager->addProperty(model.name);
+//        stringManager->blockSignals(true);
+//        //stringManager->setRegExp(pr, QRegExp("-?\\d{1,3}"));
+//        //stringManager->setOldValue(pr, model.value.toString());
+//        stringManager->setValue(pr, model.value.toString());
+//        stringManager->blockSignals(false);
+//    }
+//    else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
+//    {
+//        pr = intManager->addProperty(model.name);
+//        intManager->blockSignals(true);
+//        intManager->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
+//        intManager->setValue(pr, model.value.toInt());
+//        intManager->blockSignals(false);
+//    }
+//    else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
+//    {
+//        pr = doubleManager->addProperty(model.name);
+//        doubleManager->blockSignals(true);
+//        doubleManager->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
+//        doubleManager->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
+//        doubleManager->setValue(pr, model.value.toDouble());
+//        doubleManager->blockSignals(false);
+//    }
+//    else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
+//    {
+//        pr = enumManager->addProperty(model.name);
+//        enumManager->blockSignals(true);
+//        enumManager->setEnumNames(pr, model.editorSettings.ComboBoxValues);
+//
+//
+//        //enumManager->setValue(pr, model.value.toInt());
+//        int pos = 0;
+//        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
+//        {
+//            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+//                break;
+//            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+//                break;
+//            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+//                break;
+//            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
+//                break;
+//        }
+//        //int pos = model.editorSettings.ComboBoxValues.indexOf(model.value.toString(), 0);
+//        if (pos == model.editorSettings.ComboBoxValues.size())
+//            pos = 0;
+//
+//        enumManager->setValue(pr, pos);
+//        enumManager->blockSignals(false);
+//    }
+//    else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
+//    {
+//        pr = boolManager->addProperty(model.name);
+//        boolManager->blockSignals(true);
+//        boolManager->setValue(pr, model.value.toBool());
+//        boolManager->blockSignals(false);
+//    }
+//    else assert(false);
+//
+//    RegisterProperty(pr, model.id);
+//
+//    for (auto& sp : model.parameters)
+//    {
+//        pr->addSubProperty(GetPropertyForModel(sp));
+//    }
+//
+//    if (model.readOnly)
+//        pr->setEnabled(false);
+//
+//    return pr;
+//}
+//
+//void properties_item::CreatePropertyBrowser()
+//{
+//    groupManager.reset(new QtGroupPropertyManager(this));
+//    intManager.reset(new QtIntPropertyManager(this));
+//    doubleManager.reset(new QtDoublePropertyManager(this));
+//    stringManager.reset(new QtStringPropertyManager(this));
+//    enumManager.reset(new QtEnumPropertyManager(this));
+//    boolManager.reset(new QtBoolPropertyManager(this));
+//
+//    qDebug() << connect(intManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+//    qDebug() << connect(doubleManager.get(), SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
+//    qDebug() << connect(stringManager.get(), SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
+//    qDebug() << connect(stringManager.get(), SIGNAL(editingFinished(QtProperty*, const QString&, const QString&)), this, SLOT(editingFinished(QtProperty*, const QString&, const QString&)));
+//    qDebug() << connect(enumManager.get(), SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
+//    qDebug() << connect(boolManager.get(), SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(valueChanged(QtProperty*, bool)));
+//
+//    intSpinBoxFactory.reset(new QtSpinBoxFactory(this));
+//    doubleSpinBoxFactory.reset(new QtDoubleSpinBoxFactory(this));
+//    checkBoxFactory.reset(new QtCheckBoxFactory(this));
+//    spinBoxFactory.reset(new QtSpinBoxFactory(this));
+//    lineEditFactory.reset(new QtLineEditFactory(this));
+//    comboBoxFactory.reset(new QtEnumEditorFactory(this));
+//}
 
 void properties_item::SetFileNames(QStringList fileNames)
 {
@@ -592,69 +613,69 @@ QList<QPair<QString, QString>> properties_item::GetVariables()
     }
     return result;
 }
-
-void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
-{
-    propertyEditor_ = propertyEditor;
-
-    //QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
-    //QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-    //QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
-    //QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
-    //QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
-    //QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
-
-    propertyEditor->setFactoryForManager(intManager.get(), intSpinBoxFactory.get());
-    propertyEditor->setFactoryForManager(doubleManager.get(), doubleSpinBoxFactory.get());
-    propertyEditor->setFactoryForManager(stringManager.get(), lineEditFactory.get());
-    propertyEditor->setFactoryForManager(enumManager.get(), comboBoxFactory.get());
-    propertyEditor->setFactoryForManager(boolManager.get(), checkBoxFactory.get());
-
-
-    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
-    propertyEditor->setSplitterPosition(250);
-    propertyEditor->setHeaderVisible(false);
-
-    //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
-    //propertyEditor->setPropertiesWithoutValueMarked(true);
-
-    propertyEditor->clear();
-
-    //QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fileInfo.info.id));
-    //
-    //QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
-    //mainGroup->addSubProperty(propertiesGroup);
-
-    //for (auto& pm : parametersModel_.parameters)
-    //    propertiesGroup->addSubProperty(GetPropertyForModel(pm));
-    
-    //QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
-    //mainGroup->addSubProperty(editorGroup);
-
-    //for (auto& pm : editorModel_.parameters)
-    //    editorGroup->addSubProperty(GetPropertyForModel(pm));
-
-    ignoreEvents_ = true;
-    for (auto& pm : parametersModel_.parameters)
-        propertyEditor->addProperty(GetPropertyForModel(pm));
-
-    // propertyEditor->addProperty(mainGroup);
-    ignoreEvents_ = false;
-
-    ApplyExpandState();
-}
-
-void properties_item::UnApplyToBrowser()
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    propertyEditor_->unsetFactoryForManager(intManager.get());
-    propertyEditor_->unsetFactoryForManager(doubleManager.get());
-    propertyEditor_->unsetFactoryForManager(stringManager.get());
-    propertyEditor_->unsetFactoryForManager(enumManager.get());
-    propertyEditor_->unsetFactoryForManager(boolManager.get());
-}
+//
+//void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
+//{
+//    propertyEditor_ = propertyEditor;
+//
+//    //QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
+//    //QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+//    //QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+//    //QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
+//    //QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
+//    //QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
+//
+//    propertyEditor->setFactoryForManager(intManager.get(), intSpinBoxFactory.get());
+//    propertyEditor->setFactoryForManager(doubleManager.get(), doubleSpinBoxFactory.get());
+//    propertyEditor->setFactoryForManager(stringManager.get(), lineEditFactory.get());
+//    propertyEditor->setFactoryForManager(enumManager.get(), comboBoxFactory.get());
+//    propertyEditor->setFactoryForManager(boolManager.get(), checkBoxFactory.get());
+//
+//
+//    propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::Interactive);
+//    propertyEditor->setSplitterPosition(250);
+//    propertyEditor->setHeaderVisible(false);
+//
+//    //propertyEditor->setResizeMode(QtTreePropertyBrowser::ResizeMode::ResizeToContents);
+//    //propertyEditor->setPropertiesWithoutValueMarked(true);
+//
+//    propertyEditor->clear();
+//
+//    //QtProperty* mainGroup = groupManager->addProperty(QString::fromStdString(unitParameters_.fileInfo.info.id));
+//    //
+//    //QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
+//    //mainGroup->addSubProperty(propertiesGroup);
+//
+//    //for (auto& pm : parametersModel_.parameters)
+//    //    propertiesGroup->addSubProperty(GetPropertyForModel(pm));
+//    
+//    //QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
+//    //mainGroup->addSubProperty(editorGroup);
+//
+//    //for (auto& pm : editorModel_.parameters)
+//    //    editorGroup->addSubProperty(GetPropertyForModel(pm));
+//
+//    ignoreEvents_ = true;
+//    for (auto& pm : parametersModel_.parameters)
+//        propertyEditor->addProperty(GetPropertyForModel(pm));
+//
+//    // propertyEditor->addProperty(mainGroup);
+//    ignoreEvents_ = false;
+//
+//    ApplyExpandState();
+//}
+//
+//void properties_item::UnApplyToBrowser()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    propertyEditor_->unsetFactoryForManager(intManager.get());
+//    propertyEditor_->unsetFactoryForManager(doubleManager.get());
+//    propertyEditor_->unsetFactoryForManager(stringManager.get());
+//    propertyEditor_->unsetFactoryForManager(enumManager.get());
+//    propertyEditor_->unsetFactoryForManager(boolManager.get());
+//}
 
 QPixmap properties_item::GetPixmap()
 {
@@ -680,13 +701,13 @@ QPixmap properties_item::GetPixmap()
 
 void properties_item::PositionChanged(QPointF point)
 {
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
+    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
+    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
 }
 
 void properties_item::ZOrderChanged(double value)
 {
-    doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
+    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
 }
 
 QString properties_item::GetPropertyDescription(QtProperty* property)
@@ -940,322 +961,359 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
         pm.parameters.pop_back();
 }
 
-void properties_item::valueChanged(QtProperty* property, int value)
+
+void properties_item::ValueChanged(QtProperty * property, const QVariant & value)
 {
-    qDebug() << "valueChanged value = " << value;
+    // BASE
+    // BASE/NAME
+    // BASE/PLATFORM
+    // BASE/FILE_PATH
+    // INCLUDES
+    // INCLUDES/ITEM_0
+    // INCLUDES/ITEM_0/NAME
+    // INCLUDES/ITEM_0/VALUE
+    // PARAMETERS
+    // PARAMETERS/CONNECTION
+    // PARAMETERS/CONNECTION/HOST
+    // PARAMETERS/CONNECTION/PORT
+    // PARAMETERS/LOG
+    // EDITOR
+    // EDITOR/COLOR
+
+    qDebug() << "ValueChanged value = " << value;
+
+    auto pm = GetParameterModel(property);
+    if (pm == nullptr)
+        return;
+}
+
+void properties_item::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+{
+    qDebug() << "StringEditingFinished value = " << value << ", oldValue = " << oldValue;
 
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
         return;
 
-    if (pm->id.startsWith("BASE"))
-    {
-        if (pm->id == "BASE/FILE")
-        {
-            pm->value = property->valueText();
-            diagramItem_->InformFileChanged();
-        }
-        else if (pm->id == "BASE/GROUP")
-        {
-            //diagramItem_->InformGroupChanged();
-            //if (property->valueText() == "<not selected>")
-            //{
-            //    SetFileNameReadOnly(false);
-            //}
-            //else
-            //{
-            //    //if (diagramItem_->scene() != nullptr)
-            //    //{
-            //    //    // Не обновляется заменить на Inform!!!
-            //    //    QString group = reinterpret_cast<diagram_scene*>(diagramItem_->scene())->getMain()->GetGroupFile(property->valueText());
-            //    //    SetGroupName(group);
-            //    //}
-            //    //SetFileNameReadOnly(true);
-            //}
-            pm->value = property->valueText();
-            diagramItem_->InformGroupChanged();
-        }
-
-    }
-    else if (pm->id.startsWith("PARAMETERS"))
-    {
-        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
-
-        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
-        if (is_array && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name))
-        {
-            SaveExpandState();
-
-            int count = std::stoi(property->valueText().toStdString());
-            pm->value = count;
-            UpdateArrayModel(*pm);
-
-            for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
-
-            QList<QtProperty*> to_remove;
-            for (int i = count; i < property->subProperties().size(); ++i)
-            {
-                auto p = property->subProperties()[i];
-                to_remove.push_back(p);
-                UnregisterProperty(p);
-            }
-
-            for (auto& p : to_remove)
-                property->removeSubProperty(p);
-
-            ApplyExpandState();
-        }
-        else
-        {
-            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
-                pm->value = property->valueText();
-            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
-                pm->value = std::stoi(property->valueText().toStdString());
-            else if (pi.type == "double" || pi.type == "float")
-                pm->value = std::stod(property->valueText().toStdString());
-            else // enum
-                pm->value = property->valueText();
-        }
-    }
 }
 
-void properties_item::valueChanged(QtProperty* property, double value)
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QVariant& value)
+//////{
+//////    qDebug() << "valueChanged value = " << value;
+//////
+//////    auto pm = GetParameterModel(property);
+//////    if (pm == nullptr)
+//////        return;
+//////
+//////    if (pm->id.startsWith("BASE"))
+//////    {
+//////        if (pm->id == "BASE/FILE")
+//////        {
+//////            pm->value = property->valueText();
+//////            diagramItem_->InformFileChanged();
+//////        }
+//////        else if (pm->id == "BASE/GROUP")
+//////        {
+//////            //diagramItem_->InformGroupChanged();
+//////            //if (property->valueText() == "<not selected>")
+//////            //{
+//////            //    SetFileNameReadOnly(false);
+//////            //}
+//////            //else
+//////            //{
+//////            //    //if (diagramItem_->scene() != nullptr)
+//////            //    //{
+//////            //    //    // Не обновляется заменить на Inform!!!
+//////            //    //    QString group = reinterpret_cast<diagram_scene*>(diagramItem_->scene())->getMain()->GetGroupFile(property->valueText());
+//////            //    //    SetGroupName(group);
+//////            //    //}
+//////            //    //SetFileNameReadOnly(true);
+//////            //}
+//////            pm->value = property->valueText();
+//////            diagramItem_->InformGroupChanged();
+//////        }
+//////
+//////    }
+//////    else if (pm->id.startsWith("PARAMETERS"))
+//////    {
+//////        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+//////
+//////        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+//////        if (is_array && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name))
+//////        {
+//////            SaveExpandState();
+//////
+//////            int count = std::stoi(property->valueText().toStdString());
+//////            pm->value = count;
+//////            UpdateArrayModel(*pm);
+//////
+//////            for (int i = property->subProperties().size(); i < count; ++i)
+//////                property->addSubProperty(GetPropertyForModel(pm->parameters[i]));
+//////
+//////            QList<QtProperty*> to_remove;
+//////            for (int i = count; i < property->subProperties().size(); ++i)
+//////            {
+//////                auto p = property->subProperties()[i];
+//////                to_remove.push_back(p);
+//////                UnregisterProperty(p);
+//////            }
+//////
+//////            for (auto& p : to_remove)
+//////                property->removeSubProperty(p);
+//////
+//////            ApplyExpandState();
+//////        }
+//////        else
+//////        {
+//////            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+//////                pm->value = property->valueText();
+//////            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+//////                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+//////                pm->value = std::stoi(property->valueText().toStdString());
+//////            else if (pi.type == "double" || pi.type == "float")
+//////                pm->value = std::stod(property->valueText().toStdString());
+//////            else // enum
+//////                pm->value = property->valueText();
+//////        }
+//////    }
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, double value)
+//////{
+//////    auto pm = GetParameterModel(property);
+//////    if (pm == nullptr)
+//////        return;
+//////
+//////    qDebug() << "valueChanged " << pm->id << " = " << value;
+//////    pm->value = value;
+//////
+//////    int gridSize = 20;
+//////    if (pm->id == "EDITOR/POSITION_X")
+//////    {
+//////        qreal xV = round(value / gridSize) * gridSize;
+//////        if (xV != value)
+//////            doubleManager->setValue(property, xV);
+//////        diagramItem_->InformPositionXChanged(xV);
+//////        pm->value = xV;
+//////    }
+//////    else if (pm->id == "EDITOR/POSITION_Y")
+//////    {
+//////        qreal yV = round(value / gridSize) * gridSize;
+//////        if (yV != value)
+//////            doubleManager->setValue(property, yV);
+//////        diagramItem_->InformPositionYChanged(yV);
+//////        pm->value = yV;
+//////    }
+//////    else if (pm->id == "EDITOR/POSITION_Z")
+//////    {
+//////        diagramItem_->InformPositionZChanged(value);
+//////    }
+//////
+//////    
+//////    //if (!propertyToId_.contains(property))
+//////    //    return;
+//////
+//////    ////if (!currentItem)
+//////    ////    return;
+//////
+//////    //if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
+//////    //{
+//////    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
+//////    //    diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
+//////    //    qDebug() << gi->getName();
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (id == "Position X")
+//////    //        gi->setX(value);
+//////    //    else if (id == "Position Y")
+//////    //        gi->setY(value);
+//////    //}
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QString& value)
+//////{
+//////    auto pm = GetParameterModel(property);
+//////    if (pm == nullptr)
+//////        return;
+//////
+//////    QString oldValue = pm->value.toString();
+//////    qDebug() << "valueChanged " << pm->id << " = " << value;
+//////    pm->value = value;
+//////
+//////    if (pm->id == "BASE/INSTANCE_NAME")
+//////    {
+//////        diagramItem_->InformNameChanged(value, oldValue);
+//////    }
+//////    //    if (!propertyToId_.contains(property))
+//////    //        return;
+//////
+//////    //    if (!currentItem)
+//////    //        return;
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (id == QLatin1String("text")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+//////    //            QtCanvasText *i = (QtCanvasText *)currentItem;
+//////    //            i->setText(value);
+//////    //        }
+//////    //    }
+//////    //    canvas->update();
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QColor& value)
+//////{
+//////    //    if (!propertyToId_.contains(property))
+//////    //        return;
+//////
+//////    //    if (!currentItem)
+//////    //        return;
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (id == QLatin1String("color")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+//////    //            QtCanvasText *i = (QtCanvasText *)currentItem;
+//////    //            i->setColor(value);
+//////    //        }
+//////    //    } else if (id == QLatin1String("brush")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+//////    //                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+//////    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+//////    //            QBrush b = i->brush();
+//////    //            b.setColor(value);
+//////    //            i->setBrush(b);
+//////    //        }
+//////    //    } else if (id == QLatin1String("pen")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
+//////    //                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+//////    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
+//////    //            QPen p = i->pen();
+//////    //            p.setColor(value);
+//////    //            i->setPen(p);
+//////    //        }
+//////    //    }
+//////    //    canvas->update();
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QFont& value)
+//////{
+//////    //    if (!propertyToId_.contains(property))
+//////    //        return;
+//////
+//////    //    if (!currentItem)
+//////    //        return;
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (id == QLatin1String("font")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
+//////    //            QtCanvasText *i = (QtCanvasText *)currentItem;
+//////    //            i->setFont(value);
+//////    //        }
+//////    //    }
+//////    //    canvas->update();
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QPoint& value)
+//////{
+//////    //    if (!propertyToId_.contains(property))
+//////    //        return;
+//////
+//////    //    if (!currentItem)
+//////    //        return;
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
+//////    //        QtCanvasLine *i = (QtCanvasLine *)currentItem;
+//////    //        if (id == QLatin1String("endpoint")) {
+//////    //            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
+//////    //        }
+//////    //    }
+//////    //    canvas->update();
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, const QSize& value)
+//////{
+//////    //    if (!propertyToId_.contains(property))
+//////    //        return;
+//////
+//////    //    if (!currentItem)
+//////    //        return;
+//////
+//////    //    QString id = propertyToId_[property];
+//////    //    if (id == QLatin1String("size")) {
+//////    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
+//////    //            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
+//////    //            i->setSize(value.width(), value.height());
+//////    //        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
+//////    //            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
+//////    //            i->setSize(value.width(), value.height());
+//////    //        }
+//////    //    }
+//////    //    canvas->update();
+//////}
+//////
+//////void properties_item::valueChanged(QtProperty* property, bool value)
+//////{
+//////    auto pm = GetParameterModel(property);
+//////    if (pm == nullptr)
+//////        return;
+//////
+//////    qDebug() << "valueChanged " << pm->id << " = " << value;
+//////    pm->value = value;
+//////
+//////    if (pm->id.endsWith("/DEPENDS") && pm->valueType == "bool")
+//////    {
+//////        diagramItem_->InformDependencyChanged();
+//////    }
+//////}
+//////
+//////void properties_item::editingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+//////{
+//////    qDebug() << "!!!" << value << "   -   " << oldValue;
+//////}
+
+void properties_item::RegisterProperty(const QtProperty* property, const QString& id)
 {
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-
-    int gridSize = 20;
-    if (pm->id == "EDITOR/POSITION_X")
-    {
-        qreal xV = round(value / gridSize) * gridSize;
-        if (xV != value)
-            doubleManager->setValue(property, xV);
-        diagramItem_->InformPositionXChanged(xV);
-        pm->value = xV;
-    }
-    else if (pm->id == "EDITOR/POSITION_Y")
-    {
-        qreal yV = round(value / gridSize) * gridSize;
-        if (yV != value)
-            doubleManager->setValue(property, yV);
-        diagramItem_->InformPositionYChanged(yV);
-        pm->value = yV;
-    }
-    else if (pm->id == "EDITOR/POSITION_Z")
-    {
-        diagramItem_->InformPositionZChanged(value);
-    }
-
-    
-    //if (!propertyToId.contains(property))
-    //    return;
-
-    ////if (!currentItem)
-    ////    return;
-
-    //if (scene_->selectedItems().count() > 0 && !scene_->isItemMoving())
-    //{
-    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-    //    diagram_item* gi = (diagram_item*)(scene_->selectedItems()[0]);
-    //    qDebug() << gi->getName();
-
-    //    QString id = propertyToId[property];
-    //    if (id == "Position X")
-    //        gi->setX(value);
-    //    else if (id == "Position Y")
-    //        gi->setY(value);
-    //}
-}
-
-void properties_item::valueChanged(QtProperty* property, const QString& value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    QString oldValue = pm->value.toString();
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-
-    if (pm->id == "BASE/INSTANCE_NAME")
-    {
-        diagramItem_->InformNameChanged(value, oldValue);
-    }
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("text")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setText(value);
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void properties_item::valueChanged(QtProperty* property, const QColor& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("color")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setColor(value);
-    //        }
-    //    } else if (id == QLatin1String("brush")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-    //                currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-    //            QBrush b = i->brush();
-    //            b.setColor(value);
-    //            i->setBrush(b);
-    //        }
-    //    } else if (id == QLatin1String("pen")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle ||
-    //                currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-    //            QtCanvasPolygonalItem *i = (QtCanvasPolygonalItem *)currentItem;
-    //            QPen p = i->pen();
-    //            p.setColor(value);
-    //            i->setPen(p);
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void properties_item::valueChanged(QtProperty* property, const QFont& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("font")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Text) {
-    //            QtCanvasText *i = (QtCanvasText *)currentItem;
-    //            i->setFont(value);
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void properties_item::valueChanged(QtProperty* property, const QPoint& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (currentItem->rtti() == QtCanvasItem::Rtti_Line) {
-    //        QtCanvasLine *i = (QtCanvasLine *)currentItem;
-    //        if (id == QLatin1String("endpoint")) {
-    //            i->setPoints(i->startPoint().x(), i->startPoint().y(), value.x(), value.y());
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void properties_item::valueChanged(QtProperty* property, const QSize& value)
-{
-    //    if (!propertyToId.contains(property))
-    //        return;
-
-    //    if (!currentItem)
-    //        return;
-
-    //    QString id = propertyToId[property];
-    //    if (id == QLatin1String("size")) {
-    //        if (currentItem->rtti() == QtCanvasItem::Rtti_Rectangle) {
-    //            QtCanvasRectangle *i = (QtCanvasRectangle *)currentItem;
-    //            i->setSize(value.width(), value.height());
-    //        } else if (currentItem->rtti() == QtCanvasItem::Rtti_Ellipse) {
-    //            QtCanvasEllipse *i = (QtCanvasEllipse *)currentItem;
-    //            i->setSize(value.width(), value.height());
-    //        }
-    //    }
-    //    canvas->update();
-}
-
-void properties_item::valueChanged(QtProperty* property, bool value)
-{
-    auto pm = GetParameterModel(property);
-    if (pm == nullptr)
-        return;
-
-    qDebug() << "valueChanged " << pm->id << " = " << value;
-    pm->value = value;
-
-    if (pm->id.endsWith("/DEPENDS") && pm->valueType == "bool")
-    {
-        diagramItem_->InformDependencyChanged();
-    }
-}
-
-void properties_item::editingFinished(QtProperty* property, const QString& value, const QString& oldValue)
-{
-    qDebug() << "!!!" << value << "   -   " << oldValue;
-}
-
-void properties_item::RegisterProperty(QtProperty* property, const QString& id)
-{
-    propertyToId[property] = id;
-    idToProperty[id] = property;
+    propertyToId_[property] = id;
+    idToProperty_[id] = property;
 }
 
 void properties_item::UnregisterProperty(const QString& id)
 {
-    UnregisterProperty(idToProperty[id]);
+    UnregisterProperty(idToProperty_[id]);
 }
 
-void properties_item::UnregisterProperty(QtProperty* property)
+void properties_item::UnregisterProperty(const QtProperty* property)
 {
     for (auto p : property->subProperties())
         UnregisterProperty(p);
 
-    idToProperty.remove(propertyToId[property]);
-    propertyToId.remove(property);
+    idToProperty_.remove(propertyToId_[property]);
+    propertyToId_.remove(property);
 }
 
 QtProperty* properties_item::GetProperty(const QString& id)
 {
-    auto it = idToProperty.find(id);
-    if (it != idToProperty.end())
-        return *it;
+    auto it = idToProperty_.find(id);
+    if (it != idToProperty_.end())
+        return const_cast<QtProperty*>(*it);
     return nullptr;
 
-    //if (idToProperty.contains(id))
-    //    return idToProperty[id];
+    //if (idToProperty_.contains(id))
+    //    return idToProperty_[id];
     //else
     //    return nullptr;
 }
 
-QString properties_item::GetPropertyId(QtProperty* property)
+QString properties_item::GetPropertyId(const QtProperty* property)
 {
-    auto it = propertyToId.find(property);
-    if (it != propertyToId.end())
+    auto it = propertyToId_.find(property);
+    if (it != propertyToId_.end())
         return *it;
     return QString();
 
-    //if (propertyToId.contains(property))
-    //    return propertyToId[property];
+    //if (propertyToId_.contains(property))
+    //    return propertyToId_[property];
     //else
     //    return QString();
 }
@@ -1319,7 +1377,7 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id
     return pm;
 }
 
-unit_types::ParameterModel* properties_item::GetParameterModel(QtProperty* property)
+unit_types::ParameterModel* properties_item::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")
@@ -1328,37 +1386,37 @@ unit_types::ParameterModel* properties_item::GetParameterModel(QtProperty* prope
     return GetParameterModel(id);
 }
 
-bool properties_item::GetExpanded(QtProperty* property)
-{
-    return false;
-}
-
-void properties_item::SaveExpandState(QtBrowserItem* index)
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> children = index->children();
-    QListIterator<QtBrowserItem*> itChild(children);
-    while (itChild.hasNext())
-        SaveExpandState(itChild.next());
-    QtProperty* prop = index->property();
-
-    auto pm = GetParameterModel(prop);
-    if (pm != nullptr)
-        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
-}
-
-void properties_item::SaveExpandState()
-{
-    if (propertyEditor_ == nullptr)
-        return;
-
-    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
-    QListIterator<QtBrowserItem*> itItem(indexes);
-    while (itItem.hasNext())
-        SaveExpandState(itItem.next());
-}
+//bool properties_item::GetExpanded(QtProperty* property)
+//{
+//    return false;
+//}
+//
+//void properties_item::SaveExpandState(QtBrowserItem* index)
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> children = index->children();
+//    QListIterator<QtBrowserItem*> itChild(children);
+//    while (itChild.hasNext())
+//        SaveExpandState(itChild.next());
+//    QtProperty* prop = index->property();
+//
+//    auto pm = GetParameterModel(prop);
+//    if (pm != nullptr)
+//        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
+//}
+//
+//void properties_item::SaveExpandState()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+//    QListIterator<QtBrowserItem*> itItem(indexes);
+//    while (itItem.hasNext())
+//        SaveExpandState(itItem.next());
+//}
 
 void properties_item::ApplyExpandState(QtBrowserItem* index)
 {
