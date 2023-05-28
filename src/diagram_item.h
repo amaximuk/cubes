@@ -1,5 +1,4 @@
-#ifndef DIAGRAM_ITEM_H
-#define DIAGRAM_ITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 #include <QObject>
@@ -38,17 +37,18 @@ public:
     ~diagram_item();
 
 public:
+    // QGraphicsItem
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-    QString getName() { return properties_->GetName(); };
-    QSharedPointer<properties_item> getProperties() { return properties_; };
-    QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
-    QList<QString> getDependentNames() { return properties_->GetDependentNames(); }
-    QString getInstanceName() { return properties_->GetInstanceName(); }
-    QPointF getLineAncorPosition() { return mapToScene(iconRect_.center()); }
+    //QString getName() { return properties_->GetName(); };
+    //QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
+    //QList<QString> getDependentNames() { return properties_->GetDependentNames(); }
+    //QString getInstanceName() { return properties_->GetInstanceName(); }
 
 public:
+    QSharedPointer<properties_item> GetProperties() { return properties_; };
+    QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
     void InformPositionXChanged(double x);
     void InformPositionYChanged(double y);
     void InformPositionZChanged(double z);
@@ -60,5 +60,3 @@ public:
     void SetGroupName(QString name) { groupName_ = name; }
     QString GetGroupName() { return groupName_; }
 };
-
-#endif // DIAGRAM_ITEM_H

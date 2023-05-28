@@ -64,9 +64,9 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     {
         diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
 
-        QString oldName = di->getProperties()->GetName();
+        QString oldName = di->GetProperties()->GetName();
         QString newName = main_->GetNewUnitName(oldName);
-        di->getProperties()->SetName(newName);
+        di->GetProperties()->SetName(newName);
         qDebug() << "X1: " << oldName << " - " << newName;
 
         //di->getProperties()->SetName("<new item>");
@@ -82,7 +82,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         for (auto& item : drag_items_)
         {
             diagram_item* di = reinterpret_cast<diagram_item*>(item);
-            qDebug() << "X2: " << di->getName();
+            qDebug() << "X2: " << di->GetProperties()->GetName();
 
             di->SetBorderOnly(false);
         }
@@ -307,7 +307,7 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        if (name == di->getInstanceName())
+        if (name == di->GetProperties()->GetInstanceName())
         {
             return di;
         }
@@ -328,7 +328,7 @@ void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
             for (const auto& item : kvp.second)
             {
                 auto di2 = getDiagramItem(item);
-                painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+                painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
             }
         }
     }
@@ -343,7 +343,7 @@ void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
             for (const auto& item : kvp.second)
             {
                 auto di2 = getDiagramItem(item);
-                painter->drawLine(di1->getLineAncorPosition(), di2->getLineAncorPosition());
+                painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
             }
         }
     }

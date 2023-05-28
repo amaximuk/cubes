@@ -70,14 +70,14 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     if (borderOnly_)
     {
-        qDebug() << "paint border " << getName();
+        qDebug() << "paint border " << properties_->GetName();
         painter->fillRect(iconRect_, Qt::white);
         painter->setPen(Qt::black);
         painter->drawRect(iconRect_);
     }
     else
     {
-        qDebug() << "paint full " << getName();
+        qDebug() << "paint full " << properties_->GetName();
         if (scene() != nullptr)
         {
             diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
@@ -294,7 +294,7 @@ void diagram_item::InformDependencyChanged()
 
 void diagram_item::SetBorderOnly(bool borderOnly)
 {
-    qDebug() << "set border " << borderOnly << " " << getName();
+    qDebug() << "set border " << borderOnly << " " << properties_->GetName();
 
     borderOnly_ = borderOnly;
     if (scene() != nullptr)

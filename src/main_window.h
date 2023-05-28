@@ -15,6 +15,7 @@
 #include "log_table/log_table_model.h"
 #include "log_table/sort_filter_model.h"
 #include "file_item/file_items_manager.h"
+#include "properties_item/properties_items_manager.h"
 #include "properties_editor.h"
 #include "top_manager_interface.h"
 
@@ -117,7 +118,9 @@ private:
     QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
+
     QPointer<file_items_manager> file_items_manager_;
+    QPointer<properties_items_manager> properties_items_manager_;
 
 private slots:
     void on_NewFile_action();
