@@ -7,7 +7,7 @@
 
 #include "file_items_manager_interface.h"
 #include "../unit_types.h"
-#include "../properties_editor.h"
+#include "../property_browser/properties_editor.h"
 
 class file_item : public QObject
 {

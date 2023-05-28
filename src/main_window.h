@@ -16,7 +16,7 @@
 #include "log_table/sort_filter_model.h"
 #include "file_item/file_items_manager.h"
 #include "properties_item/properties_items_manager.h"
-#include "properties_editor.h"
+#include "property_browser/properties_editor.h"
 #include "top_manager_interface.h"
 
 class QPlainTextEdit;

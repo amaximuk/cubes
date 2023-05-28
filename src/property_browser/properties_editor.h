@@ -9,9 +9,9 @@
 #include "qtpropertybrowser.h"
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
-#include "property_browser/qtexpropertymanager.h"
-#include "property_browser/qtexeditorfactory.h"
-#include "unit_types.h"
+#include "qtexpropertymanager.h"
+#include "qtexeditorfactory.h"
+#include "../unit_types.h"
 
 class properties_editor : public QObject
 {

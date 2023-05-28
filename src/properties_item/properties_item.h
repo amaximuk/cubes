@@ -7,7 +7,7 @@
 #include "properties_items_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml_parser.h"
-#include "../properties_editor.h"
+#include "../property_browser/properties_editor.h"
 
 class diagram_item;
 

@@ -7,7 +7,7 @@ class diagram_item;
 #include <QGraphicsScene>
 #include <QpointF>
 
-#include "main_window.h"
+#include "../main_window.h"
 
 class diagram_scene : public QGraphicsScene
 {

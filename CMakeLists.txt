@@ -49,6 +49,8 @@ file(GLOB PROPERTIES_ITEM_HDRS src/properties_item/*.h)
 file(GLOB PROPERTIES_ITEM_SRCS src/properties_item/*.cpp)
 file(GLOB PROPERTY_BROWSER_HDRS src/property_browser/*.h)
 file(GLOB PROPERTY_BROWSER_SRCS src/property_browser/*.cpp)
+file(GLOB DIAGRAM_HDRS src/diagram/*.h)
+file(GLOB DIAGRAM_SRCS src/diagram/*.cpp)
 
 source_group("Header Files" FILES ${PROJ_HDRS})
 source_group("Source Files" FILES ${PROJ_SRCS})
@@ -62,11 +64,13 @@ source_group("Header Files/Properties Item" FILES ${PROPERTIES_ITEM_HDRS})
 source_group("Source Files/Properties Item" FILES ${PROPERTIES_ITEM_SRCS})
 source_group("Header Files/Property Browser" FILES ${PROPERTY_BROWSER_HDRS})
 source_group("Source Files/Property Browser" FILES ${PROPERTY_BROWSER_SRCS})
+source_group("Header Files/Diagram" FILES ${DIAGRAM_HDRS})
+source_group("Source Files/Diagram" FILES ${DIAGRAM_SRCS})
 
 add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES}
 	${FILE_ITEM_HDRS} ${FILE_ITEM_SRCS} ${LOG_TABLE_ITEM_HDRS} ${LOG_TABLE_ITEM_SRCS}
 	${PARAMETERS_COMPIER_HDRS} ${PARAMETERS_COMPIER_SRCS} ${PROPERTIES_ITEM_HDRS} ${PROPERTIES_ITEM_SRCS}
-	${PROPERTY_BROWSER_HDRS} ${PROPERTY_BROWSER_SRCS})
+	${PROPERTY_BROWSER_HDRS} ${PROPERTY_BROWSER_SRCS} ${DIAGRAM_HDRS} ${DIAGRAM_SRCS})
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml QtPropertyBrowser ${CONAN_LIBS})
 #target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)

@@ -5,8 +5,8 @@
 #include <QPointer>
 #include <QFont>
 
-#include "properties_item/properties_item.h"
-#include "unit_types.h"
+#include "../properties_item/properties_item.h"
+#include "../unit_types.h"
 
 
 QT_BEGIN_NAMESPACE
