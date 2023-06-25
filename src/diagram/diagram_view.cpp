@@ -1,7 +1,7 @@
 #include "diagram_view.h"
 #include "diagram_item.h"
 #include "diagram_scene.h"
-#include "main_window.h"
+#include "../main_window.h"
 
 #include <QtWidgets>
 #include <QGraphicsSceneMouseEvent>

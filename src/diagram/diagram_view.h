@@ -2,7 +2,7 @@
 #define DIAGRAM_VIEW_H
 
 #include <QGraphicsView>
-#include "main_window.h"
+#include "../main_window.h"
 
 
 QT_BEGIN_NAMESPACE
