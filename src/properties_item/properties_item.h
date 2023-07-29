@@ -17,7 +17,7 @@ class properties_item : public QObject
 
 private:
     // UI
-    properties_items_manager_interface* file_items_manager_;
+    properties_items_manager_interface* properties_items_manager_;
     QPointer<properties_editor> editor_;
 
     // Модель параметров
@@ -45,6 +45,7 @@ private:
     QList<QPair<QString, QString>> groupList_;
 
 public:
+    properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor);
     properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
     properties_item(const properties_item& other, diagram_item* diagramItem);
     ~properties_item();
@@ -84,6 +85,7 @@ private slots:
 
 private:
     void CreateParametersModel();
+    void CreateProperties();
     void CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model);
     void FillParameterModel(unit_types::ParameterModel& pm);
     void FillArrayModel(unit_types::ParameterModel& pm);

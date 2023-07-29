@@ -21,7 +21,7 @@ class diagram_item : public QGraphicsItem
 {
 private:
     QPixmap pixmap_;
-    QSharedPointer<properties_item> properties_;
+    //QSharedPointer<properties_item> properties_;
     QFont font_;
     QFont groupFont_;
     QRect iconRect_;
@@ -30,6 +30,14 @@ private:
     QRectF boundingRect_;
     bool borderOnly_;
     QString groupName_;
+
+public:
+    // v2
+    QString PROPERTY_instanceName_;
+    QString PROPERTY_name_;
+    QString PROPERTY_groupName_;
+    QString PROPERTY_fileName_;
+    QPixmap PROPERTY_pixmap_;
 
 public:
     diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
@@ -47,7 +55,7 @@ public:
     //QString getInstanceName() { return properties_->GetInstanceName(); }
 
 public:
-    QSharedPointer<properties_item> GetProperties() { return properties_; };
+    //QSharedPointer<properties_item> GetProperties() { return properties_; };
     QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
     void InformPositionXChanged(double x);
     void InformPositionYChanged(double y);

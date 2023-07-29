@@ -12,6 +12,17 @@
 #include "properties_item.h"
 #include "../parameters_compiler/parameters_compiler_helper.h"
 
+properties_item::properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor)
+{
+    properties_items_manager_ = properties_items_manager;
+    editor_ = editor;
+    model_ = {};
+    ignoreEvents_ = false;
+
+    CreateParametersModel();
+    CreateProperties();
+}
+
 properties_item::properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent):
     QObject(parent)
 {
@@ -239,6 +250,15 @@ void properties_item::CreateParametersModel()
 
         parametersModel_.parameters.push_back(std::move(properties_group));
     }
+}
+
+void properties_item::CreateProperties()
+{
+    QMap<QString, const QtProperty*> idToProperty;
+    for (auto& pm : model_.parameters)
+        topLevelProperties_.push_back(editor_->GetPropertyForModel(pm, idToProperty));
+    for (const auto& kvp : idToProperty.toStdMap())
+        RegisterProperty(kvp.second, kvp.first);
 }
 
 //QVariant GetValue(const QString& type, const QString& value)

@@ -10,15 +10,15 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
 {
     borderOnly_ = false;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
-    properties_.reset(new properties_item(unitParameters, this));
-    pixmap_ = properties_->GetPixmap();
+    //properties_.reset(new properties_item(unitParameters, this));
+    pixmap_ = PROPERTY_pixmap_;
 
     font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
     iconRect_ = QRect(0, 0, 32, 32);
 
     QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetName());
+    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, PROPERTY_name_);
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
 
@@ -27,7 +27,7 @@ diagram_item::diagram_item(unit_types::UnitParameters unitParameters, QGraphicsI
     //groupTextRect_.adjust(-1, 0, 1, 0);
     //groupTextRect_.translate(iconRect_.width(), iconRect_.height() - groupTextRect_.height() / 2 + 5);
     QFontMetricsF groupFontMetrics(groupFont_);
-    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetGroupName());
+    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, PROPERTY_groupName_);
     groupTextRect_.adjust(-1, 0, 1, 0);
     groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
 
@@ -41,7 +41,7 @@ diagram_item::diagram_item(const diagram_item& other)
     borderOnly_ = other.borderOnly_;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
     pixmap_ = QPixmap(other.pixmap_);
-    properties_.reset(new properties_item(*other.properties_, this));
+    //properties_.reset(new properties_item(*other.properties_, this));
     font_ = QFont(other.font_);
     groupFont_ = QFont(other.groupFont_);
     iconRect_ = other.iconRect_;
@@ -51,6 +51,13 @@ diagram_item::diagram_item(const diagram_item& other)
     setPos(other.pos() + QPointF{0, 0});
     setZValue(other.zValue() - 1);
     groupName_ = other.groupName_;
+
+    PROPERTY_instanceName_ = other.PROPERTY_instanceName_;
+    PROPERTY_name_ = other.PROPERTY_name_;
+    PROPERTY_groupName_ = other.PROPERTY_groupName_;
+    PROPERTY_fileName_ = other.PROPERTY_fileName_;
+    PROPERTY_pixmap_ = other.PROPERTY_pixmap_;
+
 }
 
 diagram_item::~diagram_item()
@@ -70,14 +77,14 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     if (borderOnly_)
     {
-        qDebug() << "paint border " << properties_->GetName();
+        qDebug() << "paint border " << PROPERTY_name_;
         painter->fillRect(iconRect_, Qt::white);
         painter->setPen(Qt::black);
         painter->drawRect(iconRect_);
     }
     else
     {
-        qDebug() << "paint full " << properties_->GetName();
+        qDebug() << "paint full " << PROPERTY_name_;
         if (scene() != nullptr)
         {
             diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
@@ -86,15 +93,15 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->getMain()->GetDisplayName(properties_->GetName()),
+            painter->drawText(textRect_, ds->getMain()->GetDisplayName(PROPERTY_name_),
                 Qt::AlignCenter | Qt::AlignHCenter);
 
-            QString fileName = properties_->GetFileName();
+            QString fileName = PROPERTY_fileName_;
             QColor colorFile(ds->getMain()->GetFileColor(fileName));
             painter->setPen(QPen(QBrush(colorFile, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             painter->drawRect(iconRect_);
 
-            QString groupName = properties_->GetGroupName();
+            QString groupName = PROPERTY_groupName_;
             if (groupName != "<not selected>")
             {
                 QColor colorGroup(colorFile);
@@ -182,7 +189,8 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
                 int gridSize = 20;
                 qreal xV = round(newPos.x() / gridSize) * gridSize;
                 qreal yV = round(newPos.y() / gridSize) * gridSize;
-                properties_->PositionChanged(QPointF(xV, yV));
+                //properties_->PositionChanged(QPointF(xV, yV));
+                sc->informItemPositionChanged(this);
                 return QPointF(xV, yV);
 
             }
@@ -259,7 +267,7 @@ void diagram_item::InformGroupChanged()
     //}
 
     QFontMetricsF groupFontMetrics(groupFont_);
-    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, properties_->GetGroupName());
+    groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, PROPERTY_groupName_);
     groupTextRect_.adjust(-1, 0, 1, 0);
     groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
@@ -294,7 +302,7 @@ void diagram_item::InformDependencyChanged()
 
 void diagram_item::SetBorderOnly(bool borderOnly)
 {
-    qDebug() << "set border " << borderOnly << " " << properties_->GetName();
+    qDebug() << "set border " << borderOnly << " " << PROPERTY_name_;
 
     borderOnly_ = borderOnly;
     if (scene() != nullptr)

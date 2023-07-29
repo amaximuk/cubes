@@ -69,7 +69,7 @@ public:
 			return "";
 	}
 
-	void Create(const QString& fileName)
+	void Create(const QString& propertiesName)
 	{
 		const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 			defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -78,36 +78,36 @@ public:
 		//fi->SetName(fileName, true, fileName);
 		//fi->SetColor(color);
 		//items_.push_back(fi);
-		selector_->addItem(fileName);
+		selector_->addItem(propertiesName);
 		selector_->setCurrentIndex(selector_->count() - 1);
 
 		emit FilesListChanged(GetFileNames());
 	}
 
-	void Select(const QString& fileName)
+	void Select(const QString& propertiesName)
 	{
 		QString currentFileName = GetCurrentFileName();
-		if (selected_ != fileName)
+		if (selected_ != propertiesName)
 		{
 			if (!selected_.isEmpty())
 			{
 				//GetItem(selected_)->UnSelect();
 				selected_ = "";
 			}
-			if (!fileName.isEmpty())
+			if (!propertiesName.isEmpty())
 			{
 				//GetItem(fileName)->Select();
-				selected_ = fileName;
+				selected_ = propertiesName;
 			}
 		}
 	}
 
-	QSharedPointer<properties_item> GetItem(const QString& fileName)
+	QSharedPointer<properties_item> GetItem(const QString& propertiesName)
 	{
-		for (auto& file : items_)
+		for (auto& properties : items_)
 		{
-			if (file->GetName() == fileName)
-				return file;
+			if (properties->GetName() == propertiesName)
+				return properties;
 		}
 		return nullptr;
 	}
@@ -174,6 +174,8 @@ signals:
 	void VariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
 
 public:
+	// properties_items_manager_interface
+
 	void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
 	{
 		int count = 0;

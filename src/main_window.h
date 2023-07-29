@@ -58,9 +58,9 @@ protected:
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
     //QWidget* CreateFilesPropertiesWidget();
-    QWidget* CreatePropertiesWidget();
+    //QWidget* CreatePropertiesWidget();
     //QWidget* CreateFilesButtonsWidget();
-    QWidget* CreateUnitsButtonsWidget();
+    //QWidget* CreateUnitsButtonsWidget();
     QWidget* CreateHintWidget();
     void FillTreeView();
     void FillParametersInfo();
@@ -94,6 +94,8 @@ public:
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames);
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames);
 
+    // to add to interface
+    bool CreatePropetiesItem(const QString& name, QString& instanceName);
 private:
     //QStringList GetUnitsNames();
     //QStringList GetConnectedNames(bool depends);
@@ -115,7 +117,7 @@ private:
     QPointer<QtTreePropertyBrowser> propertyEditor_;
     //QPointer<QComboBox> comboBoxFiles_;
     //QPointer<QComboBox> comboBoxGroups_;
-    QPointer<QComboBox> comboBoxUnits_;
+    //QPointer<QComboBox> comboBoxUnits_;
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
 
@@ -142,7 +144,7 @@ private slots:
     void selectionChanged();
     void test2(QPointF ppp);
 
-    void on_Tab_currentChanged(int index);
+    //void on_Tab_currentChanged(int index);
 
     void on_ErrorButton_clicked(bool checked);
     void on_WarningButton_clicked(bool checked);

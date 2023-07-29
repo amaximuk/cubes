@@ -87,11 +87,19 @@ void diagram_view::dropEvent(QDropEvent *event)
             diagram_item *di = new diagram_item(up);
             diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
 
-            di->GetProperties()->SetFileNames(main_->GetFileNames());
-            di->GetProperties()->SetFileName(main_->GetCurrentFileName());
-            di->GetProperties()->SetGroupNames(main_->GetCurrentFileIncludeNames());
-            di->GetProperties()->SetGroupName("<not selected>");
-            di->GetProperties()->SetName(main_->GetNewUnitName(di->GetProperties()->GetName()));
+            QString instanceName;
+            if (!ds->getMain()->CreatePropetiesItem(di->PROPERTY_name_, instanceName))
+            {
+                qDebug() << "ERROR CreatePropetiesItem: " << di->PROPERTY_name_ << offset;
+            }
+            di->PROPERTY_instanceName_ = instanceName;
+
+            //di->GetProperties()->SetFileNames(main_->GetFileNames());
+            //di->GetProperties()->SetFileName(main_->GetCurrentFileName());
+            //di->GetProperties()->SetGroupNames(main_->GetCurrentFileIncludeNames());
+            //di->GetProperties()->SetGroupName("<not selected>");
+            //di->GetProperties()->SetName(main_->GetNewUnitName(di->GetProperties()->GetName()));
+            
             //di->SetGroupName(main_->GetCurrentGroup());
             ds->informItemCreated(di);
 
