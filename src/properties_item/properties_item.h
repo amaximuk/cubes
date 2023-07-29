@@ -33,21 +33,25 @@ private:
     // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
     bool ignoreEvents_;
 
+public:
+    uint32_t propertiesId_;
+
 private:
     unit_types::UnitParameters unitParameters_;
     unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
-    diagram_item* diagramItem_;
-    QtTreePropertyBrowser* propertyEditor_;
+    //diagram_item* diagramItem_;
+    //QtTreePropertyBrowser* propertyEditor_;
 
     //bool ignoreEvents_;
     QList<QPair<QString, QString>> groupList_;
 
 public:
-    properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor);
-    properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
-    properties_item(const properties_item& other, diagram_item* diagramItem);
+    properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
+        unit_types::UnitParameters unitParameters, uint32_t propertiesId);
+    //properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
+    //properties_item(const properties_item& other, diagram_item* diagramItem);
     ~properties_item();
 
 public:

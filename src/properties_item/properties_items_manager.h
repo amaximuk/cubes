@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QList>
+#include <QMap>
 #include <QSet>
 #include <QSharedPointer>
 #include <QString>
@@ -14,6 +14,8 @@
 #include <QToolButton>
 #include <QLabel>
 #include "../top_manager_interface.h"
+#include "../unit_types.h"
+#include "../xml_parser.h"
 #include "properties_items_manager_interface.h"
 #include "properties_item.h"
 
@@ -30,13 +32,16 @@ private:
 	QPointer<QWidget> widget_;
 	QPointer<properties_editor> editor_;
 	QPointer<QComboBox> selector_;
-	QList<QSharedPointer<properties_item>> items_;
+	QMap<uint32_t, QSharedPointer<properties_item>> items_;
+	//QList<QSharedPointer<properties_item>> items_;
 	QString selected_;
+	uint32_t unique_number_;
 
 public:
 	properties_items_manager(top_manager_interface* top_manager)
 	{
 		top_manager_ = top_manager;
+		unique_number_ = 0;
 
 		defaultColorFileIndex_ = 0;
 		for (auto& c : defaultColorsFile_)
@@ -69,15 +74,21 @@ public:
 			return "";
 	}
 
-	void Create(const QString& propertiesName)
+	void Create(const QString& unitId, uint32_t& propertiesId)
 	{
 		const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 			defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-		//QSharedPointer<properties_item> fi(new properties_item(this, editor_));
-		//fi->SetName(fileName, true, fileName);
-		//fi->SetColor(color);
-		//items_.push_back(fi);
+		unit_types::UnitParameters unitParameters{};
+		top_manager_->GetUnitParameters(unitId, unitParameters);
+
+		propertiesId = unique_number_++;
+		QSharedPointer<properties_item> pi(new properties_item(this, editor_, unitParameters, propertiesId));
+
+		QString propertiesName = "XXXXXXXXXXXX";
+
+		pi->SetName(propertiesName);
+		items_[propertiesId] = pi;
 		selector_->addItem(propertiesName);
 		selector_->setCurrentIndex(selector_->count() - 1);
 
@@ -102,13 +113,15 @@ public:
 		}
 	}
 
-	QSharedPointer<properties_item> GetItem(const QString& propertiesName)
+	QSharedPointer<properties_item> GetItem(const uint32_t propertiesId)
 	{
-		for (auto& properties : items_)
-		{
-			if (properties->GetName() == propertiesName)
-				return properties;
-		}
+		//for (auto& properties : items_)
+		//{
+		//	if (properties->GetName() == propertiesName)
+		//		return properties;
+		//}
+		if (items_.contains(propertiesId))
+			return items_[propertiesId];
 		return nullptr;
 	}
 
@@ -394,7 +407,9 @@ private:
 
 		QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 			defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-		Create(fileName);
+
+		uint32_t propertiesId{ 0 };
+		Create(fileName, propertiesId);
 		//Select(fileName);
 
 		//for (auto& item : panes_[0].first->items())
@@ -449,7 +464,7 @@ private:
 		}
 
 		// Удаляем из списка
-		items_.removeAll(toRemove);
+		//items_.removeAll(toRemove);
 
 		// Если это был последний
 		if (items_.count() == 0)

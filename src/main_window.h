@@ -40,6 +40,7 @@ class MainWindow : public QMainWindow, top_manager_interface
 
 private:
     bool modified_;
+    uint32_t unique_number_;
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
@@ -91,11 +92,13 @@ public:
     //diagram_item* GetGroupItem(const QString& groupName);
 
     // top_manager_interface
-    void GetUnitsInFileList(const QString& fileName, QStringList& unitNames);
-    void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames);
+    void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
+    void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
+    void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
 
     // to add to interface
-    bool CreatePropetiesItem(const QString& name, QString& instanceName);
+    bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId);
+    bool GetPropeties(const uint32_t propertiesId, properties_for_drawing& pfd);
 private:
     //QStringList GetUnitsNames();
     //QStringList GetConnectedNames(bool depends);

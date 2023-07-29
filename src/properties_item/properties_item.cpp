@@ -12,78 +12,81 @@
 #include "properties_item.h"
 #include "../parameters_compiler/parameters_compiler_helper.h"
 
-properties_item::properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor)
+properties_item::properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
+    unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
     properties_items_manager_ = properties_items_manager;
     editor_ = editor;
+    unitParameters_ = unitParameters;
+    propertiesId_ = propertiesId;
     model_ = {};
     ignoreEvents_ = false;
 
     CreateParametersModel();
     CreateProperties();
 }
-
-properties_item::properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent):
-    QObject(parent)
-{
-    unitParameters_ = unitParameters;
-    diagramItem_ = diagramItem;
-    parametersModel_ = {};
-    //editorModel_ = {};
-    propertyEditor_ = nullptr;
-    ignoreEvents_ = false;
-
-    CreateParametersModel();
-    CreateEditorModel();
-    //CreatePropertyBrowser();
-}
-
-properties_item::properties_item(const properties_item& other, diagram_item* diagramItem)
-{
-    unitParameters_ = other.unitParameters_;
-    parametersModel_ = other.parametersModel_;
-    //editorModel_ = {};
-    
-    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
-    if (pm != nullptr)
-    {
-        QString s = pm->value.toString();
-        int index = s.lastIndexOf("#");
-        if (index != -1 && index < s.length() - 1)
-        {
-            auto y = s.mid(index + 1);
-            auto x = y.toInt();
-            s = s.left(index).append("#%1").arg(x + 1);
-        }
-        else
-            s.append("#1");
-        pm->value = s;
-    }
-
-    diagramItem_ = diagramItem;
-    propertyEditor_ = other.propertyEditor_;
-    ignoreEvents_ = false;
-
-    //CreateParametersModel();
-    //CreateEditorModel();
-    //CreatePropertyBrowser();
-
-    //unit_types::UnitParameters unitParameters_;
-    //unit_types::ParametersModel parametersModel_;
-    //unit_types::ParametersModel editorModel_;
-
-    //QtGroupPropertyManager* groupManager;
-    //QtIntPropertyManager* intManager;
-    //QtDoublePropertyManager* doubleManager;
-    //QtStringPropertyManager* stringManager;
-    //QtEnumPropertyManager* enumManager;
-    //QtBoolPropertyManager* boolManager;
-
-    //diagram_item* diagramItem_;
-    //QtTreePropertyBrowser* propertyEditor_;
-
-    //bool ignoreEvents_;
-}
+//
+//properties_item::properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent):
+//    QObject(parent)
+//{
+//    unitParameters_ = unitParameters;
+//    //diagramItem_ = diagramItem;
+//    parametersModel_ = {};
+//    //editorModel_ = {};
+//    //propertyEditor_ = nullptr;
+//    ignoreEvents_ = false;
+//
+//    CreateParametersModel();
+//    CreateEditorModel();
+//    //CreatePropertyBrowser();
+//}
+//
+//properties_item::properties_item(const properties_item& other, diagram_item* diagramItem)
+//{
+//    unitParameters_ = other.unitParameters_;
+//    parametersModel_ = other.parametersModel_;
+//    //editorModel_ = {};
+//    
+//    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+//    if (pm != nullptr)
+//    {
+//        QString s = pm->value.toString();
+//        int index = s.lastIndexOf("#");
+//        if (index != -1 && index < s.length() - 1)
+//        {
+//            auto y = s.mid(index + 1);
+//            auto x = y.toInt();
+//            s = s.left(index).append("#%1").arg(x + 1);
+//        }
+//        else
+//            s.append("#1");
+//        pm->value = s;
+//    }
+//
+//    //diagramItem_ = diagramItem;
+//    //propertyEditor_ = other.propertyEditor_;
+//    ignoreEvents_ = false;
+//
+//    //CreateParametersModel();
+//    //CreateEditorModel();
+//    //CreatePropertyBrowser();
+//
+//    //unit_types::UnitParameters unitParameters_;
+//    //unit_types::ParametersModel parametersModel_;
+//    //unit_types::ParametersModel editorModel_;
+//
+//    //QtGroupPropertyManager* groupManager;
+//    //QtIntPropertyManager* intManager;
+//    //QtDoublePropertyManager* doubleManager;
+//    //QtStringPropertyManager* stringManager;
+//    //QtEnumPropertyManager* enumManager;
+//    //QtBoolPropertyManager* boolManager;
+//
+//    //diagram_item* diagramItem_;
+//    //QtTreePropertyBrowser* propertyEditor_;
+//
+//    //bool ignoreEvents_;
+//}
 
 properties_item::~properties_item()
 {
@@ -568,7 +571,7 @@ void properties_item::SetGroupName(QString groupName)
     const auto pm = GetParameterModel("BASE/GROUP");
     if (pm != nullptr)
         pm->value = groupName;
-    diagramItem_->InformGroupChanged();
+    //diagramItem_->InformGroupChanged();
 }
 
 QString properties_item::GetFileName()
@@ -604,7 +607,7 @@ void properties_item::SetName(QString name)
     {
         QString oldName = pm->value.toString();
         pm->value = name;
-        diagramItem_->InformNameChanged(name, oldName);
+        //diagramItem_->InformNameChanged(name, oldName);
     }
 }
 
@@ -858,7 +861,7 @@ void properties_item::ApplyXmlProperties(xml::Unit xu)
     }
 
     QString oldName = pm->value.toString();
-    diagramItem_->InformNameChanged(xu.name, "");
+    //diagramItem_->InformNameChanged(xu.name, "");
 }
 
 QList<QString> properties_item::GetConnectedNames()
@@ -1437,11 +1440,37 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QtProperty*
 //    while (itItem.hasNext())
 //        SaveExpandState(itItem.next());
 //}
+//
+//void properties_item::ApplyExpandState(QtBrowserItem* index)
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> children = index->children();
+//    QListIterator<QtBrowserItem*> itChild(children);
+//    while (itChild.hasNext())
+//        ApplyExpandState(itChild.next());
+//    QtProperty* prop = index->property();
+//
+//    auto pm = GetParameterModel(prop);
+//    if (pm != nullptr)
+//        propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
+//}
+//
+//void properties_item::ApplyExpandState()
+//{
+//    if (propertyEditor_ == nullptr)
+//        return;
+//
+//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+//    QListIterator<QtBrowserItem*> itItem(indexes);
+//    while (itItem.hasNext())
+//        ApplyExpandState(itItem.next());
+//}
 
 void properties_item::ApplyExpandState(QtBrowserItem* index)
 {
-    if (propertyEditor_ == nullptr)
-        return;
+    auto pe = editor_->GetPropertyEditor();
 
     QList<QtBrowserItem*> children = index->children();
     QListIterator<QtBrowserItem*> itChild(children);
@@ -1451,15 +1480,14 @@ void properties_item::ApplyExpandState(QtBrowserItem* index)
 
     auto pm = GetParameterModel(prop);
     if (pm != nullptr)
-        propertyEditor_->setExpanded(index, pm->editorSettings.is_expanded);
+        pe->setExpanded(index, pm->editorSettings.is_expanded);
 }
 
 void properties_item::ApplyExpandState()
 {
-    if (propertyEditor_ == nullptr)
-        return;
+    auto pe = editor_->GetPropertyEditor();
 
-    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
+    QList<QtBrowserItem*> indexes = pe->topLevelItems();
     QListIterator<QtBrowserItem*> itItem(indexes);
     while (itItem.hasNext())
         ApplyExpandState(itItem.next());

@@ -64,9 +64,9 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     {
         diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
 
-        QString oldName = di->PROPERTY_name_;
+        QString oldName = di->name_;
         QString newName = main_->GetNewUnitName(oldName);
-        di->PROPERTY_name_ = newName;
+        di->name_ = newName;
         qDebug() << "X1: " << oldName << " - " << newName;
 
         //di->getProperties()->SetName("<new item>");
@@ -82,7 +82,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         for (auto& item : drag_items_)
         {
             diagram_item* di = reinterpret_cast<diagram_item*>(item);
-            qDebug() << "X2: " << di->PROPERTY_name_;
+            qDebug() << "X2: " << di->name_;
 
             di->SetBorderOnly(false);
         }
@@ -307,7 +307,7 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
     for (const auto& item : items())
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
-        if (name == di->PROPERTY_instanceName_)
+        if (name == di->name_)
         {
             return di;
         }

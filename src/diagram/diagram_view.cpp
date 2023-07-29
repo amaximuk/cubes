@@ -82,17 +82,22 @@ void diagram_view::dropEvent(QDropEvent *event)
 
         if (scene() != nullptr)
         {
+            diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
             auto up = *main_->GetUnitParameters(name);
 
-            diagram_item *di = new diagram_item(up);
-            diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-
-            QString instanceName;
-            if (!ds->getMain()->CreatePropetiesItem(di->PROPERTY_name_, instanceName))
+            uint32_t propertiesId{ 0 };
+            if (!ds->getMain()->CreatePropetiesItem(name, propertiesId))
             {
-                qDebug() << "ERROR CreatePropetiesItem: " << di->PROPERTY_name_ << offset;
+                qDebug() << "ERROR CreatePropetiesItem: " << name;
             }
-            di->PROPERTY_instanceName_ = instanceName;
+
+            properties_for_drawing pfd{};
+            if (!ds->getMain()->GetPropeties(propertiesId, pfd))
+            {
+                qDebug() << "ERROR GetPropeties: " << propertiesId;
+            }
+
+            diagram_item *di = new diagram_item(0, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
 
             //di->GetProperties()->SetFileNames(main_->GetFileNames());
             //di->GetProperties()->SetFileName(main_->GetCurrentFileName());

@@ -19,9 +19,14 @@ QT_END_NAMESPACE
 
 class diagram_item : public QGraphicsItem
 {
-private:
+public:
+    uint32_t propertiesId_;
     QPixmap pixmap_;
+    QString name_;
+    QString groupName_;
+    QColor color_;
     //QSharedPointer<properties_item> properties_;
+private:
     QFont font_;
     QFont groupFont_;
     QRect iconRect_;
@@ -29,18 +34,17 @@ private:
     QRectF groupTextRect_;
     QRectF boundingRect_;
     bool borderOnly_;
-    QString groupName_;
+
+//public:
+//    // v2
+//    QString PROPERTY_instanceName_;
+//    QString PROPERTY_name_;
+//    QString PROPERTY_groupName_;
+//    QString PROPERTY_fileName_;
+//    QPixmap PROPERTY_pixmap_;
 
 public:
-    // v2
-    QString PROPERTY_instanceName_;
-    QString PROPERTY_name_;
-    QString PROPERTY_groupName_;
-    QString PROPERTY_fileName_;
-    QPixmap PROPERTY_pixmap_;
-
-public:
-    diagram_item(unit_types::UnitParameters unitParameters, QGraphicsItem *parent = nullptr);
+    diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString groupName, QColor color, QGraphicsItem *parent = nullptr);
     diagram_item(const diagram_item& other);
     ~diagram_item();
 

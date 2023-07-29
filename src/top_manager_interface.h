@@ -1,10 +1,23 @@
 #pragma once
 
 #include <QString>
+#include <QPixmap>
+#include <QColor>
+#include "unit_types.h"
+#include "xml_parser.h"
+
+struct properties_for_drawing
+{
+    QPixmap pixmap;
+    QString name;
+    QString groupName;
+    QColor color;
+};
 
 class top_manager_interface
 {
 public:
 	virtual void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) = 0;
 	virtual void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) = 0;
+	virtual void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) = 0;
 };

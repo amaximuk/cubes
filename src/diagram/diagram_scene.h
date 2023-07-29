@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 class QGraphicsItem;
 class diagram_item;
@@ -58,5 +57,3 @@ private:
 public:
     diagram_item* GetDiagramItem(QString name) { return getDiagramItem(name); }
 };
-
-#endif // SCENE_H
