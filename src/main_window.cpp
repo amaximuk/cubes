@@ -1448,8 +1448,11 @@ void MainWindow::on_DeleteFileInclude_action(bool checked)
     qDebug() << qobject_cast<QAction*>(sender())->text();
 }
 
-void MainWindow::itemPositionChanged(diagram_item* item)
+void MainWindow::itemPositionChanged(diagram_item* di)
 {
+    auto pi = properties_items_manager_->GetItem(di->propertiesId_);
+    pi->PositionChanged(di->pos());
+
     //QtProperty* p = idToProperty[id];
     //if (p != nullptr)
     //{
@@ -1471,6 +1474,8 @@ void MainWindow::itemPositionChanged(diagram_item* item)
 
 void MainWindow::afterItemCreated(diagram_item* di)
 {
+    properties_items_manager_->Select(di->propertiesId_);
+
     //int tabIndex = GetTabIndex(item->GetGroupName());
     //if (tabIndex == -1)
     //    return;

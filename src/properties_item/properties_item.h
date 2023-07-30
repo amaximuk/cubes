@@ -36,26 +36,13 @@ private:
     bool ignoreEvents_;
 
 public:
-
-    //unit_types::ParametersModel parametersModel_;
-    //unit_types::ParametersModel editorModel_;
-
-    //diagram_item* diagramItem_;
-    //QtTreePropertyBrowser* propertyEditor_;
-
-    //bool ignoreEvents_;
-    //QList<QPair<QString, QString>> groupList_;
-
-public:
     properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
         unit_types::UnitParameters unitParameters, uint32_t propertiesId);
-    //properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent = nullptr);
-    //properties_item(const properties_item& other, diagram_item* diagramItem);
-    ~properties_item();
 
 public:
     void Select();
     void UnSelect();
+
 public:
     //void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
     //void UnApplyToBrowser();
@@ -93,9 +80,6 @@ private:
     void FillParameterModel(unit_types::ParameterModel& pm);
     void FillArrayModel(unit_types::ParameterModel& pm);
     void UpdateArrayModel(unit_types::ParameterModel& pm);
-    void CreateEditorModel();
-    //QtProperty* GetPropertyForModel(unit_types::ParameterModel& model);
-    //void CreatePropertyBrowser();
 
     void GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);
     void GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list);

@@ -83,7 +83,7 @@ void diagram_view::dropEvent(QDropEvent *event)
         if (scene() != nullptr)
         {
             diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-            auto up = *main_->GetUnitParameters(name);
+            //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
             if (!ds->getMain()->CreatePropetiesItem(name, propertiesId))

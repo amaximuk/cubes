@@ -25,73 +25,6 @@ properties_item::properties_item(properties_items_manager_interface* properties_
     CreateParametersModel();
     CreateProperties();
 }
-//
-//properties_item::properties_item(unit_types::UnitParameters unitParameters, diagram_item* diagramItem, QObject* parent):
-//    QObject(parent)
-//{
-//    unitParameters_ = unitParameters;
-//    //diagramItem_ = diagramItem;
-//    parametersModel_ = {};
-//    //editorModel_ = {};
-//    //propertyEditor_ = nullptr;
-//    ignoreEvents_ = false;
-//
-//    CreateParametersModel();
-//    CreateEditorModel();
-//    //CreatePropertyBrowser();
-//}
-//
-//properties_item::properties_item(const properties_item& other, diagram_item* diagramItem)
-//{
-//    unitParameters_ = other.unitParameters_;
-//    parametersModel_ = other.parametersModel_;
-//    //editorModel_ = {};
-//    
-//    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
-//    if (pm != nullptr)
-//    {
-//        QString s = pm->value.toString();
-//        int index = s.lastIndexOf("#");
-//        if (index != -1 && index < s.length() - 1)
-//        {
-//            auto y = s.mid(index + 1);
-//            auto x = y.toInt();
-//            s = s.left(index).append("#%1").arg(x + 1);
-//        }
-//        else
-//            s.append("#1");
-//        pm->value = s;
-//    }
-//
-//    //diagramItem_ = diagramItem;
-//    //propertyEditor_ = other.propertyEditor_;
-//    ignoreEvents_ = false;
-//
-//    //CreateParametersModel();
-//    //CreateEditorModel();
-//    //CreatePropertyBrowser();
-//
-//    //unit_types::UnitParameters unitParameters_;
-//    //unit_types::ParametersModel parametersModel_;
-//    //unit_types::ParametersModel editorModel_;
-//
-//    //QtGroupPropertyManager* groupManager;
-//    //QtIntPropertyManager* intManager;
-//    //QtDoublePropertyManager* doubleManager;
-//    //QtStringPropertyManager* stringManager;
-//    //QtEnumPropertyManager* enumManager;
-//    //QtBoolPropertyManager* boolManager;
-//
-//    //diagram_item* diagramItem_;
-//    //QtTreePropertyBrowser* propertyEditor_;
-//
-//    //bool ignoreEvents_;
-//}
-
-properties_item::~properties_item()
-{
-    //UnApplyToBrowser();
-}
 
 void properties_item::Select()
 {
@@ -114,84 +47,39 @@ void properties_item::UnSelect()
     qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &properties_item::StringEditingFinished);
 }
 
-void properties_item::CreateEditorModel()
-{
-    //unit_types::ParameterModel editor_group;
-    //editor_group.id = "EDITOR";
-    //editor_group.name = QString::fromLocal8Bit("Редактор");
-    //editor_group.value = "";
-    //editor_group.valueType = "none";
-    ////editor_group.parameterInfoId = "";
-    //editor_group.editorSettings.type = unit_types::EditorType::None;
-    //editor_group.editorSettings.is_expanded = true;
-
-    //{
-    //    unit_types::ParameterModel pm;
-    //    pm.id = "EDITOR/POSITION_X";
-    //    pm.name = QString::fromLocal8Bit("Позиция X");
-    //    pm.value = 0.0;
-    //    pm.valueType = "double";
-    //    //pm.parameterInfoId = "";
-    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-    //    pm.editorSettings.SpinDoubleMin = -10000;
-    //    pm.editorSettings.SpinDoubleMax = 10000;
-    //    pm.editorSettings.SpinDoubleSingleStep = 20;
-    //    editor_group.parameters.push_back(std::move(pm));
-    //}
-
-    //{
-    //    unit_types::ParameterModel pm;
-    //    pm.id = "EDITOR/POSITION_Y";
-    //    pm.name = QString::fromLocal8Bit("Позиция Y");
-    //    pm.value = 0.0;
-    //    pm.valueType = "double";
-    //    //pm.parameterInfoId = "";
-    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-    //    pm.editorSettings.SpinDoubleMin = -10000;
-    //    pm.editorSettings.SpinDoubleMax = 10000;
-    //    pm.editorSettings.SpinDoubleSingleStep = 20;
-    //    editor_group.parameters.push_back(std::move(pm));
-    //}
-
-    //{
-    //    unit_types::ParameterModel pm;
-    //    pm.id = "EDITOR/POSITION_Z";
-    //    pm.name = QString::fromLocal8Bit("Позиция Z");
-    //    pm.value = 0.0;
-    //    pm.valueType = "double";
-    //    //pm.parameterInfoId = "";
-    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-    //    pm.editorSettings.SpinDoubleMin = -10000;
-    //    pm.editorSettings.SpinDoubleMax = 10000;
-    //    editor_group.parameters.push_back(std::move(pm));
-    //}
-
-    //parametersModel_.parameters.push_back(std::move(editor_group));
-}
-
 void properties_item::CreateParametersModel()
 {
-    unit_types::ParameterModel base_group;
-    base_group.id = "BASE";
-    base_group.name = QString::fromLocal8Bit("Базовые");
-    base_group.value = "";
-    base_group.valueType = "none";
-    //base_group.parameterInfoId = "";
-    base_group.editorSettings.type = unit_types::EditorType::None;
-    base_group.editorSettings.is_expanded = true;
+    // BASE
+    // BASE/INSTANCE_NAME
+    // BASE/FILE
+    // BASE/GROUP
+    // PARAMETERS
+    // PARAMETERS/...
+    // EDITOR
+    // EDITOR/POSITION_X
+    // EDITOR/POSITION_Y
+    // EDITOR/POSITION_Z
 
-    unit_types::ParameterModel instance_name;
-    instance_name.id = "BASE/INSTANCE_NAME";
-    instance_name.name = QString::fromLocal8Bit("Имя экземляра");
-    instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
-    instance_name.valueType = "string";
-    //instance_name.parameterInfoId = "";
-    instance_name.editorSettings.type = unit_types::EditorType::String;
-    instance_name.editorSettings.is_expanded = false;
-    base_group.parameters.push_back(std::move(instance_name));
-
-    //if (GetId() != "group_mock")
     {
+        unit_types::ParameterModel base_group;
+        base_group.id = "BASE";
+        base_group.name = QString::fromLocal8Bit("Базовые");
+        base_group.value = "";
+        base_group.valueType = "none";
+        //base_group.parameterInfoId = "";
+        base_group.editorSettings.type = unit_types::EditorType::None;
+        base_group.editorSettings.is_expanded = true;
+
+        unit_types::ParameterModel instance_name;
+        instance_name.id = "BASE/INSTANCE_NAME";
+        instance_name.name = QString::fromLocal8Bit("Имя экземляра");
+        instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
+        instance_name.valueType = "string";
+        //instance_name.parameterInfoId = "";
+        instance_name.editorSettings.type = unit_types::EditorType::String;
+        instance_name.editorSettings.is_expanded = false;
+        base_group.parameters.push_back(std::move(instance_name));
+
         unit_types::ParameterModel file;
         file.id = "BASE/FILE";
         file.name = QString::fromLocal8Bit("Файл");
@@ -212,14 +100,8 @@ void properties_item::CreateParametersModel()
         group.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(group));
 
-        //auto sc = diagramItem_->scene();
-        //auto m = sc->parent();
-        //auto mw = reinterpret_cast<MainWindow*>(diagramItem_->scene()->parent());
-        //
-        //for (const auto& pl : mw->GetFileNames())
-        //    file.editorSettings.ComboBoxValues.push_back(pl);
+        model_.parameters.push_back(std::move(base_group));
     }
-    model_.parameters.push_back(std::move(base_group));
 
     if (unitParameters_.fileInfo.parameters.size() > 0)
     {
@@ -254,57 +136,59 @@ void properties_item::CreateParametersModel()
         model_.parameters.push_back(std::move(properties_group));
     }
 
-    unit_types::ParameterModel editor_group;
-    editor_group.id = "EDITOR";
-    editor_group.name = QString::fromLocal8Bit("Редактор");
-    editor_group.value = "";
-    editor_group.valueType = "none";
-    //editor_group.parameterInfoId = "";
-    editor_group.editorSettings.type = unit_types::EditorType::None;
-    editor_group.editorSettings.is_expanded = true;
-
     {
-        unit_types::ParameterModel pm;
-        pm.id = "EDITOR/POSITION_X";
-        pm.name = QString::fromLocal8Bit("Позиция X");
-        pm.value = 0.0;
-        pm.valueType = "double";
-        //pm.parameterInfoId = "";
-        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-        pm.editorSettings.SpinDoubleMin = -10000;
-        pm.editorSettings.SpinDoubleMax = 10000;
-        pm.editorSettings.SpinDoubleSingleStep = 20;
-        editor_group.parameters.push_back(std::move(pm));
-    }
+        unit_types::ParameterModel editor_group;
+        editor_group.id = "EDITOR";
+        editor_group.name = QString::fromLocal8Bit("Редактор");
+        editor_group.value = "";
+        editor_group.valueType = "none";
+        //editor_group.parameterInfoId = "";
+        editor_group.editorSettings.type = unit_types::EditorType::None;
+        editor_group.editorSettings.is_expanded = true;
 
-    {
-        unit_types::ParameterModel pm;
-        pm.id = "EDITOR/POSITION_Y";
-        pm.name = QString::fromLocal8Bit("Позиция Y");
-        pm.value = 0.0;
-        pm.valueType = "double";
-        //pm.parameterInfoId = "";
-        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-        pm.editorSettings.SpinDoubleMin = -10000;
-        pm.editorSettings.SpinDoubleMax = 10000;
-        pm.editorSettings.SpinDoubleSingleStep = 20;
-        editor_group.parameters.push_back(std::move(pm));
-    }
+        {
+            unit_types::ParameterModel pm;
+            pm.id = "EDITOR/POSITION_X";
+            pm.name = QString::fromLocal8Bit("Позиция X");
+            pm.value = 0.0;
+            pm.valueType = "double";
+            //pm.parameterInfoId = "";
+            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.SpinDoubleMin = -10000;
+            pm.editorSettings.SpinDoubleMax = 10000;
+            pm.editorSettings.SpinDoubleSingleStep = 20;
+            editor_group.parameters.push_back(std::move(pm));
+        }
 
-    {
-        unit_types::ParameterModel pm;
-        pm.id = "EDITOR/POSITION_Z";
-        pm.name = QString::fromLocal8Bit("Позиция Z");
-        pm.value = 0.0;
-        pm.valueType = "double";
-        //pm.parameterInfoId = "";
-        pm.editorSettings.type = unit_types::EditorType::SpinDouble;
-        pm.editorSettings.SpinDoubleMin = -10000;
-        pm.editorSettings.SpinDoubleMax = 10000;
-        editor_group.parameters.push_back(std::move(pm));
-    }
+        {
+            unit_types::ParameterModel pm;
+            pm.id = "EDITOR/POSITION_Y";
+            pm.name = QString::fromLocal8Bit("Позиция Y");
+            pm.value = 0.0;
+            pm.valueType = "double";
+            //pm.parameterInfoId = "";
+            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.SpinDoubleMin = -10000;
+            pm.editorSettings.SpinDoubleMax = 10000;
+            pm.editorSettings.SpinDoubleSingleStep = 20;
+            editor_group.parameters.push_back(std::move(pm));
+        }
 
-    model_.parameters.push_back(std::move(editor_group));
+        {
+            unit_types::ParameterModel pm;
+            pm.id = "EDITOR/POSITION_Z";
+            pm.name = QString::fromLocal8Bit("Позиция Z");
+            pm.value = 0.0;
+            pm.valueType = "double";
+            //pm.parameterInfoId = "";
+            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.SpinDoubleMin = -10000;
+            pm.editorSettings.SpinDoubleMax = 10000;
+            editor_group.parameters.push_back(std::move(pm));
+        }
+
+        model_.parameters.push_back(std::move(editor_group));
+    }
 }
 
 void properties_item::CreateProperties()
@@ -776,13 +660,20 @@ QPixmap properties_item::GetPixmap()
 
 void properties_item::PositionChanged(QPointF point)
 {
-    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_X"), point.x());
-    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_Y"), point.y());
+    auto pm_x = GetParameterModel("EDITOR/POSITION_X");
+    pm_x->value = point.x();
+    editor_->SetDoubleValue(GetProperty(pm_x->id), point.x());
+
+    auto pm_y = GetParameterModel("EDITOR/POSITION_Y");
+    pm_y->value = point.y();
+    editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
 }
 
 void properties_item::ZOrderChanged(double value)
 {
-    //////doubleManager->setValue(GetProperty("EDITOR/POSITION_Z"), value);
+    auto pm = GetParameterModel("EDITOR/POSITION_Z");
+    pm->value = value;
+    editor_->SetDoubleValue(GetProperty(pm->id), value);
 }
 
 QString properties_item::GetPropertyDescription(QtProperty* property)
