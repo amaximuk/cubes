@@ -187,7 +187,34 @@ public:
     {
         enumManager_->setValue(property, value);
     }
+
+    void SetEnumValues(QtProperty* property, QStringList values)
+    {
+        enumManager_->setEnumNames(property, values);
+    }
     
+    void SetEnumValue(QtProperty* property, QString valueType, QString value)
+    {
+        auto values = enumManager_->enumNames(property);
+        int pos = 0;
+        for (; pos < values.size(); ++pos)
+        {
+            if (valueType == "double" && value.toDouble() == std::stod(values[pos].toStdString()))
+                break;
+            else if (valueType == "int" && value.toInt() == std::stoi(values[pos].toStdString()))
+                break;
+            else if (valueType == "bool" && (value == "true") == (values[pos] == "true"))
+                break;
+            else if (valueType == "string" && value == values[pos])
+                break;
+        }
+
+        if (pos == values.size())
+            pos = 0;
+
+        enumManager_->setValue(property, pos);
+    }
+
     void SetBoolValue(QtProperty* property, bool value)
     {
         boolManager_->setValue(property, value);

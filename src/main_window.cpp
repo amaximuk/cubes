@@ -87,7 +87,7 @@ QWidget* MainWindow::CreateMainWidget()
 {
     //CreateFilesPropertyBrowser();
     //CreateGroupsPropertyBrowser();
-    CreatePropertyBrowser();
+    //CreatePropertyBrowser();
     CreateTreeView();
     FillParametersInfo();
     FillTreeView();
@@ -287,13 +287,13 @@ void MainWindow::CreateView()
 //    //connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
 //}
 
-void MainWindow::CreatePropertyBrowser()
-{
-    propertyEditor_ = new QtTreePropertyBrowser();
-    qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-    qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
-    qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
-}
+//void MainWindow::CreatePropertyBrowser()
+//{
+//    propertyEditor_ = new QtTreePropertyBrowser();
+//    qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
+//    qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
+//    qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
+//}
 
 void MainWindow::CreateTreeView()
 {
@@ -1186,7 +1186,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     pi->SetGroupNames(GetCurrentFileIncludeNames());
     pi->SetGroupName("<not selected>");
     pi->SetName(GetNewUnitName(pi->GetName()));
-
+    //properties_items_manager_->Select(propertiesId);
     return true;
 }
 
@@ -1195,6 +1195,7 @@ bool MainWindow::GetPropeties(const uint32_t propertiesId, properties_for_drawin
     auto pi = properties_items_manager_->GetItem(propertiesId);
     pfd.pixmap = pi->GetPixmap();
     pfd.name = pi->GetName();
+    pfd.fileName = pi->GetFileName();
     pfd.groupName = pi->GetGroupName();
     pfd.color = GetFileColor(pi->GetFileName());
     return true;
@@ -1300,13 +1301,15 @@ void MainWindow::selectionChanged()
         //////pi->ApplyToBrowser(propertyEditor_);
         pi->PositionChanged(di->pos());
         pi->ZOrderChanged(di->zValue());
+        properties_items_manager_->Select(di->propertiesId_);
         //pi->applyExpandState(propertyEditor_);
         //properties_items_manager_->GetSelector()->setCurrentText(pi->GetName());
     }
     else
     {
-        propertyEditor_->clear();
+        //propertyEditor_->clear();
         plainTextEditHint_->setPlainText("");
+        properties_items_manager_->Select(0);
         //comboBoxUnits_->blockSignals(true);
         //properties_items_manager_->GetSelector()->setCurrentIndex(0);
         //comboBoxUnits_->blockSignals(false);
@@ -2058,7 +2061,7 @@ void MainWindow::on_Units_currentIndexChanged(int index)
     scene_->blockSignals(true);
     if (scene_->selectedItems().size() > 0)
         scene_->clearSelection();
-    propertyEditor_->clear();
+    //propertyEditor_->clear();
     scene_->blockSignals(false);
     if (index == 0)
         return;

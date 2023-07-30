@@ -464,9 +464,11 @@ void properties_item::SetFileNames(QStringList fileNames)
     if (pm != nullptr)
     {
         pm->editorSettings.ComboBoxValues = fileNames;
-        if (pm->value.toString() == "" && fileNames.size() > 0)
-            pm->value = fileNames[0];
+        //?????????
+        //if (pm->value.toString() == "" && fileNames.size() > 0)
+        //    pm->value = fileNames[0];
     }
+    editor_->SetEnumValues(GetProperty(pm->id), fileNames);
 }
 
 void properties_item::SetFileName(QString fileName)
@@ -474,6 +476,7 @@ void properties_item::SetFileName(QString fileName)
     const auto pm = GetParameterModel("BASE/FILE");
     if (pm != nullptr)
         pm->value = fileName;
+    editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, fileName);
 }
 
 void properties_item::SetFileNameReadOnly(bool readonly)

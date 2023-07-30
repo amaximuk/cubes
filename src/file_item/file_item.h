@@ -57,8 +57,6 @@ private:
     void CreateProperties();
     void UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count);
     void UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count);
-    //void AddArrayModelItem(unit_types::ParameterModel& pm);
-
     void RegisterProperty(const QtProperty* property, const QString& id);
     void UnregisterProperty(const QString& id);
     void UnregisterProperty(const QtProperty* property);
@@ -66,12 +64,6 @@ private:
     QString GetPropertyId(const QtProperty* property);
     unit_types::ParameterModel* GetParameterModel(const QString& id);
     unit_types::ParameterModel* GetParameterModel(const QtProperty* property);
-
-    //void ApplyExpandState();
-    //bool GetExpanded(const QtProperty* property);
-    //void SaveExpandState();
-    //void SaveExpandState(QtBrowserItem* index);
     void ApplyExpandState();
     void ApplyExpandState(QtBrowserItem* index);
-    //void UpdateIncludeNameRegExp();
 };

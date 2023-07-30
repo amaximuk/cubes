@@ -106,6 +106,8 @@ public:
 			{
 				GetItem(selected_)->UnSelect();
 				selected_ = 0;
+				auto pe = editor_->GetPropertyEditor();
+				pe->clear();
 			}
 			if (propertiesId != 0)
 			{

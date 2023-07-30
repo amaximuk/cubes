@@ -10,6 +10,7 @@ struct properties_for_drawing
 {
     QPixmap pixmap;
     QString name;
+    QString fileName;
     QString groupName;
     QColor color;
 };
