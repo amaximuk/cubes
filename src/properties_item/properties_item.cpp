@@ -116,6 +116,144 @@ void properties_item::UnSelect()
 
 void properties_item::CreateEditorModel()
 {
+    //unit_types::ParameterModel editor_group;
+    //editor_group.id = "EDITOR";
+    //editor_group.name = QString::fromLocal8Bit("Редактор");
+    //editor_group.value = "";
+    //editor_group.valueType = "none";
+    ////editor_group.parameterInfoId = "";
+    //editor_group.editorSettings.type = unit_types::EditorType::None;
+    //editor_group.editorSettings.is_expanded = true;
+
+    //{
+    //    unit_types::ParameterModel pm;
+    //    pm.id = "EDITOR/POSITION_X";
+    //    pm.name = QString::fromLocal8Bit("Позиция X");
+    //    pm.value = 0.0;
+    //    pm.valueType = "double";
+    //    //pm.parameterInfoId = "";
+    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+    //    pm.editorSettings.SpinDoubleMin = -10000;
+    //    pm.editorSettings.SpinDoubleMax = 10000;
+    //    pm.editorSettings.SpinDoubleSingleStep = 20;
+    //    editor_group.parameters.push_back(std::move(pm));
+    //}
+
+    //{
+    //    unit_types::ParameterModel pm;
+    //    pm.id = "EDITOR/POSITION_Y";
+    //    pm.name = QString::fromLocal8Bit("Позиция Y");
+    //    pm.value = 0.0;
+    //    pm.valueType = "double";
+    //    //pm.parameterInfoId = "";
+    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+    //    pm.editorSettings.SpinDoubleMin = -10000;
+    //    pm.editorSettings.SpinDoubleMax = 10000;
+    //    pm.editorSettings.SpinDoubleSingleStep = 20;
+    //    editor_group.parameters.push_back(std::move(pm));
+    //}
+
+    //{
+    //    unit_types::ParameterModel pm;
+    //    pm.id = "EDITOR/POSITION_Z";
+    //    pm.name = QString::fromLocal8Bit("Позиция Z");
+    //    pm.value = 0.0;
+    //    pm.valueType = "double";
+    //    //pm.parameterInfoId = "";
+    //    pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+    //    pm.editorSettings.SpinDoubleMin = -10000;
+    //    pm.editorSettings.SpinDoubleMax = 10000;
+    //    editor_group.parameters.push_back(std::move(pm));
+    //}
+
+    //parametersModel_.parameters.push_back(std::move(editor_group));
+}
+
+void properties_item::CreateParametersModel()
+{
+    unit_types::ParameterModel base_group;
+    base_group.id = "BASE";
+    base_group.name = QString::fromLocal8Bit("Базовые");
+    base_group.value = "";
+    base_group.valueType = "none";
+    //base_group.parameterInfoId = "";
+    base_group.editorSettings.type = unit_types::EditorType::None;
+    base_group.editorSettings.is_expanded = true;
+
+    unit_types::ParameterModel instance_name;
+    instance_name.id = "BASE/INSTANCE_NAME";
+    instance_name.name = QString::fromLocal8Bit("Имя экземляра");
+    instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
+    instance_name.valueType = "string";
+    //instance_name.parameterInfoId = "";
+    instance_name.editorSettings.type = unit_types::EditorType::String;
+    instance_name.editorSettings.is_expanded = false;
+    base_group.parameters.push_back(std::move(instance_name));
+
+    //if (GetId() != "group_mock")
+    {
+        unit_types::ParameterModel file;
+        file.id = "BASE/FILE";
+        file.name = QString::fromLocal8Bit("Файл");
+        file.value = "";
+        file.valueType = "string";
+        //file.parameterInfoId = "";
+        file.editorSettings.type = unit_types::EditorType::ComboBox;
+        file.editorSettings.is_expanded = false;
+        base_group.parameters.push_back(std::move(file));
+
+        unit_types::ParameterModel group;
+        group.id = "BASE/GROUP";
+        group.name = QString::fromLocal8Bit("Группа");
+        group.value = "";
+        group.valueType = "string";
+        //group.parameterInfoId = "";
+        group.editorSettings.type = unit_types::EditorType::ComboBox;
+        group.editorSettings.is_expanded = false;
+        base_group.parameters.push_back(std::move(group));
+
+        //auto sc = diagramItem_->scene();
+        //auto m = sc->parent();
+        //auto mw = reinterpret_cast<MainWindow*>(diagramItem_->scene()->parent());
+        //
+        //for (const auto& pl : mw->GetFileNames())
+        //    file.editorSettings.ComboBoxValues.push_back(pl);
+    }
+    model_.parameters.push_back(std::move(base_group));
+
+    if (unitParameters_.fileInfo.parameters.size() > 0)
+    {
+        unit_types::ParameterModel properties_group;
+        properties_group.id = "PARAMETERS";
+        properties_group.name = QString::fromLocal8Bit("Параметры");
+        properties_group.value = "";
+        properties_group.valueType = "none";
+        //properties_group.parameterInfoId = "";
+        properties_group.editorSettings.type = unit_types::EditorType::None;
+        properties_group.editorSettings.is_expanded = true;
+
+        for (const auto& pi : unitParameters_.fileInfo.parameters)
+        {
+            unit_types::ParameterModel pm;
+            CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", pm);
+            properties_group.parameters.push_back(std::move(pm));
+        }
+
+        //unit_types::ParameterModel pmd;
+        //pmd.id = "PARAMETERS/DEPENDS";
+        //pmd.name = QString::fromLocal8Bit("Зависимости");
+        //pmd.value = 0;
+        //pmd.valueType = "string";
+        ////properties_group.parameterInfoId = "";
+        //pmd.editorSettings.type = unit_types::EditorType::SpinInterger;
+        //pmd.editorSettings.SpinIntergerMax = 100;
+        //pmd.editorSettings.is_expanded = false;
+
+        //properties_group.parameters.push_back(std::move(pmd));
+
+        model_.parameters.push_back(std::move(properties_group));
+    }
+
     unit_types::ParameterModel editor_group;
     editor_group.id = "EDITOR";
     editor_group.name = QString::fromLocal8Bit("Редактор");
@@ -166,93 +304,7 @@ void properties_item::CreateEditorModel()
         editor_group.parameters.push_back(std::move(pm));
     }
 
-    parametersModel_.parameters.push_back(std::move(editor_group));
-}
-
-void properties_item::CreateParametersModel()
-{
-    unit_types::ParameterModel base_group;
-    base_group.id = "BASE";
-    base_group.name = QString::fromLocal8Bit("Базовые");
-    base_group.value = "";
-    base_group.valueType = "none";
-    //base_group.parameterInfoId = "";
-    base_group.editorSettings.type = unit_types::EditorType::None;
-    base_group.editorSettings.is_expanded = true;
-
-    unit_types::ParameterModel instance_name;
-    instance_name.id = "BASE/INSTANCE_NAME";
-    instance_name.name = QString::fromLocal8Bit("Имя экземляра");
-    instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
-    instance_name.valueType = "string";
-    //instance_name.parameterInfoId = "";
-    instance_name.editorSettings.type = unit_types::EditorType::String;
-    instance_name.editorSettings.is_expanded = false;
-    base_group.parameters.push_back(std::move(instance_name));
-
-    if (GetId() != "group_mock")
-    {
-        unit_types::ParameterModel file;
-        file.id = "BASE/FILE";
-        file.name = QString::fromLocal8Bit("Файл");
-        file.value = "";
-        file.valueType = "string";
-        //file.parameterInfoId = "";
-        file.editorSettings.type = unit_types::EditorType::ComboBox;
-        file.editorSettings.is_expanded = false;
-        base_group.parameters.push_back(std::move(file));
-
-        unit_types::ParameterModel group;
-        group.id = "BASE/GROUP";
-        group.name = QString::fromLocal8Bit("Группа");
-        group.value = "";
-        group.valueType = "string";
-        //group.parameterInfoId = "";
-        group.editorSettings.type = unit_types::EditorType::ComboBox;
-        group.editorSettings.is_expanded = false;
-        base_group.parameters.push_back(std::move(group));
-
-        //auto sc = diagramItem_->scene();
-        //auto m = sc->parent();
-        //auto mw = reinterpret_cast<MainWindow*>(diagramItem_->scene()->parent());
-        //
-        //for (const auto& pl : mw->GetFileNames())
-        //    file.editorSettings.ComboBoxValues.push_back(pl);
-    }
-    parametersModel_.parameters.push_back(std::move(base_group));
-
-    if (unitParameters_.fileInfo.parameters.size() > 0)
-    {
-        unit_types::ParameterModel properties_group;
-        properties_group.id = "PARAMETERS";
-        properties_group.name = QString::fromLocal8Bit("Параметры");
-        properties_group.value = "";
-        properties_group.valueType = "none";
-        //properties_group.parameterInfoId = "";
-        properties_group.editorSettings.type = unit_types::EditorType::None;
-        properties_group.editorSettings.is_expanded = true;
-
-        for (const auto& pi : unitParameters_.fileInfo.parameters)
-        {
-            unit_types::ParameterModel pm;
-            CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", pm);
-            properties_group.parameters.push_back(std::move(pm));
-        }
-
-        //unit_types::ParameterModel pmd;
-        //pmd.id = "PARAMETERS/DEPENDS";
-        //pmd.name = QString::fromLocal8Bit("Зависимости");
-        //pmd.value = 0;
-        //pmd.valueType = "string";
-        ////properties_group.parameterInfoId = "";
-        //pmd.editorSettings.type = unit_types::EditorType::SpinInterger;
-        //pmd.editorSettings.SpinIntergerMax = 100;
-        //pmd.editorSettings.is_expanded = false;
-
-        //properties_group.parameters.push_back(std::move(pmd));
-
-        parametersModel_.parameters.push_back(std::move(properties_group));
-    }
+    model_.parameters.push_back(std::move(editor_group));
 }
 
 void properties_item::CreateProperties()
@@ -855,7 +907,7 @@ void properties_item::ApplyXmlProperties(xml::Unit xu)
         return;
     pm->value = xu.name;
 
-    for (auto& pm : parametersModel_.parameters)
+    for (auto& pm : model_.parameters)
     {
         ApplyXmlPropertiesInternal(pm, xu);
     }
@@ -867,7 +919,7 @@ void properties_item::ApplyXmlProperties(xml::Unit xu)
 QList<QString> properties_item::GetConnectedNames()
 {
     QList<QString> list;
-    for (const auto& pm : parametersModel_.parameters)
+    for (const auto& pm : model_.parameters)
     {
         if (pm.id == "PARAMETERS")
             GetConnectedNamesInternal(pm, list);
@@ -878,7 +930,7 @@ QList<QString> properties_item::GetConnectedNames()
 QList<QString> properties_item::GetDependentNames()
 {
     QList<QString> list;
-    for (const auto& pm : parametersModel_.parameters)
+    for (const auto& pm : model_.parameters)
     {
         if (pm.id == "PARAMETERS")
             GetDependentNamesInternal(pm, list);
@@ -1347,7 +1399,7 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id
 
     {
         QStringList sl = id.split("/");
-        auto ql = &parametersModel_.parameters;
+        auto ql = &model_.parameters;
         QString idt;
         while (sl.size() > 0)
         {

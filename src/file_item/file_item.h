@@ -14,7 +14,7 @@ class file_item : public QObject
     Q_OBJECT
 
 private:
-    // UI
+    // Params
     file_items_manager_interface* file_items_manager_;
     QPointer<properties_editor> editor_;
 

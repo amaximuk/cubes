@@ -97,7 +97,7 @@ void diagram_view::dropEvent(QDropEvent *event)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            diagram_item *di = new diagram_item(0, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
+            diagram_item *di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
 
             //di->GetProperties()->SetFileNames(main_->GetFileNames());
             //di->GetProperties()->SetFileName(main_->GetCurrentFileName());

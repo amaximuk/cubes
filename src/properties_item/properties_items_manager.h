@@ -34,7 +34,7 @@ private:
 	QPointer<QComboBox> selector_;
 	QMap<uint32_t, QSharedPointer<properties_item>> items_;
 	//QList<QSharedPointer<properties_item>> items_;
-	QString selected_;
+	uint32_t selected_;
 	uint32_t unique_number_;
 
 public:
@@ -42,6 +42,7 @@ public:
 	{
 		top_manager_ = top_manager;
 		unique_number_ = 0;
+		selected_ = 0;
 
 		defaultColorFileIndex_ = 0;
 		for (auto& c : defaultColorsFile_)
@@ -66,12 +67,12 @@ public:
 		return widget_;
 	}
 
-	QString GetCurrentFileName()
+	uint32_t GetCurrentFileName()
 	{
 		if (selector_->count() > 0)
-			return selector_->currentText();
+			return selector_->itemData(selector_->currentIndex()).toUInt();
 		else
-			return "";
+			return 0;
 	}
 
 	void Create(const QString& unitId, uint32_t& propertiesId)
@@ -82,33 +83,34 @@ public:
 		unit_types::UnitParameters unitParameters{};
 		top_manager_->GetUnitParameters(unitId, unitParameters);
 
-		propertiesId = unique_number_++;
+		propertiesId = ++unique_number_;
 		QSharedPointer<properties_item> pi(new properties_item(this, editor_, unitParameters, propertiesId));
 
-		QString propertiesName = "XXXXXXXXXXXX";
+		QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id);
 
 		pi->SetName(propertiesName);
 		items_[propertiesId] = pi;
 		selector_->addItem(propertiesName);
 		selector_->setCurrentIndex(selector_->count() - 1);
+		selector_->setItemData(selector_->count() - 1, propertiesId);
 
 		emit FilesListChanged(GetFileNames());
 	}
 
-	void Select(const QString& propertiesName)
+	void Select(const uint32_t& propertiesId)
 	{
-		QString currentFileName = GetCurrentFileName();
-		if (selected_ != propertiesName)
+		//QString currentFileName = GetCurrentFileName();
+		if (selected_ != propertiesId)
 		{
-			if (!selected_.isEmpty())
+			if (selected_ != 0)
 			{
-				//GetItem(selected_)->UnSelect();
-				selected_ = "";
+				GetItem(selected_)->UnSelect();
+				selected_ = 0;
 			}
-			if (!propertiesName.isEmpty())
+			if (propertiesId != 0)
 			{
-				//GetItem(fileName)->Select();
-				selected_ = propertiesName;
+				GetItem(propertiesId)->Select();
+				selected_ = propertiesId;
 			}
 		}
 	}
@@ -220,8 +222,8 @@ public:
 		
 		// Переименовываем имя выбранного файла
 		// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
-		if (selected_ == oldFileName)
-			selected_ = fileName;
+		//if (selected_ == oldFileName)
+		//	selected_ = fileName;
 
 		// Уведомляем о переименовании
 		emit FileNameChanged(fileName, oldFileName);
@@ -382,8 +384,8 @@ private:
 
 	void OnSelectorIndexChanged(int index)
 	{
-		QString currentFileName = GetCurrentFileName();
-		Select(currentFileName);
+		uint32_t currentId = GetCurrentFileName();
+		Select(currentId);
 	}
 
 	void OnAddFileClicked()
@@ -428,50 +430,50 @@ private:
 
 	void OnRemoveFileClicked()
 	{
-		if (selected_.isEmpty())
-		{
-			QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
-			return;
-		}
+		//if (selected_ == 0)
+		//{
+		//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
+		//	return;
+		//}
 
-		// Проверяем возможность удаления
-		QStringList unitNames;
-		top_manager_->GetUnitsInFileList(selected_, unitNames);
-		if (unitNames.count() > 0)
-		{
-			QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-			text.append(unitNames.join('\n'));
-			QMessageBox::critical(widget_, "Error", text);
-			return;
-		}
+		//// Проверяем возможность удаления
+		//QStringList unitNames;
+		//top_manager_->GetUnitsInFileList(selected_, unitNames);
+		//if (unitNames.count() > 0)
+		//{
+		//	QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
+		//	text.append(unitNames.join('\n'));
+		//	QMessageBox::critical(widget_, "Error", text);
+		//	return;
+		//}
 
-		// Сохраняем копию, после удаления selected_ изменится
-		QString selected = selected_;
+		//// Сохраняем копию, после удаления selected_ изменится
+		//QString selected = selected_;
 
-		// Удаляем из селектора, автоматически происходит UnSelect
-		selector_->removeItem(selector_->findText(selected_));
+		//// Удаляем из селектора, автоматически происходит UnSelect
+		//selector_->removeItem(selector_->findText(selected_));
 
-		// Получаем все имена, заодно запоминаем элемент для удаления
-		QStringList fileNames;
-		QSharedPointer<properties_item> toRemove;
-		for (const auto& item : items_)
-		{
-			QString name = item->GetName();
-			if (name == selected)
-				toRemove = item;
-			else
-				fileNames.push_back(item->GetName());
-		}
+		//// Получаем все имена, заодно запоминаем элемент для удаления
+		//QStringList fileNames;
+		//QSharedPointer<properties_item> toRemove;
+		//for (const auto& item : items_)
+		//{
+		//	QString name = item->GetName();
+		//	if (name == selected)
+		//		toRemove = item;
+		//	else
+		//		fileNames.push_back(item->GetName());
+		//}
 
-		// Удаляем из списка
-		//items_.removeAll(toRemove);
+		//// Удаляем из списка
+		////items_.removeAll(toRemove);
 
-		// Если это был последний
-		if (items_.count() == 0)
-			editor_->GetPropertyEditor()->clear();
+		//// Если это был последний
+		//if (items_.count() == 0)
+		//	editor_->GetPropertyEditor()->clear();
 
-		// Сообщаяем об удалении
-		emit FilesListChanged(fileNames);
+		//// Сообщаяем об удалении
+		//emit FilesListChanged(fileNames);
 	}
 
 private:

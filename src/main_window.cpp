@@ -667,7 +667,7 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            diagram_item* di = new diagram_item(0, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
+            diagram_item* di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
 
            
             pi->ApplyXmlProperties(all_units[i]);
@@ -1193,7 +1193,10 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
 bool MainWindow::GetPropeties(const uint32_t propertiesId, properties_for_drawing& pfd)
 {
     auto pi = properties_items_manager_->GetItem(propertiesId);
-    pi->GetPixmap();
+    pfd.pixmap = pi->GetPixmap();
+    pfd.name = pi->GetName();
+    pfd.groupName = pi->GetGroupName();
+    pfd.color = GetFileColor(pi->GetFileName());
     return true;
 }
 
@@ -1298,14 +1301,14 @@ void MainWindow::selectionChanged()
         pi->PositionChanged(di->pos());
         pi->ZOrderChanged(di->zValue());
         //pi->applyExpandState(propertyEditor_);
-        properties_items_manager_->GetSelector()->setCurrentText(pi->GetName());
+        //properties_items_manager_->GetSelector()->setCurrentText(pi->GetName());
     }
     else
     {
         propertyEditor_->clear();
         plainTextEditHint_->setPlainText("");
         //comboBoxUnits_->blockSignals(true);
-        properties_items_manager_->GetSelector()->setCurrentIndex(0);
+        //properties_items_manager_->GetSelector()->setCurrentIndex(0);
         //comboBoxUnits_->blockSignals(false);
     }
 
@@ -1471,9 +1474,9 @@ void MainWindow::afterItemCreated(diagram_item* di)
     //int tabIndex = GetTabIndex(item->GetGroupName());
     //if (tabIndex == -1)
     //    return;
-    auto pi = properties_items_manager_->GetItem(di->propertiesId_);
+    //auto pi = properties_items_manager_->GetItem(di->propertiesId_);
 
-    properties_items_manager_->GetSelector()->addItem(pi->GetName());
+    //properties_items_manager_->GetSelector()->addItem(pi->GetName());
 
     // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов
     //comboBoxUnits_->addItem(item->GetProperties()->GetName());

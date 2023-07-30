@@ -16,9 +16,11 @@ class properties_item : public QObject
     Q_OBJECT
 
 private:
-    // UI
+    // Params
     properties_items_manager_interface* properties_items_manager_;
     QPointer<properties_editor> editor_;
+    uint32_t propertiesId_;
+    unit_types::UnitParameters unitParameters_;
 
     // Модель параметров
     unit_types::ParametersModel model_;
@@ -34,18 +36,15 @@ private:
     bool ignoreEvents_;
 
 public:
-    uint32_t propertiesId_;
 
-private:
-    unit_types::UnitParameters unitParameters_;
-    unit_types::ParametersModel parametersModel_;
+    //unit_types::ParametersModel parametersModel_;
     //unit_types::ParametersModel editorModel_;
 
     //diagram_item* diagramItem_;
     //QtTreePropertyBrowser* propertyEditor_;
 
     //bool ignoreEvents_;
-    QList<QPair<QString, QString>> groupList_;
+    //QList<QPair<QString, QString>> groupList_;
 
 public:
     properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
