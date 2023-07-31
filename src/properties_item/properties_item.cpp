@@ -467,30 +467,38 @@ void properties_item::SetFileNames(QStringList fileNames)
         //?????????
         //if (pm->value.toString() == "" && fileNames.size() > 0)
         //    pm->value = fileNames[0];
+        editor_->SetEnumValues(GetProperty(pm->id), fileNames);
     }
-    editor_->SetEnumValues(GetProperty(pm->id), fileNames);
 }
 
 void properties_item::SetFileName(QString fileName)
 {
     const auto pm = GetParameterModel("BASE/FILE");
     if (pm != nullptr)
+    {
         pm->value = fileName;
-    editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, fileName);
+        editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, fileName);
+    }
 }
 
-void properties_item::SetFileNameReadOnly(bool readonly)
+void properties_item::SetFileNameReadOnly(bool readOnly)
 {
     const auto pm = GetParameterModel("BASE/FILE");
     if (pm != nullptr)
-        pm->readOnly = readonly;
+    {
+        pm->readOnly = readOnly;
+        editor_->SetReadOnly(GetProperty(pm->id), readOnly);
+    }
 }
 
-void properties_item::SetGroupNameReadOnly(bool readonly)
+void properties_item::SetGroupNameReadOnly(bool readOnly)
 {
     const auto pm = GetParameterModel("BASE/GROUP");
     if (pm != nullptr)
-        pm->readOnly = readonly;
+    {
+        pm->readOnly = readOnly;
+        editor_->SetReadOnly(GetProperty(pm->id), readOnly);
+    }
 }
 
 void properties_item::SetGroupNames(QStringList groupNames)
@@ -500,8 +508,9 @@ void properties_item::SetGroupNames(QStringList groupNames)
     if (pm != nullptr)
     {
         pm->editorSettings.ComboBoxValues = groupNames;
-        if (!groupNames.contains(pm->value.toString()) && groupNames.size() > 0)
-            pm->value = groupNames[0];
+        //if (!groupNames.contains(pm->value.toString()) && groupNames.size() > 0)
+        //    pm->value = groupNames[0];
+        editor_->SetEnumValues(GetProperty(pm->id), groupNames);
     }
 }
 
@@ -510,6 +519,7 @@ void properties_item::SetGroupName(QString groupName)
     const auto pm = GetParameterModel("BASE/GROUP");
     if (pm != nullptr)
         pm->value = groupName;
+    editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, groupName);
     //diagramItem_->InformGroupChanged();
 }
 
@@ -934,26 +944,46 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 void properties_item::ValueChanged(QtProperty * property, const QVariant & value)
 {
     // BASE
-    // BASE/NAME
-    // BASE/PLATFORM
-    // BASE/FILE_PATH
-    // INCLUDES
-    // INCLUDES/ITEM_0
-    // INCLUDES/ITEM_0/NAME
-    // INCLUDES/ITEM_0/VALUE
+    // BASE/INSTANCE_NAME
+    // BASE/FILE
+    // BASE/GROUP
     // PARAMETERS
-    // PARAMETERS/CONNECTION
-    // PARAMETERS/CONNECTION/HOST
-    // PARAMETERS/CONNECTION/PORT
-    // PARAMETERS/LOG
+    // PARAMETERS/...
     // EDITOR
-    // EDITOR/COLOR
+    // EDITOR/POSITION_X
+    // EDITOR/POSITION_Y
+    // EDITOR/POSITION_Z
 
     qDebug() << "ValueChanged value = " << value;
 
     auto pm = GetParameterModel(property);
     if (pm == nullptr)
         return;
+
+    if (pm->id.startsWith("BASE"))
+    {
+        if (pm->id == "BASE/INSTANCE_NAME")
+        {
+            //QString oldName = pm->value.toString();
+            //pm->value = value;
+            //file_items_manager_->InformNameChanged(value.toString(), oldName);
+        }
+        else if (pm->id == "BASE/FILE")
+        {
+            pm->value = property->valueText();
+
+            QStringList includeNames;
+            properties_items_manager_->AfterFileNameChanged(propertiesId_, pm->value.toString(), includeNames);
+
+            SetGroupNames(includeNames);
+            SetGroupName("<not selected>");
+        }
+        else
+            pm->value = value.toString();
+    }
+
+
+    
 }
 
 void properties_item::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)

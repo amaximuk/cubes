@@ -21,4 +21,6 @@ public:
 	virtual void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) = 0;
 	virtual void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) = 0;
 	virtual void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) = 0;
+
+	virtual void GetFileIncludeList(const QString& fileName, QStringList& includeNames) = 0;
 };

@@ -7,7 +7,7 @@ class properties_items_manager_interface
 public:
 	// “ут значени€ мен€ютс€ по одному
 	virtual void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) = 0;
-	virtual void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) = 0;
+	virtual void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) = 0;
 
 	//virtual void BeforeFileAdd(const QString& fileName, bool& cancel) = 0;
 	//virtual void BeforeFileRemove(const QString& fileName, bool& cancel) = 0;

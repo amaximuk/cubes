@@ -91,6 +91,7 @@ public:
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
+    void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
 
     // to add to interface
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId);
@@ -132,4 +133,6 @@ public slots:
     void fileListChanged(const QStringList& fileNames);
     void fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
     void fileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
+    // properties_items_manager
+    void propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName);
 };

@@ -94,7 +94,7 @@ public:
 		selector_->setCurrentIndex(selector_->count() - 1);
 		selector_->setItemData(selector_->count() - 1, propertiesId);
 
-		emit FilesListChanged(GetFileNames());
+		//emit FilesListChanged(GetFileNames());
 	}
 
 	void Select(const uint32_t& propertiesId)
@@ -129,13 +129,13 @@ public:
 		return nullptr;
 	}
 
-	QStringList GetFileNames()
-	{
-		QStringList fileNames;
-		for (auto& file : items_)
-			fileNames.push_back(file->GetName());
-		return fileNames;
-	}
+	//QStringList GetFileNames()
+	//{
+	//	QStringList fileNames;
+	//	for (auto& file : items_)
+	//		fileNames.push_back(file->GetName());
+	//	return fileNames;
+	//}
 
 	QColor GetFileColor(const QString& fileName)
 	{
@@ -184,7 +184,7 @@ public:
 	}
 
 signals:
-	void FileNameChanged(const QString& fileName, const QString& oldFileName);
+	void FileNameChanged(const uint32_t propertiesId, const QString& fileName);
 	void FilesListChanged(const QStringList& fileNames);
 	void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
 	void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
@@ -210,25 +210,12 @@ public:
 			cancel = false;
 	}
 
-	void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) override
+	void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) override
 	{
-		// Переименовываем в comboBox
-		for (int i = 0; i < selector_->count(); ++i)
-		{
-			if (selector_->itemText(i) == oldFileName)
-			{
-				selector_->setItemText(i, fileName);
-				break;
-			}
-		}
-		
-		// Переименовываем имя выбранного файла
-		// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
-		//if (selected_ == oldFileName)
-		//	selected_ = fileName;
+		top_manager_->GetFileIncludeList(fileName, includeNames);
 
 		// Уведомляем о переименовании
-		emit FileNameChanged(fileName, oldFileName);
+		emit FileNameChanged(propertiesId, fileName);
 	}
 
 	//void BeforeFileAdd(const QString& fileName, bool& cancel) override

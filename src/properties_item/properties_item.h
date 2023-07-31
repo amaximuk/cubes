@@ -57,11 +57,11 @@ public:
     void ApplyXmlProperties(xml::Unit xu);
     void SetFileNames(QStringList fileNames);
     void SetFileName(QString fileName);
-    void SetFileNameReadOnly(bool readonly);
+    void SetFileNameReadOnly(bool readOnly);
     QString GetFileName();
     void SetGroupNames(QStringList groupNames);
     void SetGroupName(QString groupName);
-    void SetGroupNameReadOnly(bool readonly);
+    void SetGroupNameReadOnly(bool readOnly);
     QString GetGroupName();
     void SetName(QString name);
     QString GetName();

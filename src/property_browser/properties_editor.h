@@ -225,6 +225,11 @@ public:
         colorManager_->setValue(property, value);
     }
 
+    void SetReadOnly(QtProperty* property, bool readOnly)
+    {
+        property->setEnabled(!readOnly);
+    }
+
 signals:
     void Collapsed(QtBrowserItem* item);
     void Expanded(QtBrowserItem* item);

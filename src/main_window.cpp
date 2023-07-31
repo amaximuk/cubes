@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(file_items_manager_, &file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
     properties_items_manager_ = new properties_items_manager(this);
-    connect(properties_items_manager_, &properties_items_manager::FileNameChanged, this, &MainWindow::fileNameChanged);
+    connect(properties_items_manager_, &properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     connect(properties_items_manager_, &properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     connect(properties_items_manager_, &properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
     connect(properties_items_manager_, &properties_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
@@ -1175,6 +1175,11 @@ void MainWindow::GetUnitParameters(const QString& unitId, unit_types::UnitParame
     unitParameters = unitParameters_[unitId];
 }
 
+void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
+{
+    includeNames = file_items_manager_->GetFileIncludeNames(fileName);
+}
+
 bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
@@ -2199,6 +2204,42 @@ void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringL
 
     //////if (scene_->selectedItems().size() > 0)
     //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
+}
+
+void MainWindow::propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName)
+{
+    //QStringList fileNames = file_items_manager_->GetFileNames();
+    //QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
+    //for (auto& item : scene_->items())
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
+    //    auto pi = properties_items_manager_->GetItem(di->propertiesId_);
+    //    QString currentName = pi->GetFileName();
+    //    pi->SetFileNames(fileNames);
+    //    if (currentName == oldFileName)
+    //        pi->SetFileName(fileName);
+
+    //    //if (fileName == di->getProperties()->GetFileName())
+    //    //    di->getProperties()->SetGroupNames(fileIncludeNames);
+    //}
+
+    ////for (int i = 0; i < comboBoxFiles_->count(); ++i)
+    ////{
+    ////    if (comboBoxFiles_->itemText(i) == oldFileName)
+    ////        comboBoxFiles_->setItemText(i, fileName);
+    ////}
+
+    ////////if (scene_->selectedItems().size() > 0)
+    ////////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (di->propertiesId_ == propertiesId)
+            di->SetGroupName(fileName);
+    }
 
     scene_->invalidate();
 }
