@@ -12,6 +12,8 @@ public:
 	//virtual void BeforeFileAdd(const QString& fileName, bool& cancel) = 0;
 	//virtual void BeforeFileRemove(const QString& fileName, bool& cancel) = 0;
 	//virtual void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) = 0;
+	virtual void BeforeNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName, bool& cancel) = 0;
+	virtual void AfterNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName) = 0;
 
 	virtual void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel) = 0;
 	virtual void AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName) = 0;

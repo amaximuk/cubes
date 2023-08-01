@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(file_items_manager_, &file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
     properties_items_manager_ = new properties_items_manager(this);
+    connect(properties_items_manager_, &properties_items_manager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
     connect(properties_items_manager_, &properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     connect(properties_items_manager_, &properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     connect(properties_items_manager_, &properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -667,7 +668,7 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            diagram_item* di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
+            diagram_item* di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
 
            
             pi->ApplyXmlProperties(all_units[i]);
@@ -2208,6 +2209,22 @@ void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringL
     scene_->invalidate();
 }
 
+void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
+{
+    for (auto& item : scene_->items())
+    {
+        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        if (di->propertiesId_ == propertiesId)
+        {
+            di->name_ = name;
+            di->fileName_ = fileName;
+            di->groupName_ = groupName;
+        }
+    }
+
+    scene_->invalidate();
+}
+
 void MainWindow::propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName)
 {
     //QStringList fileNames = file_items_manager_->GetFileNames();
@@ -2238,7 +2255,7 @@ void MainWindow::propertiesFileNameChanged(const uint32_t propertiesId, const QS
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (di->propertiesId_ == propertiesId)
-            di->SetGroupName(fileName);
+            di->groupName_ = (fileName);
     }
 
     scene_->invalidate();

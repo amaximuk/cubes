@@ -98,7 +98,7 @@ void diagram_view::dropEvent(QDropEvent *event)
             }
 
             // !!!!!!!!!!!!!! pfd.groupName всегда пуст
-            diagram_item *di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.groupName, pfd.color);
+            diagram_item *di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
 
             //di->GetProperties()->SetFileNames(main_->GetFileNames());
             //di->GetProperties()->SetFileName(main_->GetCurrentFileName());

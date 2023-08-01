@@ -23,6 +23,7 @@ public:
     uint32_t propertiesId_;
     QPixmap pixmap_;
     QString name_;
+    QString fileName_;
     QString groupName_;
     QColor color_;
     //QSharedPointer<properties_item> properties_;
@@ -44,7 +45,7 @@ private:
 //    QPixmap PROPERTY_pixmap_;
 
 public:
-    diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString groupName, QColor color, QGraphicsItem *parent = nullptr);
+    diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem *parent = nullptr);
     diagram_item(const diagram_item& other);
     ~diagram_item();
 
@@ -69,6 +70,6 @@ public:
     void InformNameChanged(QString name, QString oldName);
     void InformDependencyChanged();
     void SetBorderOnly(bool borderOnly);
-    void SetGroupName(QString name) { groupName_ = name; }
-    QString GetGroupName() { return groupName_; }
+    //void SetGroupName(QString name) { groupName_ = name; }
+    //QString GetGroupName() { return groupName_; }
 };

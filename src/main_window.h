@@ -134,5 +134,6 @@ public slots:
     void fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
     void fileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
     // properties_items_manager
+    void propertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
     void propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName);
 };

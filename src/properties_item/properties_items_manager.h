@@ -184,6 +184,7 @@ public:
 	}
 
 signals:
+	void BasePropertiesChanged(const uint32_t propertiesId, const QString& instanceName, const QString& fileName , const QString& groupName);
 	void FileNameChanged(const uint32_t propertiesId, const QString& fileName);
 	void FilesListChanged(const QStringList& fileNames);
 	void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
@@ -212,10 +213,42 @@ public:
 
 	void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) override
 	{
+		// !!! тут надо как то оптимизировать, чтобы не запрашивать, если файл тот же
+		// Заполняем группы
 		top_manager_->GetFileIncludeList(fileName, includeNames);
 
+		// !!! && fileName != item->GetFileName() --- уже
 		// Уведомляем о переименовании
-		emit FileNameChanged(propertiesId, fileName);
+		auto item = GetItem(propertiesId);
+		if (item != nullptr)
+		{
+
+			auto instanceName = item->GetName();
+			auto fileName = item->GetFileName();
+			auto groupName = item->GetGroupName();
+
+			emit BasePropertiesChanged(propertiesId, instanceName, fileName, groupName);
+			emit FileNameChanged(propertiesId, fileName);
+		}
+	}
+	
+	void BeforeNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName, bool& cancel)
+	{
+		cancel = false;
+	}
+	
+	void AfterNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName)
+	{
+		auto item = GetItem(propertiesId);
+		if (item != nullptr)
+		{
+			auto instanceName = item->GetName();
+			auto fileName = item->GetFileName();
+			auto groupName = item->GetGroupName();
+
+			emit BasePropertiesChanged(propertiesId, instanceName, fileName, groupName);
+			emit FileNameChanged(propertiesId, fileName);
+		}
 	}
 
 	//void BeforeFileAdd(const QString& fileName, bool& cancel) override

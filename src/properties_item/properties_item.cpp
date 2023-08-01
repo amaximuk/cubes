@@ -994,6 +994,24 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
     if (pm == nullptr)
         return;
 
+    if (pm->id == "BASE/INSTANCE_NAME")
+    {
+        bool cancel = false;
+        properties_items_manager_->BeforeNameChanged(propertiesId_, value, oldValue, cancel);
+
+        if (!cancel)
+        {
+            QString oldName = pm->value.toString();
+            pm->value = value;
+            properties_items_manager_->AfterNameChanged(propertiesId_, value, oldName);
+        }
+        else
+        {
+            // Отмена
+            editor_->SetStringValue(property, oldValue);
+        }
+    }
+
 }
 
 //////

@@ -5,12 +5,13 @@
 #include "diagram_item.h"
 #include "../properties_item/properties_item.h"
 
-diagram_item::diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString groupName, QColor color, QGraphicsItem* parent):
+diagram_item::diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {
     propertiesId_ = propertiesId;
     pixmap_ = pixmap;
     name_ = name;
+    fileName_ = fileName;
     groupName_ = groupName;
     color_ = color;
 
