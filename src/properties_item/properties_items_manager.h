@@ -67,7 +67,7 @@ public:
 		return widget_;
 	}
 
-	uint32_t GetCurrentFileName()
+	uint32_t GetCurrentPropertiesId()
 	{
 		if (selector_->count() > 0)
 			return selector_->itemData(selector_->currentIndex()).toUInt();
@@ -90,9 +90,11 @@ public:
 
 		pi->SetName(propertiesName);
 		items_[propertiesId] = pi;
-		selector_->addItem(propertiesName);
+		selector_->addItem(propertiesName, propertiesId);
 		selector_->setCurrentIndex(selector_->count() - 1);
-		selector_->setItemData(selector_->count() - 1, propertiesId);
+		//selector_->addItem(propertiesName);
+		//selector_->setCurrentIndex(selector_->count() - 1);
+		//selector_->setItemData(selector_->count() - 1, propertiesId);
 
 		//emit FilesListChanged(GetFileNames());
 	}
@@ -114,6 +116,10 @@ public:
 				GetItem(propertiesId)->Select();
 				selected_ = propertiesId;
 			}
+
+			int index = selector_->findData(propertiesId);
+			if (index != -1)
+				selector_->setCurrentIndex(index);
 		}
 	}
 
@@ -184,12 +190,14 @@ public:
 	}
 
 signals:
-	void BasePropertiesChanged(const uint32_t propertiesId, const QString& instanceName, const QString& fileName , const QString& groupName);
-	void FileNameChanged(const uint32_t propertiesId, const QString& fileName);
-	void FilesListChanged(const QStringList& fileNames);
-	void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
-	void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
-	void VariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
+	void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+	void SelectedItemChanged(const uint32_t propertiesId);
+
+	//void FileNameChanged(const uint32_t propertiesId, const QString& fileName);
+	//void FilesListChanged(const QStringList& fileNames);
+	//void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
+	//void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
+	//void VariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
 
 public:
 	// properties_items_manager_interface
@@ -211,175 +219,61 @@ public:
 	//		cancel = false;
 	//}
 
+	void AfterNameChanged(properties_item* item)
+	{
+		auto name = GetName(item);
+		int index = selector_->findData(item->GetPropertiesId());
+		if (index != -1)
+			selector_->setItemText(index, name);
+
+		auto fileName = item->GetFileName();
+		auto groupName = item->GetGroupName();
+
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
+	}
+
 	void AfterFileNameChanged(properties_item* item, QStringList& includeNames) override
 	{
-		// !!! тут надо как то оптимизировать, чтобы не запрашивать, если файл тот же
+		auto name = GetName(item);
+		int index = selector_->findData(item->GetPropertiesId());
+		if (index != -1)
+			selector_->setItemText(index, name);
+
 		// Заполняем группы
 		top_manager_->GetFileIncludeList(item->GetFileName(), includeNames);
 
-		auto instanceName = item->GetName();
 		auto fileName = item->GetFileName();
 		auto groupName = item->GetGroupName();
 
-		emit BasePropertiesChanged(item->GetPropertiesId(), instanceName, fileName, groupName);
-		emit FileNameChanged(item->GetPropertiesId(), fileName);
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 	}
 	
-	void AfterFileGroupChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
+	void AfterIncludeNameChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
 	{
-		// !!! тут надо как то оптимизировать, чтобы не запрашивать, если файл тот же
+		auto name = GetName(item);
+		int index = selector_->findData(item->GetPropertiesId());
+		if (index != -1)
+			selector_->setItemText(index, name);
+
 		// Заполняем переменные
 		top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
 
-		auto instanceName = item->GetName();
 		auto fileName = item->GetFileName();
 		auto groupName = item->GetGroupName();
 
-		emit BasePropertiesChanged(item->GetPropertiesId(), instanceName, fileName, groupName);
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 	}
-
-	void BeforeNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName, bool& cancel)
-	{
-		cancel = false;
-	}
-	
-	void AfterNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName)
-	{
-		auto item = GetItem(propertiesId);
-		if (item != nullptr)
-		{
-			auto instanceName = item->GetName();
-			auto fileName = item->GetFileName();
-			auto groupName = item->GetGroupName();
-
-			emit BasePropertiesChanged(propertiesId, instanceName, fileName, groupName);
-			emit FileNameChanged(propertiesId, fileName);
-		}
-	}
-
-	//void BeforeFileAdd(const QString& fileName, bool& cancel) override
-	//{
-	//	// Ничего не делаем
-	//	cancel = false;
-	//}
-
-	//void BeforeFileRemove(const QString& fileName, bool& cancel) override
-	//{
-	//	QStringList unitNames;
-	//	top_manager_->GetUnitsInFileList(fileName, unitNames);
-	//	if (unitNames.count() > 0)
-	//	{
-	//		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-	//		text.append(unitNames.join('\n'));
-	//		QMessageBox::critical(widget_, "Error", text);
-	//		cancel = true;
-	//	}
-	//	else
-	//		cancel = false;
-	//}
-
-	//void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) override
-	//{
-	//	emit FilesListChanged(fileName, fileNames);
-	//}
-
-	void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel) override
-	{
-		// Ничего не делаем
-		cancel = false;
-	}
-
-	void AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName) override
-	{
-		emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-	}
-
-	void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) override
-	{
-		// Ничего не делаем
-		cancel = false;
-	}
-
-	void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) override
-	{
-		QSet<QString> allUnitNames;
-		for (const auto& includeName : includeNames)
-		{
-			QStringList unitNames;
-			top_manager_->GetUnitsInFileIncludeList(fileName, includeName, unitNames);
-			allUnitNames.unite(QSet<QString>(unitNames.begin(), unitNames.end()));
-		}
-		if (allUnitNames.count() > 0)
-		{
-			QString text = QString::fromLocal8Bit("Одно или несколько из удаляемых имен используется.\nУдаление невозможно!\nЮниты:\n");
-			text.append(allUnitNames.values().join('\n'));
-			QMessageBox::critical(widget_, "Error", text);
-			cancel = true;
-		}
-		else
-			cancel = false;
-	}
-	
-	void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) override
-	{
-		QStringList fileIncludeNames;
-		fileIncludeNames.push_back("<not selected>");
-		fileIncludeNames.append(includeNames);
-		emit IncludesListChanged(fileName, fileIncludeNames);
-	}
-
-	void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override
-	{
-		emit VariableChanged(fileName, includeName, variables);
-	}
-
-	//void InformNameChanged(properties_item* fileItem, QString fileName, QString oldFileName) override
-	//{
-	//	int count = 0;
-	//	for (const auto& i : items_)
-	//	{
-	//		if (i->GetName() == fileName)
-	//			count++;
-	//	}
-	//	if (count > 1)
-	//	{
-	//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-	//		fileItem->SetName(oldFileName, true, oldFileName);
-	//	}
-	//	else
-	//	{
-	//		for (int i = 0; i < selector_->count(); ++i)
-	//		{
-	//		    if (selector_->itemText(i) == oldFileName)
-	//				selector_->setItemText(i, fileName);
-	//		}
-	//		emit NameChanged(fileName, oldFileName);
-	//	}
-	//}
-
-	//void InformIncludeChanged(QString fileName, QStringList includeNames) override
-	//{
-	//	QStringList fileIncludeNames;
-	//	fileIncludeNames.push_back("<not selected>");
-	//	fileIncludeNames.append(includeNames);
-	//	emit IncludeChanged(fileName, fileIncludeNames);
-	//}
-
-	//void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
-	//{
-	//	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-	//}
 
 private:
 	void OnEditorCollapsed(QtBrowserItem* item)
 	{
-		QString currentFileName = GetCurrentFileName();
+		QString currentFileName = GetCurrentPropertiesId();
 		SetFilePropertyExpanded(currentFileName, item->property(), false);
 	}
 
 	void OnEditorExpanded(QtBrowserItem* item)
 	{
-		QString currentFileName = GetCurrentFileName();
+		QString currentFileName = GetCurrentPropertiesId();
 		SetFilePropertyExpanded(currentFileName, item->property(), true);
 	}
 
@@ -412,8 +306,9 @@ private:
 
 	void OnSelectorIndexChanged(int index)
 	{
-		uint32_t currentId = GetCurrentFileName();
+		uint32_t currentId = GetCurrentPropertiesId();
 		Select(currentId);
+		emit SelectedItemChanged(currentId);
 	}
 
 	void OnAddFileClicked()
@@ -529,6 +424,7 @@ private:
 	QWidget* CreateSelectorWidget()
 	{
 		selector_ = new QComboBox();
+		selector_->addItem("<not selected>", 0);
 		qDebug() << connect(selector_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &properties_items_manager::OnSelectorIndexChanged);
 
 		QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
@@ -577,5 +473,20 @@ private:
 			//if (fi->GetName() == fileName)
 			//	fi->ExpandedChanged(property, is_expanded);
 		}
+	}
+
+	QString GetName(properties_item* item)
+	{
+		QList<QPair<QString, QString>> variables;
+		top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+
+		QString name = item->GetName();
+		for (const auto& v : variables)
+		{
+			QString replace = QString("@%1@").arg(v.first);
+			name.replace(replace, v.second);
+		}
+
+		return name;
 	}
 };

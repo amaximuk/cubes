@@ -50,9 +50,9 @@ void properties_item::UnSelect()
 void properties_item::CreateParametersModel()
 {
     // BASE
-    // BASE/INSTANCE_NAME
+    // BASE/NAME
     // BASE/FILE
-    // BASE/GROUP
+    // BASE/INCLUDE_NAME
     // PARAMETERS
     // PARAMETERS/...
     // EDITOR
@@ -71,8 +71,8 @@ void properties_item::CreateParametersModel()
         base_group.editorSettings.is_expanded = true;
 
         unit_types::ParameterModel instance_name;
-        instance_name.id = "BASE/INSTANCE_NAME";
-        instance_name.name = QString::fromLocal8Bit("Имя экземляра");
+        instance_name.id = "BASE/NAME";
+        instance_name.name = QString::fromLocal8Bit("Имя");
         instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
         instance_name.valueType = "string";
         //instance_name.parameterInfoId = "";
@@ -81,7 +81,7 @@ void properties_item::CreateParametersModel()
         base_group.parameters.push_back(std::move(instance_name));
 
         unit_types::ParameterModel file;
-        file.id = "BASE/FILE";
+        file.id = "BASE/FILE_NAME";
         file.name = QString::fromLocal8Bit("Файл");
         file.value = "";
         file.valueType = "string";
@@ -91,8 +91,8 @@ void properties_item::CreateParametersModel()
         base_group.parameters.push_back(std::move(file));
 
         unit_types::ParameterModel group;
-        group.id = "BASE/GROUP";
-        group.name = QString::fromLocal8Bit("Группа");
+        group.id = "BASE/INCLUDE_NAME";
+        group.name = QString::fromLocal8Bit("Включаемый файл");
         group.value = "";
         group.valueType = "string";
         //group.parameterInfoId = "";
@@ -459,7 +459,7 @@ void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
 
 void properties_item::SetFileNames(QStringList fileNames)
 {
-    const auto pm = GetParameterModel("BASE/FILE");
+    const auto pm = GetParameterModel("BASE/FILE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
@@ -473,7 +473,7 @@ void properties_item::SetFileNames(QStringList fileNames)
 
 void properties_item::SetFileName(QString fileName)
 {
-    const auto pm = GetParameterModel("BASE/FILE");
+    const auto pm = GetParameterModel("BASE/FILE_NAME");
     if (pm != nullptr)
     {
         pm->value = fileName;
@@ -483,7 +483,7 @@ void properties_item::SetFileName(QString fileName)
 
 void properties_item::SetFileNameReadOnly(bool readOnly)
 {
-    const auto pm = GetParameterModel("BASE/FILE");
+    const auto pm = GetParameterModel("BASE/FILE_NAME");
     if (pm != nullptr)
     {
         pm->readOnly = readOnly;
@@ -493,7 +493,7 @@ void properties_item::SetFileNameReadOnly(bool readOnly)
 
 void properties_item::SetGroupNameReadOnly(bool readOnly)
 {
-    const auto pm = GetParameterModel("BASE/GROUP");
+    const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     if (pm != nullptr)
     {
         pm->readOnly = readOnly;
@@ -503,7 +503,7 @@ void properties_item::SetGroupNameReadOnly(bool readOnly)
 
 void properties_item::SetGroupNames(QStringList groupNames)
 {
-    const auto pm = GetParameterModel("BASE/GROUP");
+    const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
@@ -516,7 +516,7 @@ void properties_item::SetGroupNames(QStringList groupNames)
 
 void properties_item::SetGroupName(QString groupName)
 {
-    const auto pm = GetParameterModel("BASE/GROUP");
+    const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     if (pm != nullptr)
         pm->value = groupName;
     editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, groupName);
@@ -525,7 +525,7 @@ void properties_item::SetGroupName(QString groupName)
 
 QString properties_item::GetFileName()
 {
-    const auto pm = GetParameterModel("BASE/FILE");
+    const auto pm = GetParameterModel("BASE/FILE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
@@ -538,7 +538,7 @@ QString properties_item::GetFileName()
 
 QString properties_item::GetGroupName()
 {
-    const auto pm = GetParameterModel("BASE/GROUP");
+    const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
     {
@@ -551,7 +551,7 @@ QString properties_item::GetGroupName()
 
 void properties_item::SetName(QString name)
 {
-    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
     {
         QString oldName = pm->value.toString();
@@ -562,7 +562,7 @@ void properties_item::SetName(QString name)
 
 QString properties_item::GetName()
 {
-    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
         return pm->value.toString();
     return "";
@@ -798,7 +798,7 @@ void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& mod
 
 QString properties_item::GetInstanceName()
 {
-    const auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
         return pm->value.toString();
     return QString();
@@ -806,7 +806,7 @@ QString properties_item::GetInstanceName()
 
 void properties_item::ApplyXmlProperties(xml::Unit xu)
 {
-    auto pm = GetParameterModel("BASE/INSTANCE_NAME");
+    auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
         return;
     pm->value = xu.name;
@@ -944,9 +944,9 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 void properties_item::ValueChanged(QtProperty * property, const QVariant & value)
 {
     // BASE
-    // BASE/INSTANCE_NAME
-    // BASE/FILE
-    // BASE/GROUP
+    // BASE/NAME
+    // BASE/FILE_NAME
+    // BASE/INCLUDE_NAME
     // PARAMETERS
     // PARAMETERS/...
     // EDITOR
@@ -962,13 +962,13 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
 
     if (pm->id.startsWith("BASE"))
     {
-        if (pm->id == "BASE/INSTANCE_NAME")
+        if (pm->id == "BASE/NAME")
         {
             //QString oldName = pm->value.toString();
             //pm->value = value;
             //file_items_manager_->InformNameChanged(value.toString(), oldName);
         }
-        else if (pm->id == "BASE/FILE")
+        else if (pm->id == "BASE/FILE_NAME")
         {
             pm->value = property->valueText();
 
@@ -978,12 +978,12 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
             SetGroupNames(includeNames);
             SetGroupName("<not selected>");
         }
-        else if (pm->id == "BASE/GROUP")
+        else if (pm->id == "BASE/INCLUDE_NAME")
         {
             pm->value = property->valueText();
 
             QList<QPair<QString, QString>> variables;
-            properties_items_manager_->AfterFileGroupChanged(this, variables);
+            properties_items_manager_->AfterIncludeNameChanged(this, variables);
 
             //SetGroupNames(includeNames);
             //SetGroupName("<not selected>");
@@ -1004,22 +1004,25 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
     if (pm == nullptr)
         return;
 
-    if (pm->id == "BASE/INSTANCE_NAME")
+    if (pm->id == "BASE/NAME")
     {
-        bool cancel = false;
-        properties_items_manager_->BeforeNameChanged(propertiesId_, value, oldValue, cancel);
+        pm->value = value;
+        properties_items_manager_->AfterNameChanged(this);
 
-        if (!cancel)
-        {
-            QString oldName = pm->value.toString();
-            pm->value = value;
-            properties_items_manager_->AfterNameChanged(propertiesId_, value, oldName);
-        }
-        else
-        {
-            // Отмена
-            editor_->SetStringValue(property, oldValue);
-        }
+        //bool cancel = false;
+        //properties_items_manager_->BeforeNameChanged(propertiesId_, value, oldValue, cancel);
+
+        //if (!cancel)
+        //{
+        //    QString oldName = pm->value.toString();
+        //    pm->value = value;
+        //    properties_items_manager_->AfterNameChanged(propertiesId_, value, oldName);
+        //}
+        //else
+        //{
+        //    // Отмена
+        //    editor_->SetStringValue(property, oldValue);
+        //}
     }
 
 }
@@ -1040,7 +1043,7 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
 //////            pm->value = property->valueText();
 //////            diagramItem_->InformFileChanged();
 //////        }
-//////        else if (pm->id == "BASE/GROUP")
+//////        else if (pm->id == "BASE/INCLUDE_NAME")
 //////        {
 //////            //diagramItem_->InformGroupChanged();
 //////            //if (property->valueText() == "<not selected>")
@@ -1168,7 +1171,7 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
 //////    qDebug() << "valueChanged " << pm->id << " = " << value;
 //////    pm->value = value;
 //////
-//////    if (pm->id == "BASE/INSTANCE_NAME")
+//////    if (pm->id == "BASE/NAME")
 //////    {
 //////        diagramItem_->InformNameChanged(value, oldValue);
 //////    }
