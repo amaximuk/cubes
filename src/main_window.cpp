@@ -1181,6 +1181,11 @@ void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includ
     includeNames = file_items_manager_->GetFileIncludeNames(fileName);
 }
 
+void MainWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
+{
+    variables = file_items_manager_->GetFileIncludeVariables(fileName, includeName);
+}
+
 bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
@@ -2219,6 +2224,7 @@ void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->name_ = name;
             di->fileName_ = fileName;
             di->groupName_ = groupName;
+            di->color_ = GetFileColor(fileName);
         }
     }
 
@@ -2255,7 +2261,7 @@ void MainWindow::propertiesFileNameChanged(const uint32_t propertiesId, const QS
     {
         diagram_item* di = reinterpret_cast<diagram_item*>(item);
         if (di->propertiesId_ == propertiesId)
-            di->groupName_ = (fileName);
+            di->fileName_ = fileName;
     }
 
     scene_->invalidate();

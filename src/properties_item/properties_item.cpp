@@ -973,10 +973,20 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
             pm->value = property->valueText();
 
             QStringList includeNames;
-            properties_items_manager_->AfterFileNameChanged(propertiesId_, pm->value.toString(), includeNames);
+            properties_items_manager_->AfterFileNameChanged(this, includeNames);
 
             SetGroupNames(includeNames);
             SetGroupName("<not selected>");
+        }
+        else if (pm->id == "BASE/GROUP")
+        {
+            pm->value = property->valueText();
+
+            QList<QPair<QString, QString>> variables;
+            properties_items_manager_->AfterFileGroupChanged(this, variables);
+
+            //SetGroupNames(includeNames);
+            //SetGroupName("<not selected>");
         }
         else
             pm->value = value.toString();

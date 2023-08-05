@@ -92,6 +92,7 @@ public:
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
     void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
+    void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
 
     // to add to interface
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId);

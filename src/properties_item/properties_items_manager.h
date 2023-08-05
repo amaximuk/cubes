@@ -194,44 +194,50 @@ signals:
 public:
 	// properties_items_manager_interface
 
-	void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
-	{
-		int count = 0;
-		for (const auto& i : items_)
-		{
-			if (i->GetName() == fileName)
-				count++;
-		}
-		if (count > 0)
-		{
-			QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-			cancel = true;
-		}
-		else
-			cancel = false;
-	}
+	//void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override
+	//{
+	//	int count = 0;
+	//	for (const auto& i : items_)
+	//	{
+	//		if (i->GetName() == fileName)
+	//			count++;
+	//	}
+	//	if (count > 0)
+	//	{
+	//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+	//		cancel = true;
+	//	}
+	//	else
+	//		cancel = false;
+	//}
 
-	void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) override
+	void AfterFileNameChanged(properties_item* item, QStringList& includeNames) override
 	{
 		// !!! тут надо как то оптимизировать, чтобы не запрашивать, если файл тот же
 		// Заполняем группы
-		top_manager_->GetFileIncludeList(fileName, includeNames);
+		top_manager_->GetFileIncludeList(item->GetFileName(), includeNames);
 
-		// !!! && fileName != item->GetFileName() --- уже
-		// Уведомляем о переименовании
-		auto item = GetItem(propertiesId);
-		if (item != nullptr)
-		{
+		auto instanceName = item->GetName();
+		auto fileName = item->GetFileName();
+		auto groupName = item->GetGroupName();
 
-			auto instanceName = item->GetName();
-			auto fileName = item->GetFileName();
-			auto groupName = item->GetGroupName();
-
-			emit BasePropertiesChanged(propertiesId, instanceName, fileName, groupName);
-			emit FileNameChanged(propertiesId, fileName);
-		}
+		emit BasePropertiesChanged(item->GetPropertiesId(), instanceName, fileName, groupName);
+		emit FileNameChanged(item->GetPropertiesId(), fileName);
 	}
 	
+	void AfterFileGroupChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
+	{
+		// !!! тут надо как то оптимизировать, чтобы не запрашивать, если файл тот же
+		// Заполняем переменные
+		top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+
+		auto instanceName = item->GetName();
+		auto fileName = item->GetFileName();
+		auto groupName = item->GetGroupName();
+
+		emit BasePropertiesChanged(item->GetPropertiesId(), instanceName, fileName, groupName);
+	}
+
 	void BeforeNameChanged(const uint32_t propertiesId, const QString& name, const QString& oldName, bool& cancel)
 	{
 		cancel = false;

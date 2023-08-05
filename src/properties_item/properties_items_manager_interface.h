@@ -2,13 +2,21 @@
 
 #include <QString>
 
+class properties_item;
+
 class properties_items_manager_interface
 {
 public:
 	// “ут значени€ мен€ютс€ по одному
-	virtual void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) = 0;
-	virtual void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) = 0;
+	//virtual void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) = 0;
+	//virtual void AfterFileNameChanged(const uint32_t propertiesId, const QString& fileName, QStringList& includeNames) = 0;
 
+	virtual void AfterFileNameChanged(properties_item* item, QStringList& includeNames) = 0;
+	virtual void AfterFileGroupChanged(properties_item* item, QList<QPair<QString, QString>>& variables) = 0;
+	
+	
+	//virtual void BeforeFileGroupChanged(const QString& fileName, const QString& oldFileName, bool& cancel) = 0;
+	//virtual void AfterFileGroupChanged(const uint32_t propertiesId, const QString& fileGroup, QList<QPair<QString, QString>>& variables) = 0;
 	//virtual void BeforeFileAdd(const QString& fileName, bool& cancel) = 0;
 	//virtual void BeforeFileRemove(const QString& fileName, bool& cancel) = 0;
 	//virtual void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) = 0;

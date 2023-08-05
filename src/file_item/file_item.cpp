@@ -446,13 +446,13 @@ QList<QPair<QString, QString>> file_item::GetIncludeVariables(const QString& inc
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
-        if (pmi->name == includeName)
+        if (pmi->value == includeName)
         {
             const auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(i));
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
-                const auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(i, j));
-                const auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(i, j));
+                const auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(i).arg(j));
+                const auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(i).arg(j));
                 result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
             }
             break;
