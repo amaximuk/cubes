@@ -53,7 +53,7 @@ private:
     QPointer<sort_filter_model> sort_filter_model_;
 
     QPointer<file_items_manager> file_items_manager_;
-    QPointer<properties_items_manager> properties_items_manager_;
+    QPointer<PropertiesItem::properties_items_manager> properties_items_manager_;
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);

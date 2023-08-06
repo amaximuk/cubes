@@ -58,13 +58,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(file_items_manager_, &file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
     connect(file_items_manager_, &file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
-    properties_items_manager_ = new properties_items_manager(this);
-    connect(properties_items_manager_, &properties_items_manager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
-    connect(properties_items_manager_, &properties_items_manager::SelectedItemChanged, this, &MainWindow::propertiesSelectedItemChanged);
-    //connect(properties_items_manager_, &properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
-    //connect(properties_items_manager_, &properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
-    //connect(properties_items_manager_, &properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
-    //connect(properties_items_manager_, &properties_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
+    properties_items_manager_ = new PropertiesItem::properties_items_manager(this);
+    connect(properties_items_manager_, &PropertiesItem::properties_items_manager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
+    connect(properties_items_manager_, &PropertiesItem::properties_items_manager::SelectedItemChanged, this, &MainWindow::propertiesSelectedItemChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
 
     CreateUi();
 
@@ -2226,6 +2226,7 @@ void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->fileName_ = fileName;
             di->groupName_ = groupName;
             di->color_ = GetFileColor(fileName);
+            di->InformNameChanged(name, name);
         }
     }
 

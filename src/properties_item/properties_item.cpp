@@ -12,6 +12,8 @@
 #include "properties_item.h"
 #include "../parameters_compiler/parameters_compiler_helper.h"
 
+using namespace PropertiesItem;
+
 properties_item::properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
