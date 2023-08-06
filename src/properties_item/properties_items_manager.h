@@ -9,7 +9,7 @@ namespace PropertiesItem
 {
 	class properties_item;
 
-	class properties_items_manager : public QObject, PropertiesItemsManagerInterface
+	class PropertiesItemsManager : public QObject, IPropertiesItemsManager
 	{
 		Q_OBJECT
 
@@ -28,7 +28,7 @@ namespace PropertiesItem
 		uint32_t unique_number_;
 
 	public:
-		properties_items_manager(top_manager_interface* top_manager);
+		PropertiesItemsManager(top_manager_interface* top_manager);
 
 	public:
 		properties_editor* GetEditor();

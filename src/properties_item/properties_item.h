@@ -19,7 +19,7 @@ namespace PropertiesItem
 
     private:
         // Params
-        PropertiesItemsManagerInterface* propertiesItemsManager_;
+        IPropertiesItemsManager* propertiesItemsManager_;
         QPointer<properties_editor> editor_;
         uint32_t propertiesId_;
         unit_types::UnitParameters unitParameters_;
@@ -38,7 +38,7 @@ namespace PropertiesItem
         bool ignoreEvents_;
 
     public:
-        properties_item(PropertiesItemsManagerInterface* propertiesItemsManager, properties_editor* editor,
+        properties_item(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
             unit_types::UnitParameters unitParameters, uint32_t propertiesId);
 
     public:

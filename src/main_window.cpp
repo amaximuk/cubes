@@ -52,15 +52,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
-    file_items_manager_ = new FileItem::file_items_manager(this);
-    connect(file_items_manager_, &FileItem::file_items_manager::FileNameChanged, this, &MainWindow::fileNameChanged);
-    connect(file_items_manager_, &FileItem::file_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
-    connect(file_items_manager_, &FileItem::file_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
-    connect(file_items_manager_, &FileItem::file_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
+    file_items_manager_ = new FileItem::FileItemsManager(this);
+    connect(file_items_manager_, &FileItem::FileItemsManager::FileNameChanged, this, &MainWindow::fileNameChanged);
+    connect(file_items_manager_, &FileItem::FileItemsManager::FilesListChanged, this, &MainWindow::fileListChanged);
+    connect(file_items_manager_, &FileItem::FileItemsManager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
+    connect(file_items_manager_, &FileItem::FileItemsManager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
     
-    properties_items_manager_ = new PropertiesItem::properties_items_manager(this);
-    connect(properties_items_manager_, &PropertiesItem::properties_items_manager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
-    connect(properties_items_manager_, &PropertiesItem::properties_items_manager::SelectedItemChanged, this, &MainWindow::propertiesSelectedItemChanged);
+    properties_items_manager_ = new PropertiesItem::PropertiesItemsManager(this);
+    connect(properties_items_manager_, &PropertiesItem::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
+    connect(properties_items_manager_, &PropertiesItem::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::propertiesSelectedItemChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);

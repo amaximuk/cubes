@@ -6,7 +6,7 @@
 
 namespace FileItem
 {
-	class FileItemsManagerInterface
+	class IFileItemsManager
 	{
 	public:
 		// “ут значени€ мен€ютс€ по одному

@@ -52,8 +52,8 @@ private:
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
 
-    QPointer<FileItem::file_items_manager> file_items_manager_;
-    QPointer<PropertiesItem::properties_items_manager> properties_items_manager_;
+    QPointer<FileItem::FileItemsManager> file_items_manager_;
+    QPointer<PropertiesItem::PropertiesItemsManager> properties_items_manager_;
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
@@ -129,12 +129,12 @@ public slots:
     void itemFileChanged(diagram_item* item);
     void showFileContextMenu(const QPoint& pos);
 
-    // FileItem::file_items_manager
+    // FileItem::FileItemsManager
     void fileNameChanged(const QString& fileName, const QString& oldFileName);
     void fileListChanged(const QStringList& fileNames);
     void fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
     void fileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
-    // properties_items_manager
+    // PropertiesItemsManager
     void propertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
     //void propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName);
     void propertiesSelectedItemChanged(const uint32_t propertiesId);

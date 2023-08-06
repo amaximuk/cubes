@@ -14,7 +14,7 @@
 
 using namespace FileItem;
 
-file_item::file_item(FileItemsManagerInterface* fileItemsManager, properties_editor* editor)
+file_item::file_item(IFileItemsManager* fileItemsManager, properties_editor* editor)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;

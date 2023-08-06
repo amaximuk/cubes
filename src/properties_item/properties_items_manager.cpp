@@ -19,7 +19,7 @@
 
 using namespace PropertiesItem;
 
-properties_items_manager::properties_items_manager(top_manager_interface* top_manager)
+PropertiesItemsManager::PropertiesItemsManager(top_manager_interface* top_manager)
 {
 	top_manager_ = top_manager;
 	unique_number_ = 0;
@@ -32,22 +32,22 @@ properties_items_manager::properties_items_manager(top_manager_interface* top_ma
 	widget_ = CreateEditorWidget();
 }
 
-properties_editor* properties_items_manager::GetEditor()
+properties_editor* PropertiesItemsManager::GetEditor()
 {
 	return editor_;
 }
 
-QComboBox* properties_items_manager::GetSelector()
+QComboBox* PropertiesItemsManager::GetSelector()
 {
 	return selector_;
 }
 
-QWidget* properties_items_manager::GetWidget()
+QWidget* PropertiesItemsManager::GetWidget()
 {
 	return widget_;
 }
 
-uint32_t properties_items_manager::GetCurrentPropertiesId()
+uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 {
 	if (selector_->count() > 0)
 		return selector_->itemData(selector_->currentIndex()).toUInt();
@@ -55,7 +55,7 @@ uint32_t properties_items_manager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void properties_items_manager::Create(const QString& unitId, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -79,7 +79,7 @@ void properties_items_manager::Create(const QString& unitId, uint32_t& propertie
 	//emit FilesListChanged(GetFileNames());
 }
 
-void properties_items_manager::Select(const uint32_t& propertiesId)
+void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 {
 	//QString currentFileName = GetCurrentFileName();
 	if (selected_ != propertiesId)
@@ -103,7 +103,7 @@ void properties_items_manager::Select(const uint32_t& propertiesId)
 	}
 }
 
-QSharedPointer<properties_item> properties_items_manager::GetItem(const uint32_t propertiesId)
+QSharedPointer<properties_item> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
 {
 	//for (auto& properties : items_)
 	//{
@@ -123,7 +123,7 @@ QSharedPointer<properties_item> properties_items_manager::GetItem(const uint32_t
 //	return fileNames;
 //}
 
-QColor properties_items_manager::GetFileColor(const QString& fileName)
+QColor PropertiesItemsManager::GetFileColor(const QString& fileName)
 {
 	for (auto& fi : items_)
 	{
@@ -133,7 +133,7 @@ QColor properties_items_manager::GetFileColor(const QString& fileName)
 	return QColor("Black");
 }
 
-QStringList properties_items_manager::GetFileIncludeNames(const QString& fileName)
+QStringList PropertiesItemsManager::GetFileIncludeNames(const QString& fileName)
 {
 	QStringList fileIncludeNames;
 	fileIncludeNames.push_back("<not selected>");
@@ -145,7 +145,7 @@ QStringList properties_items_manager::GetFileIncludeNames(const QString& fileNam
 	return fileIncludeNames;
 }
 
-QList<QPair<QString, QString>> properties_items_manager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
+QList<QPair<QString, QString>> PropertiesItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
 {
 	QList<QPair<QString, QString>> result;
 
@@ -162,14 +162,14 @@ QList<QPair<QString, QString>> properties_items_manager::GetFileIncludeVariables
 	return result;
 }
 
-void properties_items_manager::Clear()
+void PropertiesItemsManager::Clear()
 {
 	editor_->GetPropertyEditor()->clear();
 	selector_->clear();
 	items_.clear();
 }
 
-void properties_items_manager::AfterNameChanged(properties_item* item)
+void PropertiesItemsManager::AfterNameChanged(properties_item* item)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -182,7 +182,7 @@ void properties_items_manager::AfterNameChanged(properties_item* item)
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void properties_items_manager::AfterFileNameChanged(properties_item* item, QStringList& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(properties_item* item, QStringList& includeNames)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -198,7 +198,7 @@ void properties_items_manager::AfterFileNameChanged(properties_item* item, QStri
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void properties_items_manager::AfterIncludeNameChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
+void PropertiesItemsManager::AfterIncludeNameChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -214,19 +214,19 @@ void properties_items_manager::AfterIncludeNameChanged(properties_item* item, QL
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void properties_items_manager::OnEditorCollapsed(QtBrowserItem* item)
+void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	QString currentFileName = GetCurrentPropertiesId();
 	SetFilePropertyExpanded(currentFileName, item->property(), false);
 }
 
-void properties_items_manager::OnEditorExpanded(QtBrowserItem* item)
+void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
 	QString currentFileName = GetCurrentPropertiesId();
 	SetFilePropertyExpanded(currentFileName, item->property(), true);
 }
 
-void properties_items_manager::OnContextMenuRequested(const QPoint& pos)
+void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 {
 	auto pe = editor_->GetPropertyEditor();
 	if (pe->currentItem() == nullptr)
@@ -241,26 +241,26 @@ void properties_items_manager::OnContextMenuRequested(const QPoint& pos)
 		QMenu contextMenu("Context menu");
 
 		QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name));
-		connect(&action1, &QAction::triggered, this, &properties_items_manager::OnDeleteInclude);
+		connect(&action1, &QAction::triggered, this, &PropertiesItemsManager::OnDeleteInclude);
 		contextMenu.addAction(&action1);
 
 		contextMenu.exec(pe->mapToGlobal(pos));
 	}
 }
 
-void properties_items_manager::OnDeleteInclude(bool checked)
+void PropertiesItemsManager::OnDeleteInclude(bool checked)
 {
 
 }
 
-void properties_items_manager::OnSelectorIndexChanged(int index)
+void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 {
 	uint32_t currentId = GetCurrentPropertiesId();
 	Select(currentId);
 	emit SelectedItemChanged(currentId);
 }
 
-void properties_items_manager::OnAddFileClicked()
+void PropertiesItemsManager::OnAddFileClicked()
 {
 	bool ok;
 	QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
@@ -300,7 +300,7 @@ void properties_items_manager::OnAddFileClicked()
 
 }
 
-void properties_items_manager::OnRemoveFileClicked()
+void PropertiesItemsManager::OnRemoveFileClicked()
 {
 	//if (selected_ == 0)
 	//{
@@ -348,12 +348,12 @@ void properties_items_manager::OnRemoveFileClicked()
 	//emit FilesListChanged(fileNames);
 }
 
-QWidget* properties_items_manager::CreateEditorWidget()
+QWidget* PropertiesItemsManager::CreateEditorWidget()
 {
 	editor_ = new properties_editor();
-	qDebug() << connect(editor_, &properties_editor::Collapsed, this, &properties_items_manager::OnEditorCollapsed);
-	qDebug() << connect(editor_, &properties_editor::Expanded, this, &properties_items_manager::OnEditorExpanded);
-	qDebug() << connect(editor_, &properties_editor::ContextMenuRequested, this, &properties_items_manager::OnContextMenuRequested);
+	qDebug() << connect(editor_, &properties_editor::Collapsed, this, &PropertiesItemsManager::OnEditorCollapsed);
+	qDebug() << connect(editor_, &properties_editor::Expanded, this, &PropertiesItemsManager::OnEditorExpanded);
+	qDebug() << connect(editor_, &properties_editor::ContextMenuRequested, this, &PropertiesItemsManager::OnContextMenuRequested);
 
 	QWidget* propertiesPanelWidget = new QWidget;
 
@@ -369,11 +369,11 @@ QWidget* properties_items_manager::CreateEditorWidget()
 	return propertiesPanelWidget;
 }
 
-QWidget* properties_items_manager::CreateSelectorWidget()
+QWidget* PropertiesItemsManager::CreateSelectorWidget()
 {
 	selector_ = new QComboBox();
 	selector_->addItem("<not selected>", 0);
-	qDebug() << connect(selector_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &properties_items_manager::OnSelectorIndexChanged);
+	qDebug() << connect(selector_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PropertiesItemsManager::OnSelectorIndexChanged);
 
 	QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
 	hBoxLayoutPropertyListButtons->setMargin(0);
@@ -385,7 +385,7 @@ QWidget* properties_items_manager::CreateSelectorWidget()
 	toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
 	toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
 	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &properties_items_manager::OnAddFileClicked);
+	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &PropertiesItemsManager::OnAddFileClicked);
 
 	QToolButton* toolButtonPropertyListRemove = new QToolButton;
 	toolButtonPropertyListRemove->setFixedSize(24, 24);
@@ -393,7 +393,7 @@ QWidget* properties_items_manager::CreateSelectorWidget()
 	toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
 	toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
 	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &properties_items_manager::OnRemoveFileClicked);
+	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnRemoveFileClicked);
 
 	QWidget* buttonsWidget = new QWidget;
 	buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
@@ -413,7 +413,7 @@ QWidget* properties_items_manager::CreateSelectorWidget()
 	return mainWidget;
 }
 
-void properties_items_manager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
+void PropertiesItemsManager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
 {
 	QStringList fileIncludeNames;
 	for (auto& fi : items_)
@@ -423,7 +423,7 @@ void properties_items_manager::SetFilePropertyExpanded(const QString& fileName, 
 	}
 }
 
-QString properties_items_manager::GetName(properties_item* item)
+QString PropertiesItemsManager::GetName(properties_item* item)
 {
 	QList<QPair<QString, QString>> variables;
 	top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);

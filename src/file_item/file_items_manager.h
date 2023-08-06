@@ -7,7 +7,7 @@ class top_manager_interface;
 
 namespace FileItem
 {
-	class file_items_manager : public QObject, FileItemsManagerInterface
+	class FileItemsManager : public QObject, IFileItemsManager
 	{
 		Q_OBJECT
 
@@ -24,7 +24,7 @@ namespace FileItem
 		QString selected_;
 
 	public:
-		file_items_manager(top_manager_interface* top_manager);
+		FileItemsManager(top_manager_interface* top_manager);
 
 	public:
 		properties_editor* GetEditor();

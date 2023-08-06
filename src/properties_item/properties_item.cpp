@@ -14,7 +14,7 @@
 
 using namespace PropertiesItem;
 
-properties_item::properties_item(PropertiesItemsManagerInterface* propertiesItemsManager, properties_editor* editor,
+properties_item::properties_item(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;

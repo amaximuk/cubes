@@ -17,7 +17,7 @@ namespace FileItem
 
     private:
         // Params
-        FileItemsManagerInterface* fileItemsManager_;
+        IFileItemsManager* fileItemsManager_;
         QPointer<properties_editor> editor_;
 
         // Модель параметров
@@ -34,7 +34,7 @@ namespace FileItem
         bool ignoreEvents_;
 
     public:
-        file_item(FileItemsManagerInterface* fileItemsManager, properties_editor* editor);
+        file_item(IFileItemsManager* fileItemsManager, properties_editor* editor);
 
     public:
         void Select();

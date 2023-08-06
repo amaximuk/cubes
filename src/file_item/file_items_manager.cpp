@@ -17,7 +17,7 @@
 
 using namespace FileItem;
 
-file_items_manager::file_items_manager(top_manager_interface* top_manager)
+FileItemsManager::FileItemsManager(top_manager_interface* top_manager)
 {
 	top_manager_ = top_manager;
 
@@ -28,22 +28,22 @@ file_items_manager::file_items_manager(top_manager_interface* top_manager)
 	widget_ = CreateEditorWidget();
 }
 
-properties_editor* file_items_manager::GetEditor()
+properties_editor* FileItemsManager::GetEditor()
 {
 	return editor_;
 }
 
-QComboBox* file_items_manager::GetSelector()
+QComboBox* FileItemsManager::GetSelector()
 {
 	return selector_;
 }
 
-QWidget* file_items_manager::GetWidget()
+QWidget* FileItemsManager::GetWidget()
 {
 	return widget_;
 }
 
-QString file_items_manager::GetCurrentFileName()
+QString FileItemsManager::GetCurrentFileName()
 {
 	if (selector_->count() > 0)
 		return selector_->currentText();
@@ -51,7 +51,7 @@ QString file_items_manager::GetCurrentFileName()
 		return "";
 }
 
-void file_items_manager::Create(const QString& fileName)
+void FileItemsManager::Create(const QString& fileName)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -66,7 +66,7 @@ void file_items_manager::Create(const QString& fileName)
 	emit FilesListChanged(GetFileNames());
 }
 
-void file_items_manager::Select(const QString& fileName)
+void FileItemsManager::Select(const QString& fileName)
 {
 	QString currentFileName = GetCurrentFileName();
 	if (selected_ != fileName)
@@ -91,7 +91,7 @@ void file_items_manager::Select(const QString& fileName)
 	//}
 }
 
-QSharedPointer<file_item> file_items_manager::GetItem(const QString& fileName)
+QSharedPointer<file_item> FileItemsManager::GetItem(const QString& fileName)
 {
 	for (auto& file : items_)
 	{
@@ -101,7 +101,7 @@ QSharedPointer<file_item> file_items_manager::GetItem(const QString& fileName)
 	return nullptr;
 }
 
-QStringList file_items_manager::GetFileNames()
+QStringList FileItemsManager::GetFileNames()
 {
 	QStringList fileNames;
 	for (auto& file : items_)
@@ -109,7 +109,7 @@ QStringList file_items_manager::GetFileNames()
 	return fileNames;
 }
 
-QColor file_items_manager::GetFileColor(const QString& fileName)
+QColor FileItemsManager::GetFileColor(const QString& fileName)
 {
 	for (auto& fi : items_)
 	{
@@ -119,7 +119,7 @@ QColor file_items_manager::GetFileColor(const QString& fileName)
 	return QColor("Black");
 }
 
-QStringList file_items_manager::GetFileIncludeNames(const QString& fileName)
+QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName)
 {
 	QStringList fileIncludeNames;
 	fileIncludeNames.push_back("<not selected>");
@@ -131,7 +131,7 @@ QStringList file_items_manager::GetFileIncludeNames(const QString& fileName)
 	return fileIncludeNames;
 }
 
-QList<QPair<QString, QString>> file_items_manager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
+QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
 {
 	QList<QPair<QString, QString>> result;
 
@@ -148,14 +148,14 @@ QList<QPair<QString, QString>> file_items_manager::GetFileIncludeVariables(const
 	return result;
 }
 
-void file_items_manager::Clear()
+void FileItemsManager::Clear()
 {
 	editor_->GetPropertyEditor()->clear();
 	selector_->clear();
 	items_.clear();
 }
 
-void file_items_manager::BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel)
+void FileItemsManager::BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel)
 {
 	int count = 0;
 	for (const auto& i : items_)
@@ -172,7 +172,7 @@ void file_items_manager::BeforeFileNameChanged(const QString& fileName, const QS
 		cancel = false;
 }
 
-void file_items_manager::AfterFileNameChanged(const QString& fileName, const QString& oldFileName)
+void FileItemsManager::AfterFileNameChanged(const QString& fileName, const QString& oldFileName)
 {
 	// Переименовываем в comboBox
 	for (int i = 0; i < selector_->count(); ++i)
@@ -219,24 +219,24 @@ void file_items_manager::AfterFileNameChanged(const QString& fileName, const QSt
 //	emit FilesListChanged(fileName, fileNames);
 //}
 
-void file_items_manager::BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel)
+void FileItemsManager::BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void file_items_manager::AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
+void FileItemsManager::AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
 	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 }
 
-void file_items_manager::BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void file_items_manager::BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel)
 {
 	QSet<QString> allUnitNames;
 	for (const auto& includeName : includeNames)
@@ -256,7 +256,7 @@ void file_items_manager::BeforeIncludesRemoved(const QString& fileName, const QS
 		cancel = false;
 }
 
-void file_items_manager::AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+void FileItemsManager::AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames)
 {
 	QStringList fileIncludeNames;
 	fileIncludeNames.push_back("<not selected>");
@@ -264,7 +264,7 @@ void file_items_manager::AfterIncludesListChanged(const QString& fileName, const
 	emit IncludesListChanged(fileName, fileIncludeNames);
 }
 
-void file_items_manager::AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+void FileItemsManager::AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
 {
 	emit VariableChanged(fileName, includeName, variables);
 }
@@ -306,19 +306,19 @@ void file_items_manager::AfterVariableChanged(const QString& fileName, const QSt
 //	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 //}
 
-void file_items_manager::OnEditorCollapsed(QtBrowserItem* item)
+void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	QString currentFileName = GetCurrentFileName();
 	SetFilePropertyExpanded(currentFileName, item->property(), false);
 }
 
-void file_items_manager::OnEditorExpanded(QtBrowserItem* item)
+void FileItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
 	QString currentFileName = GetCurrentFileName();
 	SetFilePropertyExpanded(currentFileName, item->property(), true);
 }
 
-void file_items_manager::OnContextMenuRequested(const QPoint& pos)
+void FileItemsManager::OnContextMenuRequested(const QPoint& pos)
 {
 	auto pe = editor_->GetPropertyEditor();
 	if (pe->currentItem() == nullptr)
@@ -333,25 +333,25 @@ void file_items_manager::OnContextMenuRequested(const QPoint& pos)
 		QMenu contextMenu("Context menu");
 
 		QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name));
-		connect(&action1, &QAction::triggered, this, &file_items_manager::OnDeleteInclude);
+		connect(&action1, &QAction::triggered, this, &FileItemsManager::OnDeleteInclude);
 		contextMenu.addAction(&action1);
 
 		contextMenu.exec(pe->mapToGlobal(pos));
 	}
 }
 
-void file_items_manager::OnDeleteInclude(bool checked)
+void FileItemsManager::OnDeleteInclude(bool checked)
 {
 
 }
 
-void file_items_manager::OnSelectorIndexChanged(int index)
+void FileItemsManager::OnSelectorIndexChanged(int index)
 {
 	QString currentFileName = GetCurrentFileName();
 	Select(currentFileName);
 }
 
-void file_items_manager::OnAddFileClicked()
+void FileItemsManager::OnAddFileClicked()
 {
 	bool ok;
 	QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
@@ -389,7 +389,7 @@ void file_items_manager::OnAddFileClicked()
 
 }
 
-void file_items_manager::OnRemoveFileClicked()
+void FileItemsManager::OnRemoveFileClicked()
 {
 	if (selected_.isEmpty())
 	{
@@ -437,12 +437,12 @@ void file_items_manager::OnRemoveFileClicked()
 	emit FilesListChanged(fileNames);
 }
 
-QWidget* file_items_manager::CreateEditorWidget()
+QWidget* FileItemsManager::CreateEditorWidget()
 {
 	editor_ = new properties_editor();
-	qDebug() << connect(editor_, &properties_editor::Collapsed, this, &file_items_manager::OnEditorCollapsed);
-	qDebug() << connect(editor_, &properties_editor::Expanded, this, &file_items_manager::OnEditorExpanded);
-	qDebug() << connect(editor_, &properties_editor::ContextMenuRequested, this, &file_items_manager::OnContextMenuRequested);
+	qDebug() << connect(editor_, &properties_editor::Collapsed, this, &FileItemsManager::OnEditorCollapsed);
+	qDebug() << connect(editor_, &properties_editor::Expanded, this, &FileItemsManager::OnEditorExpanded);
+	qDebug() << connect(editor_, &properties_editor::ContextMenuRequested, this, &FileItemsManager::OnContextMenuRequested);
 
 	QWidget* propertiesPanelWidget = new QWidget;
 
@@ -458,10 +458,10 @@ QWidget* file_items_manager::CreateEditorWidget()
 	return propertiesPanelWidget;
 }
 
-QWidget* file_items_manager::CreateSelectorWidget()
+QWidget* FileItemsManager::CreateSelectorWidget()
 {
 	selector_ = new QComboBox();
-	qDebug() << connect(selector_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &file_items_manager::OnSelectorIndexChanged);
+	qDebug() << connect(selector_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FileItemsManager::OnSelectorIndexChanged);
 
 	QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
 	hBoxLayoutPropertyListButtons->setMargin(0);
@@ -473,7 +473,7 @@ QWidget* file_items_manager::CreateSelectorWidget()
 	toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
 	toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
 	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &file_items_manager::OnAddFileClicked);
+	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &FileItemsManager::OnAddFileClicked);
 
 	QToolButton* toolButtonPropertyListRemove = new QToolButton;
 	toolButtonPropertyListRemove->setFixedSize(24, 24);
@@ -481,7 +481,7 @@ QWidget* file_items_manager::CreateSelectorWidget()
 	toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
 	toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
 	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &file_items_manager::OnRemoveFileClicked);
+	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &FileItemsManager::OnRemoveFileClicked);
 
 	QWidget* buttonsWidget = new QWidget;
 	buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
@@ -501,7 +501,7 @@ QWidget* file_items_manager::CreateSelectorWidget()
 	return mainWidget;
 }
 
-void file_items_manager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
+void FileItemsManager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
 {
 	QStringList fileIncludeNames;
 	for (auto& fi : items_)

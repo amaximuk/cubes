@@ -7,7 +7,7 @@ namespace PropertiesItem
 {
 	class properties_item;
 
-	class PropertiesItemsManagerInterface
+	class IPropertiesItemsManager
 	{
 	public:
 		virtual void AfterNameChanged(properties_item* item) = 0;
