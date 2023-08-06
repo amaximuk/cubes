@@ -19,7 +19,7 @@
 
 using namespace PropertiesItem;
 
-PropertiesItemsManager::PropertiesItemsManager(top_manager_interface* top_manager)
+PropertiesItemsManager::PropertiesItemsManager(ITopManager* top_manager)
 {
 	top_manager_ = top_manager;
 	unique_number_ = 0;

@@ -91,7 +91,7 @@ void diagram_view::dropEvent(QDropEvent *event)
                 qDebug() << "ERROR CreatePropetiesItem: " << name;
             }
 
-            properties_for_drawing pfd{};
+            PropertiesForDrawing pfd{};
             if (!ds->getMain()->GetPropeties(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;

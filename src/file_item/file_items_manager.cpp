@@ -17,7 +17,7 @@
 
 using namespace FileItem;
 
-FileItemsManager::FileItemsManager(top_manager_interface* top_manager)
+FileItemsManager::FileItemsManager(ITopManager* top_manager)
 {
 	top_manager_ = top_manager;
 

@@ -6,7 +6,7 @@
 #include "unit_types.h"
 #include "xml_parser.h"
 
-struct properties_for_drawing
+struct PropertiesForDrawing
 {
     QPixmap pixmap;
     QString name;
@@ -15,7 +15,7 @@ struct properties_for_drawing
     QColor color;
 };
 
-class top_manager_interface
+class ITopManager
 {
 public:
 	virtual void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) = 0;

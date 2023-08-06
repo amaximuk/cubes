@@ -3,7 +3,7 @@
 #include "file_items_manager_interface.h"
 
 class QComboBox;
-class top_manager_interface;
+class ITopManager;
 
 namespace FileItem
 {
@@ -16,7 +16,7 @@ namespace FileItem
 		int defaultColorFileIndex_;
 
 	private:
-		top_manager_interface* top_manager_;
+		ITopManager* top_manager_;
 		QPointer<QWidget> widget_;
 		QPointer<properties_editor> editor_;
 		QPointer<QComboBox> selector_;
@@ -24,7 +24,7 @@ namespace FileItem
 		QString selected_;
 
 	public:
-		FileItemsManager(top_manager_interface* top_manager);
+		FileItemsManager(ITopManager* top_manager);
 
 	public:
 		properties_editor* GetEditor();

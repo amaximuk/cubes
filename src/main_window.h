@@ -34,7 +34,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MainWindow : public QMainWindow, top_manager_interface
+class MainWindow : public QMainWindow, ITopManager
 {
     Q_OBJECT
 
@@ -87,7 +87,7 @@ public:
     QMap<QString, QStringList> GetUnitsConnections();
     QMap<QString, QStringList> GetDependsConnections();
 
-    // top_manager_interface
+    // ITopManager
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
@@ -96,7 +96,7 @@ public:
 
     // to add to interface
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId);
-    bool GetPropeties(const uint32_t propertiesId, properties_for_drawing& pfd);
+    bool GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd);
 
 private:
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);

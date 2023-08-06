@@ -663,7 +663,7 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
             properties_items_manager_->Create(all_units[i].name, propertiesId);
             auto pi = properties_items_manager_->GetItem(propertiesId);
 
-            properties_for_drawing pfd{};
+            PropertiesForDrawing pfd{};
             if (!GetPropeties(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
@@ -1140,7 +1140,7 @@ QMap<QString, QStringList> MainWindow::GetDependsConnections()
 //    return nullptr;
 //}
 
-// top_manager_interface
+// ITopManager
 void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
 {
     // Соберем имена юнитов в файле
@@ -1202,7 +1202,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool MainWindow::GetPropeties(const uint32_t propertiesId, properties_for_drawing& pfd)
+bool MainWindow::GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd)
 {
     auto pi = properties_items_manager_->GetItem(propertiesId);
     pfd.pixmap = pi->GetPixmap();
