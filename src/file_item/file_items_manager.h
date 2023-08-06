@@ -1,21 +1,9 @@
 #pragma once
 
-#include <QList>
-#include <QSet>
-#include <QSharedPointer>
-#include <QString>
-#include <QColor>
-#include <QComboBox>
-#include <QAction>
-#include <QMenu>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QVBoxLayout>
-#include <QToolButton>
-#include <QLabel>
-#include "../top_manager_interface.h"
 #include "file_items_manager_interface.h"
-#include "file_item.h"
+
+class QComboBox;
+class top_manager_interface;
 
 namespace FileItem
 {

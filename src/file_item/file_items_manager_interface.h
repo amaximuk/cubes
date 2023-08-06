@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QString>
+#include <QList>
+#include <QList>
 
 namespace FileItem
 {

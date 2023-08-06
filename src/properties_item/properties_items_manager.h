@@ -2,13 +2,14 @@
 
 #include "properties_items_manager_interface.h"
 
+class QComboBox;
 class top_manager_interface;
 
 namespace PropertiesItem
 {
 	class properties_item;
 
-	class properties_items_manager : public QObject, properties_items_manager_interface
+	class properties_items_manager : public QObject, PropertiesItemsManagerInterface
 	{
 		Q_OBJECT
 

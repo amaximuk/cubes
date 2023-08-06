@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QString>
+#include <QList>
 
 namespace PropertiesItem
 {
 	class properties_item;
 
-	class properties_items_manager_interface
+	class PropertiesItemsManagerInterface
 	{
 	public:
 		virtual void AfterNameChanged(properties_item* item) = 0;

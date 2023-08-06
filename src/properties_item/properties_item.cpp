@@ -14,10 +14,10 @@
 
 using namespace PropertiesItem;
 
-properties_item::properties_item(properties_items_manager_interface* properties_items_manager, properties_editor* editor,
+properties_item::properties_item(PropertiesItemsManagerInterface* propertiesItemsManager, properties_editor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
-    properties_items_manager_ = properties_items_manager;
+    propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
@@ -975,7 +975,7 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
             pm->value = property->valueText();
 
             QStringList includeNames;
-            properties_items_manager_->AfterFileNameChanged(this, includeNames);
+            propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
 
             SetGroupNames(includeNames);
             SetGroupName("<not selected>");
@@ -985,7 +985,7 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
             pm->value = property->valueText();
 
             QList<QPair<QString, QString>> variables;
-            properties_items_manager_->AfterIncludeNameChanged(this, variables);
+            propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
 
             //SetGroupNames(includeNames);
             //SetGroupName("<not selected>");
@@ -1009,7 +1009,7 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
     if (pm->id == "BASE/NAME")
     {
         pm->value = value;
-        properties_items_manager_->AfterNameChanged(this);
+        propertiesItemsManager_->AfterNameChanged(this);
 
         //bool cancel = false;
         //properties_items_manager_->BeforeNameChanged(propertiesId_, value, oldValue, cancel);
