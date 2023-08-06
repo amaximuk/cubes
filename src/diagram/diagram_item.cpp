@@ -5,7 +5,7 @@
 #include "diagram_item.h"
 #include "../properties_item/properties_item.h"
 
-diagram_item::diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent):
+DiagramItem::DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {
     propertiesId_ = propertiesId;
@@ -42,7 +42,7 @@ diagram_item::diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, 
     //groupName_ = "Main";
 }
 
-diagram_item::diagram_item(const diagram_item& other)
+DiagramItem::DiagramItem(const DiagramItem& other)
 {
     propertiesId_ = other.propertiesId_;
     pixmap_ = QPixmap(other.pixmap_);
@@ -70,17 +70,17 @@ diagram_item::diagram_item(const diagram_item& other)
 
 }
 
-diagram_item::~diagram_item()
+DiagramItem::~DiagramItem()
 {
     qDebug() << "~diagram_item";
 }
 
-QRectF diagram_item::boundingRect() const
+QRectF DiagramItem::boundingRect() const
 {
     return boundingRect_;
 }
 
-void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -97,7 +97,7 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         qDebug() << "paint full " << name_;
         if (scene() != nullptr)
         {
-            diagram_scene* ds = reinterpret_cast<diagram_scene*>(scene());
+            DiagramScene* ds = reinterpret_cast<DiagramScene*>(scene());
 
             painter->setRenderHint(QPainter::Antialiasing);
             painter->drawPixmap(iconRect_, pixmap_);
@@ -173,13 +173,13 @@ void diagram_item::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 }
 
-QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     if (change == ItemPositionChange)
     {
         if (scene() != nullptr)
         {
-            diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+            DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
             if (this->isSelected() && sc->isItemMoving())
             {
                 QPointF newPos = value.toPointF();
@@ -229,46 +229,46 @@ QVariant diagram_item::itemChange(GraphicsItemChange change, const QVariant &val
 //    return QGraphicsItem::itemChange(change, value);
 //}
 
-void diagram_item::InformPositionXChanged(double x)
+void DiagramItem::InformPositionXChanged(double x)
 {
     if (scene() != nullptr)
     {
-        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
         if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
             setX(x);
     }
 }
 
-void diagram_item::InformPositionYChanged(double y)
+void DiagramItem::InformPositionYChanged(double y)
 {
     if (scene() != nullptr)
     {
-        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
         if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
             setY(y);
     }
 }
 
-void diagram_item::InformPositionZChanged(double z)
+void DiagramItem::InformPositionZChanged(double z)
 {
     if (scene() != nullptr)
     {
-        diagram_scene* sc = qobject_cast<diagram_scene*>(scene());
+        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
         if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
             setZValue(z);
     }
 }
 
-void diagram_item::InformFileChanged()
+void DiagramItem::InformFileChanged()
 {
     if (scene() != nullptr)
     {
-        reinterpret_cast<diagram_scene*>(scene())->informItemFileChanged(this);
+        reinterpret_cast<DiagramScene*>(scene())->informItemFileChanged(this);
         scene()->invalidate();
     }
 }
 
-void diagram_item::InformGroupChanged()
+void DiagramItem::InformGroupChanged()
 {
     //if (scene() != nullptr)
     //{
@@ -283,12 +283,12 @@ void diagram_item::InformGroupChanged()
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<diagram_scene*>(scene())->informItemGroupChanged(this);
+        reinterpret_cast<DiagramScene*>(scene())->informItemGroupChanged(this);
         scene()->invalidate();
     }
 }
 
-void diagram_item::InformNameChanged(QString name, QString oldName)
+void DiagramItem::InformNameChanged(QString name, QString oldName)
 {
     QFontMetricsF fontMetrics(font_);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
@@ -297,12 +297,12 @@ void diagram_item::InformNameChanged(QString name, QString oldName)
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<diagram_scene*>(scene())->informItemNameChanged(this, oldName);
+        reinterpret_cast<DiagramScene*>(scene())->informItemNameChanged(this, oldName);
         scene()->invalidate();
     }
 }
 
-void diagram_item::InformDependencyChanged()
+void DiagramItem::InformDependencyChanged()
 {
     if (scene() != nullptr)
     {
@@ -310,7 +310,7 @@ void diagram_item::InformDependencyChanged()
     }
 }
 
-void diagram_item::SetBorderOnly(bool borderOnly)
+void DiagramItem::SetBorderOnly(bool borderOnly)
 {
     qDebug() << "set border " << borderOnly << " " << name_;
 

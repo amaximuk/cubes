@@ -1,14 +1,14 @@
 #pragma once
 
 class QGraphicsItem;
-class diagram_item;
+class DiagramItem;
 
 #include <QGraphicsScene>
 #include <QpointF>
 
 #include "../main_window.h"
 
-class diagram_scene : public QGraphicsScene
+class DiagramScene : public QGraphicsScene
 {
     Q_OBJECT
 
@@ -17,29 +17,29 @@ private:
     QPointF ppp_;
     bool is_item_moving_;
     QGraphicsItem* moving_item_;
-    QList<diagram_item*> drag_items_;
+    QList<DiagramItem*> drag_items_;
     //const int id_;
 
 public:
-    explicit diagram_scene(MainWindow* main, QObject *parent = nullptr);
+    explicit DiagramScene(MainWindow* main, QObject *parent = nullptr);
 
 public:
-    void informItemPositionChanged(diagram_item* item);
-    void informItemCreated(diagram_item* item);
-    void informItemNameChanged(diagram_item* item, QString oldName);
-    void informItemFileChanged(diagram_item* item);
-    void informItemGroupChanged(diagram_item* item);
+    void informItemPositionChanged(DiagramItem* item);
+    void informItemCreated(DiagramItem* item);
+    void informItemNameChanged(DiagramItem* item, QString oldName);
+    void informItemFileChanged(DiagramItem* item);
+    void informItemGroupChanged(DiagramItem* item);
     bool isItemMoving() { return is_item_moving_; };
     MainWindow* getMain() { return main_; };
 
 signals:
      void xxx(QPointF ppp);
-     void itemPositionChanged(diagram_item* item);
-     void afterItemCreated(diagram_item* item);
-     void beforeItemDeleted(diagram_item* item);
-     void itemNameChanged(diagram_item* item, QString oldName);
-     void itemFileChanged(diagram_item* item);
-     void itemGroupChanged(diagram_item* item);
+     void itemPositionChanged(DiagramItem* item);
+     void afterItemCreated(DiagramItem* item);
+     void beforeItemDeleted(DiagramItem* item);
+     void itemNameChanged(DiagramItem* item, QString oldName);
+     void itemFileChanged(DiagramItem* item);
+     void itemGroupChanged(DiagramItem* item);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -51,9 +51,9 @@ protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
-    diagram_item* getDiagramItem(QString name);
+    DiagramItem* getDiagramItem(QString name);
     void drawConnections(QPainter* painter, const QRectF& rect);
 
 public:
-    diagram_item* GetDiagramItem(QString name) { return getDiagramItem(name); }
+    DiagramItem* GetDiagramItem(QString name) { return getDiagramItem(name); }
 };

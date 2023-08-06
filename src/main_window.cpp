@@ -222,21 +222,21 @@ QWidget* MainWindow::CreateLogWidget()
 
 void MainWindow::CreateScene()
 {
-    scene_ = new diagram_scene(this);
+    scene_ = new DiagramScene(this);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &diagram_scene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(scene_, &diagram_scene::afterItemCreated, this, &MainWindow::afterItemCreated);
-    qDebug() << connect(scene_, &diagram_scene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
-    qDebug() << connect(scene_, &diagram_scene::selectionChanged, this, &MainWindow::selectionChanged);
-    qDebug() << connect(scene_, &diagram_scene::itemNameChanged, this, &MainWindow::itemNameChanged);
-    qDebug() << connect(scene_, &diagram_scene::itemFileChanged, this, &MainWindow::itemFileChanged);
+    qDebug() << connect(scene_, &DiagramScene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
+    qDebug() << connect(scene_, &DiagramScene::afterItemCreated, this, &MainWindow::afterItemCreated);
+    qDebug() << connect(scene_, &DiagramScene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
+    qDebug() << connect(scene_, &DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(scene_, &DiagramScene::itemNameChanged, this, &MainWindow::itemNameChanged);
+    qDebug() << connect(scene_, &DiagramScene::itemFileChanged, this, &MainWindow::itemFileChanged);
     //qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
 void MainWindow::CreateView()
 {
-    view_ = new diagram_view(scene_, this);
+    view_ = new DiagramView(scene_, this);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
@@ -669,7 +669,7 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            diagram_item* di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+            DiagramItem* di = new DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
 
            
             pi->ApplyXmlProperties(all_units[i]);
@@ -703,7 +703,7 @@ bool MainWindow::SortUnits()
     QMap<QString, QSet<QString>> connectedNames;
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
 
         if (!nameToIndex.contains(di->name_))
         {
@@ -738,7 +738,7 @@ bool MainWindow::SortUnits()
     auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
 
         int i = nameToIndex[di->name_];
 
@@ -786,7 +786,7 @@ bool MainWindow::AddMainFile(xml::File& file)
     QStringList fileNames = fileItemsManager_->GetFileNames();
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         pi->SetFileNames(fileNames);
     }
@@ -930,7 +930,7 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
         QList<QPair<QString, QString>> variables;
         for (const auto& item : scene_->items())
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             if (pi->GetGroupName() != "<not selected>")
             {
@@ -953,7 +953,7 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
         QList<QPair<QString, QString>> variables;
         for (const auto& pi : scene_->items())
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+            DiagramItem* di = reinterpret_cast<DiagramItem*>(pi);
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             if (pi->GetGroupName() != "<not selected>")
             {
@@ -965,7 +965,7 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
         bool found = false;
         for (const auto& item : scene_->items())
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             QString realName = pi->GetName();
             for (const auto& v : variables)
@@ -996,7 +996,7 @@ QString MainWindow::GetDisplayName(const QString& baseName)
     QList<QPair<QString, QString>> variables;
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetGroupName() != "<not selected>")
         {
@@ -1146,7 +1146,7 @@ void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNa
     // Соберем имена юнитов в файле
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileName() == fileName)
         {
@@ -1161,7 +1161,7 @@ void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QStrin
     // Соберем имена юнитов в файле
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileName() == fileName &&
             pi->GetGroupName() == includeName)
@@ -1222,7 +1222,7 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     QStringList mainUnits;
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name = pi->GetInstanceName();
         mainUnits.push_back(name);
@@ -1232,7 +1232,7 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     QMap<QString, QStringList> connections;
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name = pi->GetInstanceName();
         QStringList conn = depends ? pi->GetDependentNames() : pi->GetConnectedNames();
@@ -1308,7 +1308,7 @@ void MainWindow::selectionChanged()
 
     if (scene_->selectedItems().count() > 0)
     {
-        diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
+        DiagramItem* di = (DiagramItem*)(scene_->selectedItems()[0]);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         //////pi->ApplyToBrowser(propertyEditor_);
         pi->PositionChanged(di->pos());
@@ -1463,7 +1463,7 @@ void MainWindow::on_DeleteFileInclude_action(bool checked)
     qDebug() << qobject_cast<QAction*>(sender())->text();
 }
 
-void MainWindow::itemPositionChanged(diagram_item* di)
+void MainWindow::itemPositionChanged(DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->PositionChanged(di->pos());
@@ -1487,7 +1487,7 @@ void MainWindow::itemPositionChanged(diagram_item* di)
     //}
 }
 
-void MainWindow::afterItemCreated(diagram_item* di)
+void MainWindow::afterItemCreated(DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
 
@@ -1519,7 +1519,7 @@ void MainWindow::afterItemCreated(diagram_item* di)
     //}
 }
 
-void MainWindow::beforeItemDeleted(diagram_item* di)
+void MainWindow::beforeItemDeleted(DiagramItem* di)
 {
     for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
     {
@@ -1549,7 +1549,7 @@ void MainWindow::beforeItemDeleted(diagram_item* di)
     //}
 }
 
-void MainWindow::itemNameChanged(diagram_item* di, QString oldName)
+void MainWindow::itemNameChanged(DiagramItem* di, QString oldName)
 {
     //if (item->getProperties()->GetId() == "group")
     //{
@@ -1569,7 +1569,7 @@ void MainWindow::itemNameChanged(diagram_item* di, QString oldName)
         propertiesItemsManager_->GetSelector()->setItemText(i, pi->GetName());
 }
 
-void MainWindow::itemFileChanged(diagram_item* di)
+void MainWindow::itemFileChanged(DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     QString fileName = pi->GetFileName();
@@ -2081,7 +2081,7 @@ void MainWindow::on_Units_currentIndexChanged(int index)
     QString name = propertiesItemsManager_->GetSelector()->currentText();
     for (const auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetName() == name)
             item->setSelected(true);
@@ -2099,7 +2099,7 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
 
     if (scene_->selectedItems().size() > 0)
     {
-        auto di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
+        auto di = reinterpret_cast<DiagramItem*>(scene_->selectedItems()[0]);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (item != nullptr)
             plainTextEditHint_->setPlainText(pi->GetPropertyDescription(item->property()));
@@ -2135,7 +2135,7 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
     QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString currentName = pi->GetFileName();
         pi->SetFileNames(fileNames);
@@ -2162,7 +2162,7 @@ void MainWindow::fileListChanged(const QStringList& fileNames)
 {
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         pi->SetFileNames(fileNames);
     }
@@ -2178,7 +2178,7 @@ void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& 
     QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (fileName == pi->GetFileName())
         {
@@ -2203,7 +2203,7 @@ void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringL
 {
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (fileName == pi->GetFileName())
             pi->SetGroupNames(includeNames);
@@ -2219,7 +2219,7 @@ void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, co
 {
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
@@ -2274,7 +2274,7 @@ void MainWindow::propertiesSelectedItemChanged(const uint32_t propertiesId)
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             item_to_select = item;

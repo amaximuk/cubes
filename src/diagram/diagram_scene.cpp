@@ -10,7 +10,7 @@
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
-diagram_scene::diagram_scene(MainWindow* main, QObject *parent) :
+DiagramScene::DiagramScene(MainWindow* main, QObject *parent) :
     QGraphicsScene(parent)
 {
     main_ = main;
@@ -18,32 +18,32 @@ diagram_scene::diagram_scene(MainWindow* main, QObject *parent) :
     moving_item_ = 0;
 }
 
-void diagram_scene::informItemPositionChanged(diagram_item* item)
+void DiagramScene::informItemPositionChanged(DiagramItem* item)
 {
     emit itemPositionChanged(item);
 }
 
-void diagram_scene::informItemCreated(diagram_item* item)
+void DiagramScene::informItemCreated(DiagramItem* item)
 {
     emit afterItemCreated(item);
 }
 
-void diagram_scene::informItemNameChanged(diagram_item* item, QString oldName)
+void DiagramScene::informItemNameChanged(DiagramItem* item, QString oldName)
 {
     emit itemNameChanged(item, oldName);
 }
 
-void diagram_scene::informItemFileChanged(diagram_item* item)
+void DiagramScene::informItemFileChanged(DiagramItem* item)
 {
     emit itemFileChanged(item);
 }
 
-void diagram_scene::informItemGroupChanged(diagram_item* item)
+void DiagramScene::informItemGroupChanged(DiagramItem* item)
 {
     emit itemGroupChanged(item);
 }
 
-void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();
 
@@ -62,7 +62,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
     for (auto& item : selectedItems())
     {
-        diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+        DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
 
         QString oldName = di->name_;
         QString newName = main_->GetNewUnitName(oldName);
@@ -81,7 +81,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
         for (auto& item : drag_items_)
         {
-            diagram_item* di = reinterpret_cast<diagram_item*>(item);
+            DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
             qDebug() << "X2: " << di->name_;
 
             di->SetBorderOnly(false);
@@ -107,7 +107,7 @@ void diagram_scene::mousePressEvent(QGraphicsSceneMouseEvent* event)
   QGraphicsScene::mousePressEvent(event);
 }
 
-void diagram_scene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();
 //  bool ctrl = (event->modifiers() == Qt::ControlModifier);
@@ -123,7 +123,7 @@ void diagram_scene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();
   is_item_moving_ = false;
@@ -225,7 +225,7 @@ void diagram_scene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
 }
 
-void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
+void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (is_item_moving_)
     {
@@ -236,7 +236,7 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
             for (auto& item : drag_items_)
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
                 di->SetBorderOnly(false);
             }
         }
@@ -246,7 +246,7 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
             for (auto& item : drag_items_)
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
                 di->SetBorderOnly(true);
             }
         }
@@ -257,7 +257,7 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
         {
             for (auto item : selectedItems())
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
                 emit beforeItemDeleted(di);
                 delete item;
             }
@@ -268,7 +268,7 @@ void diagram_scene::keyPressEvent(QKeyEvent *keyEvent)
     QGraphicsScene::keyPressEvent(keyEvent);
 }
 
-void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
+void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
     if (is_item_moving_)
     {
@@ -278,7 +278,7 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
             for (auto& item : drag_items_)
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
                 di->SetBorderOnly(false);
             }
         }
@@ -287,7 +287,7 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
             for (auto& item : drag_items_)
             {
-                diagram_item* di = reinterpret_cast<diagram_item*>(item);
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
                 di->SetBorderOnly(true);
             }
         }
@@ -296,17 +296,17 @@ void diagram_scene::keyReleaseEvent(QKeyEvent *keyEvent)
     QGraphicsScene::keyPressEvent(keyEvent);
 }
 
-void diagram_scene::drawBackground(QPainter* painter, const QRectF& rect)
+void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
 {
     drawConnections(painter, rect);
     QGraphicsScene::drawBackground(painter, rect);
 }
 
-diagram_item* diagram_scene::getDiagramItem(QString name)
+DiagramItem* DiagramScene::getDiagramItem(QString name)
 {
     for (const auto& item : items())
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         if (name == di->name_)
         {
             return di;
@@ -316,7 +316,7 @@ diagram_item* diagram_scene::getDiagramItem(QString name)
     return nullptr;
 }
 
-void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
+void DiagramScene::drawConnections(QPainter* painter, const QRectF& rect)
 {
     {
         QMap<QString, QStringList> connections = main_->GetUnitsConnections();
@@ -349,12 +349,12 @@ void diagram_scene::drawConnections(QPainter* painter, const QRectF& rect)
     }
 }
 
-void diagram_scene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 {
     auto item = itemAt(event->scenePos(), QTransform());
     if (item != nullptr)
     {
-        diagram_item* di = reinterpret_cast<diagram_item*>(item);
+        DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
         //if (di->getProperties()->GetId() == "group")
         //    main_->ActivateGroup(di->getProperties()->GetName());
     }

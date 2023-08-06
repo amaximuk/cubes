@@ -8,14 +8,14 @@
 #include <QTextCursor>
 #include <QErrorMessage>
 
-diagram_view::diagram_view(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
+DiagramView::DiagramView(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
     QGraphicsView(scene, parent)
 {
     main_ = main;
     setAcceptDrops(true);
 }
 
-void diagram_view::dragEnterEvent(QDragEnterEvent *event)
+void DiagramView::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
     //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
@@ -30,7 +30,7 @@ void diagram_view::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void diagram_view::dragMoveEvent(QDragMoveEvent *event)
+void DiagramView::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
     //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
@@ -45,7 +45,7 @@ void diagram_view::dragMoveEvent(QDragMoveEvent *event)
     }
 }
 
-void diagram_view::dropEvent(QDropEvent *event)
+void DiagramView::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata"))
     {
@@ -82,7 +82,7 @@ void diagram_view::dropEvent(QDropEvent *event)
 
         if (scene() != nullptr)
         {
-            diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
+            DiagramScene* ds = qobject_cast<DiagramScene*>(this->scene());
             //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
@@ -98,7 +98,7 @@ void diagram_view::dropEvent(QDropEvent *event)
             }
 
             // !!!!!!!!!!!!!! pfd.groupName всегда пуст
-            diagram_item *di = new diagram_item(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+            DiagramItem *di = new DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
 
             //di->GetProperties()->SetFileNames(main_->GetFileNames());
             //di->GetProperties()->SetFileName(main_->GetCurrentFileName());

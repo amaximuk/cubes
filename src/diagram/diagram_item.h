@@ -5,19 +5,17 @@
 #include <QPointer>
 #include <QFont>
 
-#include "../properties_item/properties_item.h"
-#include "../unit_types.h"
+//#include "../properties_item/properties_item.h"
+//#include "../unit_types.h"
 
 
-QT_BEGIN_NAMESPACE
 class QPixmap;
 class QGraphicsSceneContextMenuEvent;
 class QMenu;
 class QPolygonF;
 class QGraphicsScene;
-QT_END_NAMESPACE
 
-class diagram_item : public QGraphicsItem
+class DiagramItem : public QGraphicsItem
 {
 public:
     uint32_t propertiesId_;
@@ -45,9 +43,9 @@ private:
 //    QPixmap PROPERTY_pixmap_;
 
 public:
-    diagram_item(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem *parent = nullptr);
-    diagram_item(const diagram_item& other);
-    ~diagram_item();
+    DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem *parent = nullptr);
+    DiagramItem(const DiagramItem& other);
+    ~DiagramItem();
 
 public:
     // QGraphicsItem

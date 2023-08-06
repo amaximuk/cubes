@@ -25,11 +25,11 @@ class QGraphicsView;
 class QTableView;
 class QTreeView;
 class QToolBox;
-class diagram_view;
+class DiagramView;
 class QSplitter;
 class QtProperty;
-class diagram_scene;
-class diagram_item;
+class DiagramScene;
+class DiagramItem;
 class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
@@ -42,8 +42,8 @@ private:
     bool modified_;
     uint32_t unique_number_;
 
-    QPointer<diagram_scene> scene_;
-    QPointer<diagram_view> view_;
+    QPointer<DiagramScene> scene_;
+    QPointer<DiagramView> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
@@ -122,11 +122,11 @@ private slots:
     void on_DeleteFileInclude_action(bool checked = false);
 
 public slots:
-    void itemPositionChanged(diagram_item* item);
-    void afterItemCreated(diagram_item* item);
-    void beforeItemDeleted(diagram_item* item);
-    void itemNameChanged(diagram_item* item, QString oldName);
-    void itemFileChanged(diagram_item* item);
+    void itemPositionChanged(DiagramItem* item);
+    void afterItemCreated(DiagramItem* item);
+    void beforeItemDeleted(DiagramItem* item);
+    void itemNameChanged(DiagramItem* item, QString oldName);
+    void itemFileChanged(DiagramItem* item);
     void showFileContextMenu(const QPoint& pos);
 
     // FileItem::FileItemsManager
