@@ -7,7 +7,7 @@ class ITopManager;
 
 namespace CubesProperties
 {
-	class properties_item;
+	class PropertiesItem;
 
 	class PropertiesItemsManager : public QObject, IPropertiesItemsManager
 	{
@@ -22,7 +22,7 @@ namespace CubesProperties
 		QPointer<QWidget> widget_;
 		QPointer<properties_editor> editor_;
 		QPointer<QComboBox> selector_;
-		QMap<uint32_t, QSharedPointer<properties_item>> items_;
+		QMap<uint32_t, QSharedPointer<PropertiesItem>> items_;
 		//QList<QSharedPointer<properties_item>> items_;
 		uint32_t selected_;
 		uint32_t unique_number_;
@@ -37,7 +37,7 @@ namespace CubesProperties
 		uint32_t GetCurrentPropertiesId();
 		void Create(const QString& unitId, uint32_t& propertiesId);
 		void Select(const uint32_t& propertiesId);
-		QSharedPointer<properties_item> GetItem(const uint32_t propertiesId);
+		QSharedPointer<PropertiesItem> GetItem(const uint32_t propertiesId);
 		QColor GetFileColor(const QString& fileName);
 		QStringList GetFileIncludeNames(const QString& fileName);
 		QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
@@ -49,9 +49,9 @@ namespace CubesProperties
 
 	public:
 		// properties_items_manager_interface
-		void AfterNameChanged(properties_item* item) override;
-		void AfterFileNameChanged(properties_item* item, QStringList& includeNames) override;
-		void AfterIncludeNameChanged(properties_item* item, QList<QPair<QString, QString>>& variables);
+		void AfterNameChanged(PropertiesItem* item) override;
+		void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) override;
+		void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables);
 
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);
@@ -66,6 +66,6 @@ namespace CubesProperties
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
 		void SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded);
-		QString GetName(properties_item* item);
+		QString GetName(PropertiesItem* item);
 	};
 }

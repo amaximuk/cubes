@@ -14,7 +14,7 @@
 
 using namespace CubesProperties;
 
-properties_item::properties_item(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
@@ -28,10 +28,10 @@ properties_item::properties_item(IPropertiesItemsManager* propertiesItemsManager
     CreateProperties();
 }
 
-void properties_item::Select()
+void PropertiesItem::Select()
 {
-    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &properties_item::ValueChanged);
-    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &properties_item::StringEditingFinished);
+    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &PropertiesItem::ValueChanged);
+    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
 
     auto pe = editor_->GetPropertyEditor();
     pe->clear();
@@ -43,13 +43,13 @@ void properties_item::Select()
     ApplyExpandState();
 }
 
-void properties_item::UnSelect()
+void PropertiesItem::UnSelect()
 {
-    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &properties_item::ValueChanged);
-    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &properties_item::StringEditingFinished);
+    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &PropertiesItem::ValueChanged);
+    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
 }
 
-void properties_item::CreateParametersModel()
+void PropertiesItem::CreateParametersModel()
 {
     // BASE
     // BASE/NAME
@@ -193,7 +193,7 @@ void properties_item::CreateParametersModel()
     }
 }
 
-void properties_item::CreateProperties()
+void PropertiesItem::CreateProperties()
 {
     QMap<QString, const QtProperty*> idToProperty;
     for (auto& pm : model_.parameters)
@@ -211,7 +211,7 @@ void properties_item::CreateProperties()
 //    }
 //}
 
-void properties_item::CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model)
+void PropertiesItem::CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
@@ -234,7 +234,7 @@ void properties_item::CreateParameterModel(const unit_types::ParameterInfoId& pa
     model = pm;
 }
 
-void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
+void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
     pm.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
@@ -459,7 +459,7 @@ void properties_item::FillParameterModel(unit_types::ParameterModel& pm)
 //    comboBoxFactory.reset(new QtEnumEditorFactory(this));
 //}
 
-void properties_item::SetFileNames(QStringList fileNames)
+void PropertiesItem::SetFileNames(QStringList fileNames)
 {
     const auto pm = GetParameterModel("BASE/FILE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
@@ -473,7 +473,7 @@ void properties_item::SetFileNames(QStringList fileNames)
     }
 }
 
-void properties_item::SetFileName(QString fileName)
+void PropertiesItem::SetFileName(QString fileName)
 {
     const auto pm = GetParameterModel("BASE/FILE_NAME");
     if (pm != nullptr)
@@ -483,7 +483,7 @@ void properties_item::SetFileName(QString fileName)
     }
 }
 
-void properties_item::SetFileNameReadOnly(bool readOnly)
+void PropertiesItem::SetFileNameReadOnly(bool readOnly)
 {
     const auto pm = GetParameterModel("BASE/FILE_NAME");
     if (pm != nullptr)
@@ -493,7 +493,7 @@ void properties_item::SetFileNameReadOnly(bool readOnly)
     }
 }
 
-void properties_item::SetGroupNameReadOnly(bool readOnly)
+void PropertiesItem::SetGroupNameReadOnly(bool readOnly)
 {
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     if (pm != nullptr)
@@ -503,7 +503,7 @@ void properties_item::SetGroupNameReadOnly(bool readOnly)
     }
 }
 
-void properties_item::SetGroupNames(QStringList groupNames)
+void PropertiesItem::SetGroupNames(QStringList groupNames)
 {
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
@@ -516,7 +516,7 @@ void properties_item::SetGroupNames(QStringList groupNames)
     }
 }
 
-void properties_item::SetGroupName(QString groupName)
+void PropertiesItem::SetGroupName(QString groupName)
 {
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     if (pm != nullptr)
@@ -525,7 +525,7 @@ void properties_item::SetGroupName(QString groupName)
     //diagramItem_->InformGroupChanged();
 }
 
-QString properties_item::GetFileName()
+QString PropertiesItem::GetFileName()
 {
     const auto pm = GetParameterModel("BASE/FILE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
@@ -538,7 +538,7 @@ QString properties_item::GetFileName()
     return "";
 }
 
-QString properties_item::GetGroupName()
+QString PropertiesItem::GetGroupName()
 {
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
@@ -551,7 +551,7 @@ QString properties_item::GetGroupName()
     return "";
 }
 
-void properties_item::SetName(QString name)
+void PropertiesItem::SetName(QString name)
 {
     const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
@@ -562,7 +562,7 @@ void properties_item::SetName(QString name)
     }
 }
 
-QString properties_item::GetName()
+QString PropertiesItem::GetName()
 {
     const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
@@ -570,7 +570,7 @@ QString properties_item::GetName()
     return "";
 }
 
-QList<QPair<QString, QString>> properties_item::GetVariables()
+QList<QPair<QString, QString>> PropertiesItem::GetVariables()
 {
     QList<QPair<QString, QString>> result;
     const auto pm = GetParameterModel("PARAMETERS/VARIABLES");
@@ -651,7 +651,7 @@ QList<QPair<QString, QString>> properties_item::GetVariables()
 //    propertyEditor_->unsetFactoryForManager(boolManager.get());
 //}
 
-QPixmap properties_item::GetPixmap()
+QPixmap PropertiesItem::GetPixmap()
 {
     QPixmap px;
     bool loaded = false;
@@ -673,7 +673,7 @@ QPixmap properties_item::GetPixmap()
     return px;
 }
 
-void properties_item::PositionChanged(QPointF point)
+void PropertiesItem::PositionChanged(QPointF point)
 {
     auto pm_x = GetParameterModel("EDITOR/POSITION_X");
     pm_x->value = point.x();
@@ -684,20 +684,20 @@ void properties_item::PositionChanged(QPointF point)
     editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
 }
 
-void properties_item::ZOrderChanged(double value)
+void PropertiesItem::ZOrderChanged(double value)
 {
     auto pm = GetParameterModel("EDITOR/POSITION_Z");
     pm->value = value;
     editor_->SetDoubleValue(GetProperty(pm->id), value);
 }
 
-QString properties_item::GetPropertyDescription(QtProperty* property)
+QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property);
     return id;
 }
 
-void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
+void PropertiesItem::ExpandedChanged(QtProperty* property, bool is_expanded)
 {
     if (!ignoreEvents_)
     {
@@ -707,7 +707,7 @@ void properties_item::ExpandedChanged(QtProperty* property, bool is_expanded)
     }
 }
 
-void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+void PropertiesItem::GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -722,7 +722,7 @@ void properties_item::GetConnectedNamesInternal(const unit_types::ParameterModel
         GetConnectedNamesInternal(pm, list);
 }
 
-void properties_item::GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+void PropertiesItem::GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -752,7 +752,7 @@ void properties_item::GetDependentNamesInternal(const unit_types::ParameterModel
         GetDependentNamesInternal(pm, list);
 }
 
-void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu)
+void PropertiesItem::ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -798,7 +798,7 @@ void properties_item::ApplyXmlPropertiesInternal(unit_types::ParameterModel& mod
         ApplyXmlPropertiesInternal(pm, xu);
 }
 
-QString properties_item::GetInstanceName()
+QString PropertiesItem::GetInstanceName()
 {
     const auto pm = GetParameterModel("BASE/NAME");
     if (pm != nullptr)
@@ -806,7 +806,7 @@ QString properties_item::GetInstanceName()
     return QString();
 }
 
-void properties_item::ApplyXmlProperties(xml::Unit xu)
+void PropertiesItem::ApplyXmlProperties(xml::Unit xu)
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -822,7 +822,7 @@ void properties_item::ApplyXmlProperties(xml::Unit xu)
     //diagramItem_->InformNameChanged(xu.name, "");
 }
 
-QList<QString> properties_item::GetConnectedNames()
+QList<QString> PropertiesItem::GetConnectedNames()
 {
     QList<QString> list;
     for (const auto& pm : model_.parameters)
@@ -833,7 +833,7 @@ QList<QString> properties_item::GetConnectedNames()
     return list;
 }
 
-QList<QString> properties_item::GetDependentNames()
+QList<QString> PropertiesItem::GetDependentNames()
 {
     QList<QString> list;
     for (const auto& pm : model_.parameters)
@@ -844,7 +844,7 @@ QList<QString> properties_item::GetDependentNames()
     return list;
 }
 
-void properties_item::FillArrayModel(unit_types::ParameterModel& pm)
+void PropertiesItem::FillArrayModel(unit_types::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
     pm.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
@@ -873,7 +873,7 @@ void properties_item::FillArrayModel(unit_types::ParameterModel& pm)
 
 }
 
-void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
+void PropertiesItem::UpdateArrayModel(unit_types::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
@@ -943,7 +943,7 @@ void properties_item::UpdateArrayModel(unit_types::ParameterModel& pm)
 }
 
 
-void properties_item::ValueChanged(QtProperty * property, const QVariant & value)
+void PropertiesItem::ValueChanged(QtProperty * property, const QVariant & value)
 {
     // BASE
     // BASE/NAME
@@ -998,7 +998,7 @@ void properties_item::ValueChanged(QtProperty * property, const QVariant & value
     
 }
 
-void properties_item::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
 {
     qDebug() << "StringEditingFinished value = " << value << ", oldValue = " << oldValue;
 
@@ -1304,18 +1304,18 @@ void properties_item::StringEditingFinished(QtProperty* property, const QString&
 //////    qDebug() << "!!!" << value << "   -   " << oldValue;
 //////}
 
-void properties_item::RegisterProperty(const QtProperty* property, const QString& id)
+void PropertiesItem::RegisterProperty(const QtProperty* property, const QString& id)
 {
     propertyToId_[property] = id;
     idToProperty_[id] = property;
 }
 
-void properties_item::UnregisterProperty(const QString& id)
+void PropertiesItem::UnregisterProperty(const QString& id)
 {
     UnregisterProperty(idToProperty_[id]);
 }
 
-void properties_item::UnregisterProperty(const QtProperty* property)
+void PropertiesItem::UnregisterProperty(const QtProperty* property)
 {
     for (auto p : property->subProperties())
         UnregisterProperty(p);
@@ -1324,7 +1324,7 @@ void properties_item::UnregisterProperty(const QtProperty* property)
     propertyToId_.remove(property);
 }
 
-QtProperty* properties_item::GetProperty(const QString& id)
+QtProperty* PropertiesItem::GetProperty(const QString& id)
 {
     auto it = idToProperty_.find(id);
     if (it != idToProperty_.end())
@@ -1337,7 +1337,7 @@ QtProperty* properties_item::GetProperty(const QString& id)
     //    return nullptr;
 }
 
-QString properties_item::GetPropertyId(const QtProperty* property)
+QString PropertiesItem::GetPropertyId(const QtProperty* property)
 {
     auto it = propertyToId_.find(property);
     if (it != propertyToId_.end())
@@ -1350,7 +1350,7 @@ QString properties_item::GetPropertyId(const QtProperty* property)
     //    return QString();
 }
 
-unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id)
+unit_types::ParameterModel* PropertiesItem::GetParameterModel(const QString& id)
 {
     unit_types::ParameterModel* pm = nullptr;
 
@@ -1409,7 +1409,7 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QString& id
     return pm;
 }
 
-unit_types::ParameterModel* properties_item::GetParameterModel(const QtProperty* property)
+unit_types::ParameterModel* PropertiesItem::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")
@@ -1477,7 +1477,7 @@ unit_types::ParameterModel* properties_item::GetParameterModel(const QtProperty*
 //        ApplyExpandState(itItem.next());
 //}
 
-void properties_item::ApplyExpandState(QtBrowserItem* index)
+void PropertiesItem::ApplyExpandState(QtBrowserItem* index)
 {
     auto pe = editor_->GetPropertyEditor();
 
@@ -1492,7 +1492,7 @@ void properties_item::ApplyExpandState(QtBrowserItem* index)
         pe->setExpanded(index, pm->editorSettings.is_expanded);
 }
 
-void properties_item::ApplyExpandState()
+void PropertiesItem::ApplyExpandState()
 {
     auto pe = editor_->GetPropertyEditor();
 

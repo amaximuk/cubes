@@ -14,7 +14,7 @@
 
 using namespace CubesFile;
 
-file_item::file_item(IFileItemsManager* fileItemsManager, properties_editor* editor)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, properties_editor* editor)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
@@ -25,7 +25,7 @@ file_item::file_item(IFileItemsManager* fileItemsManager, properties_editor* edi
     CreateProperties();
 }
 
-void file_item::CreateParametersModel()
+void FileItem::CreateParametersModel()
 {
     // BASE
     // BASE/NAME
@@ -184,7 +184,7 @@ void file_item::CreateParametersModel()
     }
 }
 
-void file_item::CreateProperties()
+void FileItem::CreateProperties()
 {
     QMap<QString, const QtProperty*> idToProperty;
     for (auto& pm : model_.parameters)
@@ -193,7 +193,7 @@ void file_item::CreateProperties()
         RegisterProperty(kvp.second, kvp.first);
 }
 
-void file_item::ValueChanged(QtProperty* property, const QVariant& value)
+void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 {
     // BASE
     // BASE/NAME
@@ -303,7 +303,7 @@ void file_item::ValueChanged(QtProperty* property, const QVariant& value)
     }
 }
 
-void file_item::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
+void FileItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
 {
     qDebug() << "StringEditingFinished value = " << value << ", oldValue = " << oldValue;
 
@@ -347,10 +347,10 @@ void file_item::StringEditingFinished(QtProperty* property, const QString& value
     }
 }
 
-void file_item::Select()
+void FileItem::Select()
 {
-    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &file_item::ValueChanged);
-    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &file_item::StringEditingFinished);
+    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &FileItem::ValueChanged);
+    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &FileItem::StringEditingFinished);
 
     auto pe = editor_->GetPropertyEditor();
     pe->clear();
@@ -362,13 +362,13 @@ void file_item::Select()
     ApplyExpandState();
 }
 
-void file_item::UnSelect()
+void FileItem::UnSelect()
 {
-    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &file_item::ValueChanged);
-    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &file_item::StringEditingFinished);
+    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &FileItem::ValueChanged);
+    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &FileItem::StringEditingFinished);
 }
 
-QString file_item::GetName()
+QString FileItem::GetName()
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -377,7 +377,7 @@ QString file_item::GetName()
     return pm->value.toString();
 };
 
-QColor file_item::GetColor()
+QColor FileItem::GetColor()
 {
     auto pm = GetParameterModel("EDITOR/COLOR");
     if (pm == nullptr)
@@ -386,13 +386,13 @@ QColor file_item::GetColor()
     return QColor::fromRgba(pm->value.toInt());
 };
 
-QString file_item::GetPropertyDescription(const QtProperty* property)
+QString FileItem::GetPropertyDescription(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     return id;
 }
 
-void file_item::ExpandedChanged(const QtProperty* property, bool is_expanded)
+void FileItem::ExpandedChanged(const QtProperty* property, bool is_expanded)
 {
     if (!ignoreEvents_)
     {
@@ -402,7 +402,7 @@ void file_item::ExpandedChanged(const QtProperty* property, bool is_expanded)
     }
 }
 
-void file_item::SetName(QString name, bool setOldName, QString oldName)
+void FileItem::SetName(QString name, bool setOldName, QString oldName)
 {
     auto pm = GetParameterModel("BASE/NAME");
     pm->value = name;
@@ -411,7 +411,7 @@ void file_item::SetName(QString name, bool setOldName, QString oldName)
     editor_->SetStringValue(pr, name, setOldName, oldName);
 }
 
-void file_item::SetColor(QColor color)
+void FileItem::SetColor(QColor color)
 {
     auto pm = GetParameterModel("EDITOR/COLOR");
     pm->value = color.rgba();
@@ -420,7 +420,7 @@ void file_item::SetColor(QColor color)
     editor_->SetColorValue(pr, color);
 }
 
-QStringList file_item::GetIncludeNames()
+QStringList FileItem::GetIncludeNames()
 {
     QStringList result;
 
@@ -437,7 +437,7 @@ QStringList file_item::GetIncludeNames()
     return result;
 }
 
-QList<QPair<QString, QString>> file_item::GetIncludeVariables(const QString& includeName)
+QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& includeName)
 {
     QList<QPair<QString, QString>> result;
 
@@ -464,7 +464,7 @@ QList<QPair<QString, QString>> file_item::GetIncludeVariables(const QString& inc
     return result;
 }
 
-void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count)
+void FileItem::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count)
 {
     // Сначала добавляем
     if (pm.parameters.size() < count)
@@ -607,7 +607,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
     }
 }
 
-void file_item::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count)
+void FileItem::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count)
 {
     // Разделяем путь на части
     QStringList path = pm.id.split("/");
@@ -807,18 +807,18 @@ void file_item::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& c
 //    }
 //}
 
-void file_item::RegisterProperty(const QtProperty* property, const QString& id)
+void FileItem::RegisterProperty(const QtProperty* property, const QString& id)
 {
     propertyToId_[property] = id;
     idToProperty_[id] = property;
 }
 
-void file_item::UnregisterProperty(const QString& id)
+void FileItem::UnregisterProperty(const QString& id)
 {
     UnregisterProperty(idToProperty_[id]);
 }
 
-void file_item::UnregisterProperty(const QtProperty* property)
+void FileItem::UnregisterProperty(const QtProperty* property)
 {
     for (auto p : property->subProperties())
         UnregisterProperty(p);
@@ -827,7 +827,7 @@ void file_item::UnregisterProperty(const QtProperty* property)
     propertyToId_.remove(property);
 }
 
-QtProperty* file_item::GetProperty(const QString& id)
+QtProperty* FileItem::GetProperty(const QString& id)
 {
     auto it = idToProperty_.find(id);
     if (it != idToProperty_.end())
@@ -835,7 +835,7 @@ QtProperty* file_item::GetProperty(const QString& id)
     return nullptr;
 }
 
-QString file_item::GetPropertyId(const QtProperty* property)
+QString FileItem::GetPropertyId(const QtProperty* property)
 {
     auto it = propertyToId_.find(property);
     if (it != propertyToId_.end())
@@ -843,7 +843,7 @@ QString file_item::GetPropertyId(const QtProperty* property)
     return QString();
 }
 
-unit_types::ParameterModel* file_item::GetParameterModel(const QString& id)
+unit_types::ParameterModel* FileItem::GetParameterModel(const QString& id)
 {
     unit_types::ParameterModel* pm = nullptr;
 
@@ -874,7 +874,7 @@ unit_types::ParameterModel* file_item::GetParameterModel(const QString& id)
     return pm;
 }
 
-unit_types::ParameterModel* file_item::GetParameterModel(const QtProperty* property)
+unit_types::ParameterModel* FileItem::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")
@@ -915,7 +915,7 @@ unit_types::ParameterModel* file_item::GetParameterModel(const QtProperty* prope
 //        SaveExpandState(itItem.next());
 //}
 
-void file_item::ApplyExpandState(QtBrowserItem* index)
+void FileItem::ApplyExpandState(QtBrowserItem* index)
 {
     auto pe = editor_->GetPropertyEditor();
 
@@ -930,7 +930,7 @@ void file_item::ApplyExpandState(QtBrowserItem* index)
         pe->setExpanded(index, pm->editorSettings.is_expanded);
 }
 
-void file_item::ApplyExpandState()
+void FileItem::ApplyExpandState()
 {
     auto pe = editor_->GetPropertyEditor();
 

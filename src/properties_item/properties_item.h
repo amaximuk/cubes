@@ -9,11 +9,9 @@
 #include "../xml_parser.h"
 #include "../property_browser/properties_editor.h"
 
-class diagram_item;
-
 namespace CubesProperties
 {
-    class properties_item : public QObject
+    class PropertiesItem : public QObject
     {
         Q_OBJECT
 
@@ -38,7 +36,7 @@ namespace CubesProperties
         bool ignoreEvents_;
 
     public:
-        properties_item(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
             unit_types::UnitParameters unitParameters, uint32_t propertiesId);
 
     public:

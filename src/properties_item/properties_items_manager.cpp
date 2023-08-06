@@ -64,7 +64,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	top_manager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;
-	QSharedPointer<properties_item> pi(new properties_item(this, editor_, unitParameters, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
 
 	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id);
 
@@ -103,7 +103,7 @@ void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 	}
 }
 
-QSharedPointer<properties_item> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
+QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
 {
 	//for (auto& properties : items_)
 	//{
@@ -169,7 +169,7 @@ void PropertiesItemsManager::Clear()
 	items_.clear();
 }
 
-void PropertiesItemsManager::AfterNameChanged(properties_item* item)
+void PropertiesItemsManager::AfterNameChanged(PropertiesItem* item)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -182,7 +182,7 @@ void PropertiesItemsManager::AfterNameChanged(properties_item* item)
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterFileNameChanged(properties_item* item, QStringList& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -198,7 +198,7 @@ void PropertiesItemsManager::AfterFileNameChanged(properties_item* item, QString
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterIncludeNameChanged(properties_item* item, QList<QPair<QString, QString>>& variables)
+void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -423,7 +423,7 @@ void PropertiesItemsManager::SetFilePropertyExpanded(const QString& fileName, co
 	}
 }
 
-QString PropertiesItemsManager::GetName(properties_item* item)
+QString PropertiesItemsManager::GetName(PropertiesItem* item)
 {
 	QList<QPair<QString, QString>> variables;
 	top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);

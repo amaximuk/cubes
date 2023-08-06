@@ -56,7 +56,7 @@ void FileItemsManager::Create(const QString& fileName)
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	QSharedPointer<file_item> fi(new file_item(this, editor_));
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_));
 	fi->SetName(fileName, true, fileName);
 	fi->SetColor(color);
 	items_.push_back(fi);
@@ -91,7 +91,7 @@ void FileItemsManager::Select(const QString& fileName)
 	//}
 }
 
-QSharedPointer<file_item> FileItemsManager::GetItem(const QString& fileName)
+QSharedPointer<FileItem> FileItemsManager::GetItem(const QString& fileName)
 {
 	for (auto& file : items_)
 	{
@@ -416,7 +416,7 @@ void FileItemsManager::OnRemoveFileClicked()
 
 	// Получаем все имена, заодно запоминаем элемент для удаления
 	QStringList fileNames;
-	QSharedPointer<file_item> toRemove;
+	QSharedPointer<FileItem> toRemove;
 	for (const auto& item : items_)
 	{
 		QString name = item->GetName();

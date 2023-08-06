@@ -20,7 +20,7 @@ namespace CubesFile
 		QPointer<QWidget> widget_;
 		QPointer<properties_editor> editor_;
 		QPointer<QComboBox> selector_;
-		QList<QSharedPointer<file_item>> items_;
+		QList<QSharedPointer<FileItem>> items_;
 		QString selected_;
 
 	public:
@@ -33,7 +33,7 @@ namespace CubesFile
 		QString GetCurrentFileName();
 		void Create(const QString& fileName);
 		void Select(const QString& fileName);
-		QSharedPointer<file_item> GetItem(const QString& fileName);
+		QSharedPointer<FileItem> GetItem(const QString& fileName);
 		QStringList GetFileNames();
 		QColor GetFileColor(const QString& fileName);
 		QStringList GetFileIncludeNames(const QString& fileName);

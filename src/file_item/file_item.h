@@ -11,7 +11,7 @@
 
 namespace CubesFile
 {
-    class file_item : public QObject
+    class FileItem : public QObject
     {
         Q_OBJECT
 
@@ -34,7 +34,7 @@ namespace CubesFile
         bool ignoreEvents_;
 
     public:
-        file_item(IFileItemsManager* fileItemsManager, properties_editor* editor);
+        FileItem(IFileItemsManager* fileItemsManager, properties_editor* editor);
 
     public:
         void Select();
