@@ -18,31 +18,29 @@ namespace CubeDiagram
     private:
         MainWindow* main_;
         QPointF ppp_;
-        bool is_item_moving_;
-        QGraphicsItem* moving_item_;
-        QList<DiagramItem*> drag_items_;
-        //const int id_;
+        bool isItemMoving_;
+        QGraphicsItem* movingItem_;
+        QList<DiagramItem*> dragItems_;
 
     public:
         explicit DiagramScene(MainWindow* main, QObject* parent = nullptr);
 
     public:
-        void informItemPositionChanged(DiagramItem* item);
-        void informItemCreated(DiagramItem* item);
-        void informItemNameChanged(DiagramItem* item, QString oldName);
-        void informItemFileChanged(DiagramItem* item);
-        void informItemGroupChanged(DiagramItem* item);
-        bool isItemMoving() { return is_item_moving_; };
-        MainWindow* getMain() { return main_; };
+        void InformItemPositionChanged(DiagramItem* item);
+        void InformItemCreated(DiagramItem* item);
+        void InformItemNameChanged(DiagramItem* item, QString oldName);
+        void InformItemFileChanged(DiagramItem* item);
+        void InformItemGroupChanged(DiagramItem* item);
+        bool IsItemMoving() { return isItemMoving_; };
+        MainWindow* GetMain() { return main_; };
 
     signals:
-        void xxx(QPointF ppp);
-        void itemPositionChanged(DiagramItem* item);
-        void afterItemCreated(DiagramItem* item);
-        void beforeItemDeleted(DiagramItem* item);
-        void itemNameChanged(DiagramItem* item, QString oldName);
-        void itemFileChanged(DiagramItem* item);
-        void itemGroupChanged(DiagramItem* item);
+        void ItemPositionChanged(DiagramItem* item);
+        void AfterItemCreated(DiagramItem* item);
+        void BeforeItemDeleted(DiagramItem* item);
+        void ItemNameChanged(DiagramItem* item, QString oldName);
+        void ItemFileChanged(DiagramItem* item);
+        void ItemGroupChanged(DiagramItem* item);
 
     protected:
         void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -54,10 +52,7 @@ namespace CubeDiagram
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
     private:
-        DiagramItem* getDiagramItem(QString name);
-        void drawConnections(QPainter* painter, const QRectF& rect);
-
-    public:
-        DiagramItem* GetDiagramItem(QString name) { return getDiagramItem(name); }
+        DiagramItem* GetDiagramItem(QString name);
+        void DrawConnections(QPainter* painter, const QRectF& rect);
     };
 }

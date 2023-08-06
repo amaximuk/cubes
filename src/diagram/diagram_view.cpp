@@ -88,13 +88,13 @@ void DiagramView::dropEvent(QDropEvent *event)
             //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
-            if (!ds->getMain()->CreatePropetiesItem(name, propertiesId))
+            if (!ds->GetMain()->CreatePropetiesItem(name, propertiesId))
             {
                 qDebug() << "ERROR CreatePropetiesItem: " << name;
             }
 
             PropertiesForDrawing pfd{};
-            if (!ds->getMain()->GetPropeties(propertiesId, pfd))
+            if (!ds->GetMain()->GetPropeties(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
@@ -109,7 +109,7 @@ void DiagramView::dropEvent(QDropEvent *event)
             //di->GetProperties()->SetName(main_->GetNewUnitName(di->GetProperties()->GetName()));
             
             //di->SetGroupName(main_->GetCurrentGroup());
-            ds->informItemCreated(di);
+            ds->InformItemCreated(di);
 
 
             QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();

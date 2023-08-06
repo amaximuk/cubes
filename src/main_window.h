@@ -126,11 +126,11 @@ private slots:
     void on_DeleteFileInclude_action(bool checked = false);
 
 public slots:
-    void itemPositionChanged(CubeDiagram::DiagramItem* item);
-    void afterItemCreated(CubeDiagram::DiagramItem* item);
-    void beforeItemDeleted(CubeDiagram::DiagramItem* item);
-    void itemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
-    void itemFileChanged(CubeDiagram::DiagramItem* item);
+    void ItemPositionChanged(CubeDiagram::DiagramItem* item);
+    void AfterItemCreated(CubeDiagram::DiagramItem* item);
+    void BeforeItemDeleted(CubeDiagram::DiagramItem* item);
+    void ItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
+    void ItemFileChanged(CubeDiagram::DiagramItem* item);
     void showFileContextMenu(const QPoint& pos);
 
     // FileItem::FileItemsManager

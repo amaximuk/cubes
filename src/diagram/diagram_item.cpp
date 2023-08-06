@@ -105,7 +105,7 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->getMain()->GetDisplayName(name_),
+            painter->drawText(textRect_, ds->GetMain()->GetDisplayName(name_),
                 Qt::AlignCenter | Qt::AlignHCenter);
 
             //QString fileName = PROPERTY_fileName_;
@@ -182,7 +182,7 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
         if (scene() != nullptr)
         {
             DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-            if (this->isSelected() && sc->isItemMoving())
+            if (this->isSelected() && sc->IsItemMoving())
             {
                 QPointF newPos = value.toPointF();
 
@@ -202,7 +202,7 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
                 qreal xV = round(newPos.x() / gridSize) * gridSize;
                 qreal yV = round(newPos.y() / gridSize) * gridSize;
                 //properties_->PositionChanged(QPointF(xV, yV));
-                sc->informItemPositionChanged(this);
+                sc->InformItemPositionChanged(this);
                 return QPointF(xV, yV);
 
             }
@@ -236,7 +236,7 @@ void DiagramItem::InformPositionXChanged(double x)
     if (scene() != nullptr)
     {
         DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
             setX(x);
     }
 }
@@ -246,7 +246,7 @@ void DiagramItem::InformPositionYChanged(double y)
     if (scene() != nullptr)
     {
         DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
             setY(y);
     }
 }
@@ -256,7 +256,7 @@ void DiagramItem::InformPositionZChanged(double z)
     if (scene() != nullptr)
     {
         DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->isItemMoving())
+        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
             setZValue(z);
     }
 }
@@ -265,7 +265,7 @@ void DiagramItem::InformFileChanged()
 {
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->informItemFileChanged(this);
+        reinterpret_cast<DiagramScene*>(scene())->InformItemFileChanged(this);
         scene()->invalidate();
     }
 }
@@ -285,7 +285,7 @@ void DiagramItem::InformGroupChanged()
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->informItemGroupChanged(this);
+        reinterpret_cast<DiagramScene*>(scene())->InformItemGroupChanged(this);
         scene()->invalidate();
     }
 }
@@ -299,7 +299,7 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->informItemNameChanged(this, oldName);
+        reinterpret_cast<DiagramScene*>(scene())->InformItemNameChanged(this, oldName);
         scene()->invalidate();
     }
 }

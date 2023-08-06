@@ -225,12 +225,12 @@ void MainWindow::CreateScene()
     scene_ = new CubeDiagram::DiagramScene(this);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::itemPositionChanged, this, &MainWindow::itemPositionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::afterItemCreated, this, &MainWindow::afterItemCreated);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::beforeItemDeleted, this, &MainWindow::beforeItemDeleted);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::ItemPositionChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::AfterItemCreated);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::BeforeItemDeleted);
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::itemNameChanged, this, &MainWindow::itemNameChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::itemFileChanged, this, &MainWindow::itemFileChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::ItemNameChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::ItemFileChanged);
     //qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
@@ -680,7 +680,7 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
             scene_->addItem(di);
             scene_->clearSelection();
 
-            afterItemCreated(di);
+            AfterItemCreated(di);
         }
         else
         {
@@ -1463,7 +1463,7 @@ void MainWindow::on_DeleteFileInclude_action(bool checked)
     qDebug() << qobject_cast<QAction*>(sender())->text();
 }
 
-void MainWindow::itemPositionChanged(CubeDiagram::DiagramItem* di)
+void MainWindow::ItemPositionChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->PositionChanged(di->pos());
@@ -1487,7 +1487,7 @@ void MainWindow::itemPositionChanged(CubeDiagram::DiagramItem* di)
     //}
 }
 
-void MainWindow::afterItemCreated(CubeDiagram::DiagramItem* di)
+void MainWindow::AfterItemCreated(CubeDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
 
@@ -1519,7 +1519,7 @@ void MainWindow::afterItemCreated(CubeDiagram::DiagramItem* di)
     //}
 }
 
-void MainWindow::beforeItemDeleted(CubeDiagram::DiagramItem* di)
+void MainWindow::BeforeItemDeleted(CubeDiagram::DiagramItem* di)
 {
     for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
     {
@@ -1549,7 +1549,7 @@ void MainWindow::beforeItemDeleted(CubeDiagram::DiagramItem* di)
     //}
 }
 
-void MainWindow::itemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
+void MainWindow::ItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
 {
     //if (item->getProperties()->GetId() == "group")
     //{
@@ -1569,7 +1569,7 @@ void MainWindow::itemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
         propertiesItemsManager_->GetSelector()->setItemText(i, pi->GetName());
 }
 
-void MainWindow::itemFileChanged(CubeDiagram::DiagramItem* di)
+void MainWindow::ItemFileChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     QString fileName = pi->GetFileName();
