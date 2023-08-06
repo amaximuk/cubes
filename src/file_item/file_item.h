@@ -18,7 +18,7 @@ namespace CubesFile
     private:
         // Params
         IFileItemsManager* fileItemsManager_;
-        QPointer<properties_editor> editor_;
+        QPointer<PropertiesEditor> editor_;
 
         // Модель параметров
         unit_types::ParametersModel model_;
@@ -34,7 +34,7 @@ namespace CubesFile
         bool ignoreEvents_;
 
     public:
-        FileItem(IFileItemsManager* fileItemsManager, properties_editor* editor);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor);
 
     public:
         void Select();

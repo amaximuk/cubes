@@ -14,7 +14,7 @@
 
 using namespace CubesFile;
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, properties_editor* editor)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
@@ -349,8 +349,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
 
 void FileItem::Select()
 {
-    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &FileItem::ValueChanged);
-    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &FileItem::StringEditingFinished);
+    qDebug() << connect(editor_, &PropertiesEditor::ValueChanged, this, &FileItem::ValueChanged);
+    qDebug() << connect(editor_, &PropertiesEditor::StringEditingFinished, this, &FileItem::StringEditingFinished);
 
     auto pe = editor_->GetPropertyEditor();
     pe->clear();
@@ -364,8 +364,8 @@ void FileItem::Select()
 
 void FileItem::UnSelect()
 {
-    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &FileItem::ValueChanged);
-    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &FileItem::StringEditingFinished);
+    qDebug() << disconnect(editor_, &PropertiesEditor::ValueChanged, this, &FileItem::ValueChanged);
+    qDebug() << disconnect(editor_, &PropertiesEditor::StringEditingFinished, this, &FileItem::StringEditingFinished);
 }
 
 QString FileItem::GetName()

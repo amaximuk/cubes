@@ -20,7 +20,7 @@ namespace CubesProperties
 	private:
 		ITopManager* top_manager_;
 		QPointer<QWidget> widget_;
-		QPointer<properties_editor> editor_;
+		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
 		QMap<uint32_t, QSharedPointer<PropertiesItem>> items_;
 		//QList<QSharedPointer<properties_item>> items_;
@@ -31,7 +31,7 @@ namespace CubesProperties
 		PropertiesItemsManager(ITopManager* top_manager);
 
 	public:
-		properties_editor* GetEditor();
+		PropertiesEditor* GetEditor();
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		uint32_t GetCurrentPropertiesId();

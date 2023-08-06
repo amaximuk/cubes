@@ -18,7 +18,7 @@ namespace CubesProperties
     private:
         // Params
         IPropertiesItemsManager* propertiesItemsManager_;
-        QPointer<properties_editor> editor_;
+        QPointer<PropertiesEditor> editor_;
         uint32_t propertiesId_;
         unit_types::UnitParameters unitParameters_;
 
@@ -36,7 +36,7 @@ namespace CubesProperties
         bool ignoreEvents_;
 
     public:
-        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             unit_types::UnitParameters unitParameters, uint32_t propertiesId);
 
     public:

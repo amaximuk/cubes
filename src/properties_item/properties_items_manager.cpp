@@ -32,7 +32,7 @@ PropertiesItemsManager::PropertiesItemsManager(ITopManager* top_manager)
 	widget_ = CreateEditorWidget();
 }
 
-properties_editor* PropertiesItemsManager::GetEditor()
+PropertiesEditor* PropertiesItemsManager::GetEditor()
 {
 	return editor_;
 }
@@ -350,10 +350,10 @@ void PropertiesItemsManager::OnRemoveFileClicked()
 
 QWidget* PropertiesItemsManager::CreateEditorWidget()
 {
-	editor_ = new properties_editor();
-	qDebug() << connect(editor_, &properties_editor::Collapsed, this, &PropertiesItemsManager::OnEditorCollapsed);
-	qDebug() << connect(editor_, &properties_editor::Expanded, this, &PropertiesItemsManager::OnEditorExpanded);
-	qDebug() << connect(editor_, &properties_editor::ContextMenuRequested, this, &PropertiesItemsManager::OnContextMenuRequested);
+	editor_ = new PropertiesEditor();
+	qDebug() << connect(editor_, &PropertiesEditor::Collapsed, this, &PropertiesItemsManager::OnEditorCollapsed);
+	qDebug() << connect(editor_, &PropertiesEditor::Expanded, this, &PropertiesItemsManager::OnEditorExpanded);
+	qDebug() << connect(editor_, &PropertiesEditor::ContextMenuRequested, this, &PropertiesItemsManager::OnContextMenuRequested);
 
 	QWidget* propertiesPanelWidget = new QWidget;
 

@@ -18,7 +18,7 @@ namespace CubesFile
 	private:
 		ITopManager* top_manager_;
 		QPointer<QWidget> widget_;
-		QPointer<properties_editor> editor_;
+		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
 		QList<QSharedPointer<FileItem>> items_;
 		QString selected_;
@@ -27,7 +27,7 @@ namespace CubesFile
 		FileItemsManager(ITopManager* top_manager);
 
 	public:
-		properties_editor* GetEditor();
+		PropertiesEditor* GetEditor();
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		QString GetCurrentFileName();

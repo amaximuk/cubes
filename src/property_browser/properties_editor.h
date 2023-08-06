@@ -13,7 +13,7 @@
 #include "qtexeditorfactory.h"
 #include "../unit_types.h"
 
-class properties_editor : public QObject
+class PropertiesEditor : public QObject
 {
     Q_OBJECT
 
@@ -29,14 +29,14 @@ private:
     QPointer<QtColorPropertyManager> colorManager_;
 
 public:
-    properties_editor()
+    PropertiesEditor()
     {
         propertyEditor_ = new QtTreePropertyBrowser();
         propertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::collapsed, this, &properties_editor::CollapsedInternal);
-        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::expanded, this, &properties_editor::ExpandedInternal);
-        qDebug() << connect(propertyEditor_, &QWidget::customContextMenuRequested, this, &properties_editor::ContextMenuRequestedInternal);
+        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::collapsed, this, &PropertiesEditor::CollapsedInternal);
+        qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::expanded, this, &PropertiesEditor::ExpandedInternal);
+        qDebug() << connect(propertyEditor_, &QWidget::customContextMenuRequested, this, &PropertiesEditor::ContextMenuRequestedInternal);
 
         groupManager_ = new QtGroupPropertyManager(this);
         intManager_ = new QtIntPropertyManager(this);
@@ -46,14 +46,14 @@ public:
         boolManager_ = new QtBoolPropertyManager(this);
         colorManager_ = new QtColorPropertyManager(this);
 
-        qDebug() << connect(intManager_, &QtIntPropertyManager::valueChanged, this, &properties_editor::IntValueChangedInternal);
-        qDebug() << connect(doubleManager_, &QtDoublePropertyManager::valueChanged, this, &properties_editor::DoubleValueChangedInternal);
-        qDebug() << connect(stringManager_, &QtExStringPropertyManager::valueChanged, this, &properties_editor::StringValueChangedInternal);
+        qDebug() << connect(intManager_, &QtIntPropertyManager::valueChanged, this, &PropertiesEditor::IntValueChangedInternal);
+        qDebug() << connect(doubleManager_, &QtDoublePropertyManager::valueChanged, this, &PropertiesEditor::DoubleValueChangedInternal);
+        qDebug() << connect(stringManager_, &QtExStringPropertyManager::valueChanged, this, &PropertiesEditor::StringValueChangedInternal);
         qDebug() << connect(stringManager_, qOverload<QtProperty*, const QString&, const QString&>(&QtExStringPropertyManager::editingFinished),
-            this, &properties_editor::StringEditingFinishedInternal);
-        qDebug() << connect(enumManager_, &QtEnumPropertyManager::valueChanged, this, &properties_editor::EnumValueChangedInternal);
-        qDebug() << connect(boolManager_, &QtBoolPropertyManager::valueChanged, this, &properties_editor::BoolValueChangedInternal);
-        qDebug() << connect(colorManager_, &QtColorPropertyManager::valueChanged, this, &properties_editor::ColorValueChangedInternal);
+            this, &PropertiesEditor::StringEditingFinishedInternal);
+        qDebug() << connect(enumManager_, &QtEnumPropertyManager::valueChanged, this, &PropertiesEditor::EnumValueChangedInternal);
+        qDebug() << connect(boolManager_, &QtBoolPropertyManager::valueChanged, this, &PropertiesEditor::BoolValueChangedInternal);
+        qDebug() << connect(colorManager_, &QtColorPropertyManager::valueChanged, this, &PropertiesEditor::ColorValueChangedInternal);
 
         QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
         QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);

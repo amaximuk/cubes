@@ -14,7 +14,7 @@
 
 using namespace CubesProperties;
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
@@ -30,8 +30,8 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 
 void PropertiesItem::Select()
 {
-    qDebug() << connect(editor_, &properties_editor::ValueChanged, this, &PropertiesItem::ValueChanged);
-    qDebug() << connect(editor_, &properties_editor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
+    qDebug() << connect(editor_, &PropertiesEditor::ValueChanged, this, &PropertiesItem::ValueChanged);
+    qDebug() << connect(editor_, &PropertiesEditor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
 
     auto pe = editor_->GetPropertyEditor();
     pe->clear();
@@ -45,8 +45,8 @@ void PropertiesItem::Select()
 
 void PropertiesItem::UnSelect()
 {
-    qDebug() << disconnect(editor_, &properties_editor::ValueChanged, this, &PropertiesItem::ValueChanged);
-    qDebug() << disconnect(editor_, &properties_editor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
+    qDebug() << disconnect(editor_, &PropertiesEditor::ValueChanged, this, &PropertiesItem::ValueChanged);
+    qDebug() << disconnect(editor_, &PropertiesEditor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
 }
 
 void PropertiesItem::CreateParametersModel()
