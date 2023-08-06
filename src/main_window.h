@@ -52,8 +52,8 @@ private:
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
 
-    QPointer<FileItem::FileItemsManager> file_items_manager_;
-    QPointer<PropertiesItem::PropertiesItemsManager> properties_items_manager_;
+    QPointer<CubesFile::FileItemsManager> fileItemsManager_;
+    QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);

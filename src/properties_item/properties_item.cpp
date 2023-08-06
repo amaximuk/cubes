@@ -12,7 +12,7 @@
 #include "properties_item.h"
 #include "../parameters_compiler/parameters_compiler_helper.h"
 
-using namespace PropertiesItem;
+using namespace CubesProperties;
 
 properties_item::properties_item(IPropertiesItemsManager* propertiesItemsManager, properties_editor* editor,
     unit_types::UnitParameters unitParameters, uint32_t propertiesId)

@@ -9,7 +9,7 @@
 #include "../unit_types.h"
 #include "../property_browser/properties_editor.h"
 
-namespace FileItem
+namespace CubesFile
 {
     class file_item : public QObject
     {

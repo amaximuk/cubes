@@ -4,7 +4,7 @@
 #include <QList>
 #include <QList>
 
-namespace FileItem
+namespace CubesFile
 {
 	class IFileItemsManager
 	{

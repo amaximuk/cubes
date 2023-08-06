@@ -5,7 +5,7 @@
 class QComboBox;
 class ITopManager;
 
-namespace PropertiesItem
+namespace CubesProperties
 {
 	class properties_item;
 

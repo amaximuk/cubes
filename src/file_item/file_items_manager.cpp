@@ -15,7 +15,7 @@
 #include "file_item.h"
 #include "file_items_manager.h"
 
-using namespace FileItem;
+using namespace CubesFile;
 
 FileItemsManager::FileItemsManager(ITopManager* top_manager)
 {

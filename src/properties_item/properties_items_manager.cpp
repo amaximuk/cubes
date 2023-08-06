@@ -17,7 +17,7 @@
 #include "properties_item.h"
 #include "properties_items_manager.h"
 
-using namespace PropertiesItem;
+using namespace CubesProperties;
 
 PropertiesItemsManager::PropertiesItemsManager(ITopManager* top_manager)
 {

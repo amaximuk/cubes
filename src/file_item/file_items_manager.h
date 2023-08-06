@@ -5,7 +5,7 @@
 class QComboBox;
 class ITopManager;
 
-namespace FileItem
+namespace CubesFile
 {
 	class FileItemsManager : public QObject, IFileItemsManager
 	{

@@ -11,7 +11,7 @@
 
 class diagram_item;
 
-namespace PropertiesItem
+namespace CubesProperties
 {
     class properties_item : public QObject
     {

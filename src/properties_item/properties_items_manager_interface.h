@@ -3,7 +3,7 @@
 #include <QString>
 #include <QList>
 
-namespace PropertiesItem
+namespace CubesProperties
 {
 	class properties_item;
 

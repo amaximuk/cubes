@@ -12,7 +12,7 @@
 #include "../parameters_compiler/parameters_compiler_helper.h"
 #include "file_item.h"
 
-using namespace FileItem;
+using namespace CubesFile;
 
 file_item::file_item(IFileItemsManager* fileItemsManager, properties_editor* editor)
 {
