@@ -5,6 +5,8 @@
 #include "diagram_item.h"
 #include "../properties_item/properties_item.h"
 
+using namespace CubeDiagram;
+
 DiagramItem::DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {

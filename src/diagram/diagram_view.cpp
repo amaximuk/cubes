@@ -8,6 +8,8 @@
 #include <QTextCursor>
 #include <QErrorMessage>
 
+using namespace CubeDiagram;
+
 DiagramView::DiagramView(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
     QGraphicsView(scene, parent)
 {

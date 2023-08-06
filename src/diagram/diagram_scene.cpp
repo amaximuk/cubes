@@ -10,6 +10,8 @@
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
+using namespace CubeDiagram;
+
 DiagramScene::DiagramScene(MainWindow* main, QObject *parent) :
     QGraphicsScene(parent)
 {

@@ -7,16 +7,19 @@
 class QDragEnterEvent;
 class QDropEvent;
 
-class DiagramView : public QGraphicsView
+namespace CubeDiagram
 {
-private:
-    MainWindow* main_;
+    class DiagramView : public QGraphicsView
+    {
+    private:
+        MainWindow* main_;
 
-public:
-    DiagramView(QGraphicsScene *scene, MainWindow* main, QWidget *parent = nullptr);
+    public:
+        DiagramView(QGraphicsScene* scene, MainWindow* main, QWidget* parent = nullptr);
 
-public:
-    void dragEnterEvent(QDragEnterEvent *event) override;
-    void dragMoveEvent(QDragMoveEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
-};
+    public:
+        void dragEnterEvent(QDragEnterEvent* event) override;
+        void dragMoveEvent(QDragMoveEvent* event) override;
+        void dropEvent(QDropEvent* event) override;
+    };
+}

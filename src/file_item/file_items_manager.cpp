@@ -17,9 +17,9 @@
 
 using namespace CubesFile;
 
-FileItemsManager::FileItemsManager(ITopManager* top_manager)
+FileItemsManager::FileItemsManager(ITopManager* topManager)
 {
-	top_manager_ = top_manager;
+	topManager_ = topManager;
 
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
@@ -242,7 +242,7 @@ void FileItemsManager::BeforeIncludesRemoved(const QString& fileName, const QStr
 	for (const auto& includeName : includeNames)
 	{
 		QStringList unitNames;
-		top_manager_->GetUnitsInFileIncludeList(fileName, includeName, unitNames);
+		topManager_->GetUnitsInFileIncludeList(fileName, includeName, unitNames);
 		allUnitNames.unite(QSet<QString>(unitNames.begin(), unitNames.end()));
 	}
 	if (allUnitNames.count() > 0)
@@ -399,7 +399,7 @@ void FileItemsManager::OnRemoveFileClicked()
 
 	// Проверяем возможность удаления
 	QStringList unitNames;
-	top_manager_->GetUnitsInFileList(selected_, unitNames);
+	topManager_->GetUnitsInFileList(selected_, unitNames);
 	if (unitNames.count() > 0)
 	{
 		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");

@@ -19,17 +19,21 @@
 #include "property_browser/properties_editor.h"
 #include "top_manager_interface.h"
 
+namespace CubeDiagram
+{
+    class DiagramItem;
+    class DiagramScene;
+    class DiagramView;
+}
+
 class QPlainTextEdit;
 class QGraphicsScene;
 class QGraphicsView;
 class QTableView;
 class QTreeView;
 class QToolBox;
-class DiagramView;
 class QSplitter;
 class QtProperty;
-class DiagramScene;
-class DiagramItem;
 class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
@@ -42,8 +46,8 @@ private:
     bool modified_;
     uint32_t unique_number_;
 
-    QPointer<DiagramScene> scene_;
-    QPointer<DiagramView> view_;
+    QPointer<CubeDiagram::DiagramScene> scene_;
+    QPointer<CubeDiagram::DiagramView> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
@@ -122,11 +126,11 @@ private slots:
     void on_DeleteFileInclude_action(bool checked = false);
 
 public slots:
-    void itemPositionChanged(DiagramItem* item);
-    void afterItemCreated(DiagramItem* item);
-    void beforeItemDeleted(DiagramItem* item);
-    void itemNameChanged(DiagramItem* item, QString oldName);
-    void itemFileChanged(DiagramItem* item);
+    void itemPositionChanged(CubeDiagram::DiagramItem* item);
+    void afterItemCreated(CubeDiagram::DiagramItem* item);
+    void beforeItemDeleted(CubeDiagram::DiagramItem* item);
+    void itemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
+    void itemFileChanged(CubeDiagram::DiagramItem* item);
     void showFileContextMenu(const QPoint& pos);
 
     // FileItem::FileItemsManager

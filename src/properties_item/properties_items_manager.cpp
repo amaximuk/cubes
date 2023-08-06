@@ -19,9 +19,9 @@
 
 using namespace CubesProperties;
 
-PropertiesItemsManager::PropertiesItemsManager(ITopManager* top_manager)
+PropertiesItemsManager::PropertiesItemsManager(ITopManager* topManager)
 {
-	top_manager_ = top_manager;
+	topManager_ = topManager;
 	unique_number_ = 0;
 	selected_ = 0;
 
@@ -61,7 +61,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
 	unit_types::UnitParameters unitParameters{};
-	top_manager_->GetUnitParameters(unitId, unitParameters);
+	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
@@ -190,7 +190,7 @@ void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringL
 		selector_->setItemText(index, name);
 
 	// Заполняем группы
-	top_manager_->GetFileIncludeList(item->GetFileName(), includeNames);
+	topManager_->GetFileIncludeList(item->GetFileName(), includeNames);
 
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetGroupName();
@@ -206,7 +206,7 @@ void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item, QList
 		selector_->setItemText(index, name);
 
 	// Заполняем переменные
-	top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
 
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetGroupName();
@@ -426,7 +426,7 @@ void PropertiesItemsManager::SetFilePropertyExpanded(const QString& fileName, co
 QString PropertiesItemsManager::GetName(PropertiesItem* item)
 {
 	QList<QPair<QString, QString>> variables;
-	top_manager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
 
 	QString name = item->GetName();
 	for (const auto& v : variables)

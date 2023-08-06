@@ -18,7 +18,7 @@ namespace CubesProperties
 		int defaultColorFileIndex_;
 
 	private:
-		ITopManager* top_manager_;
+		ITopManager* topManager_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
@@ -28,7 +28,7 @@ namespace CubesProperties
 		uint32_t unique_number_;
 
 	public:
-		PropertiesItemsManager(ITopManager* top_manager);
+		PropertiesItemsManager(ITopManager* topManager);
 
 	public:
 		PropertiesEditor* GetEditor();
