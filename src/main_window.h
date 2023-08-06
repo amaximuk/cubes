@@ -52,7 +52,7 @@ private:
     QPointer<log_table_model> log_table_model_;
     QPointer<sort_filter_model> sort_filter_model_;
 
-    QPointer<file_items_manager> file_items_manager_;
+    QPointer<FileItem::file_items_manager> file_items_manager_;
     QPointer<PropertiesItem::properties_items_manager> properties_items_manager_;
 
 public:
@@ -129,7 +129,7 @@ public slots:
     void itemFileChanged(diagram_item* item);
     void showFileContextMenu(const QPoint& pos);
 
-    // file_items_manager
+    // FileItem::file_items_manager
     void fileNameChanged(const QString& fileName, const QString& oldFileName);
     void fileListChanged(const QStringList& fileNames);
     void fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);

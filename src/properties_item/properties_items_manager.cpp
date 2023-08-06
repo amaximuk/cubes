@@ -1,5 +1,3 @@
-#pragma once
-
 #include <QMap>
 #include <QSet>
 #include <QSharedPointer>
@@ -16,7 +14,6 @@
 #include "../top_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml_parser.h"
-#include "properties_items_manager_interface.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 

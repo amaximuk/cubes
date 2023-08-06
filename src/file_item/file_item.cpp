@@ -12,6 +12,8 @@
 #include "../parameters_compiler/parameters_compiler_helper.h"
 #include "file_item.h"
 
+using namespace FileItem;
+
 file_item::file_item(file_items_manager_interface* file_items_manager, properties_editor* editor)
 {
     file_items_manager_ = file_items_manager;
