@@ -135,10 +135,10 @@ QWidget* MainWindow::CreateLogWidget()
 {
     table_view_log_ = new QTableView;
 
-    log_table_model_ = new log_table_model;
-    sort_filter_model_ = new sort_filter_model;
+    log_table_model_ = new CubeLog::LogTableModel;
+    sort_filter_model_ = new CubeLog::SortFilterModel;
     sort_filter_model_->setSourceModel(log_table_model_);
-    sort_filter_model_->setFilter({ message_type::error, message_type::warning, message_type::information });
+    sort_filter_model_->SetFilter({ CubeLog::MessageType::error, CubeLog::MessageType::warning, CubeLog::MessageType::information });
 
     table_view_log_->setModel(sort_filter_model_);
     table_view_log_->setSortingEnabled(true);
@@ -597,11 +597,11 @@ void MainWindow::FillParametersInfo()
                 parameters_compiler::file_info fi{};
                 if (!yaml::parser::parse(fullPath.toStdString(), fi))
                 {
-                    log_message m{};
-                    m.type = message_type::error;
+                    CubeLog::LogMessage m{};
+                    m.type = CubeLog::MessageType::error;
                     m.source = filename;
                     m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    log_table_model_->addMessage(m);
+                    log_table_model_->AddMessage(m);
                 }
 
                 if (fi.info.id != "group" && fi.info.id != "group_mock")
@@ -636,11 +636,11 @@ bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
             }
             else
             {
-                log_message m{};
-                m.type = message_type::error;
+                CubeLog::LogMessage m{};
+                m.type = CubeLog::MessageType::error;
                 m.source = QFileInfo(file.fileName).fileName();
                 m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                log_table_model_->addMessage(m);
+                log_table_model_->AddMessage(m);
             }
         }
     }
@@ -1437,25 +1437,25 @@ void MainWindow::test2(QPointF ppp)
 void MainWindow::on_ErrorButton_clicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->addToFilter(message_type::error);
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
     else
-        sort_filter_model_->removeFromFilter(message_type::error);
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
 }
 
 void MainWindow::on_WarningButton_clicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->addToFilter(message_type::warning);
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
     else
-        sort_filter_model_->removeFromFilter(message_type::warning);
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
 }
 
 void MainWindow::on_InformationButton_clicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->addToFilter(message_type::information);
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
     else
-        sort_filter_model_->removeFromFilter(message_type::information);
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
 }
 
 void MainWindow::on_DeleteFileInclude_action(bool checked)
@@ -1814,7 +1814,7 @@ void MainWindow::on_ImportXmlFile_action()
 
     if (f.config.networking_is_set)
     {
-        log_table_model_->clear();
+        log_table_model_->Clear();
 
         if (!AddMainFile(f))
             return;

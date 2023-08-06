@@ -49,8 +49,8 @@ private:
     QPointer<QTreeView> tree_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, unit_types::UnitParameters> unitParameters_;
-    QPointer<log_table_model> log_table_model_;
-    QPointer<sort_filter_model> sort_filter_model_;
+    QPointer<CubeLog::LogTableModel> log_table_model_;
+    QPointer<CubeLog::SortFilterModel> sort_filter_model_;
 
     QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;

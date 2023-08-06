@@ -4,19 +4,21 @@
 #include <QIcon>
 #include "log_table_model.h"
 
-log_table_model::log_table_model(QObject *parent) : QAbstractTableModel(parent)
+using namespace CubeLog;
+
+LogTableModel::LogTableModel(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
-void log_table_model::addMessage(const log_message& message)
+void LogTableModel::AddMessage(const LogMessage& message)
 {
-    beginInsertRows(QModelIndex(), log_messages.size(), log_messages.size());
-    log_messages.push_back(message);
+    beginInsertRows(QModelIndex(), log_messages_.size(), log_messages_.size());
+    log_messages_.push_back(message);
     endInsertRows();
 
     //insertRows(log_messages.size(), 1);
-    QModelIndex topLeft = createIndex(log_messages.size() - 1, 0);
-    QModelIndex bottomRight = createIndex(log_messages.size() - 1, 1);
+    QModelIndex topLeft = createIndex(log_messages_.size() - 1, 0);
+    QModelIndex bottomRight = createIndex(log_messages_.size() - 1, 1);
 
     // emit a signal to make the view reread identified data
     emit dataChanged(topLeft, bottomRight, { Qt::DisplayRole });
@@ -24,52 +26,52 @@ void log_table_model::addMessage(const log_message& message)
     //log_messages[log_messages.size() - 1] = message;
 }
 
-void log_table_model::clear()
+void LogTableModel::Clear()
 {
-    if (log_messages.size() > 0)
+    if (log_messages_.size() > 0)
     {
-        beginRemoveRows(QModelIndex(), 0, log_messages.size() - 1);
-        log_messages.clear();
+        beginRemoveRows(QModelIndex(), 0, log_messages_.size() - 1);
+        log_messages_.clear();
         endRemoveRows();
     }
 }
 
-int log_table_model::rowCount(const QModelIndex& parent) const
+int LogTableModel::rowCount(const QModelIndex& parent) const
 {
-    return log_messages.size();
+    return log_messages_.size();
 }
 
-int log_table_model::columnCount(const QModelIndex& parent) const
+int LogTableModel::columnCount(const QModelIndex& parent) const
 {
     return 3;
 }
 
-QVariant log_table_model::data(const QModelIndex& index, int role) const
+QVariant LogTableModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    if (index.row() >= log_messages.size())
+    if (index.row() >= log_messages_.size())
         return QVariant();
 
     if (role == Qt::DecorationRole)
     {
         if (index.column() == 0)
         {
-            if (log_messages[index.row()].type == message_type::information)
+            if (log_messages_[index.row()].type == MessageType::information)
                 return QIcon(":/images/information.png");
-            else if (log_messages[index.row()].type == message_type::warning)
+            else if (log_messages_[index.row()].type == MessageType::warning)
                 return QIcon(":/images/warning.png");
-            else if (log_messages[index.row()].type == message_type::error)
+            else if (log_messages_[index.row()].type == MessageType::error)
                 return QIcon(":/images/error.png");
         }
     }
     else if (role == Qt::DisplayRole)
     {
         if (index.column() == 1)
-            return log_messages[index.row()].source;
+            return log_messages_[index.row()].source;
         else if (index.column() == 2)
-            return log_messages[index.row()].description;
+            return log_messages_[index.row()].description;
     }
     else if (role == Qt::UserRole)
     {
@@ -81,22 +83,22 @@ QVariant log_table_model::data(const QModelIndex& index, int role) const
             //    return QString::fromLocal8Bit("1-warning");
             //else if (log_messages[index.row()].type == message_type::error)
             //    return QString::fromLocal8Bit("2-error");
-            if (log_messages[index.row()].type == message_type::information)
-                return static_cast<uint32_t>(message_type::information);
-            else if (log_messages[index.row()].type == message_type::warning)
-                return static_cast<uint32_t>(message_type::warning);
-            else if (log_messages[index.row()].type == message_type::error)
-                return static_cast<uint32_t>(message_type::error);
+            if (log_messages_[index.row()].type == MessageType::information)
+                return static_cast<uint32_t>(MessageType::information);
+            else if (log_messages_[index.row()].type == MessageType::warning)
+                return static_cast<uint32_t>(MessageType::warning);
+            else if (log_messages_[index.row()].type == MessageType::error)
+                return static_cast<uint32_t>(MessageType::error);
         }
         else if (index.column() == 1)
-            return log_messages[index.row()].source;
+            return log_messages_[index.row()].source;
         else if (index.column() == 2)
-            return log_messages[index.row()].description;
+            return log_messages_[index.row()].description;
     }
     return QVariant();
 }
 
-QVariant log_table_model::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant LogTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole)
     {

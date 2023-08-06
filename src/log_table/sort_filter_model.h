@@ -5,22 +5,25 @@
 #include <QSortFilterProxyModel>
 #include "log_table_model.h"
 
-class sort_filter_model : public QSortFilterProxyModel
+namespace CubeLog
 {
-    Q_OBJECT
+    class SortFilterModel : public QSortFilterProxyModel
+    {
+        Q_OBJECT
 
-public:
-    sort_filter_model(QObject* parent = 0);
+    private:
+        QSet<MessageType> filter_;
 
-public:
-    void setFilter(QSet<message_type> filter);
-    void addToFilter(message_type mt);
-    void removeFromFilter(message_type mt);
+    public:
+        SortFilterModel(QObject* parent = 0);
 
-protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
-    bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+    public:
+        void SetFilter(QSet<MessageType> filter);
+        void AddToFilter(MessageType mt);
+        void RemoveFromFilter(MessageType mt);
 
-private:
-    QSet<message_type> filter_;
-};
+    protected:
+        bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+        bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+    };
+}

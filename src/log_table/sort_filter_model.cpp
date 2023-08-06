@@ -5,41 +5,43 @@
 #include <QIcon>
 #include "sort_filter_model.h"
 
-sort_filter_model::sort_filter_model(QObject* parent)
+using namespace CubeLog;
+
+SortFilterModel::SortFilterModel(QObject* parent)
     : QSortFilterProxyModel(parent)
 {
 }
 
-void sort_filter_model::setFilter(QSet<message_type> filter)
+void SortFilterModel::SetFilter(QSet<MessageType> filter)
 {
     filter_ = filter;
     invalidateFilter();
 }
 
-void sort_filter_model::addToFilter(message_type mt)
+void SortFilterModel::AddToFilter(MessageType mt)
 {
     filter_.insert(mt);
     invalidateFilter();
 }
 
-void sort_filter_model::removeFromFilter(message_type mt)
+void SortFilterModel::RemoveFromFilter(MessageType mt)
 {
     filter_.remove(mt);
     invalidateFilter();
 }
 
-bool sort_filter_model::filterAcceptsRow(int sourceRow,
+bool SortFilterModel::filterAcceptsRow(int sourceRow,
     const QModelIndex& sourceParent) const
 {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-    message_type t = static_cast<message_type>(sourceModel()->data(index, Qt::UserRole).toUInt());
+    MessageType t = static_cast<MessageType>(sourceModel()->data(index, Qt::UserRole).toUInt());
     if (filter_.contains(t))
         return true;
     else
         return false;
 }
 
-bool sort_filter_model::lessThan(const QModelIndex& left,
+bool SortFilterModel::lessThan(const QModelIndex& left,
     const QModelIndex& right) const
 {
     if (left.column() == 0)
