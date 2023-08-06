@@ -7,7 +7,7 @@ class top_manager_interface;
 
 namespace FileItem
 {
-	class file_items_manager : public QObject, file_items_manager_interface
+	class file_items_manager : public QObject, FileItemsManagerInterface
 	{
 		Q_OBJECT
 

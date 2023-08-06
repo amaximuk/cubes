@@ -14,9 +14,9 @@
 
 using namespace FileItem;
 
-file_item::file_item(file_items_manager_interface* file_items_manager, properties_editor* editor)
+file_item::file_item(FileItemsManagerInterface* fileItemsManager, properties_editor* editor)
 {
-    file_items_manager_ = file_items_manager;
+    fileItemsManager_ = fileItemsManager;
     editor_ = editor;
     model_ = {};
     ignoreEvents_ = false;
@@ -314,13 +314,13 @@ void file_item::StringEditingFinished(QtProperty* property, const QString& value
     if (pm->id == "BASE/NAME")
     {
         bool cancel = false;
-        file_items_manager_->BeforeFileNameChanged(value, oldValue, cancel);
+        fileItemsManager_->BeforeFileNameChanged(value, oldValue, cancel);
 
         if (!cancel)
         {
             QString oldName = pm->value.toString();
             pm->value = value;
-            file_items_manager_->AfterFileNameChanged(value, oldName);
+            fileItemsManager_->AfterFileNameChanged(value, oldName);
         }
         else
         {
@@ -331,13 +331,13 @@ void file_item::StringEditingFinished(QtProperty* property, const QString& value
     else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
     {
         bool cancel = false;
-        file_items_manager_->BeforeIncludeNameChanged(GetName(), value, oldValue, cancel);
+        fileItemsManager_->BeforeIncludeNameChanged(GetName(), value, oldValue, cancel);
 
         if (!cancel)
         {
             QString oldName = pm->value.toString();
             pm->value = value;
-            file_items_manager_->AfterIncludeNameChanged(GetName(), value, oldName);
+            fileItemsManager_->AfterIncludeNameChanged(GetName(), value, oldName);
         }
         else
         {
@@ -497,7 +497,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
 
         // Проверяем, что можно создавать
         bool cancel = false;
-        file_items_manager_->BeforeIncludesAdd(GetName(), addingIncludeNames, cancel);
+        fileItemsManager_->BeforeIncludesAdd(GetName(), addingIncludeNames, cancel);
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
@@ -551,7 +551,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
         }
 
         // Информируем, что создали
-        file_items_manager_->AfterIncludesListChanged(GetName(), includeNames);
+        fileItemsManager_->AfterIncludesListChanged(GetName(), includeNames);
     }
 
     // Теперь удаляем
@@ -573,7 +573,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
 
         // Проверяем, что можно удалять
         bool cancel = false;
-        file_items_manager_->BeforeIncludesRemoved(GetName(), removingIncludeNames, cancel);
+        fileItemsManager_->BeforeIncludesRemoved(GetName(), removingIncludeNames, cancel);
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
@@ -603,7 +603,7 @@ void file_item::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& co
         }
 
         // Информируем, что удалили
-        file_items_manager_->AfterIncludesListChanged(GetName(), includeNames);
+        fileItemsManager_->AfterIncludesListChanged(GetName(), includeNames);
     }
 }
 
@@ -694,7 +694,7 @@ void file_item::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& c
     }
 
     // Информируем, что создали
-    file_items_manager_->AfterVariableChanged(GetName(), includeName, variables);
+    fileItemsManager_->AfterVariableChanged(GetName(), includeName, variables);
 }
 
 //void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)
