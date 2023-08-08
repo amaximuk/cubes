@@ -3,9 +3,7 @@
 class QGraphicsItem;
 
 #include <QGraphicsScene>
-#include <QpointF>
-
-#include "../main_window.h"
+#include "../top_manager_interface.h"
 
 namespace CubeDiagram
 {
@@ -16,14 +14,14 @@ namespace CubeDiagram
         Q_OBJECT
 
     private:
-        MainWindow* main_;
-        QPointF ppp_;
+        ITopManager* topManager_;
+        QPointF startPosition_;
         bool isItemMoving_;
         QGraphicsItem* movingItem_;
         QList<DiagramItem*> dragItems_;
 
     public:
-        explicit DiagramScene(MainWindow* main, QObject* parent = nullptr);
+        explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
 
     public:
         void InformItemPositionChanged(DiagramItem* item);
@@ -32,7 +30,6 @@ namespace CubeDiagram
         void InformItemFileChanged(DiagramItem* item);
         void InformItemGroupChanged(DiagramItem* item);
         bool IsItemMoving() { return isItemMoving_; };
-        MainWindow* GetMain() { return main_; };
 
     signals:
         void ItemPositionChanged(DiagramItem* item);

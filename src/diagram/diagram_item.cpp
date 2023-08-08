@@ -105,8 +105,7 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             painter->drawPixmap(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, ds->GetMain()->GetDisplayName(name_),
-                Qt::AlignCenter | Qt::AlignHCenter);
+            painter->drawText(textRect_, name_, Qt::AlignCenter | Qt::AlignHCenter);
 
             //QString fileName = PROPERTY_fileName_;
             //QColor colorFile(ds->getMain()->GetFileColor(fileName));

@@ -86,10 +86,7 @@ public:
     QString GetCurrentFileName();
     QStringList GetCurrentFileIncludeNames();
     QColor GetFileColor(const QString& fileName);
-    QString GetNewUnitName(const QString& baseName);
     QString GetDisplayName(const QString& baseName);
-    QMap<QString, QStringList> GetUnitsConnections();
-    QMap<QString, QStringList> GetDependsConnections();
 
     // ITopManager
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
@@ -97,10 +94,11 @@ public:
     void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
     void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
     void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
-
-    // to add to interface
-    bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId);
-    bool GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd);
+    bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
+    bool GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
+    QString GetNewUnitName(const QString& baseName) override;
+    QMap<QString, QStringList> GetUnitsConnections() override;
+    QMap<QString, QStringList> GetDependsConnections() override;
 
 private:
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);

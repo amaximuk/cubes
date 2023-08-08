@@ -36,14 +36,6 @@ namespace CubeDiagram
         QRectF boundingRect_;
         bool borderOnly_;
 
-        //public:
-        //    // v2
-        //    QString PROPERTY_instanceName_;
-        //    QString PROPERTY_name_;
-        //    QString PROPERTY_groupName_;
-        //    QString PROPERTY_fileName_;
-        //    QPixmap PROPERTY_pixmap_;
-
     public:
         DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent = nullptr);
         DiagramItem(const DiagramItem& other);
@@ -54,10 +46,6 @@ namespace CubeDiagram
         QRectF boundingRect() const override;
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
-        //QString getName() { return properties_->GetName(); };
-        //QList<QString> getConnectedNames() { return properties_->GetConnectedNames(); }
-        //QList<QString> getDependentNames() { return properties_->GetDependentNames(); }
-        //QString getInstanceName() { return properties_->GetInstanceName(); }
 
     public:
         //QSharedPointer<properties_item> GetProperties() { return properties_; };

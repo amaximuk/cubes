@@ -10,10 +10,10 @@
 
 using namespace CubeDiagram;
 
-DiagramView::DiagramView(QGraphicsScene *scene, MainWindow *main, QWidget *parent):
+DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget *parent):
     QGraphicsView(scene, parent)
 {
-    main_ = main;
+    topManager_ = topManager;
     setAcceptDrops(true);
 }
 
@@ -88,13 +88,13 @@ void DiagramView::dropEvent(QDropEvent *event)
             //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
-            if (!ds->GetMain()->CreatePropetiesItem(name, propertiesId))
+            if (!topManager_->CreatePropetiesItem(name, propertiesId))
             {
                 qDebug() << "ERROR CreatePropetiesItem: " << name;
             }
 
             PropertiesForDrawing pfd{};
-            if (!ds->GetMain()->GetPropeties(propertiesId, pfd))
+            if (!topManager_->GetPropeties(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }

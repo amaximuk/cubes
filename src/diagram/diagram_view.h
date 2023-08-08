@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QGraphicsView>
-#include "../main_window.h"
+#include "../top_manager_interface.h"
 
 
 class QDragEnterEvent;
@@ -9,13 +9,14 @@ class QDropEvent;
 
 namespace CubeDiagram
 {
+    // Класс DiagramView нужен для создания юнитов путем перетаскивания из дерева
     class DiagramView : public QGraphicsView
     {
     private:
-        MainWindow* main_;
+        ITopManager* topManager_;
 
     public:
-        DiagramView(QGraphicsScene* scene, MainWindow* main, QWidget* parent = nullptr);
+        DiagramView(ITopManager* topManager, QGraphicsScene* scene, QWidget* parent = nullptr);
 
     public:
         void dragEnterEvent(QDragEnterEvent* event) override;

@@ -12,12 +12,12 @@
 
 using namespace CubeDiagram;
 
-DiagramScene::DiagramScene(MainWindow* main, QObject *parent) :
+DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     QGraphicsScene(parent)
 {
-    main_ = main;
+    topManager_ = topManager;
     isItemMoving_ = false;
-    movingItem_ = 0;
+    movingItem_ = nullptr;
 }
 
 void DiagramScene::InformItemPositionChanged(DiagramItem* item)
@@ -50,7 +50,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
   //event->ignore();
 
   movingItem_ = itemAt(event->scenePos(), QTransform());
-  if (movingItem_ != 0)
+  if (movingItem_ != nullptr)
   {
     isItemMoving_ = true;
     
@@ -67,7 +67,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
 
         QString oldName = di->name_;
-        QString newName = main_->GetNewUnitName(oldName);
+        QString newName = topManager_->GetNewUnitName(oldName);
         di->name_ = newName;
         qDebug() << "X1: " << oldName << " - " << newName;
 
@@ -93,7 +93,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
     QPointF p = movingItem_->mapFromParent(event->scenePos());
-    ppp_ = event->scenePos() - p;
+    startPosition_ = event->scenePos() - p;
 
   }
 
@@ -150,7 +150,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   {
       if (ctrl)
       {
-          QPointF delta = ppp_ - movingItem_->pos();
+          QPointF delta = startPosition_ - movingItem_->pos();
           //      if (selectedItems().count() > 0)
           //      {
           //          selectedItems()[0]->setPos(ppp_);
@@ -321,7 +321,7 @@ DiagramItem* DiagramScene::GetDiagramItem(QString name)
 void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
 {
     {
-        QMap<QString, QStringList> connections = main_->GetUnitsConnections();
+        QMap<QString, QStringList> connections = topManager_->GetUnitsConnections();
         painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())
@@ -336,7 +336,7 @@ void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
     }
 
     {
-        QMap<QString, QStringList> connections = main_->GetDependsConnections();
+        QMap<QString, QStringList> connections = topManager_->GetDependsConnections();
         painter->setPen(QPen(QBrush(QColor(0, 0, 0, 0x80), Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())

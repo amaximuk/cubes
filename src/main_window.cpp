@@ -236,7 +236,7 @@ void MainWindow::CreateScene()
 
 void MainWindow::CreateView()
 {
-    view_ = new CubeDiagram::DiagramView(scene_, this);
+    view_ = new CubeDiagram::DiagramView(this, scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
@@ -891,106 +891,6 @@ bool MainWindow::AddMainFile(xml::File& file)
 //    return "";
 //}
 
-QString MainWindow::GetNewUnitName(const QString& baseName)
-{
-    //int tabIndex = -1;
-    //for (int i = 0; i < panes_.count(); ++i)
-    //{
-    //    QString tabName = tabWidget_->tabText(i);
-    //    if (groupName == tabName)
-    //    {
-    //        tabIndex = i;
-    //        break;
-    //    }
-    //}
-
-    //if (tabIndex == -1)
-    //    return false;
-
-    //QString unitName = baseName;
-    //for (const auto& pi : scene_->items())
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-    //    if (di->getProperties()->GetName() == baseName)
-    //    {
-    //        unitName = di->getProperties()->GetUnitName();
-    //        break;
-    //    }
-    //}
-
-    //QString name = unitName;
-
-    QString name = baseName;
-    int sharp_index = baseName.lastIndexOf("#");
-    if (sharp_index != -1)
-        name = baseName.left(sharp_index);
-    QString varName = name;
-
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& item : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
-
-        for (const auto& v : variables)
-        {
-            QString replace = QString("@%1@").arg(v.first);
-            varName.replace(replace, v.second);
-        }
-    }
-    QString newName = varName;
-
-    int counter = 0;
-    while (true)
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& pi : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
-
-        bool found = false;
-        for (const auto& item : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            QString realName = pi->GetName();
-            for (const auto& v : variables)
-            {
-                QString replace = QString("@%1@").arg(v.first);
-                realName.replace(replace, v.second);
-            }
-            if (realName == newName)
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (found)
-            newName = QString("%1#%2").arg(varName).arg(++counter);
-        else
-            break;
-    }
-    if (counter == 0)
-        return name;
-    else
-        return QString("%1#%2").arg(name).arg(counter);
-}
-
 QString MainWindow::GetDisplayName(const QString& baseName)
 {
     QList<QPair<QString, QString>> variables;
@@ -1080,16 +980,6 @@ QString MainWindow::GetDisplayName(const QString& baseName)
 //    }
 //    return connections;
 //}
-
-QMap<QString, QStringList> MainWindow::GetUnitsConnections()
-{
-    return GetConnectionsInternal(false);
-}
-
-QMap<QString, QStringList> MainWindow::GetDependsConnections()
-{
-    return GetConnectionsInternal(true);
-}
 
 //QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(int groupId)
 //{
@@ -1211,6 +1101,117 @@ bool MainWindow::GetPropeties(const uint32_t propertiesId, PropertiesForDrawing&
     pfd.groupName = pi->GetGroupName();
     pfd.color = GetFileColor(pi->GetFileName());
     return true;
+}
+
+
+QString MainWindow::GetNewUnitName(const QString& baseName)
+{
+    //int tabIndex = -1;
+    //for (int i = 0; i < panes_.count(); ++i)
+    //{
+    //    QString tabName = tabWidget_->tabText(i);
+    //    if (groupName == tabName)
+    //    {
+    //        tabIndex = i;
+    //        break;
+    //    }
+    //}
+
+    //if (tabIndex == -1)
+    //    return false;
+
+    //QString unitName = baseName;
+    //for (const auto& pi : scene_->items())
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+    //    if (di->getProperties()->GetName() == baseName)
+    //    {
+    //        unitName = di->getProperties()->GetUnitName();
+    //        break;
+    //    }
+    //}
+
+    //QString name = unitName;
+
+    QString name = baseName;
+    int sharp_index = baseName.lastIndexOf("#");
+    if (sharp_index != -1)
+        name = baseName.left(sharp_index);
+    QString varName = name;
+
+    {
+        QList<QPair<QString, QString>> variables;
+        for (const auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            if (pi->GetGroupName() != "<not selected>")
+            {
+                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                    pi->GetGroupName());
+            }
+        }
+
+        for (const auto& v : variables)
+        {
+            QString replace = QString("@%1@").arg(v.first);
+            varName.replace(replace, v.second);
+        }
+    }
+    QString newName = varName;
+
+    int counter = 0;
+    while (true)
+    {
+        QList<QPair<QString, QString>> variables;
+        for (const auto& pi : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            if (pi->GetGroupName() != "<not selected>")
+            {
+                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                    pi->GetGroupName());
+            }
+        }
+
+        bool found = false;
+        for (const auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            QString realName = pi->GetName();
+            for (const auto& v : variables)
+            {
+                QString replace = QString("@%1@").arg(v.first);
+                realName.replace(replace, v.second);
+            }
+            if (realName == newName)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            newName = QString("%1#%2").arg(varName).arg(++counter);
+        else
+            break;
+    }
+    if (counter == 0)
+        return name;
+    else
+        return QString("%1#%2").arg(name).arg(counter);
+}
+
+QMap<QString, QStringList> MainWindow::GetUnitsConnections()
+{
+    return GetConnectionsInternal(false);
+}
+
+QMap<QString, QStringList> MainWindow::GetDependsConnections()
+{
+    return GetConnectionsInternal(true);
 }
 
 QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
