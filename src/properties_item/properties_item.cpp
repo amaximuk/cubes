@@ -15,7 +15,7 @@
 using namespace CubesProperties;
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-    unit_types::UnitParameters unitParameters, uint32_t propertiesId)
+    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
@@ -63,42 +63,42 @@ void PropertiesItem::CreateParametersModel()
     // EDITOR/POSITION_Z
 
     {
-        unit_types::ParameterModel base_group;
+        CubesUnitTypes::ParameterModel base_group;
         base_group.id = "BASE";
         base_group.name = QString::fromLocal8Bit("Базовые");
         base_group.value = "";
         base_group.valueType = "none";
         //base_group.parameterInfoId = "";
-        base_group.editorSettings.type = unit_types::EditorType::None;
+        base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         base_group.editorSettings.is_expanded = true;
 
-        unit_types::ParameterModel instance_name;
+        CubesUnitTypes::ParameterModel instance_name;
         instance_name.id = "BASE/NAME";
         instance_name.name = QString::fromLocal8Bit("Имя");
         instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
         instance_name.valueType = "string";
         //instance_name.parameterInfoId = "";
-        instance_name.editorSettings.type = unit_types::EditorType::String;
+        instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
         instance_name.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(instance_name));
 
-        unit_types::ParameterModel file;
+        CubesUnitTypes::ParameterModel file;
         file.id = "BASE/FILE_NAME";
         file.name = QString::fromLocal8Bit("Файл");
         file.value = "";
         file.valueType = "string";
         //file.parameterInfoId = "";
-        file.editorSettings.type = unit_types::EditorType::ComboBox;
+        file.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         file.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(file));
 
-        unit_types::ParameterModel group;
+        CubesUnitTypes::ParameterModel group;
         group.id = "BASE/INCLUDE_NAME";
         group.name = QString::fromLocal8Bit("Включаемый файл");
         group.value = "";
         group.valueType = "string";
         //group.parameterInfoId = "";
-        group.editorSettings.type = unit_types::EditorType::ComboBox;
+        group.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         group.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(group));
 
@@ -107,18 +107,18 @@ void PropertiesItem::CreateParametersModel()
 
     if (unitParameters_.fileInfo.parameters.size() > 0)
     {
-        unit_types::ParameterModel properties_group;
+        CubesUnitTypes::ParameterModel properties_group;
         properties_group.id = "PARAMETERS";
         properties_group.name = QString::fromLocal8Bit("Параметры");
         properties_group.value = "";
         properties_group.valueType = "none";
         //properties_group.parameterInfoId = "";
-        properties_group.editorSettings.type = unit_types::EditorType::None;
+        properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = true;
 
         for (const auto& pi : unitParameters_.fileInfo.parameters)
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", pm);
             properties_group.parameters.push_back(std::move(pm));
         }
@@ -139,23 +139,23 @@ void PropertiesItem::CreateParametersModel()
     }
 
     {
-        unit_types::ParameterModel editor_group;
+        CubesUnitTypes::ParameterModel editor_group;
         editor_group.id = "EDITOR";
         editor_group.name = QString::fromLocal8Bit("Редактор");
         editor_group.value = "";
         editor_group.valueType = "none";
         //editor_group.parameterInfoId = "";
-        editor_group.editorSettings.type = unit_types::EditorType::None;
+        editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         editor_group.editorSettings.is_expanded = true;
 
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_X";
             pm.name = QString::fromLocal8Bit("Позиция X");
             pm.value = 0.0;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
-            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
             pm.editorSettings.SpinDoubleMin = -10000;
             pm.editorSettings.SpinDoubleMax = 10000;
             pm.editorSettings.SpinDoubleSingleStep = 20;
@@ -163,13 +163,13 @@ void PropertiesItem::CreateParametersModel()
         }
 
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_Y";
             pm.name = QString::fromLocal8Bit("Позиция Y");
             pm.value = 0.0;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
-            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
             pm.editorSettings.SpinDoubleMin = -10000;
             pm.editorSettings.SpinDoubleMax = 10000;
             pm.editorSettings.SpinDoubleSingleStep = 20;
@@ -177,13 +177,13 @@ void PropertiesItem::CreateParametersModel()
         }
 
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_Z";
             pm.name = QString::fromLocal8Bit("Позиция Z");
             pm.value = 0.0;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
-            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
             pm.editorSettings.SpinDoubleMin = -10000;
             pm.editorSettings.SpinDoubleMax = 10000;
             editor_group.parameters.push_back(std::move(pm));
@@ -211,11 +211,11 @@ void PropertiesItem::CreateProperties()
 //    }
 //}
 
-void PropertiesItem::CreateParameterModel(const unit_types::ParameterInfoId& parameterInfoId, const QString& parentModelId, unit_types::ParameterModel& model)
+void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId, const QString& parentModelId, CubesUnitTypes::ParameterModel& model)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
-    unit_types::ParameterModel pm;
+    CubesUnitTypes::ParameterModel pm;
     pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
     pm.name = QString::fromStdString(parameters_compiler::helper::get_parameter_display_name(pi));
     pm.parameterInfoId = parameterInfoId;
@@ -234,7 +234,7 @@ void PropertiesItem::CreateParameterModel(const unit_types::ParameterInfoId& par
     model = pm;
 }
 
-void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
+void PropertiesItem::FillParameterModel(CubesUnitTypes::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
     pm.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
@@ -263,7 +263,7 @@ void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
 
     if (pi.restrictions.set_.size() > 0)
     {
-        pm.editorSettings.type = unit_types::EditorType::ComboBox;
+        pm.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         for (const auto& s : pi.restrictions.set_)
             pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
     }
@@ -271,53 +271,53 @@ void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
     {
         if (piType == "unit")
         {
-            pm.editorSettings.type = unit_types::EditorType::String;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::String;
 
-            unit_types::ParameterModel pm_depends;
+            CubesUnitTypes::ParameterModel pm_depends;
             pm_depends.id = QString("%1/%2").arg(pm.id, "DEPENDS");
             pm_depends.name = QString::fromLocal8Bit("Зависимость");
             pm_depends.value = false;
             pm_depends.valueType = "bool";
             //pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
-            pm_depends.editorSettings.type = unit_types::EditorType::CheckBox;
+            pm_depends.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm.parameters.push_back(std::move(pm_depends));
         }
         else if (piType == "path" || piType == "string")
         {
-            pm.editorSettings.type = unit_types::EditorType::String;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::String;
         }
         else if (piType == "bool")
         {
-            pm.editorSettings.type = unit_types::EditorType::CheckBox;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
         }
         else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
             piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
         {
-            pm.editorSettings.type = unit_types::EditorType::SpinInterger;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
 
             if (pi.restrictions.min != "")
                 pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
             else
-                pm.editorSettings.SpinIntergerMin = unit_types::GetMinForIntegralType(QString::fromStdString(piType));
+                pm.editorSettings.SpinIntergerMin = CubesUnitTypes::GetMinForIntegralType(QString::fromStdString(piType));
 
             if (pi.restrictions.max != "")
                 pm.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
             else
-                pm.editorSettings.SpinIntergerMax = unit_types::GetMaxForIntegralType(QString::fromStdString(piType));
+                pm.editorSettings.SpinIntergerMax = CubesUnitTypes::GetMaxForIntegralType(QString::fromStdString(piType));
         }
         else if (piType == "double" || piType == "float")
         {
-            pm.editorSettings.type = unit_types::EditorType::SpinDouble;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
 
             if (pi.restrictions.min != "")
                 pm.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
             else
-                pm.editorSettings.SpinDoubleMin = unit_types::GetMinForFloatingPointType(QString::fromStdString(piType));
+                pm.editorSettings.SpinDoubleMin = CubesUnitTypes::GetMinForFloatingPointType(QString::fromStdString(piType));
 
             if (pi.restrictions.max != "")
                 pm.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
             else
-                pm.editorSettings.SpinDoubleMax = unit_types::GetMaxForFloatingPointType(QString::fromStdString(piType));
+                pm.editorSettings.SpinDoubleMax = CubesUnitTypes::GetMaxForFloatingPointType(QString::fromStdString(piType));
         }
         else
         {
@@ -325,7 +325,7 @@ void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
             const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, piType);
             if (pti->type == "enum")
             {
-                pm.editorSettings.type = unit_types::EditorType::ComboBox;
+                pm.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
                 if (pti->values.size() > 0)
                 {
                     for (const auto v : pti->values)
@@ -338,13 +338,13 @@ void PropertiesItem::FillParameterModel(unit_types::ParameterModel& pm)
 
     if (parameters_compiler::helper::get_parameter_optional(pi))
     {
-        unit_types::ParameterModel pm_optional;
+        CubesUnitTypes::ParameterModel pm_optional;
         pm_optional.id = QString("%1/%2").arg(pm.id, "OPTIONAL");
         pm_optional.name = QString::fromLocal8Bit("Не задавать");
         pm_optional.value = false;
         pm_optional.valueType = "bool";
         //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
-        pm_optional.editorSettings.type = unit_types::EditorType::CheckBox;
+        pm_optional.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
         pm.parameters.push_back(std::move(pm_optional));
     }
 }
@@ -707,7 +707,7 @@ void PropertiesItem::ExpandedChanged(QtProperty* property, bool is_expanded)
     }
 }
 
-void PropertiesItem::GetConnectedNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -722,7 +722,7 @@ void PropertiesItem::GetConnectedNamesInternal(const unit_types::ParameterModel&
         GetConnectedNamesInternal(pm, list);
 }
 
-void PropertiesItem::GetDependentNamesInternal(const unit_types::ParameterModel& model, QList<QString>& list)
+void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -752,7 +752,7 @@ void PropertiesItem::GetDependentNamesInternal(const unit_types::ParameterModel&
         GetDependentNamesInternal(pm, list);
 }
 
-void PropertiesItem::ApplyXmlPropertiesInternal(unit_types::ParameterModel& model, xml::Unit& xu)
+void PropertiesItem::ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu)
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -761,7 +761,7 @@ void PropertiesItem::ApplyXmlPropertiesInternal(unit_types::ParameterModel& mode
     {
         if (parameters_compiler::helper::is_array_type(pi->type))
         {
-            int i = xml::parser::getItemsCount(xu, model.id);
+            int i = CubesXml::parser::getItemsCount(xu, model.id);
             qDebug() << i;
             if (i != -1)
             {
@@ -785,7 +785,7 @@ void PropertiesItem::ApplyXmlPropertiesInternal(unit_types::ParameterModel& mode
         }
         else
         {
-            xml::Param* xp = xml::parser::getParam(xu, model.id);
+            CubesXml::Param* xp = CubesXml::parser::getParam(xu, model.id);
             if (xp != nullptr)
             {
                 qDebug() << xp->name;
@@ -806,7 +806,7 @@ QString PropertiesItem::GetInstanceName()
     return QString();
 }
 
-void PropertiesItem::ApplyXmlProperties(xml::Unit xu)
+void PropertiesItem::ApplyXmlProperties(CubesXml::Unit xu)
 {
     auto pm = GetParameterModel("BASE/NAME");
     if (pm == nullptr)
@@ -844,7 +844,7 @@ QList<QString> PropertiesItem::GetDependentNames()
     return list;
 }
 
-void PropertiesItem::FillArrayModel(unit_types::ParameterModel& pm)
+void PropertiesItem::FillArrayModel(CubesUnitTypes::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
     pm.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
@@ -852,13 +852,13 @@ void PropertiesItem::FillArrayModel(unit_types::ParameterModel& pm)
 
     if (pi.restrictions.set_count.size() > 0)
     {
-        pm.editorSettings.type = unit_types::EditorType::ComboBox;
+        pm.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         for (const auto& s : pi.restrictions.set_count)
             pm.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
     }
     else
     {
-        pm.editorSettings.type = unit_types::EditorType::SpinInterger;
+        pm.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
 
         if (pi.restrictions.min_count != "")
             pm.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min_count);
@@ -873,7 +873,7 @@ void PropertiesItem::FillArrayModel(unit_types::ParameterModel& pm)
 
 }
 
-void PropertiesItem::UpdateArrayModel(unit_types::ParameterModel& pm)
+void PropertiesItem::UpdateArrayModel(CubesUnitTypes::ParameterModel& pm)
 {
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
@@ -887,7 +887,7 @@ void PropertiesItem::UpdateArrayModel(unit_types::ParameterModel& pm)
     {
         for (int i = pm.parameters.size(); i < count; ++i)
         {
-            unit_types::ParameterModel model;
+            CubesUnitTypes::ParameterModel model;
             model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
             model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 //!!!!!!!!!!!!!!!!!!!!!!!
@@ -910,15 +910,15 @@ void PropertiesItem::UpdateArrayModel(unit_types::ParameterModel& pm)
     {
         for (int i = pm.parameters.size(); i < count; ++i)
         {
-            unit_types::ParameterModel group_model;
+            CubesUnitTypes::ParameterModel group_model;
             group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
             group_model.value = "";
             group_model.valueType = "none";
-            group_model.editorSettings.type = unit_types::EditorType::None;
+            group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
             for (auto p : ti->parameters)
             {
-                unit_types::ParameterModel model;
+                CubesUnitTypes::ParameterModel model;
                 CreateParameterModel({ QString::fromStdString(ti->name), QString::fromStdString(p.name) }, group_model.id, model);
                 group_model.parameters.push_back(std::move(model));
             }
@@ -1350,9 +1350,9 @@ QString PropertiesItem::GetPropertyId(const QtProperty* property)
     //    return QString();
 }
 
-unit_types::ParameterModel* PropertiesItem::GetParameterModel(const QString& id)
+CubesUnitTypes::ParameterModel* PropertiesItem::GetParameterModel(const QString& id)
 {
-    unit_types::ParameterModel* pm = nullptr;
+    CubesUnitTypes::ParameterModel* pm = nullptr;
 
     {
         QStringList sl = id.split("/");
@@ -1409,7 +1409,7 @@ unit_types::ParameterModel* PropertiesItem::GetParameterModel(const QString& id)
     return pm;
 }
 
-unit_types::ParameterModel* PropertiesItem::GetParameterModel(const QtProperty* property)
+CubesUnitTypes::ParameterModel* PropertiesItem::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")

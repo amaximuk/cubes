@@ -60,7 +60,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	unit_types::UnitParameters unitParameters{};
+	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;

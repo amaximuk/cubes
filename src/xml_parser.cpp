@@ -6,7 +6,7 @@
 #include <QTextStream>
 #include "xml_parser.h"
 
-using namespace xml;
+using namespace CubesXml;
 
 // !!! remove -> last error???
 #define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)

@@ -52,7 +52,7 @@ private:
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
     QPointer<QPlainTextEdit> plainTextEditHint_;
-    QMap<QString, unit_types::UnitParameters> unitParameters_;
+    QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
     QPointer<CubeLog::LogTableModel> log_table_model_;
     QPointer<CubeLog::SortFilterModel> sort_filter_model_;
 
@@ -76,12 +76,12 @@ protected:
     void FillTreeView();
     void FillParametersInfo();
 
-    bool AddUnits(const QString& fileName, const xml::File& file);
+    bool AddUnits(const QString& fileName, const CubesXml::File& file);
     bool SortUnits();
-    bool AddMainFile(xml::File& file);
+    bool AddMainFile(CubesXml::File& file);
 
 public:
-    unit_types::UnitParameters* GetUnitParameters(const QString& id);
+    CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
     QStringList GetFileNames();
     QString GetCurrentFileName();
     QStringList GetCurrentFileIncludeNames();
@@ -91,7 +91,7 @@ public:
     // ITopManager
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
     void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
-    void GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters) override;
+    void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
     void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
     void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;

@@ -21,7 +21,7 @@ namespace CubesFile
         QPointer<PropertiesEditor> editor_;
 
         // Модель параметров
-        unit_types::ParametersModel model_;
+        CubesUnitTypes::ParametersModel model_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
@@ -57,15 +57,15 @@ namespace CubesFile
     private:
         void CreateParametersModel();
         void CreateProperties();
-        void UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count);
-        void UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count);
+        void UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count);
+        void UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count);
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);
         void UnregisterProperty(const QtProperty* property);
         QtProperty* GetProperty(const QString& id);
         QString GetPropertyId(const QtProperty* property);
-        unit_types::ParameterModel* GetParameterModel(const QString& id);
-        unit_types::ParameterModel* GetParameterModel(const QtProperty* property);
+        CubesUnitTypes::ParameterModel* GetParameterModel(const QString& id);
+        CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);
     };

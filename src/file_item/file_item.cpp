@@ -44,58 +44,58 @@ void FileItem::CreateParametersModel()
     // EDITOR/COLOR
 
     {
-        unit_types::ParameterModel base_group;
+        CubesUnitTypes::ParameterModel base_group;
         base_group.id = "BASE";
         base_group.name = QString::fromLocal8Bit("Базовые");
         base_group.value = "";
         base_group.valueType = "none";
         //base_group.parameterInfoId = "";
-        base_group.editorSettings.type = unit_types::EditorType::None;
+        base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         base_group.editorSettings.is_expanded = true;
 
-        unit_types::ParameterModel name;
+        CubesUnitTypes::ParameterModel name;
         name.id = "BASE/NAME";
         name.name = QString::fromLocal8Bit("Имя");
         name.value = QString::fromLocal8Bit("АРМ");
         name.valueType = "string";
         //name.parameterInfoId = "";
-        name.editorSettings.type = unit_types::EditorType::String;
+        name.editorSettings.type = CubesUnitTypes::EditorType::String;
         name.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(name));
 
-        unit_types::ParameterModel platform;
+        CubesUnitTypes::ParameterModel platform;
         platform.id = "BASE/PLATFORM";
         platform.name = QString::fromLocal8Bit("Платформа");
         platform.value = "";
         platform.valueType = "string";
         //platform.parameterInfoId = "";
-        platform.editorSettings.type = unit_types::EditorType::ComboBox;
+        platform.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         platform.editorSettings.is_expanded = false;
-        for (const auto& pl : unit_types::platform_names_)
+        for (const auto& pl : CubesUnitTypes::platform_names_)
             platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
-        if (unit_types::platform_names_.size() > 0)
-            platform.value = QString::fromStdString(unit_types::platform_names_[0]);
+        if (CubesUnitTypes::platform_names_.size() > 0)
+            platform.value = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
         base_group.parameters.push_back(std::move(platform));
 
-        unit_types::ParameterModel file_path;
+        CubesUnitTypes::ParameterModel file_path;
         file_path.id = "BASE/FILE_PATH";
         file_path.name = QString::fromLocal8Bit("Имя файла");
         file_path.value = QString::fromLocal8Bit("config.xml");
         file_path.valueType = "string";
         //file_path.parameterInfoId = "";
-        file_path.editorSettings.type = unit_types::EditorType::String;
+        file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
         file_path.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(file_path));
         model_.parameters.push_back(std::move(base_group));
     }
 
     {
-        unit_types::ParameterModel includes;
+        CubesUnitTypes::ParameterModel includes;
         includes.id = "INCLUDES";
         includes.name = QString::fromLocal8Bit("Включаемые файлы");
         includes.value = 0;
         includes.valueType = "int";
-        includes.editorSettings.type = unit_types::EditorType::SpinInterger;
+        includes.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
         includes.editorSettings.is_expanded = true;
         includes.editorSettings.SpinIntergerMin = 0;
         includes.editorSettings.SpinIntergerMax = 100;
@@ -103,41 +103,41 @@ void FileItem::CreateParametersModel()
     }
 
     {
-        unit_types::ParameterModel properties_group;
+        CubesUnitTypes::ParameterModel properties_group;
         properties_group.id = "PARAMETERS";
         properties_group.name = QString::fromLocal8Bit("Параметры");
         properties_group.value = "";
         properties_group.valueType = "none";
         //properties_group.parameterInfoId = "";
-        properties_group.editorSettings.type = unit_types::EditorType::None;
+        properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = false;
 
         {
-            unit_types::ParameterModel pm_connection;
+            CubesUnitTypes::ParameterModel pm_connection;
             pm_connection.id = "PARAMETERS/CONNECTION";
             pm_connection.name = QString::fromLocal8Bit("Соединение");
             pm_connection.value = "";
             pm_connection.valueType = "none";
             //pm_connection.parameterInfoId = "";
-            pm_connection.editorSettings.type = unit_types::EditorType::None;
+            pm_connection.editorSettings.type = CubesUnitTypes::EditorType::None;
 
-            unit_types::ParameterModel pm_host;
+            CubesUnitTypes::ParameterModel pm_host;
             pm_host.id = "PARAMETERS/CONNECTION/HOST";
             pm_host.name = QString::fromLocal8Bit("Хост");
             pm_host.value = "";
             pm_host.valueType = "string";
             //pm_host.parameterInfoId = "";
-            pm_host.editorSettings.type = unit_types::EditorType::String;
+            pm_host.editorSettings.type = CubesUnitTypes::EditorType::String;
             pm_host.value = "127.0.0.1";
             pm_connection.parameters.push_back(std::move(pm_host));
 
-            unit_types::ParameterModel pm_port;
+            CubesUnitTypes::ParameterModel pm_port;
             pm_port.id = "PARAMETERS/CONNECTION/PORT";
             pm_port.name = QString::fromLocal8Bit("Порт");
             pm_port.value = 50000;
             pm_port.valueType = "int";
             //pm_port.parameterInfoId = "";
-            pm_port.editorSettings.type = unit_types::EditorType::SpinInterger;
+            pm_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_port.editorSettings.SpinIntergerMin = 1000;
             pm_port.editorSettings.SpinIntergerMin = 65535;
             pm_connection.parameters.push_back(std::move(pm_port));
@@ -146,13 +146,13 @@ void FileItem::CreateParametersModel()
         }
 
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             pm.id = "PARAMETERS/LOG";
             pm.name = QString::fromLocal8Bit("Логирование");
             pm.value = "";
             pm.valueType = "none";
             //pm.parameterInfoId = "";
-            pm.editorSettings.type = unit_types::EditorType::None;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::None;
             properties_group.parameters.push_back(pm);
         }
 
@@ -160,23 +160,23 @@ void FileItem::CreateParametersModel()
     }
 
     {
-        unit_types::ParameterModel editor_group;
+        CubesUnitTypes::ParameterModel editor_group;
         editor_group.id = "EDITOR";
         editor_group.name = QString::fromLocal8Bit("Редактор");
         editor_group.value = "";
         editor_group.valueType = "none";
         //editor_group.parameterInfoId = "";
-        editor_group.editorSettings.type = unit_types::EditorType::None;
+        editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         editor_group.editorSettings.is_expanded = false;
 
         {
-            unit_types::ParameterModel pm;
+            CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/COLOR";
             pm.name = QString::fromLocal8Bit("Цвет");
             pm.value = QColor("Red").rgba();
             pm.valueType = "string";
             //pm.parameterInfoId = "";
-            pm.editorSettings.type = unit_types::EditorType::Color;
+            pm.editorSettings.type = CubesUnitTypes::EditorType::Color;
             editor_group.parameters.push_back(std::move(pm));
         }
 
@@ -464,7 +464,7 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
     return result;
 }
 
-void FileItem::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& count)
+void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count)
 {
     // Сначала добавляем
     if (pm.parameters.size() < count)
@@ -488,7 +488,7 @@ void FileItem::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& cou
         for (int i = pm.parameters.size(); i < count; ++i)
         {
             // Получаем уникальное имя
-            QString includeName = unit_types::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
+            QString includeName = CubesUnitTypes::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
 
             // Добавляем в списки
             addingIncludeNames.push_back(includeName);
@@ -512,36 +512,36 @@ void FileItem::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& cou
             QString includeName = includeNames[i];
 
             // Создаем
-            unit_types::ParameterModel group_model;
-            group_model.editorSettings.type = unit_types::EditorType::None;
+            CubesUnitTypes::ParameterModel group_model;
+            group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
             group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
-            unit_types::ParameterModel name;
-            name.editorSettings.type = unit_types::EditorType::String;
+            CubesUnitTypes::ParameterModel name;
+            name.editorSettings.type = CubesUnitTypes::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
             name.value = includeName;
             name.valueType = "string";
-            name.editorSettings.type = unit_types::EditorType::String;
+            name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
-            unit_types::ParameterModel file_path;
-            file_path.editorSettings.type = unit_types::EditorType::String;
+            CubesUnitTypes::ParameterModel file_path;
+            file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
             file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
             file_path.name = QString::fromLocal8Bit("Имя файла");
             file_path.value = QString::fromLocal8Bit("include.xml");
             file_path.valueType = "string";
-            file_path.editorSettings.type = unit_types::EditorType::String;
+            file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
             file_path.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(file_path));
 
-            unit_types::ParameterModel variables;
+            CubesUnitTypes::ParameterModel variables;
             variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
             variables.name = QString::fromLocal8Bit("Переменные");
             variables.value = 0;
             variables.valueType = "int";
-            variables.editorSettings.type = unit_types::EditorType::SpinInterger;
+            variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             variables.editorSettings.is_expanded = true;
             variables.editorSettings.SpinIntergerMin = 0;
             variables.editorSettings.SpinIntergerMax = 100;
@@ -607,7 +607,7 @@ void FileItem::UpdateIncludesArrayModel(unit_types::ParameterModel& pm, int& cou
     }
 }
 
-void FileItem::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& count)
+void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count)
 {
     // Разделяем путь на части
     QStringList path = pm.id.split("/");
@@ -637,27 +637,27 @@ void FileItem::UpdateVariablesArrayModel(unit_types::ParameterModel& pm, int& co
         for (int i = pm.parameters.size(); i < count; ++i)
         {
             // Создаем
-            unit_types::ParameterModel group_model;
-            group_model.editorSettings.type = unit_types::EditorType::None;
+            CubesUnitTypes::ParameterModel group_model;
+            group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
             group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
-            unit_types::ParameterModel name;
-            name.editorSettings.type = unit_types::EditorType::String;
+            CubesUnitTypes::ParameterModel name;
+            name.editorSettings.type = CubesUnitTypes::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
             name.value = QString::fromLocal8Bit("variable_%1").arg(i);
             name.valueType = "string";
-            name.editorSettings.type = unit_types::EditorType::String;
+            name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
-            unit_types::ParameterModel variable;
-            variable.editorSettings.type = unit_types::EditorType::String;
+            CubesUnitTypes::ParameterModel variable;
+            variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.id = QString("%1/%2").arg(group_model.id, "VALUE");
             variable.name = QString::fromLocal8Bit("Значение");
             variable.value = "";
             variable.valueType = "string";
-            variable.editorSettings.type = unit_types::EditorType::String;
+            variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(variable));
 
@@ -843,9 +843,9 @@ QString FileItem::GetPropertyId(const QtProperty* property)
     return QString();
 }
 
-unit_types::ParameterModel* FileItem::GetParameterModel(const QString& id)
+CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const QString& id)
 {
-    unit_types::ParameterModel* pm = nullptr;
+    CubesUnitTypes::ParameterModel* pm = nullptr;
 
     {
         QStringList sl = id.split("/");
@@ -874,7 +874,7 @@ unit_types::ParameterModel* FileItem::GetParameterModel(const QString& id)
     return pm;
 }
 
-unit_types::ParameterModel* FileItem::GetParameterModel(const QtProperty* property)
+CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const QtProperty* property)
 {
     QString id = GetPropertyId(property);
     if (id == "")

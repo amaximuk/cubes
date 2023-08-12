@@ -7,7 +7,7 @@
 
 #include "parameters_compiler/parameters_compiler_types.h"
 
-namespace xml
+namespace CubesXml
 {
 	/*<Includes>
 		<Include val="config_fhss_searcher_task_factory_test_sigma_include.xml">

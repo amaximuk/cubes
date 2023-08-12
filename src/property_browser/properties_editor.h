@@ -76,18 +76,18 @@ public:
         return propertyEditor_;
     }
 
-    QtProperty* GetPropertyForModel(const unit_types::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
+    QtProperty* GetPropertyForModel(const CubesUnitTypes::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
     {
         // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
         QtProperty* pr = nullptr;
-        if (model.editorSettings.type == unit_types::EditorType::None)
+        if (model.editorSettings.type == CubesUnitTypes::EditorType::None)
         {
             pr = groupManager_->addProperty(model.name);
             groupManager_->blockSignals(true);
             groupManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::String)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::String)
         {
             pr = stringManager_->addProperty(model.name);
             stringManager_->blockSignals(true);
@@ -95,7 +95,7 @@ public:
             stringManager_->setValue(pr, model.value.toString());
             stringManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::SpinInterger)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
         {
             pr = intManager_->addProperty(model.name);
             intManager_->blockSignals(true);
@@ -103,7 +103,7 @@ public:
             intManager_->setValue(pr, model.value.toInt());
             intManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::SpinDouble)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinDouble)
         {
             pr = doubleManager_->addProperty(model.name);
             doubleManager_->blockSignals(true);
@@ -112,7 +112,7 @@ public:
             doubleManager_->setValue(pr, model.value.toDouble());
             doubleManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::ComboBox)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
         {
             pr = enumManager_->addProperty(model.name);
             enumManager_->blockSignals(true);
@@ -137,14 +137,14 @@ public:
             enumManager_->setValue(pr, pos);
             enumManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::CheckBox)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
         {
             pr = boolManager_->addProperty(model.name);
             boolManager_->blockSignals(true);
             boolManager_->setValue(pr, model.value.toBool());
             boolManager_->blockSignals(false);
         }
-        else if (model.editorSettings.type == unit_types::EditorType::Color)
+        else if (model.editorSettings.type == CubesUnitTypes::EditorType::Color)
         {
             pr = colorManager_->addProperty(model.name);
             colorManager_->blockSignals(true);

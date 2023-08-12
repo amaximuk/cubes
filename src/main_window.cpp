@@ -473,7 +473,7 @@ QWidget* MainWindow::CreateHintWidget()
 
 void MainWindow::FillTreeView()
 {
-    tree_item_model* model = new tree_item_model();
+    TreeItemModel* model = new TreeItemModel();
 
     QMap<QString, QSet<QString>> categoriesMap;
     for (const auto& up : unitParameters_)
@@ -622,9 +622,9 @@ void MainWindow::FillParametersInfo()
     }
 }
 
-bool MainWindow::AddUnits(const QString& fileName, const xml::File& file)
+bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
 {
-    QVector<xml::Unit> all_units;
+    QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
     {
         for (const auto& u : g.units)
@@ -730,7 +730,7 @@ bool MainWindow::SortUnits()
     }
 
     std::vector<std::pair<int, int>> coordinates;
-    if (!rearrangeGraph(nameToIndex.size(), edges, coordinates))
+    if (!CubesGraph::RearrangeGraph(nameToIndex.size(), edges, coordinates))
     {
         return false;
     }
@@ -770,7 +770,7 @@ bool MainWindow::SortUnits()
     return true;
 }
 
-bool MainWindow::AddMainFile(xml::File& file)
+bool MainWindow::AddMainFile(CubesXml::File& file)
 {
     //if (panes_.size() == 1 && scene_->items().size() == 0)
     //{
@@ -792,29 +792,29 @@ bool MainWindow::AddMainFile(xml::File& file)
     }
 
     // Convert includes into unit
-    xml::Group g{};
+    CubesXml::Group g{};
     g.path = "service";
     for (int i = 0; i < file.includes.size(); i++)
     {
-        xml::Unit u{};
+        CubesXml::Unit u{};
         u.id = "group";
         u.name = QString::fromLocal8Bit("Ãðóïïà %1").arg(i);
-        xml::Param p{};
+        CubesXml::Param p{};
         p.name = "FILE_PATH";
         p.type = "str";
         p.val = file.includes[i].fileName;
         u.params.push_back(std::move(p));
-        xml::Array a{};
+        CubesXml::Array a{};
         a.name = "VARIABLES";
         for (const auto& kvp : file.includes[i].variables.toStdMap())
         {
-            xml::Item i1{};
-            xml::Param p1{};
+            CubesXml::Item i1{};
+            CubesXml::Param p1{};
             p1.name = "NAME";
             p1.type = "str";
             p1.val = kvp.first;
             i1.params.push_back(std::move(p1));
-            xml::Param p2{};
+            CubesXml::Param p2{};
             p2.name = "VALUE";
             p2.type = "str";
             p2.val = kvp.second;
@@ -835,8 +835,8 @@ bool MainWindow::AddMainFile(xml::File& file)
     for (int i = 0; i < file.includes.size(); i++)
     {
         QString includedFileName = dir.filePath(file.includes[i].fileName);
-        xml::File includedFile{};
-        if (!xml::parser::parse(includedFileName, includedFile))
+        CubesXml::File includedFile{};
+        if (!CubesXml::parser::parse(includedFileName, includedFile))
             return false;
 
         if (!AddUnits(fileName, includedFile))
@@ -1062,7 +1062,7 @@ void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QStrin
     }
 }
 
-void MainWindow::GetUnitParameters(const QString& unitId, unit_types::UnitParameters& unitParameters)
+void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     unitParameters = unitParameters_[unitId];
 }
@@ -1271,7 +1271,7 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     return result;
 }
 
-unit_types::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
+CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 {
     for (auto& up : unitParameters_)
     {
@@ -1797,7 +1797,7 @@ void MainWindow::on_ImportXmlFile_action()
     //        return;
     //}
 
-    xml::File f{};
+    CubesXml::File f{};
     {
         QFileDialog dialog(this);
         dialog.setNameFilter("Settings XML Files (*.xml)");
@@ -1810,7 +1810,7 @@ void MainWindow::on_ImportXmlFile_action()
         if (fileNames.size() == 0)
             return;
 
-        xml::parser::parse(fileNames[0], f);
+        CubesXml::parser::parse(fileNames[0], f);
     }
 
     if (f.config.networking_is_set)
