@@ -1,7 +1,3 @@
-//#include <QPainter>
-//#include <QDebug>
-//#include <QRegularExpression>
-
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"

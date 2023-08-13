@@ -1,9 +1,3 @@
-//#include <QList>
-//#include <QSet>
-//#include <QSharedPointer>
-//#include <QString>
-//#include <QColor>
-//#include <QAction>
 #include <QComboBox>
 #include <QMenu>
 #include <QInputDialog>

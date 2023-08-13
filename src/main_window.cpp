@@ -20,16 +20,8 @@
 #include <QApplication>
 #include <QPlainTextEdit>
 #include <QComboBox>
-//#include <QDirIterator>
-//#include <QInputDialog>
 #include <QFileDialog>
-//#include <QStandardItemModel>
-//#include <QLabel>
 #include <QHeaderView>
-
-//#include "qtpropertymanager.h"
-//#include "qteditorfactory.h"
-
 #include "diagram/diagram_view.h"
 #include "diagram/diagram_scene.h"
 #include "diagram/diagram_item.h"
@@ -45,7 +37,6 @@
 #include "tree_item_model.h"
 #include "xml_parser.h"
 #include "graph.h"
-
 #include "main_window.h"
 
 MainWindow::MainWindow(QWidget *parent)

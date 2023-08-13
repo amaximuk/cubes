@@ -1,12 +1,11 @@
-#include "diagram_view.h"
-#include "diagram_item.h"
-#include "diagram_scene.h"
-#include "../main_window.h"
-
 #include <QtWidgets>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 #include <QErrorMessage>
+#include "diagram_item.h"
+#include "diagram_scene.h"
+#include "../main_window.h"
+#include "diagram_view.h"
 
 using namespace CubeDiagram;
 

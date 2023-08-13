@@ -1,8 +1,5 @@
 #pragma once
 
-//#include <QString>
-//#include <QList>
-
 namespace CubesProperties
 {
 	class PropertiesItem;

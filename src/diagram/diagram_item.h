@@ -1,19 +1,6 @@
 #pragma once
 
 #include <QGraphicsItem>
-//#include <QObject>
-//#include <QPointer>
-//#include <QFont>
-
-//#include "../properties_item/properties_item.h"
-//#include "../unit_types.h"
-
-
-//class QPixmap;
-//class QGraphicsSceneContextMenuEvent;
-//class QMenu;
-//class QPolygonF;
-//class QGraphicsScene;
 
 namespace CubeDiagram
 {

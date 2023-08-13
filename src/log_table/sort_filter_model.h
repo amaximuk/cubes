@@ -1,7 +1,5 @@
 #pragma once
 
-//#include <QDate>
-//#include <QSet>
 #include <QSortFilterProxyModel>
 #include "log_table_model.h"
 

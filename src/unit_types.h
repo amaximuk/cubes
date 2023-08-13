@@ -5,11 +5,8 @@
 #include <map>
 #include <cstdint>
 #include <regex>
-
-//#include <QString>
 #include <QVariant>
 #include <QSet>
-
 #include "parameters_compiler/parameters_compiler_types.h"
 
 namespace CubesUnitTypes

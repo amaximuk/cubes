@@ -3,10 +3,6 @@
 #include <QGraphicsView>
 #include "../top_manager_interface.h"
 
-
-//class QDragEnterEvent;
-//class QDropEvent;
-
 namespace CubeDiagram
 {
     // Класс DiagramView нужен для создания юнитов путем перетаскивания из дерева

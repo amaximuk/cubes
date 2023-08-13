@@ -1,12 +1,8 @@
-//#include <QPainterPath>
 #include <QGraphicsSceneMouseEvent>
-//#include <QGraphicsItem>
 #include <QGuiApplication>
 #include <QCursor>
 #include <QKeyEvent>
-//#include <QDebug>
 #include <QPainter>
-
 #include "diagram_item.h"
 #include "diagram_scene.h"
 

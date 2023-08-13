@@ -2,14 +2,12 @@
 
 #include <QPointer>
 #include <QDebug>
-
 #include "qttreepropertybrowser.h"
 #include "qtpropertybrowser.h"
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qtexpropertymanager.h"
 #include "qtexeditorfactory.h"
-
 #include "../unit_types.h"
 #include "properties_editor.h"
 

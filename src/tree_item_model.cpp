@@ -1,11 +1,8 @@
 #include <QMimeData>
-//#include <QDataStream>
 #include "tree_item_model.h"
 
 TreeItemModel::TreeItemModel(QObject *parent) : QStandardItemModel(parent)
-//tree_item::tree_item(QObject *parent) : QAbstractItemModel(parent)
 {
-
 }
 
 Qt::DropActions TreeItemModel::supportedDropActions() const

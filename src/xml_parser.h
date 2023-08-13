@@ -1,11 +1,6 @@
 #pragma once
 
-//#include <QString>
-//#include <QMap>
-//#include <QList>
 #include <QtXml>
-
-//#include "parameters_compiler/parameters_compiler_types.h"
 
 namespace CubesXml
 {

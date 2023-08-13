@@ -3,8 +3,6 @@
 #include <QGraphicsScene>
 #include "../top_manager_interface.h"
 
-//class QGraphicsItem;
-
 namespace CubeDiagram
 {
     class DiagramItem;
