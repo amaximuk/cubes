@@ -75,6 +75,190 @@ MainWindow::~MainWindow()
 {
 }
 
+// ITopManager
+void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
+{
+    // Соберем имена юнитов в файле
+    for (const auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        if (pi->GetFileName() == fileName)
+        {
+            QString name = pi->GetInstanceName();
+            unitNames.push_back(name);
+        }
+    }
+}
+
+void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames)
+{
+    // Соберем имена юнитов в файле
+    for (const auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        if (pi->GetFileName() == fileName &&
+            pi->GetGroupName() == includeName)
+        {
+            QString name = pi->GetInstanceName();
+            unitNames.push_back(name);
+        }
+    }
+}
+
+void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
+{
+    unitParameters = unitParameters_[unitId];
+}
+
+void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
+{
+    includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+}
+
+void MainWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
+{
+    variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
+}
+
+bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
+{
+    //instanceName = name + QString("_#%1").arg(unique_number_++);
+    //uint32_t propertiesId{ 0 };
+    propertiesItemsManager_->Create(unitId, propertiesId);
+    auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    pi->SetFileNames(GetFileNames());
+    pi->SetFileName(GetCurrentFileName());
+    pi->SetGroupNames(GetCurrentFileIncludeNames());
+    pi->SetGroupName("<not selected>");
+    pi->SetName(GetNewUnitName(pi->GetName()));
+    //properties_items_manager_->Select(propertiesId);
+    return true;
+}
+
+bool MainWindow::GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+{
+    auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    pfd.pixmap = pi->GetPixmap();
+    pfd.name = pi->GetName();
+    pfd.fileName = pi->GetFileName();
+    pfd.groupName = pi->GetGroupName();
+    pfd.color = GetFileColor(pi->GetFileName());
+    return true;
+}
+
+QString MainWindow::GetNewUnitName(const QString& baseName)
+{
+    //int tabIndex = -1;
+    //for (int i = 0; i < panes_.count(); ++i)
+    //{
+    //    QString tabName = tabWidget_->tabText(i);
+    //    if (groupName == tabName)
+    //    {
+    //        tabIndex = i;
+    //        break;
+    //    }
+    //}
+
+    //if (tabIndex == -1)
+    //    return false;
+
+    //QString unitName = baseName;
+    //for (const auto& pi : scene_->items())
+    //{
+    //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
+    //    if (di->getProperties()->GetName() == baseName)
+    //    {
+    //        unitName = di->getProperties()->GetUnitName();
+    //        break;
+    //    }
+    //}
+
+    //QString name = unitName;
+
+    QString name = baseName;
+    int sharp_index = baseName.lastIndexOf("#");
+    if (sharp_index != -1)
+        name = baseName.left(sharp_index);
+    QString varName = name;
+
+    {
+        QList<QPair<QString, QString>> variables;
+        for (const auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            if (pi->GetGroupName() != "<not selected>")
+            {
+                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                    pi->GetGroupName());
+            }
+        }
+
+        for (const auto& v : variables)
+        {
+            QString replace = QString("@%1@").arg(v.first);
+            varName.replace(replace, v.second);
+        }
+    }
+    QString newName = varName;
+
+    int counter = 0;
+    while (true)
+    {
+        QList<QPair<QString, QString>> variables;
+        for (const auto& pi : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            if (pi->GetGroupName() != "<not selected>")
+            {
+                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                    pi->GetGroupName());
+            }
+        }
+
+        bool found = false;
+        for (const auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            QString realName = pi->GetName();
+            for (const auto& v : variables)
+            {
+                QString replace = QString("@%1@").arg(v.first);
+                realName.replace(replace, v.second);
+            }
+            if (realName == newName)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            newName = QString("%1#%2").arg(varName).arg(++counter);
+        else
+            break;
+    }
+    if (counter == 0)
+        return name;
+    else
+        return QString("%1#%2").arg(name).arg(counter);
+}
+
+QMap<QString, QStringList> MainWindow::GetUnitsConnections()
+{
+    return GetConnectionsInternal(false);
+}
+
+QMap<QString, QStringList> MainWindow::GetDependsConnections()
+{
+    return GetConnectionsInternal(true);
+}
+
+// UI
 void MainWindow::CreateUi()
 {
     resize(1000, 600);
@@ -83,6 +267,58 @@ void MainWindow::CreateUi()
 
     QWidget* mainWidget = CreateMainWidget();
     setCentralWidget(mainWidget);
+}
+
+void MainWindow::CreateMenu()
+{
+    QAction* newAct = new QAction(QString::fromLocal8Bit("Создать"), this);
+    newAct->setShortcuts(QKeySequence::New);
+    newAct->setStatusTip(QString::fromLocal8Bit("Создать новый файл"));
+    connect(newAct, &QAction::triggered, this, &MainWindow::OnNewFileAction);
+
+    QAction* openAct = new QAction(QString::fromLocal8Bit("Открыть"), this);
+    openAct->setShortcuts(QKeySequence::Open);
+    openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
+    connect(openAct, &QAction::triggered, this, &MainWindow::OnOpenFileAction);
+
+    QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
+    importXmlAct->setShortcut(QKeySequence("Ctrl+I"));
+    importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
+    connect(importXmlAct, &QAction::triggered, this, &MainWindow::OnImportXmlFileAction);
+
+    QAction* saveAct = new QAction(QString::fromLocal8Bit("Сохранить"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл"));
+    connect(saveAct, &QAction::triggered, this, &MainWindow::OnSaveFileAction);
+
+    QAction* saveAsAct = new QAction(QString::fromLocal8Bit("Сохранить как..."), this);
+    //saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setShortcut(QKeySequence("Ctrl+Shift+S"));
+    saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
+    connect(saveAsAct, &QAction::triggered, this, &MainWindow::OnSaveAsFileAction);
+
+    QAction* quitAct = new QAction(QString::fromLocal8Bit("Выйти"), this);
+    quitAct->setShortcuts(QKeySequence::Quit);
+    quitAct->setStatusTip(QString::fromLocal8Bit("Выйти из приложения"));
+    connect(quitAct, &QAction::triggered, this, &MainWindow::OnQuitAction);
+
+    QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
+    fileMenu->addAction(newAct);
+    fileMenu->addAction(openAct);
+    fileMenu->addAction(importXmlAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
+    fileMenu->addSeparator();
+    //recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
+    //fileMenu->addSeparator();
+    fileMenu->addAction(quitAct);
+
+    QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
+    sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortAct, &QAction::triggered, this, &MainWindow::OnSortAction);
+
+    QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
+    editMenu->addAction(sortAct);
 }
 
 QWidget* MainWindow::CreateMainWidget()
@@ -192,46 +428,18 @@ QWidget* MainWindow::CreateLogWidget()
     return mainWidget;
 }
 
-//QWidget* MainWindow::CreateMainTabWidget()
-//{
-//    QWidget* widgetTabProperties = new QWidget;
-//
-//    QWidget* widgetSplitterInfo = CreateMainTabInfoWidget();
-//    QWidget* widgetSplitterPropertyList = CreatePropertyListWidget("Main");
-//    QWidget* widgetSplitterProperties = CreatePropertiesWidget("Main");
-//
-//    AddGroupWidget(widgetSplitterInfo, "INFO_GROUP", "Main", ControlsGroup::Info);
-//    AddGroupWidget(widgetSplitterPropertyList, "PARAMETERS_GROUP", "Main", ControlsGroup::Parameters);
-//    AddGroupWidget(widgetSplitterProperties, "PROPERTIES_GROUP", "Main", ControlsGroup::Properties);
-//
-//    QSplitter* tabHSplitter = new QSplitter(Qt::Horizontal);
-//    tabHSplitter->addWidget(widgetSplitterInfo);
-//    tabHSplitter->addWidget(widgetSplitterPropertyList);
-//    tabHSplitter->addWidget(widgetSplitterProperties);
-//    tabHSplitter->setStretchFactor(0, 1);
-//    tabHSplitter->setStretchFactor(1, 0);
-//    tabHSplitter->setStretchFactor(2, 1);
-//    widgetSplitterProperties->setEnabled(false);
-//
-//    QVBoxLayout* vBoxLayoutSplitter = new QVBoxLayout;
-//    vBoxLayoutSplitter->addWidget(tabHSplitter);
-//    widgetTabProperties->setLayout(vBoxLayoutSplitter);
-//
-//    return widgetTabProperties;
-//}
-
 void MainWindow::CreateScene()
 {
     scene_ = new CubeDiagram::DiagramScene(this);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::ItemPositionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::AfterItemCreated);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::BeforeItemDeleted);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::DiagramAfterItemCreated);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::DiagramBeforeItemDeleted);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::DiagramItemNameChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::DiagramItemFileChanged);
+    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemGroupChanged, this, &MainWindow::DiagramItemGroupChanged);
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::ItemNameChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::ItemFileChanged);
-    //qDebug() << connect(scene_, &diagram_scene::itemGroupChanged, this, &MainWindow::itemGroupChanged);
 }
 
 void MainWindow::CreateView()
@@ -239,63 +447,6 @@ void MainWindow::CreateView()
     view_ = new CubeDiagram::DiagramView(this, scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
-
-//void MainWindow::CreatePropertyBrowser()
-//{
-//    groupManager = new QtGroupPropertyManager(this);
-//    intManager = new QtIntPropertyManager(this);
-//    doubleManager = new QtDoublePropertyManager(this);
-//    stringManager = new QtStringPropertyManager(this);
-//    colorManager = new QtColorPropertyManager(this);
-//    fontManager = new QtFontPropertyManager(this);
-//    pointManager = new QtPointPropertyManager(this);
-//    sizeManager = new QtSizePropertyManager(this);
-//
-//    qDebug() << connect(intManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(valueChanged(QtProperty*, int)));
-//    qDebug() << connect(doubleManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(valueChanged(QtProperty*, double)));
-//    qDebug() << connect(stringManager, SIGNAL(valueChanged(QtProperty*, const QString&)), this, SLOT(valueChanged(QtProperty*, const QString&)));
-//    qDebug() << connect(colorManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(valueChanged(QtProperty*, const QColor&)));
-//    qDebug() << connect(fontManager, SIGNAL(valueChanged(QtProperty*, const QFont&)), this, SLOT(valueChanged(QtProperty*, const QFont&)));
-//    qDebug() << connect(pointManager, SIGNAL(valueChanged(QtProperty*, const QPoint&)), this, SLOT(valueChanged(QtProperty*, const QPoint&)));
-//    qDebug() << connect(sizeManager, SIGNAL(valueChanged(QtProperty*, const QSize&)), this, SLOT(valueChanged(QtProperty*, const QSize&)));
-//
-//    QtSpinBoxFactory* intSpinBoxFactory = new QtSpinBoxFactory(this);
-//    QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
-//    QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
-//    QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
-//    QtLineEditFactory* lineEditFactory = new QtLineEditFactory(this);
-//    QtEnumEditorFactory* comboBoxFactory = new QtEnumEditorFactory(this);
-//
-//    propertyEditor = new QtTreePropertyBrowser();
-//    propertyEditor->setFactoryForManager(intManager, intSpinBoxFactory);
-//    propertyEditor->setFactoryForManager(doubleManager, doubleSpinBoxFactory);
-//    propertyEditor->setFactoryForManager(stringManager, lineEditFactory);
-//    propertyEditor->setFactoryForManager(colorManager->subIntPropertyManager(), spinBoxFactory);
-//    propertyEditor->setFactoryForManager(fontManager->subIntPropertyManager(), spinBoxFactory);
-//    propertyEditor->setFactoryForManager(fontManager->subBoolPropertyManager(), checkBoxFactory);
-//    propertyEditor->setFactoryForManager(fontManager->subEnumPropertyManager(), comboBoxFactory);
-//    propertyEditor->setFactoryForManager(pointManager->subIntPropertyManager(), spinBoxFactory);
-//    propertyEditor->setFactoryForManager(sizeManager->subIntPropertyManager(), spinBoxFactory);
-//}
-
-//void MainWindow::CreateFilesPropertyBrowser()
-//{
-//    //filePropertiesEditor_ = new properties_editor();
-//
-//    //qDebug() << connect(filePropertiesEditor_, &properties_editor::ContextMenuRequested, this, &MainWindow::showFileContextMenu);
-//
-//    //qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-//    //filesPropertyEditor_->setContextMenuPolicy(Qt::CustomContextMenu);
-//    //connect(filesPropertyEditor_, &QWidget::customContextMenuRequested, this, &MainWindow::showFileContextMenu);
-//}
-
-//void MainWindow::CreatePropertyBrowser()
-//{
-//    propertyEditor_ = new QtTreePropertyBrowser();
-//    qDebug() << connect(propertyEditor_, SIGNAL(currentItemChanged(QtBrowserItem*)), this, SLOT(currentItemChanged(QtBrowserItem*)));
-//    qDebug() << connect(propertyEditor_, SIGNAL(collapsed(QtBrowserItem*)), this, SLOT(collapsed(QtBrowserItem*)));
-//    qDebug() << connect(propertyEditor_, SIGNAL(expanded(QtBrowserItem*)), this, SLOT(expanded(QtBrowserItem*)));
-//}
 
 void MainWindow::CreateTreeView()
 {
@@ -329,133 +480,6 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
 
     return propertiesPanelWidget;
 }
-
-//QWidget* MainWindow::CreateFilesPropertiesWidget()
-//{
-//    QWidget* propertiesPanelWidget = new QWidget;
-//
-//    QWidget* hostsButtonsWidget = CreateFilesButtonsWidget();
-//
-//    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-//    propertiesPaneLayout->addWidget(hostsButtonsWidget);
-//    propertiesPaneLayout->addWidget(file_items_manager_->GetEditor()->GetPropertyEditor());
-//    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
-//
-//    propertiesPanelWidget->setLayout(propertiesPaneLayout);
-//
-//    return propertiesPanelWidget;
-//}
-
-//QWidget* MainWindow::CreatePropertiesWidget()
-//{
-//    QWidget* propertiesPanelWidget = new QWidget;
-//
-//    QWidget* hostsButtonsWidget = CreateUnitsButtonsWidget();
-//
-//    QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-//    propertiesPaneLayout->addWidget(hostsButtonsWidget);
-//    propertiesPaneLayout->addWidget(propertyEditor_);
-//    propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
-//
-//    propertiesPanelWidget->setLayout(propertiesPaneLayout);
-//
-//    return propertiesPanelWidget;
-//}
-
-//QWidget* MainWindow::CreateFilesButtonsWidget()
-//{
-//    //comboBoxFiles_ = new QComboBox();
-//    //connect(comboBoxFiles_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Files_currentIndexChanged);
-//
-//    QHBoxLayout* hBoxLayoutPropertyListButtons = new QHBoxLayout;
-//    hBoxLayoutPropertyListButtons->setMargin(0);
-//    hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
-//
-//    QToolButton* toolButtonPropertyListAdd = new QToolButton;
-//    toolButtonPropertyListAdd->setFixedSize(24, 24);
-//    toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-//    toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-//    //toolButtonPropertyListAdd->setProperty("type", type);
-//    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-//    //toolButtonPropertyListAdd->setProperty("name", name);
-//    //toolButtonPropertyListAdd->setProperty("action", "add");
-//    toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-//    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-//    connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &MainWindow::on_AddFile_clicked);
-//
-//    QToolButton* toolButtonPropertyListRemove = new QToolButton;
-//    toolButtonPropertyListRemove->setFixedSize(24, 24);
-//    toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-//    toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-//    //toolButtonPropertyListAdd->setProperty("type", type);
-//    //toolButtonPropertyListAdd->setProperty("group", static_cast<int>(group));
-//    //toolButtonPropertyListAdd->setProperty("name", name);
-//    //toolButtonPropertyListAdd->setProperty("action", "add");
-//    toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
-//    hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-//    connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &MainWindow::on_RemoveFile_clicked);
-//
-//    QWidget* buttonsWidget = new QWidget;
-//    buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
-//
-//    QLabel* label = new QLabel;
-//    label->setText(QString::fromLocal8Bit("Файлы:"));
-//    //label->setStyleSheet("font-weight: bold; font-size: 14px");
-//
-//    QHBoxLayout* headerLayout = new QHBoxLayout;
-//    headerLayout->addWidget(label, 0);
-//    headerLayout->addWidget(file_items_manager_->GetSelector(), 1);
-//    headerLayout->addWidget(buttonsWidget, 0);
-//    headerLayout->setContentsMargins(0, 0, 0, 0);
-//
-//    //QSplitter* splitterComboButtons = new QSplitter(Qt::Horizontal);
-//    //splitterComboButtons->addWidget(lable);
-//    //splitterComboButtons->addWidget(comboBoxFiles_);
-//    //splitterComboButtons->addWidget(buttonsWidget);
-//    //splitterComboButtons->setStretchFactor(0, 0);
-//    //splitterComboButtons->setStretchFactor(1, 1);
-//    //splitterComboButtons->setStretchFactor(2, 0);
-//
-//    //QLabel* label = new QLabel;
-//    //label->setStyleSheet("font-weight: bold; font-size: 14px");
-//    //label->setText(QString::fromLocal8Bit("Файлы"));
-//
-//    //QVBoxLayout* mainLayout = new QVBoxLayout;
-//    //mainLayout->setMargin(0);
-//    //mainLayout->setContentsMargins(0, 0, 0, 0);
-//    ////mainLayout->addWidget(label, 1, Qt::AlignCenter);
-//    //mainLayout->addWidget(splitterComboButtons);
-//
-//
-//    QWidget* mainWidget = new QWidget;
-//    mainWidget->setLayout(headerLayout);
-//    return mainWidget;
-//
-//    //QFrame* widgetPropertyListButtons = new QFrame;
-//    //widgetPropertyListButtons->setLayout(hBoxLayoutPropertyListButtons);
-//    //widgetPropertyListButtons->setFrameShape(QFrame::NoFrame);
-//    //return widgetPropertyListButtons;
-//}
-
-//QWidget* MainWindow::CreateUnitsButtonsWidget()
-//{
-//    comboBoxUnits_ = new QComboBox;
-//    comboBoxUnits_->addItem("<not selected>");
-//    connect(comboBoxUnits_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_Units_currentIndexChanged);
-//
-//    QLabel* label = new QLabel;
-//    label->setText(QString::fromLocal8Bit("Юниты:"));
-//
-//    QHBoxLayout* mainLayout = new QHBoxLayout;
-//    mainLayout->addWidget(label, 0);
-//    mainLayout->addWidget(comboBoxUnits_, 1);
-//    mainLayout->setMargin(0);
-//    mainLayout->setContentsMargins(0, 0, 0, 0);
-//
-//    QWidget* mainWidget = new QWidget;
-//    mainWidget->setLayout(mainLayout);
-//    return mainWidget;
-//}
 
 QWidget* MainWindow::CreateHintWidget()
 {
@@ -622,6 +646,83 @@ void MainWindow::FillParametersInfo()
     }
 }
 
+// Units
+bool MainWindow::AddMainFile(CubesXml::File& file)
+{
+    //if (panes_.size() == 1 && scene_->items().size() == 0)
+    //{
+    //    file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
+    //    file_items_manager_->Clear();
+    //}
+
+    QString fileName = QFileInfo(file.fileName).fileName();
+
+    fileItemsManager_->Create(fileName);
+    fileItemsManager_->Select(fileName);
+
+    QStringList fileNames = fileItemsManager_->GetFileNames();
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->SetFileNames(fileNames);
+    }
+
+    // Convert includes into unit
+    CubesXml::Group g{};
+    g.path = "service";
+    for (int i = 0; i < file.includes.size(); i++)
+    {
+        CubesXml::Unit u{};
+        u.id = "group";
+        u.name = QString::fromLocal8Bit("Группа %1").arg(i);
+        CubesXml::Param p{};
+        p.name = "FILE_PATH";
+        p.type = "str";
+        p.val = file.includes[i].fileName;
+        u.params.push_back(std::move(p));
+        CubesXml::Array a{};
+        a.name = "VARIABLES";
+        for (const auto& kvp : file.includes[i].variables.toStdMap())
+        {
+            CubesXml::Item i1{};
+            CubesXml::Param p1{};
+            p1.name = "NAME";
+            p1.type = "str";
+            p1.val = kvp.first;
+            i1.params.push_back(std::move(p1));
+            CubesXml::Param p2{};
+            p2.name = "VALUE";
+            p2.type = "str";
+            p2.val = kvp.second;
+            i1.params.push_back(std::move(p2));
+            a.items.push_back(std::move(i1));
+        }
+        u.arrays.push_back(std::move(a));
+        g.units.push_back(std::move(u));
+    }
+
+    if (file.includes.size() > 0)
+        file.config.groups.push_back(std::move(g));
+
+    if (!AddUnits(fileName, file))
+        return false;
+
+    QDir dir = QFileInfo(file.fileName).absoluteDir();
+    for (int i = 0; i < file.includes.size(); i++)
+    {
+        QString includedFileName = dir.filePath(file.includes[i].fileName);
+        CubesXml::File includedFile{};
+        if (!CubesXml::parser::parse(includedFileName, includedFile))
+            return false;
+
+        if (!AddUnits(fileName, includedFile))
+            return false;
+    }
+
+    return true;
+}
+
 bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
@@ -671,7 +772,7 @@ bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
 
             CubeDiagram::DiagramItem* di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
 
-           
+
             pi->ApplyXmlProperties(all_units[i]);
             pi->SetFileNames(fileNames);
             pi->SetFileName(fileName);
@@ -680,7 +781,7 @@ bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
             scene_->addItem(di);
             scene_->clearSelection();
 
-            AfterItemCreated(di);
+            DiagramAfterItemCreated(di);
         }
         else
         {
@@ -770,450 +871,6 @@ bool MainWindow::SortUnits()
     return true;
 }
 
-bool MainWindow::AddMainFile(CubesXml::File& file)
-{
-    //if (panes_.size() == 1 && scene_->items().size() == 0)
-    //{
-    //    file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
-    //    file_items_manager_->Clear();
-    //}
-
-    QString fileName = QFileInfo(file.fileName).fileName();
-
-    fileItemsManager_->Create(fileName);
-    fileItemsManager_->Select(fileName);
-
-    QStringList fileNames = fileItemsManager_->GetFileNames();
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileNames(fileNames);
-    }
-
-    // Convert includes into unit
-    CubesXml::Group g{};
-    g.path = "service";
-    for (int i = 0; i < file.includes.size(); i++)
-    {
-        CubesXml::Unit u{};
-        u.id = "group";
-        u.name = QString::fromLocal8Bit("Группа %1").arg(i);
-        CubesXml::Param p{};
-        p.name = "FILE_PATH";
-        p.type = "str";
-        p.val = file.includes[i].fileName;
-        u.params.push_back(std::move(p));
-        CubesXml::Array a{};
-        a.name = "VARIABLES";
-        for (const auto& kvp : file.includes[i].variables.toStdMap())
-        {
-            CubesXml::Item i1{};
-            CubesXml::Param p1{};
-            p1.name = "NAME";
-            p1.type = "str";
-            p1.val = kvp.first;
-            i1.params.push_back(std::move(p1));
-            CubesXml::Param p2{};
-            p2.name = "VALUE";
-            p2.type = "str";
-            p2.val = kvp.second;
-            i1.params.push_back(std::move(p2));
-            a.items.push_back(std::move(i1));
-        }
-        u.arrays.push_back(std::move(a));
-        g.units.push_back(std::move(u));
-    }
-
-    if (file.includes.size() > 0)
-        file.config.groups.push_back(std::move(g));
-
-    if (!AddUnits(fileName, file))
-        return false;
-
-    QDir dir = QFileInfo(file.fileName).absoluteDir();
-    for (int i = 0; i < file.includes.size(); i++)
-    {
-        QString includedFileName = dir.filePath(file.includes[i].fileName);
-        CubesXml::File includedFile{};
-        if (!CubesXml::parser::parse(includedFileName, includedFile))
-            return false;
-
-        if (!AddUnits(fileName, includedFile))
-            return false;
-    }
-
-    return true;
-}
-
-//QColor MainWindow::GetFileColor(const QString& fileId)
-//{
-//    for (auto& fi : file_items_)
-//    {
-//        if (fi->GetName() == fileId)
-//            return fi->GetColor();
-//    }
-//    return QColor("Black");
-//}
-//
-//QStringList MainWindow::GetFileGroups(const QString& fileId)
-//{
-//    QStringList result;
-//    result.push_back("<not selected>");
-//    for (auto& fi : file_items_)
-//    {
-//        if (fi->GetName() == fileId)
-//        {
-//            result.append(fi->GetIncludeNames());
-//            break;
-//        }
-//    }
-//    return result;
-//}
-
-//QColor MainWindow::GetGroupColor(const QString& groupId)
-//{
-//    for (auto& gi : groups_items_)
-//    {
-//        if (gi->GetName() == groupId)
-//            return gi->GetColor();
-//    }
-//    return QColor("Black");
-//}
-//
-//QString MainWindow::GetGroupFile(const QString& groupId)
-//{
-//    for (auto& gi : groups_items_)
-//    {
-//        if (gi->GetName() == groupId)
-//            return gi->GetFileName();
-//    }
-//    return "";
-//}
-
-QString MainWindow::GetDisplayName(const QString& baseName)
-{
-    QList<QPair<QString, QString>> variables;
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetGroupName() != "<not selected>")
-        {
-            variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                pi->GetGroupName());
-        }
-    }
-
-    QString realName = baseName;
-    for (const auto& v : variables)
-    {
-        QString replace = QString("@%1@").arg(v.first);
-        realName.replace(replace, v.second);
-    }
-
-    return realName;
-}
-
-//QString MainWindow::GetCurrentGroup()
-//{
-//    int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-//    if (tabIndex == -1)
-//        return "";
-//
-//    return tabWidget_->tabText(tabIndex);
-//}
-//
-//void MainWindow::ActivateGroup(const QString& groupName)
-//{
-//    for (int i = 0; i < panes_.count(); ++i)
-//    {
-//        QString tabName = tabWidget_->tabText(i);
-//        if (groupName == tabName)
-//        {
-//            tabWidget_->setCurrentIndex(i);
-//            break;
-//        }
-//    }
-//}
-//
-//QStringList MainWindow::GetGroupUnitsNames(const QString& groupName)
-//{
-//    QList<QString> connections;
-//    for (int i = 0; i < panes_.count(); ++i)
-//    {
-//        QString tabName = tabWidget_->tabText(i);
-//        if (groupName == tabName)
-//        {
-//            for (const auto& item : scene_->items())
-//            {
-//                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//                if (!connections.contains(di->getName()))
-//                    connections.push_back(di->getName());
-//            }
-//            break;
-//        }
-//    }
-//    return connections;
-//}
-//
-//QStringList MainWindow::GetGroupConnectedNames(const QString& groupName, bool depends)
-//{
-//    QList<QString> connections;
-//    for (int i = 0; i < panes_.count(); ++i)
-//    {
-//        QString tabName = tabWidget_->tabText(i);
-//        if (groupName == tabName)
-//        {
-//            for (const auto& item : scene_->items())
-//            {
-//                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//                QStringList conn = depends ? di->getDependentNames() : di->getConnectedNames();
-//                for (const auto& c : conn)
-//                {
-//                    if (!connections.contains(c))
-//                        connections.push_back(c);
-//                }
-//            }
-//            break;
-//        }
-//    }
-//    return connections;
-//}
-
-//QMap<QString, QStringList> MainWindow::GetGroupUnitsConnections(int groupId)
-//{
-//    QString groupName = tabWidget_->tabText(groupId);
-//    return GetGroupConnectionsInternal(groupName, false);
-//}
-//
-//QMap<QString, QStringList> MainWindow::GetGroupDependsConnections(int groupId)
-//{
-//    QString groupName = tabWidget_->tabText(groupId);
-//    return GetGroupConnectionsInternal(groupName, true);
-//}
-
-//QStringList MainWindow::GetGroupNames()
-//{
-//    QStringList list;
-//    for (int i = 0; i < panes_.count(); ++i)
-//    {
-//        QString tabName = tabWidget_->tabText(i);
-//        list.push_back(tabName);
-//    }
-//    return list;
-//}
-
-//int MainWindow::GetTabIndex(const QString& groupName)
-//{
-//    int tabIndex = -1;
-//    for (int i = 0; i < tabWidget_->count(); ++i)
-//    {
-//        QString tabName = tabWidget_->tabText(i);
-//        if (groupName == tabName)
-//        {
-//            tabIndex = i;
-//            break;
-//        }
-//    }
-//    return tabIndex;
-//}
-
-//diagram_item* MainWindow::GetGroupItem(const QString& groupName)
-//{
-//    for (const auto& pi : scene_->items())
-//    {
-//        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-//        if (di->getProperties()->GetName() == groupName)
-//            return di;
-//    }
-//    return nullptr;
-//}
-
-// ITopManager
-void MainWindow::GetUnitsInFileList(const QString& fileName, QStringList& unitNames)
-{
-    // Соберем имена юнитов в файле
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileName() == fileName)
-        {
-            QString name = pi->GetInstanceName();
-            unitNames.push_back(name);
-        }
-    }
-}
-
-void MainWindow::GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames)
-{
-    // Соберем имена юнитов в файле
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileName() == fileName &&
-            pi->GetGroupName() == includeName)
-        {
-            QString name = pi->GetInstanceName();
-            unitNames.push_back(name);
-        }
-    }
-}
-
-void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
-{
-    unitParameters = unitParameters_[unitId];
-}
-
-void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
-{
-    includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
-}
-
-void MainWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
-{
-    variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
-}
-
-bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
-{
-    //instanceName = name + QString("_#%1").arg(unique_number_++);
-    //uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(unitId, propertiesId);
-    auto pi = propertiesItemsManager_->GetItem(propertiesId);
-    pi->SetFileNames(GetFileNames());
-    pi->SetFileName(GetCurrentFileName());
-    pi->SetGroupNames(GetCurrentFileIncludeNames());
-    pi->SetGroupName("<not selected>");
-    pi->SetName(GetNewUnitName(pi->GetName()));
-    //properties_items_manager_->Select(propertiesId);
-    return true;
-}
-
-bool MainWindow::GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd)
-{
-    auto pi = propertiesItemsManager_->GetItem(propertiesId);
-    pfd.pixmap = pi->GetPixmap();
-    pfd.name = pi->GetName();
-    pfd.fileName = pi->GetFileName();
-    pfd.groupName = pi->GetGroupName();
-    pfd.color = GetFileColor(pi->GetFileName());
-    return true;
-}
-
-
-QString MainWindow::GetNewUnitName(const QString& baseName)
-{
-    //int tabIndex = -1;
-    //for (int i = 0; i < panes_.count(); ++i)
-    //{
-    //    QString tabName = tabWidget_->tabText(i);
-    //    if (groupName == tabName)
-    //    {
-    //        tabIndex = i;
-    //        break;
-    //    }
-    //}
-
-    //if (tabIndex == -1)
-    //    return false;
-
-    //QString unitName = baseName;
-    //for (const auto& pi : scene_->items())
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-    //    if (di->getProperties()->GetName() == baseName)
-    //    {
-    //        unitName = di->getProperties()->GetUnitName();
-    //        break;
-    //    }
-    //}
-
-    //QString name = unitName;
-
-    QString name = baseName;
-    int sharp_index = baseName.lastIndexOf("#");
-    if (sharp_index != -1)
-        name = baseName.left(sharp_index);
-    QString varName = name;
-
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& item : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
-
-        for (const auto& v : variables)
-        {
-            QString replace = QString("@%1@").arg(v.first);
-            varName.replace(replace, v.second);
-        }
-    }
-    QString newName = varName;
-
-    int counter = 0;
-    while (true)
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& pi : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
-
-        bool found = false;
-        for (const auto& item : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            QString realName = pi->GetName();
-            for (const auto& v : variables)
-            {
-                QString replace = QString("@%1@").arg(v.first);
-                realName.replace(replace, v.second);
-            }
-            if (realName == newName)
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (found)
-            newName = QString("%1#%2").arg(varName).arg(++counter);
-        else
-            break;
-    }
-    if (counter == 0)
-        return name;
-    else
-        return QString("%1#%2").arg(name).arg(counter);
-}
-
-QMap<QString, QStringList> MainWindow::GetUnitsConnections()
-{
-    return GetConnectionsInternal(false);
-}
-
-QMap<QString, QStringList> MainWindow::GetDependsConnections()
-{
-    return GetConnectionsInternal(true);
-}
-
 QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
 {
     // Сюда будем собирать реальные соединения на этой сцене
@@ -1281,6 +938,7 @@ CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
     return nullptr;
 }
 
+// Files
 QStringList MainWindow::GetFileNames()
 {
     return fileItemsManager_->GetFileNames();
@@ -1301,221 +959,43 @@ QColor MainWindow::GetFileColor(const QString& fileName)
     return fileItemsManager_->GetFileColor(fileName);
 }
 
-void MainWindow::selectionChanged()
+QString MainWindow::GetDisplayName(const QString& baseName)
 {
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
-
-    if (scene_->selectedItems().count() > 0)
+    QList<QPair<QString, QString>> variables;
+    for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = (CubeDiagram::DiagramItem*)(scene_->selectedItems()[0]);
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        //////pi->ApplyToBrowser(propertyEditor_);
-        pi->PositionChanged(di->pos());
-        pi->ZOrderChanged(di->zValue());
-        propertiesItemsManager_->Select(di->propertiesId_);
-        //pi->applyExpandState(propertyEditor_);
-        //properties_items_manager_->GetSelector()->setCurrentText(pi->GetName());
+        if (pi->GetGroupName() != "<not selected>")
+        {
+            variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                pi->GetGroupName());
+        }
     }
-    else
+
+    QString realName = baseName;
+    for (const auto& v : variables)
     {
-        //propertyEditor_->clear();
-        plainTextEditHint_->setPlainText("");
-        propertiesItemsManager_->Select(0);
-        //comboBoxUnits_->blockSignals(true);
-        //properties_items_manager_->GetSelector()->setCurrentIndex(0);
-        //comboBoxUnits_->blockSignals(false);
+        QString replace = QString("@%1@").arg(v.first);
+        realName.replace(replace, v.second);
     }
 
-
-    //propertyEditor->clear();
-    //if (scene_->selectedItems().count() > 0)
-    //{
-    //    //diagram_item* gi = qobject_cast<diagram_item*>(sp_scene_->selectedItems()[0]);
-    //    diagram_item* di = (diagram_item*)(scene_->selectedItems()[0]);
-    //    qDebug() << di->getName();
-
-    //    QtProperty* mainGroup = groupManager->addProperty(di->getName());
-
-    //    QtProperty* propertiesGroup = groupManager->addProperty(QString::fromLocal8Bit("Свойства"));
-    //    mainGroup->addSubProperty(propertiesGroup);
-
-    //    bool found = false;
-    //    UnitParameters unitParameters{};
-    //    for (const auto& up : unitParameters_)
-    //    {
-    //        if (QString::fromStdString(up.fiileInfo.info.id) == di->getName())
-    //        {
-    //            found = true;
-    //            unitParameters = up;
-    //            break;
-    //        }
-    //    }
-
-    //    if (found)
-    //    {
-    //        for (const auto& pi : unitParameters.fiileInfo.parameters)
-    //        {
-    //            QtProperty* channelsGroup = stringManager->addProperty(QString::fromStdString(pi.display_name));
-    //            propertiesGroup->addSubProperty(channelsGroup);
-    //            //addProperty(channelsGroup, QLatin1String("Channels"));
-    //        }
-    //    }
-
-
-    //    //QtProperty* channelsGroup = groupManager->addProperty(QString::fromLocal8Bit("Каналы"));
-    //    //propertiesGroup->addSubProperty(channelsGroup);
-    //    //addProperty(channelsGroup, QLatin1String("Channels"));
-
-    //    //QtProperty* channelsCountProperty = intManager->addProperty(QString::fromLocal8Bit("Количество"));
-    //    //intManager->setRange(channelsCountProperty, 0, 10000);
-    //    //intManager->setValue(channelsCountProperty, 0);
-    //    //addProperty(channelsCountProperty, QLatin1String("Count"));
-    //    //channelsGroup->addSubProperty(channelsCountProperty);
-
-
-    //    QtProperty* editorGroup = groupManager->addProperty(QString::fromLocal8Bit("Редактор"));
-    //    mainGroup->addSubProperty(editorGroup);
-
-
-    //    QtProperty* positionXProperty = doubleManager->addProperty("Position X");
-    //    doubleManager->setRange(positionXProperty, -10000, 10000);
-    //    doubleManager->setValue(positionXProperty, di->scenePos().x());
-    //    addProperty(positionXProperty, QLatin1String("Position X"));
-    //    editorGroup->addSubProperty(positionXProperty);
-
-    //    QtProperty* positionYProperty = doubleManager->addProperty("Position Y");
-    //    doubleManager->setRange(positionYProperty, -10000, 10000);
-    //    doubleManager->setValue(positionYProperty, di->scenePos().y());
-    //    addProperty(positionYProperty, QLatin1String("Position Y"));
-    //    editorGroup->addSubProperty(positionYProperty);
-
-
-    //    addProperty(mainGroup, di->getName());
-    //    propertyEditor->addProperty(mainGroup);
-    //}
-
+    return realName;
 }
 
-//void MainWindow::test2(QPointF ppp)
-//{
-//    qDebug() << "!!!!!111111111111111111111!!!!!!!!!!!!!!!";
-////    diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
-////    QPoint position = (sp_scene_->selectedItems()[0]->pos()-QPoint(24,24)).toPoint();
-////    sp_scene_->addItem(newIcon);
-////    sp_scene_->clearSelection();
-////    newIcon->setPos(position);
-////    newIcon->setSelected(true);
-//}
-
-//void MainWindow::on_Tab_currentChanged(int index)
-//{
-//    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-//    //if (tabIndex == -1)
-//    //    return;
-//
-//    if (index == 0)
-//    {
-//        //comboBoxFiles_->setEnabled(true);
-//        file_items_manager_->GetEditor()->GetPropertyEditor()->setEnabled(true);
-//    }
-//    else
-//    {
-//        //comboBoxFiles_->setEnabled(false);
-//        file_items_manager_->GetEditor()->GetPropertyEditor()->setEnabled(false);
-//    }
-//
-//    comboBoxUnits_->clear();
-//    comboBoxUnits_->addItem("<empty>");
-//    for (const auto& item : scene_->items())
-//    {
-//        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//        comboBoxUnits_->addItem(di->GetProperties()->GetName());
-//    }
-//}
-
-void MainWindow::OnErrorButtonClicked(bool checked)
-{
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
-}
-
-void MainWindow::OnWarningButtonClicked(bool checked)
-{
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
-}
-
-void MainWindow::OnInformationButtonClicked(bool checked)
-{
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
-}
-
-void MainWindow::ItemPositionChanged(CubeDiagram::DiagramItem* di)
+// DiagramScene (as manager)
+void MainWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->PositionChanged(di->pos());
-
-    //QtProperty* p = idToProperty[id];
-    //if (p != nullptr)
-    //{
-    //    for (auto sp : p->subProperties())
-    //    {
-    //        if (sp->propertyName() == "Position X")
-    //        {
-    //            qDebug() << sp->valueText();
-    //            doubleManager->setValue(sp, newPos.x());
-    //        }
-    //        if (sp->propertyName() == "Position Y")
-    //        {
-    //            qDebug() << sp->valueText();
-    //            doubleManager->setValue(sp, newPos.y());
-    //        }
-    //    }
-    //}
 }
 
-void MainWindow::AfterItemCreated(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
-
-    //int tabIndex = GetTabIndex(item->GetGroupName());
-    //if (tabIndex == -1)
-    //    return;
-    //auto pi = properties_items_manager_->GetItem(di->propertiesId_);
-
-    //properties_items_manager_->GetSelector()->addItem(pi->GetName());
-
-    // Если вкладка, куда добавляем юнит, активна, то добавляем имя в список юнитов
-    //comboBoxUnits_->addItem(item->GetProperties()->GetName());
-
-    //// Проверяем, что юнит в группе и ставим ему имя файла только на чтение
-    //if (tabIndex > 0)
-    //{
-    //    QString name = tabWidget_->tabText(tabIndex);
-    //    for (const auto& pi : scene_->items())
-    //    {
-    //        diagram_item* di = reinterpret_cast<diagram_item*>(pi);
-    //        if (di->getProperties()->GetName() == name)
-    //        {
-    //            QString fileName = di->getProperties()->GetFileName();
-    //            item->getProperties()->SetFileName(fileName);
-    //            item->getProperties()->SetFileNameReadOnly(true);
-    //            break;
-    //        }
-    //    }
-    //}
 }
 
-void MainWindow::BeforeItemDeleted(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
 {
     for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
     {
@@ -1526,213 +1006,176 @@ void MainWindow::BeforeItemDeleted(CubeDiagram::DiagramItem* di)
             break;
         }
     }
-
-    //if (item->getProperties()->GetId() == "group")
-    //{
-    //    QString name = item->getProperties()->GetName();
-    //    for (int i = 0; i < tabWidget_->count(); ++i)
-    //    {
-    //        if (tabWidget_->tabText(i) == name)
-    //        {
-    //            tabWidget_->removeTab(i);
-    //            for (auto item : scene_->items())
-    //                delete item;
-    //            delete scene_; // Use Smart pointers!!!
-    //            delete view_; // Use Smart pointers!!!
-    //            break;
-    //        }
-    //    }
-    //}
 }
 
-void MainWindow::ItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
+void MainWindow::DiagramItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
 {
-    //if (item->getProperties()->GetId() == "group")
-    //{
-    //    QString name = item->getProperties()->GetName();
-    //    for (int i = 0; i < tabWidget_->count(); ++i)
-    //    {
-    //        if (tabWidget_->tabText(i) == oldName)
-    //        {
-    //            tabWidget_->setTabText(i, name);
-    //            break;
-    //        }
-    //    }
-    //}
     int i = propertiesItemsManager_->GetSelector()->findText(oldName);
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     if (i != -1)
         propertiesItemsManager_->GetSelector()->setItemText(i, pi->GetName());
 }
 
-void MainWindow::ItemFileChanged(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramItemFileChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     QString fileName = pi->GetFileName();
     QStringList includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
     pi->SetGroupNames(includeNames);
     pi->SetGroupName("<not selected>");
-    //////item->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    //if (item->getProperties()->GetId() == "group")
-    //{
-    //    QString name = item->getProperties()->GetName();
-    //    QString fileName = item->getProperties()->GetFileName();
-    //    for (int i = 0; i < tabWidget_->count(); ++i)
-    //    {
-    //        if (tabWidget_->tabText(i) == name)
-    //        {
-    //            for (auto& item : scene_->items())
-    //            {
-    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-    //                di->getProperties()->SetFileName(fileName);
-    //            }
-    //            break;
-    //        }
-    //    }
-    //}
 }
 
-//void MainWindow::itemGroupChanged(diagram_item* item)
-//{
-//    item->getProperties()->ApplyToBrowser(propertyEditor_);
-//    //if (item->getProperties()->GetId() == "group")
-//    //{
-//    //    QString name = item->getProperties()->GetName();
-//    //    QString fileName = item->getProperties()->GetFileName();
-//    //    for (int i = 0; i < tabWidget_->count(); ++i)
-//    //    {
-//    //        if (tabWidget_->tabText(i) == name)
-//    //        {
-//    //            for (auto& item : scene_->items())
-//    //            {
-//    //                diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//    //                di->getProperties()->SetFileName(fileName);
-//    //            }
-//    //            break;
-//    //        }
-//    //    }
-//    //}
-//}
-//
-//void MainWindow::collapsed(QtBrowserItem* item)
-//{
-//    QString fileName = comboBoxFiles_->currentText();
-//    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), false);
-//
-//    //QString name = comboBoxFiles_->currentText();
-//    //for (const auto& fi : file_items_)
-//    //{
-//    //    if (fi->GetName() == name)
-//    //        fi->ExpandedChanged(item->property(), false);
-//    //    break;
-//    //}
-//
-//    //if (scene_->selectedItems().count() > 0)
-//    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
-//    //    di->getProperties()->ExpandedChanged(item->property(), false);
-//    //}
-//}
-//
-//void MainWindow::expanded(QtBrowserItem* item)
-//{
-//    QString fileName = comboBoxFiles_->currentText();
-//    file_items_manager_->SetFilePropertyExpanded(fileName, item->property(), true);
-//
-//    //QString name = comboBoxFiles_->currentText();
-//    //for (const auto& fi : file_items_)
-//    //{
-//    //    if (fi->GetName() == name)
-//    //        fi->ExpandedChanged(item->property(), true);
-//    //    break;
-//    //}
-//
-//    //if (scene_->selectedItems().count() > 0)
-//    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(scene_->selectedItems()[0]);
-//    //    di->getProperties()->ExpandedChanged(item->property(), true);
-//    //}
-//}
-
-//void MainWindow::CreateToolBox()
-//{
-//    QGridLayout *layout = new QGridLayout;
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 0);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 0, 1);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 0);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 1, 1);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 0);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 2, 1);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 0);
-//    //layout->addWidget(new drag_widget(QPixmap("c:/QtProjects/cubes/resource/boat.png"), "SigmaDriver"), 3, 1);
-//
-//    layout->setRowStretch(3, 1);
-//    layout->setColumnStretch(2, 1);
-//
-//    QWidget *itemWidget = new QWidget;
-//    itemWidget->setLayout(layout);
-//
-//    //tool_box_->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
-//    //tool_box_->setMinimumWidth(itemWidget->sizeHint().width());
-//    //tool_box_->addItem(itemWidget, tr("Basic Flowchart Shapes"));
-//}
-
-
-
-void MainWindow::CreateMenu()
+void MainWindow::DiagramItemGroupChanged(CubeDiagram::DiagramItem* item)
 {
-    QAction* newAct = new QAction(QString::fromLocal8Bit("Создать"), this);
-    newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(QString::fromLocal8Bit("Создать новый файл"));
-    connect(newAct, &QAction::triggered, this, &MainWindow::OnNewFileAction);
-
-    QAction* openAct = new QAction(QString::fromLocal8Bit("Открыть"), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
-    connect(openAct, &QAction::triggered, this, &MainWindow::OnOpenFileAction);
-
-    QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
-    importXmlAct->setShortcut(QKeySequence("Ctrl+I"));
-    importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
-    connect(importXmlAct, &QAction::triggered, this, &MainWindow::OnImportXmlFileAction);
-
-    QAction* saveAct = new QAction(QString::fromLocal8Bit("Сохранить"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл"));
-    connect(saveAct, &QAction::triggered, this, &MainWindow::OnSaveFileAction);
-
-    QAction* saveAsAct = new QAction(QString::fromLocal8Bit("Сохранить как..."), this);
-    //saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    saveAsAct->setShortcut(QKeySequence("Ctrl+Shift+S"));
-    saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
-    connect(saveAsAct, &QAction::triggered, this, &MainWindow::OnSaveAsFileAction);
-
-    QAction* quitAct = new QAction(QString::fromLocal8Bit("Выйти"), this);
-    quitAct->setShortcuts(QKeySequence::Quit);
-    quitAct->setStatusTip(QString::fromLocal8Bit("Выйти из приложения"));
-    connect(quitAct, &QAction::triggered, this, &MainWindow::OnQuitAction);
-
-    QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
-    fileMenu->addAction(newAct);
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(importXmlAct);
-    fileMenu->addAction(saveAct);
-    fileMenu->addAction(saveAsAct);
-    fileMenu->addSeparator();
-    //recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
-    //fileMenu->addSeparator();
-    fileMenu->addAction(quitAct);
-
-    QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
-    sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
-    connect(sortAct, &QAction::triggered, this, &MainWindow::OnSortAction);
-
-    QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
-    editMenu->addAction(sortAct);
-
 }
 
+void MainWindow::selectionChanged()
+{
+    if (scene_->selectedItems().count() > 0)
+    {
+        CubeDiagram::DiagramItem* di = (CubeDiagram::DiagramItem*)(scene_->selectedItems()[0]);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->PositionChanged(di->pos());
+        pi->ZOrderChanged(di->zValue());
+        propertiesItemsManager_->Select(di->propertiesId_);
+    }
+    else
+    {
+        plainTextEditHint_->setPlainText("");
+        propertiesItemsManager_->Select(0);
+    }
+}
+
+// FileItemsManager
+void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
+{
+    QStringList fileNames = fileItemsManager_->GetFileNames();
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        QString currentName = pi->GetFileName();
+        pi->SetFileNames(fileNames);
+        if (currentName == oldFileName)
+            pi->SetFileName(fileName);
+
+        //if (fileName == di->getProperties()->GetFileName())
+        //    di->getProperties()->SetGroupNames(fileIncludeNames);
+    }
+
+    //for (int i = 0; i < comboBoxFiles_->count(); ++i)
+    //{
+    //    if (comboBoxFiles_->itemText(i) == oldFileName)
+    //        comboBoxFiles_->setItemText(i, fileName);
+    //}
+
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
+}
+
+void MainWindow::FileListChanged(const QStringList& fileNames)
+{
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->SetFileNames(fileNames);
+    }
+
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
+}
+
+void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
+{
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        if (fileName == pi->GetFileName())
+        {
+            QString currentName = pi->GetGroupName();
+            pi->SetGroupNames(fileIncludeNames);
+            if (currentName == oldIncludeName)
+                pi->SetGroupName(includeName);
+        }
+    }
+
+    //auto fi = file_items_manager_->GetItem(fileName);
+    //if (fi != nullptr)
+    //    fi->UpdateRegExp();
+
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
+}
+
+void MainWindow::FileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+{
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        if (fileName == pi->GetFileName())
+            pi->SetGroupNames(includeNames);
+    }
+
+    //////if (scene_->selectedItems().size() > 0)
+    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+    scene_->invalidate();
+}
+
+// PropertiesItemsManager
+void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
+{
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        if (di->propertiesId_ == propertiesId)
+        {
+            di->name_ = name;
+            di->fileName_ = fileName;
+            di->groupName_ = groupName;
+            di->color_ = GetFileColor(fileName);
+            di->InformNameChanged(name, name);
+        }
+    }
+
+    scene_->invalidate();
+}
+
+void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
+{
+    QGraphicsItem* item_to_select = nullptr;
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        if (di->propertiesId_ == propertiesId)
+        {
+            item_to_select = item;
+            break;
+        }
+    }
+
+    for (auto& item : scene_->selectedItems())
+    {
+        if (item != item_to_select)
+            item->setSelected(false);
+    }
+
+    if (item_to_select != nullptr)
+        item_to_select->setSelected(true);
+}
+
+// Кнопки
 void MainWindow::OnNewFileAction()
 {
     if (modified_)
@@ -1898,200 +1341,14 @@ void MainWindow::OnQuitAction()
 
 void MainWindow::OnSortAction()
 {
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
-
     SortUnits();
-
-    //int nextIndex = 0;
-    //QMap<QString, int> nameToIndex;
-    //QMap<int, QString> indexToName;
-    //QMap<QString, QSet<QString>> connectedNames;
-    //for (auto& item : scene_->items())
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-
-    //    if (!nameToIndex.contains(di->getProperties()->GetInstanceName()))
-    //    {
-    //        nameToIndex[di->getProperties()->GetInstanceName()] = nextIndex;
-    //        indexToName[nextIndex] = di->getProperties()->GetInstanceName();
-    //        nextIndex++;
-    //    }
-
-    //    auto connected = di->getConnectedNames();
-    //    connectedNames[di->getProperties()->GetInstanceName()].unite(QSet<QString>(connected.begin(), connected.end()));
-    //}
-
-    //// Sort
-    //std::vector<std::pair<int, int>> edges;
-
-    //for (const auto& kvp : connectedNames.toStdMap())
-    //{
-    //    for (const auto& se : kvp.second)
-    //    {
-    //        if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
-    //            edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
-    //    }
-    //}
-
-    //std::vector<std::pair<int, int>> coordinates;
-    //if (!rearrangeGraph(nameToIndex.size(), edges, coordinates))
-    //{
-    //    return;
-    //}
-
-    //auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
-    //for (auto& item : scene_->items())
-    //{
-    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-
-    //    int i = nameToIndex[di->getProperties()->GetInstanceName()];
-
-    //    QPoint position(vr.left() + 60 + coordinates[i].first * 60,
-    //        vr.top() + 60 + coordinates[i].second * 60);
-
-    //    int gridSize = 20;
-    //    qreal xV = round(position.x() / gridSize) * gridSize;
-    //    qreal yV = round(position.y() / gridSize) * gridSize;
-    //    position = QPoint(xV, yV);
-
-    //    di->setPos(position);
-    //}
-
-    //scene_->invalidate();
 }
-//
-//void MainWindow::on_AddFile_clicked()
-//{
-//    bool ok;
-//    QString text = QInputDialog::getText(this, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
-//    if (!ok || text.isEmpty())
-//        return;
-//
-//    QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-//        defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-//    file_items_manager_->Create(text, fileColor);
-//    file_items_manager_->Select(text);
-//    //fi->ApplyToBrowser(filePropertiesEditor_->GetPropertyEditor().get());
-//    //comboBoxFiles_->addItem(text);
-//    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
-//
-//    for (auto& item : scene_->items())
-//    {
-//        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//        QStringList fileNames = file_items_manager_->GetFileNames();
-//        di->getProperties()->SetFileNames(fileNames);
-//    }
-//
-//    if (scene_->selectedItems().size() > 0)
-//        reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-//
-//    scene_->invalidate();
-//
-//
-//
-//
-//
-//
-//    //fileNameChanged(text, "");
-//
-//    //auto fi = new file_item();
-//    //fi->SetName(text);
-//    //if (defaultColorFileIndex_ < defaultColorsFile_.size())
-//    //    fi->SetColor(defaultColorsFile_[defaultColorFileIndex_++]);
-//    //else
-//    //    fi->SetColor(QColor("White"));
-//    //fi->ApplyToBrowser(filesPropertyEditor_);
-//    //file_items_.push_back(fi);
-//    //comboBoxFiles_->addItem(text);
-//    //comboBoxFiles_->setCurrentIndex(comboBoxFiles_->count() - 1);
-//
-//    //QStringList fileNames = GetFileNames();
-//    //for (auto& group : groups_items_)
-//    //{
-//    //    group->SetFileNames(fileNames);
-//    //    if (comboBoxGroups_->currentIndex() > 0)
-//    //        groups_items_[comboBoxGroups_->currentIndex() - 1]->ApplyToBrowser(groupsPropertyEditor_);
-//    //}
-//
-//    //for (auto& item : scene_->items())
-//    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//    //    QString fileName = di->getProperties()->GetFileName();
-//    //    QStringList groupNames = GetFileGroups(fileName);
-//    //    di->getProperties()->SetGroupNames(groupNames);
-//    //    //di->getProperties()->SetGroupName("<not selected>");
-//    //}
-//
-//    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-//    //if (tabIndex == -1)
-//    //    return;
-//
-//    //if (scene_->selectedItems().size() > 0)
-//    //    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-//}
-//
-//void MainWindow::on_RemoveFile_clicked()
-//{
-//    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
-//        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
-//    if (resBtn == QMessageBox::Yes)
-//        QApplication::quit();
-//}
 
-//void MainWindow::on_Files_currentIndexChanged(int index)
-//{
-//    QString fileName = comboBoxFiles_->currentText();
-//    file_items_manager_->Select(fileName);
-//    //file_items_manager_->ApplyFileToBrowser(fileName, filePropertiesEditor_->GetPropertyEditor().get());
-//    //for (const auto& fi : file_items_)
-//    //{
-//    //    if (fi->GetName() == name)
-//    //        fi->ApplyToBrowser(filesPropertyEditor_);
-//    //}
-//}
-
-//void MainWindow::OnRemoveGroupClicked()
-//{
-//    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
-//        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
-//    if (resBtn == QMessageBox::Yes)
-//        QApplication::quit();
-//}
-
-//void MainWindow::on_Units_currentIndexChanged(int index)
-//{
-//    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-//    //if (tabIndex == -1)
-//    //    return;
-//
-//    scene_->blockSignals(true);
-//    if (scene_->selectedItems().size() > 0)
-//        scene_->clearSelection();
-//    //propertyEditor_->clear();
-//    scene_->blockSignals(false);
-//    if (index == 0)
-//        return;
-//
-//    QString name = propertiesItemsManager_->GetSelector()->currentText();
-//    for (const auto& item : scene_->items())
-//    {
-//        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-//        if (pi->GetName() == name)
-//            item->setSelected(true);
-//    }
-//}
-
+// Перенести подсказку в менеджер
 void MainWindow::currentItemChanged(QtBrowserItem* item)
 {
     if (item != nullptr)
         qDebug() << item->property()->propertyName();
-
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
 
     if (scene_->selectedItems().size() > 0)
     {
@@ -2104,186 +1361,27 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     }
 }
 
-//void MainWindow::showFileContextMenu(const QPoint& pos)
-//{
-//    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
-//    //    return;
-//    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
-//    //    return;
-//
-//    //QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
-//    //QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
-//    //if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-//    //{
-//    //    QMenu contextMenu(tr("Context menu"), this);
-//
-//    //    QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
-//    //    connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
-//    //    contextMenu.addAction(&action1);
-//
-//    //    contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
-//    //}
-//}
-
-void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
+// Лог
+void MainWindow::OnErrorButtonClicked(bool checked)
 {
-    QStringList fileNames = fileItemsManager_->GetFileNames();
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString currentName = pi->GetFileName();
-        pi->SetFileNames(fileNames);
-        if (currentName == oldFileName)
-            pi->SetFileName(fileName);
-
-        //if (fileName == di->getProperties()->GetFileName())
-        //    di->getProperties()->SetGroupNames(fileIncludeNames);
-    }
-
-    //for (int i = 0; i < comboBoxFiles_->count(); ++i)
-    //{
-    //    if (comboBoxFiles_->itemText(i) == oldFileName)
-    //        comboBoxFiles_->setItemText(i, fileName);
-    //}
-
-    //////if (scene_->selectedItems().size() > 0)
-    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    scene_->invalidate();
+    if (checked)
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
+    else
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
 }
 
-void MainWindow::FileListChanged(const QStringList& fileNames)
+void MainWindow::OnWarningButtonClicked(bool checked)
 {
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileNames(fileNames);
-    }
-
-    //////if (scene_->selectedItems().size() > 0)
-    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    scene_->invalidate();
+    if (checked)
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
+    else
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
 }
 
-void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
+void MainWindow::OnInformationButtonClicked(bool checked)
 {
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (fileName == pi->GetFileName())
-        {
-            QString currentName = pi->GetGroupName();
-            pi->SetGroupNames(fileIncludeNames);
-            if (currentName == oldIncludeName)
-                pi->SetGroupName(includeName);
-        }
-    }
-
-    //auto fi = file_items_manager_->GetItem(fileName);
-    //if (fi != nullptr)
-    //    fi->UpdateRegExp();
-
-    //////if (scene_->selectedItems().size() > 0)
-    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    scene_->invalidate();
-}
-
-void MainWindow::FileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
-{
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (fileName == pi->GetFileName())
-            pi->SetGroupNames(includeNames);
-    }
-
-    //////if (scene_->selectedItems().size() > 0)
-    //////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-    scene_->invalidate();
-}
-
-void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
-{
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
-        {
-            di->name_ = name;
-            di->fileName_ = fileName;
-            di->groupName_ = groupName;
-            di->color_ = GetFileColor(fileName);
-            di->InformNameChanged(name, name);
-        }
-    }
-
-    scene_->invalidate();
-}
-
-//void MainWindow::propertiesFileNameChanged(const uint32_t propertiesId, const QString& fileName)
-//{
-//    //QStringList fileNames = file_items_manager_->GetFileNames();
-//    //QStringList fileIncludeNames = file_items_manager_->GetFileIncludeNames(fileName);
-//    //for (auto& item : scene_->items())
-//    //{
-//    //    diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//    //    auto pi = properties_items_manager_->GetItem(di->propertiesId_);
-//    //    QString currentName = pi->GetFileName();
-//    //    pi->SetFileNames(fileNames);
-//    //    if (currentName == oldFileName)
-//    //        pi->SetFileName(fileName);
-//
-//    //    //if (fileName == di->getProperties()->GetFileName())
-//    //    //    di->getProperties()->SetGroupNames(fileIncludeNames);
-//    //}
-//
-//    ////for (int i = 0; i < comboBoxFiles_->count(); ++i)
-//    ////{
-//    ////    if (comboBoxFiles_->itemText(i) == oldFileName)
-//    ////        comboBoxFiles_->setItemText(i, fileName);
-//    ////}
-//
-//    ////////if (scene_->selectedItems().size() > 0)
-//    ////////    reinterpret_cast<diagram_item*>(scene_->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-//
-//    for (auto& item : scene_->items())
-//    {
-//        diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//        if (di->propertiesId_ == propertiesId)
-//            di->fileName_ = fileName;
-//    }
-//
-//    scene_->invalidate();
-//}
-
-void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
-{
-    QGraphicsItem* item_to_select = nullptr;
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
-        {
-            item_to_select = item;
-            break;
-        }
-    }
-
-    for (auto& item : scene_->selectedItems())
-    {
-        if (item != item_to_select)
-            item->setSelected(false);
-    }
-
-    if (item_to_select != nullptr)
-        item_to_select->setSelected(true);
+    if (checked)
+        sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
+    else
+        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
 }

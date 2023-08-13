@@ -63,23 +63,6 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;
 
-protected:
-    void CreateUi();
-    void CreateMenu();
-    QWidget* CreateMainWidget();
-    QWidget* CreateLogWidget();
-    void CreateScene();
-    void CreateView();
-    void CreateTreeView();
-    QWidget* CreatePropertiesPanelWidget();
-    QWidget* CreateHintWidget();
-    void FillTreeView();
-    void FillParametersInfo();
-
-    bool AddUnits(const QString& fileName, const CubesXml::File& file);
-    bool SortUnits();
-    bool AddMainFile(CubesXml::File& file);
-
 public:
     // ITopManager
     void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
@@ -93,16 +76,56 @@ public:
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
 
-private:
+protected:
+    // UI
+    void CreateUi();
+    void CreateMenu();
+    QWidget* CreateMainWidget();
+    QWidget* CreateLogWidget();
+    void CreateScene();
+    void CreateView();
+    void CreateTreeView();
+    QWidget* CreatePropertiesPanelWidget();
+    QWidget* CreateHintWidget();
+    void FillTreeView();
+    void FillParametersInfo();
+
+    // Units
+    bool AddMainFile(CubesXml::File& file);
+    bool AddUnits(const QString& fileName, const CubesXml::File& file);
+    bool SortUnits();
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
+
+    // Files
     QStringList GetFileNames();
     QString GetCurrentFileName();
     QStringList GetCurrentFileIncludeNames();
     QColor GetFileColor(const QString& fileName);
     QString GetDisplayName(const QString& baseName);
 
+public slots:
+    // DiagramScene (as manager)
+    void DiagramItemPositionChanged(CubeDiagram::DiagramItem* item);
+    void DiagramAfterItemCreated(CubeDiagram::DiagramItem* item);
+    void DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* item);
+    void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
+    void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
+    void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
+    void selectionChanged(); // QGraphicsScene
+
+    // FileItemsManager
+    void FileNameChanged(const QString& fileName, const QString& oldFileName);
+    void FileListChanged(const QStringList& fileNames);
+    void FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
+    void FileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
+
+    // PropertiesItemsManager
+    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+    void PropertiesSelectedItemChanged(const uint32_t propertiesId);
+
 private slots:
+    // Кнопки
     void OnNewFileAction();
     void OnOpenFileAction();
     void OnImportXmlFileAction();
@@ -110,31 +133,12 @@ private slots:
     void OnSaveAsFileAction();
     void OnQuitAction();
     void OnSortAction();
-    //void OnRemoveGroupClicked();
-    //void on_Units_currentIndexChanged(int index);
 
     // Перенести подсказку в менеджер
     void currentItemChanged(QtBrowserItem* item);
-    void selectionChanged();
 
+    // Лог
     void OnErrorButtonClicked(bool checked);
     void OnWarningButtonClicked(bool checked);
     void OnInformationButtonClicked(bool checked);
-
-public slots:
-    void ItemPositionChanged(CubeDiagram::DiagramItem* item);
-    void AfterItemCreated(CubeDiagram::DiagramItem* item);
-    void BeforeItemDeleted(CubeDiagram::DiagramItem* item);
-    void ItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
-    void ItemFileChanged(CubeDiagram::DiagramItem* item);
-
-    // FileItemsManager
-    void FileNameChanged(const QString& fileName, const QString& oldFileName);
-    void FileListChanged(const QStringList& fileNames);
-    void FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
-    void FileIncludesListChanged(const QString& fileName, const QStringList& includeNames);
-    
-    // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
-    void PropertiesSelectedItemChanged(const uint32_t propertiesId);
 };
