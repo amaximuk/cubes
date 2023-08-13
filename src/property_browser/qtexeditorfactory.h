@@ -1,4 +1,9 @@
 #pragma once
+
+//  ласс расшир€ет функционал 3rdparty библиотекии Property Browser
+// QtExLineEditFactory это аналог QtLineEditFactory, но с функцией slotEditingFinished,
+// позвол€ющей делать валидацию введенного значени€ при завершении редактировани€
+
 #include "qtexpropertymanager.h"
 
 QT_BEGIN_NAMESPACE

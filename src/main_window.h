@@ -134,7 +134,7 @@ private slots:
     void OnQuitAction();
     void OnSortAction();
 
-    // Перенести подсказку в менеджер
+    // TODO: Перенести подсказку в менеджер
     void currentItemChanged(QtBrowserItem* item);
 
     // Лог

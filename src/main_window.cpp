@@ -1344,7 +1344,7 @@ void MainWindow::OnSortAction()
     SortUnits();
 }
 
-// Перенести подсказку в менеджер
+// TODO: Перенести подсказку в менеджер
 void MainWindow::currentItemChanged(QtBrowserItem* item)
 {
     if (item != nullptr)

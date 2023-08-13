@@ -11,6 +11,7 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QLabel>
+#include "qttreepropertybrowser.h"
 #include "../top_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml_parser.h"
