@@ -36,7 +36,9 @@ namespace CubesFile
 		QSharedPointer<FileItem> GetItem(const QString& fileName);
 		QStringList GetFileNames();
 		QColor GetFileColor(const QString& fileName);
+		void AddFileInclude(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>> includeVariables);
 		QStringList GetFileIncludeNames(const QString& fileName);
+		QString GetFileIncludeName(const QString& fileName, const QString& filePath);
 		QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
 		void Clear();
 

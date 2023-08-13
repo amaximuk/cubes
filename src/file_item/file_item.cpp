@@ -416,6 +416,96 @@ void FileItem::SetColor(QColor color)
     editor_->SetColorValue(pr, color);
 }
 
+void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables)
+{
+    auto pmi = GetParameterModel("INCLUDES");
+    int ci = pmi->value.toInt() + 1;
+
+    auto pri = GetProperty(pmi->id);
+    editor_->SetIntValue(pri, ci);
+    // Установка количества элементов в Property Browser вызывает операцию по добавлению
+    // необходимого количества заготовок через ValueChanged
+
+    auto pmin = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(ci - 1));
+    pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
+
+    auto prin = GetProperty(pmin->id);
+    editor_->SetStringValue(prin, pmin->value.toString());
+
+
+
+
+    auto pmifn = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(ci - 1));
+    pmifn->value = includeName;
+
+    auto prifn = GetProperty(pmifn->id);
+    editor_->SetStringValue(prifn, includeName);
+
+
+
+    auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(ci - 1));
+
+    auto priv = GetProperty(pmiv->id);
+    editor_->SetIntValue(priv, includeVariables.size());
+    // Установка количества элементов в Property Browser вызывает операцию по добавлению
+    // необходимого количества заготовок через ValueChanged
+
+    for (int i = 0; i < includeVariables.size(); i++)
+    {
+        auto& v = includeVariables.at(i);
+        auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(ci - 1).arg(i));
+        pmivn->value = v.first;
+
+        auto privn = GetProperty(pmivn->id);
+        editor_->SetStringValue(privn, v.first);
+
+        auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(ci - 1).arg(i));
+        pmivv->value = v.second;
+
+        auto privv = GetProperty(pmivv->id);
+        editor_->SetStringValue(privv, v.second);
+    }
+
+
+
+
+
+    //auto pmi = GetParameterModel("INCLUDES");
+    //int countIncludes = pmi->value.toInt() + 1;
+
+    //UpdateIncludesArrayModel(*pmi, countIncludes);
+    //pmi->value = countIncludes;
+
+    //auto pri = GetProperty(pmi->id);
+    //editor_->SetIntValue(pri, countIncludes);
+
+    //QMap<QString, const QtProperty*> idToPropertyIncludes;
+    //for (int i = pri->subProperties().size(); i < countIncludes; ++i)
+    //    pri->addSubProperty(editor_->GetPropertyForModel(pmi->parameters[i], idToPropertyIncludes));
+    //for (const auto& kvp : idToPropertyIncludes.toStdMap())
+    //    RegisterProperty(kvp.second, kvp.first);
+
+
+
+    //auto pmv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(countIncludes - 1));
+    //int countVariables = pmv->value.toInt() + 1;
+
+    //UpdateVariablesArrayModel(*pmv, countVariables);
+    //pmv->value = countVariables;
+
+    //auto prv = GetProperty(pmv->id);
+    //editor_->SetIntValue(prv, countVariables);
+
+    //QMap<QString, const QtProperty*> idToPropertyVariables;
+    //for (int i = prv->subProperties().size(); i < countVariables; ++i)
+    //    prv->addSubProperty(editor_->GetPropertyForModel(pmv->parameters[i], idToPropertyVariables));
+    //for (const auto& kvp : idToPropertyVariables.toStdMap())
+    //    RegisterProperty(kvp.second, kvp.first);
+
+
+
+}
+
 QStringList FileItem::GetIncludeNames()
 {
     QStringList result;
@@ -458,6 +548,24 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
     }
 
     return result;
+}
+
+QString FileItem::GetIncludeName(const QString& includePath)
+{
+    const auto pm = GetParameterModel("INCLUDES");
+    if (pm == nullptr)
+        return "";
+
+    for (int i = 0; i < pm->value.toInt(); i++)
+    {
+        const auto pmif = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(i));
+        if (pmif->value == includePath)
+        {
+            const auto pmin = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+            return pmin->value.toString();
+        }
+    }
+    return "";
 }
 
 void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count)

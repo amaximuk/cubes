@@ -114,6 +114,18 @@ QColor FileItemsManager::GetFileColor(const QString& fileName)
 	return QColor("Black");
 }
 
+void FileItemsManager::AddFileInclude(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>> includeVariables)
+{
+	for (auto& fi : items_)
+	{
+		if (fi->GetName() == fileName)
+		{
+			fi->AddInclude(includeName, includeVariables);
+			break;
+		}
+	}
+}
+
 QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName)
 {
 	QStringList fileIncludeNames;
@@ -121,9 +133,22 @@ QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName)
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
+		{
 			fileIncludeNames.append(fi->GetIncludeNames());
+			break;
+		}
 	}
 	return fileIncludeNames;
+}
+
+QString FileItemsManager::GetFileIncludeName(const QString& fileName, const QString& filePath)
+{
+	for (auto& fi : items_)
+	{
+		if (fi->GetName() == fileName)
+			return fi->GetIncludeName(filePath);
+	}
+	return "";
 }
 
 QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)

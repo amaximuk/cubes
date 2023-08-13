@@ -98,7 +98,7 @@ protected:
 
     // Units
     bool AddMainFile(CubesXml::File& file);
-    bool AddUnits(const QString& fileName, const CubesXml::File& file);
+    bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);
     bool SortUnits();
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);

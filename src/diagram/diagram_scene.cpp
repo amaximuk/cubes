@@ -296,8 +296,8 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
 {
-    DrawConnections(painter, rect);
-    QGraphicsScene::drawBackground(painter, rect);
+    //DrawConnections(painter, rect);
+    //QGraphicsScene::drawBackground(painter, rect);
 }
 
 DiagramItem* DiagramScene::GetDiagramItem(QString name)

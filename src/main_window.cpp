@@ -644,63 +644,65 @@ void MainWindow::FillParametersInfo()
 // Units
 bool MainWindow::AddMainFile(CubesXml::File& file)
 {
-    //if (panes_.size() == 1 && scene_->items().size() == 0)
-    //{
-    //    file_items_manager_->GetEditor()->GetPropertyEditor()->clear();
-    //    file_items_manager_->Clear();
-    //}
-
     QString fileName = QFileInfo(file.fileName).fileName();
 
     fileItemsManager_->Create(fileName);
     fileItemsManager_->Select(fileName);
 
-    QStringList fileNames = fileItemsManager_->GetFileNames();
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileNames(fileNames);
-    }
-
-    // Convert includes into unit
-    CubesXml::Group g{};
-    g.path = "service";
     for (int i = 0; i < file.includes.size(); i++)
     {
-        CubesXml::Unit u{};
-        u.id = "group";
-        u.name = QString::fromLocal8Bit("Ãðóïïà %1").arg(i);
-        CubesXml::Param p{};
-        p.name = "FILE_PATH";
-        p.type = "str";
-        p.val = file.includes[i].fileName;
-        u.params.push_back(std::move(p));
-        CubesXml::Array a{};
-        a.name = "VARIABLES";
+        QList<QPair<QString, QString>> variables;
         for (const auto& kvp : file.includes[i].variables.toStdMap())
-        {
-            CubesXml::Item i1{};
-            CubesXml::Param p1{};
-            p1.name = "NAME";
-            p1.type = "str";
-            p1.val = kvp.first;
-            i1.params.push_back(std::move(p1));
-            CubesXml::Param p2{};
-            p2.name = "VALUE";
-            p2.type = "str";
-            p2.val = kvp.second;
-            i1.params.push_back(std::move(p2));
-            a.items.push_back(std::move(i1));
-        }
-        u.arrays.push_back(std::move(a));
-        g.units.push_back(std::move(u));
+            variables.push_back({ kvp.first, kvp.second });
+        fileItemsManager_->AddFileInclude(fileName, file.includes[i].fileName, variables);
     }
 
-    if (file.includes.size() > 0)
-        file.config.groups.push_back(std::move(g));
+    //QStringList fileNames = fileItemsManager_->GetFileNames();
+    //for (auto& item : scene_->items())
+    //{
+    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    pi->SetFileNames(fileNames);
+    //}
 
-    if (!AddUnits(fileName, file))
+    // Convert includes into unit
+    //CubesXml::Group g{};
+    //g.path = "service";
+    //for (int i = 0; i < file.includes.size(); i++)
+    //{
+    //    CubesXml::Unit u{};
+    //    u.id = "group";
+    //    u.name = QString::fromLocal8Bit("Ãðóïïà %1").arg(i);
+    //    CubesXml::Param p{};
+    //    p.name = "FILE_PATH";
+    //    p.type = "str";
+    //    p.val = file.includes[i].fileName;
+    //    u.params.push_back(std::move(p));
+    //    CubesXml::Array a{};
+    //    a.name = "VARIABLES";
+    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
+    //    {
+    //        CubesXml::Item i1{};
+    //        CubesXml::Param p1{};
+    //        p1.name = "NAME";
+    //        p1.type = "str";
+    //        p1.val = kvp.first;
+    //        i1.params.push_back(std::move(p1));
+    //        CubesXml::Param p2{};
+    //        p2.name = "VALUE";
+    //        p2.type = "str";
+    //        p2.val = kvp.second;
+    //        i1.params.push_back(std::move(p2));
+    //        a.items.push_back(std::move(i1));
+    //    }
+    //    u.arrays.push_back(std::move(a));
+    //    g.units.push_back(std::move(u));
+    //}
+
+    //if (file.includes.size() > 0)
+    //    file.config.groups.push_back(std::move(g));
+
+    if (!AddUnits(fileName, "", file))
         return false;
 
     QDir dir = QFileInfo(file.fileName).absoluteDir();
@@ -711,14 +713,14 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
         if (!CubesXml::parser::parse(includedFileName, includedFile))
             return false;
 
-        if (!AddUnits(fileName, includedFile))
+        if (!AddUnits(fileName, file.includes[i].fileName, includedFile))
             return false;
     }
 
     return true;
 }
 
-bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
+bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
@@ -748,6 +750,7 @@ bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
     QStringList fileNames = fileItemsManager_->GetFileNames();
 
     // Transform
+    CubeDiagram::DiagramItem* di = nullptr;
     for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;
@@ -756,8 +759,19 @@ bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
         if (up != nullptr)
         {
             uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i].name, propertiesId);
+            propertiesItemsManager_->Create(all_units[i].id, propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
+
+            pi->ApplyXmlProperties(all_units[i]);
+            pi->SetFileNames(fileNames);
+            pi->SetFileName(fileName);
+            if (includedFileName != "")
+            {
+                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
+                pi->SetGroupNames(fileIncludeNames);
+                pi->SetGroupName(fileIncludeName);
+            }
 
             PropertiesForDrawing pfd{};
             if (!GetPropeties(propertiesId, pfd))
@@ -765,24 +779,17 @@ bool MainWindow::AddUnits(const QString& fileName, const CubesXml::File& file)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            CubeDiagram::DiagramItem* di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
-
-
-            pi->ApplyXmlProperties(all_units[i]);
-            pi->SetFileNames(fileNames);
-            pi->SetFileName(fileName);
-            //di->SetGroupName(groupName);
-
+            di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
             scene_->addItem(di);
-            scene_->clearSelection();
-
-            DiagramAfterItemCreated(di);
         }
         else
         {
             // error
         }
     }
+
+    scene_->clearSelection();
+    DiagramAfterItemCreated(di);
 
     if (!SortUnits())
         return false;
@@ -1141,6 +1148,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->groupName_ = groupName;
             di->color_ = GetFileColor(fileName);
             di->InformNameChanged(name, name);
+            di->InformGroupChanged();
         }
     }
 

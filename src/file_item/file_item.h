@@ -38,6 +38,7 @@ namespace CubesFile
 
         void SetName(QString name, bool setOldName = false, QString oldName = "");
         void SetColor(QColor color);
+        void AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables);
         void ExpandedChanged(const QtProperty* property, bool is_expanded);
 
         QString GetName();
@@ -45,6 +46,7 @@ namespace CubesFile
         QString GetPropertyDescription(const QtProperty* property);
         QStringList GetIncludeNames();
         QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
+        QString GetIncludeName(const QString& includePath);
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
