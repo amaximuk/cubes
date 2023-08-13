@@ -115,9 +115,9 @@ public slots:
     void DiagramItemPositionChanged(CubeDiagram::DiagramItem* item);
     void DiagramAfterItemCreated(CubeDiagram::DiagramItem* item);
     void DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* item);
-    void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
-    void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
-    void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
+    //void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
+    //void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
+    //void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
     void selectionChanged(); // QGraphicsScene
 
     // FileItemsManager

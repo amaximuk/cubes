@@ -262,7 +262,7 @@ void DiagramItem::InformFileChanged()
 {
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->InformItemFileChanged(this);
+        //reinterpret_cast<DiagramScene*>(scene())->InformItemFileChanged(this);
         scene()->invalidate();
     }
 }
@@ -282,7 +282,7 @@ void DiagramItem::InformGroupChanged()
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->InformItemGroupChanged(this);
+        //reinterpret_cast<DiagramScene*>(scene())->InformItemGroupChanged(this);
         scene()->invalidate();
     }
 }
@@ -296,7 +296,7 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
     if (scene() != nullptr)
     {
-        reinterpret_cast<DiagramScene*>(scene())->InformItemNameChanged(this, oldName);
+        //reinterpret_cast<DiagramScene*>(scene())->InformItemNameChanged(this, oldName);
         scene()->invalidate();
     }
 }

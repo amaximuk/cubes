@@ -26,21 +26,21 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
     emit AfterItemCreated(item);
 }
 
-void DiagramScene::InformItemNameChanged(DiagramItem* item, QString oldName)
-{
-    emit ItemNameChanged(item, oldName);
-}
-
-void DiagramScene::InformItemFileChanged(DiagramItem* item)
-{
-    emit ItemFileChanged(item);
-}
-
-void DiagramScene::InformItemGroupChanged(DiagramItem* item)
-{
-    emit ItemGroupChanged(item);
-}
-
+//void DiagramScene::InformItemNameChanged(DiagramItem* item, QString oldName)
+//{
+//    emit ItemNameChanged(item, oldName);
+//}
+//
+//void DiagramScene::InformItemFileChanged(DiagramItem* item)
+//{
+//    emit ItemFileChanged(item);
+//}
+//
+//void DiagramScene::InformItemGroupChanged(DiagramItem* item)
+//{
+//    emit ItemGroupChanged(item);
+//}
+//
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();

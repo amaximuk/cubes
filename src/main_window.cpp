@@ -431,9 +431,9 @@ void MainWindow::CreateScene()
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::DiagramAfterItemCreated);
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::DiagramBeforeItemDeleted);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::DiagramItemNameChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::DiagramItemFileChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemGroupChanged, this, &MainWindow::DiagramItemGroupChanged);
+    //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::DiagramItemNameChanged);
+    //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::DiagramItemFileChanged);
+    //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemGroupChanged, this, &MainWindow::DiagramItemGroupChanged);
     qDebug() << connect(scene_, &CubeDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
 }
 
@@ -768,6 +768,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             if (includedFileName != "")
             {
                 QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+                // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
                 QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
                 pi->SetGroupNames(fileIncludeNames);
                 pi->SetGroupName(fileIncludeName);
@@ -1010,26 +1011,26 @@ void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
     }
 }
 
-void MainWindow::DiagramItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
-{
-    int i = propertiesItemsManager_->GetSelector()->findText(oldName);
-    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    if (i != -1)
-        propertiesItemsManager_->GetSelector()->setItemText(i, pi->GetName());
-}
-
-void MainWindow::DiagramItemFileChanged(CubeDiagram::DiagramItem* di)
-{
-    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    QString fileName = pi->GetFileName();
-    QStringList includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
-    pi->SetGroupNames(includeNames);
-    pi->SetGroupName("<not selected>");
-}
-
-void MainWindow::DiagramItemGroupChanged(CubeDiagram::DiagramItem* item)
-{
-}
+//void MainWindow::DiagramItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)
+//{
+//    int i = propertiesItemsManager_->GetSelector()->findText(oldName);
+//    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//    if (i != -1)
+//        propertiesItemsManager_->GetSelector()->setItemText(i, pi->GetName());
+//}
+//
+//void MainWindow::DiagramItemFileChanged(CubeDiagram::DiagramItem* di)
+//{
+//    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//    QString fileName = pi->GetFileName();
+//    QStringList includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+//    pi->SetGroupNames(includeNames);
+//    pi->SetGroupName("<not selected>");
+//}
+//
+//void MainWindow::DiagramItemGroupChanged(CubeDiagram::DiagramItem* item)
+//{
+//}
 
 void MainWindow::selectionChanged()
 {

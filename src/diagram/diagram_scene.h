@@ -33,9 +33,9 @@ namespace CubeDiagram
         void ItemPositionChanged(DiagramItem* item);
         void AfterItemCreated(DiagramItem* item);
         void BeforeItemDeleted(DiagramItem* item);
-        void ItemNameChanged(DiagramItem* item, QString oldName);
-        void ItemFileChanged(DiagramItem* item);
-        void ItemGroupChanged(DiagramItem* item);
+        //void ItemNameChanged(DiagramItem* item, QString oldName);
+        //void ItemFileChanged(DiagramItem* item);
+        //void ItemGroupChanged(DiagramItem* item);
 
     protected:
         void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

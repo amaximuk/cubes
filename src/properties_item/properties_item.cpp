@@ -516,8 +516,10 @@ void PropertiesItem::SetGroupName(QString groupName)
 {
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     if (pm != nullptr)
+    {
         pm->value = groupName;
-    editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, groupName);
+        editor_->SetEnumValue(GetProperty(pm->id), pm->valueType, groupName);
+    }
     //diagramItem_->InformGroupChanged();
 }
 
@@ -554,7 +556,9 @@ void PropertiesItem::SetName(QString name)
     {
         QString oldName = pm->value.toString();
         pm->value = name;
-        //diagramItem_->InformNameChanged(name, oldName);
+
+        auto pr = GetProperty(pm->id);
+        editor_->SetStringValue(pr, name);
     }
 }
 
@@ -566,23 +570,23 @@ QString PropertiesItem::GetName()
     return "";
 }
 
-QList<QPair<QString, QString>> PropertiesItem::GetVariables()
-{
-    QList<QPair<QString, QString>> result;
-    const auto pm = GetParameterModel("PARAMETERS/VARIABLES");
-    if (pm != nullptr)
-    {
-        int count = pm->value.toInt();
-        for (int i = 0; i < count; i++)
-        {
-            const auto pm_n = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/NAME").arg(i));
-            const auto pm_v = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/VALUE").arg(i));
-            if (pm_n != nullptr && pm_v != nullptr)
-                result.push_back({ pm_n->value.toString(), pm_v->value.toString() });
-        }
-    }
-    return result;
-}
+//QList<QPair<QString, QString>> PropertiesItem::GetVariables()
+//{
+//    QList<QPair<QString, QString>> result;
+//    const auto pm = GetParameterModel("PARAMETERS/VARIABLES");
+//    if (pm != nullptr)
+//    {
+//        int count = pm->value.toInt();
+//        for (int i = 0; i < count; i++)
+//        {
+//            const auto pm_n = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/NAME").arg(i));
+//            const auto pm_v = GetParameterModel(QString("PARAMETERS/VARIABLES/ITEM_%1/VALUE").arg(i));
+//            if (pm_n != nullptr && pm_v != nullptr)
+//                result.push_back({ pm_n->value.toString(), pm_v->value.toString() });
+//        }
+//    }
+//    return result;
+//}
 //
 //void properties_item::ApplyToBrowser(QtTreePropertyBrowser* propertyEditor)
 //{
@@ -804,17 +808,20 @@ QString PropertiesItem::GetInstanceName()
 
 void PropertiesItem::ApplyXmlProperties(CubesXml::Unit xu)
 {
-    auto pm = GetParameterModel("BASE/NAME");
-    if (pm == nullptr)
-        return;
-    pm->value = xu.name;
+    SetName(xu.name);
+    //auto pm = GetParameterModel("BASE/NAME");
+    //if (pm == nullptr)
+    //    return;
+    //pm->value = xu.name;
+    //auto pr = GetProperty(pm->id);
+    //editor_->SetStringValue(pr, xu.name);
 
     for (auto& pm : model_.parameters)
     {
         ApplyXmlPropertiesInternal(pm, xu);
     }
 
-    QString oldName = pm->value.toString();
+    //QString oldName = pm->value.toString();
     //diagramItem_->InformNameChanged(xu.name, "");
 }
 
@@ -982,6 +989,8 @@ void PropertiesItem::ValueChanged(QtProperty * property, const QVariant & value)
 
             QList<QPair<QString, QString>> variables;
             propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
+
+
 
             //SetGroupNames(includeNames);
             //SetGroupName("<not selected>");
