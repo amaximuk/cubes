@@ -53,14 +53,14 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/images/cubes.png"));
 
     fileItemsManager_ = new CubesFile::FileItemsManager(this);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MainWindow::fileNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &MainWindow::fileListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MainWindow::FileNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &MainWindow::FileListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &MainWindow::FileIncludeNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &MainWindow::FileIncludesListChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::propertiesBasePropertiesChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::propertiesSelectedItemChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -157,21 +157,21 @@ QWidget* MainWindow::CreateLogWidget()
     buttonError->setIcon(QIcon(":/images/error.png"));
     buttonError->setText(QString::fromLocal8Bit("Ошибка"));
     buttonError->setChecked(true);
-    qDebug() << connect(buttonError, &QToolButton::clicked, this, &MainWindow::on_ErrorButton_clicked);
+    qDebug() << connect(buttonError, &QToolButton::clicked, this, &MainWindow::OnErrorButtonClicked);
     QToolButton* buttonWarning = new QToolButton;
     buttonWarning->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     buttonWarning->setCheckable(true);
     buttonWarning->setIcon(QIcon(":/images/warning.png"));
     buttonWarning->setText(QString::fromLocal8Bit("Предупреждение"));
     buttonWarning->setChecked(true);
-    qDebug() << connect(buttonWarning, &QToolButton::clicked, this, &MainWindow::on_WarningButton_clicked);
+    qDebug() << connect(buttonWarning, &QToolButton::clicked, this, &MainWindow::OnWarningButtonClicked);
     QToolButton* buttonInformation = new QToolButton;
     buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     buttonInformation->setCheckable(true);
     buttonInformation->setIcon(QIcon(":/images/information.png"));
     buttonInformation->setText(QString::fromLocal8Bit("Информация"));
     buttonInformation->setChecked(true);
-    qDebug() << connect(buttonInformation, &QToolButton::clicked, this, &MainWindow::on_InformationButton_clicked);
+    qDebug() << connect(buttonInformation, &QToolButton::clicked, this, &MainWindow::OnInformationButtonClicked);
 
     QHBoxLayout* buttonsLayout = new QHBoxLayout;
     buttonsLayout->addWidget(buttonError);
@@ -1398,16 +1398,16 @@ void MainWindow::selectionChanged()
 
 }
 
-void MainWindow::test2(QPointF ppp)
-{
-    qDebug() << "!!!!!111111111111111111111!!!!!!!!!!!!!!!";
-//    diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
-//    QPoint position = (sp_scene_->selectedItems()[0]->pos()-QPoint(24,24)).toPoint();
-//    sp_scene_->addItem(newIcon);
-//    sp_scene_->clearSelection();
-//    newIcon->setPos(position);
-//    newIcon->setSelected(true);
-}
+//void MainWindow::test2(QPointF ppp)
+//{
+//    qDebug() << "!!!!!111111111111111111111!!!!!!!!!!!!!!!";
+////    diagram_item *newIcon = new diagram_item(QIcon("c:/QtProjects/cubes/resource/plus.png").pixmap(48,48));
+////    QPoint position = (sp_scene_->selectedItems()[0]->pos()-QPoint(24,24)).toPoint();
+////    sp_scene_->addItem(newIcon);
+////    sp_scene_->clearSelection();
+////    newIcon->setPos(position);
+////    newIcon->setSelected(true);
+//}
 
 //void MainWindow::on_Tab_currentChanged(int index)
 //{
@@ -1435,7 +1435,7 @@ void MainWindow::test2(QPointF ppp)
 //    }
 //}
 
-void MainWindow::on_ErrorButton_clicked(bool checked)
+void MainWindow::OnErrorButtonClicked(bool checked)
 {
     if (checked)
         sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
@@ -1443,7 +1443,7 @@ void MainWindow::on_ErrorButton_clicked(bool checked)
         sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
 }
 
-void MainWindow::on_WarningButton_clicked(bool checked)
+void MainWindow::OnWarningButtonClicked(bool checked)
 {
     if (checked)
         sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
@@ -1451,17 +1451,12 @@ void MainWindow::on_WarningButton_clicked(bool checked)
         sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
 }
 
-void MainWindow::on_InformationButton_clicked(bool checked)
+void MainWindow::OnInformationButtonClicked(bool checked)
 {
     if (checked)
         sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
     else
         sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
-}
-
-void MainWindow::on_DeleteFileInclude_action(bool checked)
-{
-    qDebug() << qobject_cast<QAction*>(sender())->text();
 }
 
 void MainWindow::ItemPositionChanged(CubeDiagram::DiagramItem* di)
@@ -1690,33 +1685,33 @@ void MainWindow::CreateMenu()
     QAction* newAct = new QAction(QString::fromLocal8Bit("Создать"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(QString::fromLocal8Bit("Создать новый файл"));
-    connect(newAct, &QAction::triggered, this, &MainWindow::on_NewFile_action);
+    connect(newAct, &QAction::triggered, this, &MainWindow::OnNewFileAction);
 
     QAction* openAct = new QAction(QString::fromLocal8Bit("Открыть"), this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
-    connect(openAct, &QAction::triggered, this, &MainWindow::on_OpenFile_action);
+    connect(openAct, &QAction::triggered, this, &MainWindow::OnOpenFileAction);
 
     QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
     importXmlAct->setShortcut(QKeySequence("Ctrl+I"));
     importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
-    connect(importXmlAct, &QAction::triggered, this, &MainWindow::on_ImportXmlFile_action);
+    connect(importXmlAct, &QAction::triggered, this, &MainWindow::OnImportXmlFileAction);
 
     QAction* saveAct = new QAction(QString::fromLocal8Bit("Сохранить"), this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл"));
-    connect(saveAct, &QAction::triggered, this, &MainWindow::on_SaveFile_action);
+    connect(saveAct, &QAction::triggered, this, &MainWindow::OnSaveFileAction);
 
     QAction* saveAsAct = new QAction(QString::fromLocal8Bit("Сохранить как..."), this);
     //saveAsAct->setShortcuts(QKeySequence::SaveAs);
     saveAsAct->setShortcut(QKeySequence("Ctrl+Shift+S"));
     saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
-    connect(saveAsAct, &QAction::triggered, this, &MainWindow::on_SaveAsFile_action);
+    connect(saveAsAct, &QAction::triggered, this, &MainWindow::OnSaveAsFileAction);
 
     QAction* quitAct = new QAction(QString::fromLocal8Bit("Выйти"), this);
     quitAct->setShortcuts(QKeySequence::Quit);
     quitAct->setStatusTip(QString::fromLocal8Bit("Выйти из приложения"));
-    connect(quitAct, &QAction::triggered, this, &MainWindow::on_Quit_action);
+    connect(quitAct, &QAction::triggered, this, &MainWindow::OnQuitAction);
 
     QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
     fileMenu->addAction(newAct);
@@ -1731,14 +1726,14 @@ void MainWindow::CreateMenu()
 
     QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
     sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
-    connect(sortAct, &QAction::triggered, this, &MainWindow::on_Sort_action);
+    connect(sortAct, &QAction::triggered, this, &MainWindow::OnSortAction);
 
     QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
     editMenu->addAction(sortAct);
 
 }
 
-void MainWindow::on_NewFile_action()
+void MainWindow::OnNewFileAction()
 {
     if (modified_)
     {
@@ -1761,7 +1756,7 @@ void MainWindow::on_NewFile_action()
     //UpdateWindowTitle();
 }
 
-void MainWindow::on_OpenFile_action()
+void MainWindow::OnOpenFileAction()
 {
     if (modified_)
     {
@@ -1787,7 +1782,7 @@ void MainWindow::on_OpenFile_action()
     //OpenFileInternal(fileNames[0], is_json);
 }
 
-void MainWindow::on_ImportXmlFile_action()
+void MainWindow::OnImportXmlFileAction()
 {
     //if (modified_)
     //{
@@ -1826,7 +1821,7 @@ void MainWindow::on_ImportXmlFile_action()
     }
 }
 
-void MainWindow::on_SaveFile_action()
+void MainWindow::OnSaveFileAction()
 {
     if (!modified_)
         return;
@@ -1881,12 +1876,12 @@ void MainWindow::on_SaveFile_action()
     //}
 }
 
-void MainWindow::on_SaveAsFile_action()
+void MainWindow::OnSaveAsFileAction()
 {
     //SaveAs();
 }
 
-void MainWindow::on_Quit_action()
+void MainWindow::OnQuitAction()
 {
     if (modified_)
     {
@@ -1901,7 +1896,7 @@ void MainWindow::on_Quit_action()
     }
 }
 
-void MainWindow::on_Sort_action()
+void MainWindow::OnSortAction()
 {
     //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
     //if (tabIndex == -1)
@@ -2057,37 +2052,37 @@ void MainWindow::on_Sort_action()
 //    //}
 //}
 
-void MainWindow::on_RemoveGroup_clicked()
-{
-    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
-        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
-    if (resBtn == QMessageBox::Yes)
-        QApplication::quit();
-}
+//void MainWindow::OnRemoveGroupClicked()
+//{
+//    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+//        QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+//    if (resBtn == QMessageBox::Yes)
+//        QApplication::quit();
+//}
 
-void MainWindow::on_Units_currentIndexChanged(int index)
-{
-    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
-    //if (tabIndex == -1)
-    //    return;
-
-    scene_->blockSignals(true);
-    if (scene_->selectedItems().size() > 0)
-        scene_->clearSelection();
-    //propertyEditor_->clear();
-    scene_->blockSignals(false);
-    if (index == 0)
-        return;
-
-    QString name = propertiesItemsManager_->GetSelector()->currentText();
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetName() == name)
-            item->setSelected(true);
-    }
-}
+//void MainWindow::on_Units_currentIndexChanged(int index)
+//{
+//    //int tabIndex = tabWidget_->indexOf(tabWidget_->currentWidget());
+//    //if (tabIndex == -1)
+//    //    return;
+//
+//    scene_->blockSignals(true);
+//    if (scene_->selectedItems().size() > 0)
+//        scene_->clearSelection();
+//    //propertyEditor_->clear();
+//    scene_->blockSignals(false);
+//    if (index == 0)
+//        return;
+//
+//    QString name = propertiesItemsManager_->GetSelector()->currentText();
+//    for (const auto& item : scene_->items())
+//    {
+//        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//        if (pi->GetName() == name)
+//            item->setSelected(true);
+//    }
+//}
 
 void MainWindow::currentItemChanged(QtBrowserItem* item)
 {
@@ -2109,28 +2104,28 @@ void MainWindow::currentItemChanged(QtBrowserItem* item)
     }
 }
 
-void MainWindow::showFileContextMenu(const QPoint& pos)
-{
-    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
-    //    return;
-    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
-    //    return;
+//void MainWindow::showFileContextMenu(const QPoint& pos)
+//{
+//    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem() == nullptr)
+//    //    return;
+//    //if (filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent() == nullptr)
+//    //    return;
+//
+//    //QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
+//    //QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
+//    //if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
+//    //{
+//    //    QMenu contextMenu(tr("Context menu"), this);
+//
+//    //    QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
+//    //    connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
+//    //    contextMenu.addAction(&action1);
+//
+//    //    contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
+//    //}
+//}
 
-    //QString name = filePropertiesEditor_->GetPropertyEditor()->currentItem()->property()->propertyName();
-    //QString parentName = filePropertiesEditor_->GetPropertyEditor()->currentItem()->parent()->property()->propertyName();
-    //if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-    //{
-    //    QMenu contextMenu(tr("Context menu"), this);
-
-    //    QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name), this);
-    //    connect(&action1, &QAction::triggered, this, &MainWindow::on_DeleteFileInclude_action);
-    //    contextMenu.addAction(&action1);
-
-    //    contextMenu.exec(mapToGlobal(filePropertiesEditor_->GetPropertyEditor()->mapTo(this, pos)));
-    //}
-}
-
-void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFileName)
+void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
 {
     QStringList fileNames = fileItemsManager_->GetFileNames();
     QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
@@ -2159,7 +2154,7 @@ void MainWindow::fileNameChanged(const QString& fileName, const QString& oldFile
     scene_->invalidate();
 }
 
-void MainWindow::fileListChanged(const QStringList& fileNames)
+void MainWindow::FileListChanged(const QStringList& fileNames)
 {
     for (auto& item : scene_->items())
     {
@@ -2174,7 +2169,7 @@ void MainWindow::fileListChanged(const QStringList& fileNames)
     scene_->invalidate();
 }
 
-void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
+void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
     QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
     for (auto& item : scene_->items())
@@ -2200,7 +2195,7 @@ void MainWindow::fileIncludeNameChanged(const QString& fileName, const QString& 
     scene_->invalidate();
 }
 
-void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+void MainWindow::FileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
 {
     for (auto& item : scene_->items())
     {
@@ -2216,7 +2211,7 @@ void MainWindow::fileIncludesListChanged(const QString& fileName, const QStringL
     scene_->invalidate();
 }
 
-void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
+void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
 {
     for (auto& item : scene_->items())
     {
@@ -2270,7 +2265,7 @@ void MainWindow::propertiesBasePropertiesChanged(const uint32_t propertiesId, co
 //    scene_->invalidate();
 //}
 
-void MainWindow::propertiesSelectedItemChanged(const uint32_t propertiesId)
+void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
 {
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
