@@ -1,11 +1,11 @@
 #pragma once
 
-#include <QAbstractItemModel>
+//#include <QAbstractItemModel>
 #include <QStandardItemModel>
 
-class QDragEnterEvent;
-class QDropEvent;
-class QMouseEvent;
+//class QDragEnterEvent;
+//class QDropEvent;
+//class QMouseEvent;
 
 class TreeItemModel : public QStandardItemModel
 {

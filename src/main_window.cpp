@@ -1,35 +1,18 @@
-#include "main_window.h"
-#include "diagram/diagram_view.h"
-
-#include "qtpropertymanager.h"
-#include "qteditorfactory.h"
-#include "qttreepropertybrowser.h"
-#include "tree_item_model.h"
-#include "diagram/diagram_scene.h"
-#include "diagram/diagram_item.h"
-#include "properties_item/properties_item.h"
-#include "parameters_compiler/yaml_parser.h"
-#include "xml_parser.h"
-#include "parameters_compiler/base64.h"
-#include "graph.h"
-#include "log_table/log_table_model.h"
-
-#include <vector>
-
+//#include <vector>
+//
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-
-#include <QGraphicsScene>
-#include <QGraphicsView>
+//#include <QGraphicsScene>
+//#include <QGraphicsView>
 #include <QTableView>
 #include <QTreeView>
-#include <QToolBox>
+//#include <QToolBox>
 #include <QToolButton>
 #include <QSplitter>
-#include <QDialog>
-#include <QDebug>
-#include <QPushButton>
-#include <QFile>
+//#include <QDialog>
+//#include <QDebug>
+//#include <QPushButton>
+//#include <QFile>
 #include <QAction>
 #include <QMenu>
 #include <QMessageBox>
@@ -37,12 +20,33 @@
 #include <QApplication>
 #include <QPlainTextEdit>
 #include <QComboBox>
-#include <QDirIterator>
-#include <QInputDialog>
+//#include <QDirIterator>
+//#include <QInputDialog>
 #include <QFileDialog>
-#include <QStandardItemModel>
-#include <QLabel>
+//#include <QStandardItemModel>
+//#include <QLabel>
 #include <QHeaderView>
+
+//#include "qtpropertymanager.h"
+//#include "qteditorfactory.h"
+
+#include "diagram/diagram_view.h"
+#include "diagram/diagram_scene.h"
+#include "diagram/diagram_item.h"
+#include "file_item/file_item.h"
+#include "file_item/file_items_manager.h"
+#include "log_table/log_table_model.h"
+#include "log_table/sort_filter_model.h"
+#include "parameters_compiler/yaml_parser.h"
+#include "parameters_compiler/base64.h"
+#include "properties_item/properties_item.h"
+#include "properties_item/properties_items_manager.h"
+#include "qttreepropertybrowser.h" // потом убрать
+#include "tree_item_model.h"
+#include "xml_parser.h"
+#include "graph.h"
+
+#include "main_window.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

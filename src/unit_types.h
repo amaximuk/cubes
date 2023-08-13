@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <regex>
 
-#include <QString>
+//#include <QString>
 #include <QVariant>
 #include <QSet>
 

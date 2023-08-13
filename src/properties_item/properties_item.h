@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QGraphicsItem>
+//#include <QGraphicsItem>
 #include <QObject>
-#include <QPixmap>
+//#include <QPixmap>
 
 #include "properties_items_manager_interface.h"
 #include "../unit_types.h"

@@ -1,22 +1,22 @@
 #pragma once
 
-#include <QWidget>
-#include <QPointer>
-#include <QMap>
-#include <QSet>
-#include <QPoint>
 #include <QMainWindow>
-#include <QVector>
+#include <QPointer>
+//#include <QWidget>
+//#include <QMap>
+//#include <QSet>
+//#include <QPoint>
+//#include <QVector>
 
-#include "parameters_compiler/parameters_compiler_types.h"
-#include "file_item/file_item.h"
-#include "xml_parser.h"
-#include "unit_types.h"
-#include "log_table/log_table_model.h"
-#include "log_table/sort_filter_model.h"
-#include "file_item/file_items_manager.h"
-#include "properties_item/properties_items_manager.h"
-#include "property_browser/properties_editor.h"
+//#include "parameters_compiler/parameters_compiler_types.h"
+//#include "file_item/file_item.h"
+//#include "xml_parser.h"
+//#include "unit_types.h"
+//#include "log_table/log_table_model.h"
+//#include "log_table/sort_filter_model.h"
+//#include "file_item/file_items_manager.h"
+//#include "properties_item/properties_items_manager.h"
+//#include "property_browser/properties_editor.h"
 #include "top_manager_interface.h"
 
 namespace CubeDiagram
@@ -24,6 +24,27 @@ namespace CubeDiagram
     class DiagramItem;
     class DiagramScene;
     class DiagramView;
+}
+
+namespace CubesUnitTypes
+{
+    struct UnitParameters;
+}
+
+namespace CubeLog
+{
+    class LogTableModel;
+    class SortFilterModel;
+}
+
+namespace CubesFile
+{
+    class FileItemsManager;
+}
+
+namespace CubesProperties
+{
+    class PropertiesItemsManager;
 }
 
 class QPlainTextEdit;

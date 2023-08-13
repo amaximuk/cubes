@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QString>
-#include <QList>
+//#include <QString>
+//#include <QList>
 
 namespace CubesProperties
 {

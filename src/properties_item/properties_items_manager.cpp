@@ -1,10 +1,10 @@
-#include <QMap>
-#include <QSet>
-#include <QSharedPointer>
-#include <QString>
-#include <QColor>
+//#include <QMap>
+//#include <QSet>
+//#include <QSharedPointer>
+//#include <QString>
+//#include <QColor>
+//#include <QAction>
 #include <QComboBox>
-#include <QAction>
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>

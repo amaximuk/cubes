@@ -1,10 +1,10 @@
-#include <QPainterPath>
+//#include <QPainterPath>
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsItem>
+//#include <QGraphicsItem>
 #include <QGuiApplication>
 #include <QCursor>
 #include <QKeyEvent>
-#include <QDebug>
+//#include <QDebug>
 #include <QPainter>
 
 #include "diagram_item.h"

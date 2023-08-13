@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QObject>
-#include <QMap>
-#include <QList>
-#include <QSharedPointer>
+//#include <QMap>
+//#include <QList>
+//#include <QSharedPointer>
 
 #include "file_items_manager_interface.h"
 #include "../unit_types.h"

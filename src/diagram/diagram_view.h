@@ -4,8 +4,8 @@
 #include "../top_manager_interface.h"
 
 
-class QDragEnterEvent;
-class QDropEvent;
+//class QDragEnterEvent;
+//class QDropEvent;
 
 namespace CubeDiagram
 {

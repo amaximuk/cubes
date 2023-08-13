@@ -1,5 +1,6 @@
 #include <QPainter>
-#include <QDebug>
+//#include <QDebug>
+//#include <QFont>
 
 #include "diagram_scene.h"
 #include "diagram_item.h"

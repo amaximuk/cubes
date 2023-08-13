@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QString>
-#include <QPixmap>
-#include <QColor>
+//#include <QString>
+//#include <QPixmap>
+//#include <QColor>
 #include "unit_types.h"
 #include "xml_parser.h"
 
