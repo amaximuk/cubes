@@ -66,14 +66,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     for (auto& item : selectedItems())
     {
         DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
+        DiagramItem* olddi = reinterpret_cast<DiagramItem*>(item);
 
-        //QString oldName = di->name_;
-        //QString newName = topManager_->GetNewUnitName(oldName);
-        //di->name_ = newName;
-        //qDebug() << "X1: " << oldName << " - " << newName;
-
-        di->name_ = "<new item>";
-        dragItems_.push_back(di);
+        di->name_ = olddi->name_;
+        dragItems_.push_back({ di, olddi });
         di->SetBorderOnly(true);
         addItem(di);
     }
@@ -82,12 +78,11 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     if (ctrl)
     {
         QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
-        for (auto& item : dragItems_)
+        for (auto& pair : dragItems_)
         {
-            DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-            qDebug() << "X2: " << di->name_;
-
-            di->SetBorderOnly(false);
+            pair.second->name_ = "<new item>";
+            pair.second->InformNameChanged("<new item>", "");
+            pair.first->SetBorderOnly(false);
         }
     }
     else
@@ -163,7 +158,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
           clearSelection();
 
 
-          for (auto& di : dragItems_)
+          for (auto& pair : dragItems_)
           {
               //diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
 
@@ -181,9 +176,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
               //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
 
               QString unitId;
-              if (!topManager_->GetPropetiesUnitId(di->propertiesId_, unitId))
+              if (!topManager_->GetPropetiesUnitId(pair.first->propertiesId_, unitId))
               {
-                  qDebug() << "ERROR GetPropetiesUnitParameters: " << di->propertiesId_;
+                  qDebug() << "ERROR GetPropetiesUnitParameters: " << pair.first->propertiesId_;
               }
 
               uint32_t propertiesId{ 0 };
@@ -199,15 +194,18 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
               }
 
 
+              pair.second->name_ = pair.first->name_;
+              pair.second->InformNameChanged(pair.first->name_, "");
 
-              di->name_ = pfd.name;
-              di->propertiesId_ = propertiesId;
+              pair.first->name_ = pfd.name;
+              pair.first->InformNameChanged(pfd.name, "");
+              pair.first->propertiesId_ = propertiesId;
 
 
-              di->SetBorderOnly(false);
-              InformItemCreated(di);
+              pair.first->SetBorderOnly(false);
+              InformItemCreated(pair.first);
 
-              QPointF position = di->pos() - delta;
+              QPointF position = pair.first->pos() - delta;
               //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
 
 
@@ -216,9 +214,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
               qreal yV = round(position.y() / gridSize) * gridSize;
               position = QPoint(xV, yV);
 
-              addItem(di);
-              di->setPos(position);
-              di->setSelected(true);
+              addItem(pair.first);
+              pair.first->setPos(position);
+              pair.first->setSelected(true);
               //addItem(di);
               //di->setPos(position);
     //          di->setSelected(true);
@@ -238,8 +236,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
       }
       else
       {
-          for (auto& item : dragItems_)
-              delete item;
+          for (auto& pair : dragItems_)
+              delete pair.first;
           dragItems_.clear();
       }
 
@@ -262,20 +260,22 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
         {
             qDebug() << "press" << dragItems_.size();
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
-            for (auto& item : dragItems_)
+            for (auto& pair : dragItems_)
             {
-                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-                di->SetBorderOnly(false);
+                pair.second->name_ = "<new item>";
+                pair.second->InformNameChanged("<new item>", "");
+                pair.first->SetBorderOnly(false);
             }
         }
         else
         {
             qDebug() << "release " << dragItems_.size();
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-            for (auto& item : dragItems_)
+            for (auto& pair : dragItems_)
             {
-                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-                di->SetBorderOnly(true);
+                pair.second->name_ = pair.first->name_;
+                pair.second->InformNameChanged(pair.first->name_, "");
+                pair.first->SetBorderOnly(true);
             }
         }
     }
@@ -304,19 +304,21 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
         if (ctrl)
         {
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
-            for (auto& item : dragItems_)
+            for (auto& pair : dragItems_)
             {
-                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-                di->SetBorderOnly(false);
+                pair.second->name_ = "<new item>";
+                pair.second->InformNameChanged("<new item>", "");
+                pair.first->SetBorderOnly(false);
             }
         }
         else
         {
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-            for (auto& item : dragItems_)
+            for (auto& pair : dragItems_)
             {
-                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-                di->SetBorderOnly(true);
+                pair.second->name_ = pair.first->name_;
+                pair.second->InformNameChanged(pair.first->name_, "");
+                pair.first->SetBorderOnly(true);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace CubeDiagram
         QPointF startPosition_;
         bool isItemMoving_;
         QGraphicsItem* movingItem_;
-        QList<DiagramItem*> dragItems_;
+        QList<QPair<DiagramItem*, DiagramItem*>> dragItems_;
 
     public:
         explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
