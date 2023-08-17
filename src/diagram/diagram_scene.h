@@ -22,6 +22,8 @@ namespace CubeDiagram
         explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
 
     public:
+        void InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
+
         void InformItemPositionChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);
         void InformItemNameChanged(DiagramItem* item, QString oldName);

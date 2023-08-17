@@ -93,7 +93,7 @@ void DiagramView::dropEvent(QDropEvent *event)
             }
 
             PropertiesForDrawing pfd{};
-            if (!topManager_->GetPropeties(propertiesId, pfd))
+            if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }

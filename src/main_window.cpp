@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -132,14 +133,17 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool MainWindow::GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
 {
-    auto pi = propertiesItemsManager_->GetItem(propertiesId);
-    pfd.pixmap = pi->GetPixmap();
-    pfd.name = pi->GetName();
-    pfd.fileName = pi->GetFileName();
-    pfd.groupName = pi->GetGroupName();
-    pfd.color = GetFileColor(pi->GetFileName());
+    //auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    //pfd.pixmap = pi->GetPixmap();
+    //pfd.name = pi->GetName();
+    //pfd.fileName = pi->GetFileName();
+    //pfd.groupName = pi->GetGroupName();
+    //pfd.color = GetFileColor(pi->GetFileName());
+    if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
+        return false;
+    pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
     return true;
 }
 
@@ -775,7 +779,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             }
 
             PropertiesForDrawing pfd{};
-            if (!GetPropeties(propertiesId, pfd))
+            if (!GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
@@ -957,10 +961,10 @@ QStringList MainWindow::GetCurrentFileIncludeNames()
     return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName());
 }
 
-QColor MainWindow::GetFileColor(const QString& fileName)
-{
-    return fileItemsManager_->GetFileColor(fileName);
-}
+//QColor MainWindow::GetFileColor(const QString& fileName)
+//{
+//    return fileItemsManager_->GetFileColor(fileName);
+//}
 
 QString MainWindow::GetDisplayName(const QString& baseName)
 {
@@ -1147,7 +1151,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->name_ = name;
             di->fileName_ = fileName;
             di->groupName_ = groupName;
-            di->color_ = GetFileColor(fileName);
+            di->color_ = fileItemsManager_->GetFileColor(fileName);
             di->InformNameChanged(name, name);
             di->InformGroupChanged();
         }
@@ -1177,6 +1181,20 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
 
     if (item_to_select != nullptr)
         item_to_select->setSelected(true);
+}
+
+void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+{
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        if (di->propertiesId_ == propertiesId)
+        {
+            di->setPos(QPointF(posX, posY));
+            di->setZValue(posZ);
+            break;
+        }
+    }
 }
 
 // Кнопки

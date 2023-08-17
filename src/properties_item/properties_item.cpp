@@ -946,7 +946,7 @@ void PropertiesItem::UpdateArrayModel(CubesUnitTypes::ParameterModel& pm)
 }
 
 
-void PropertiesItem::ValueChanged(QtProperty * property, const QVariant & value)
+void PropertiesItem::ValueChanged(QtProperty* property, const QVariant & value)
 {
     // BASE
     // BASE/NAME
@@ -965,42 +965,75 @@ void PropertiesItem::ValueChanged(QtProperty * property, const QVariant & value)
     if (pm == nullptr)
         return;
 
-    if (pm->id.startsWith("BASE"))
+    if (pm->id == "BASE/NAME")
     {
-        if (pm->id == "BASE/NAME")
-        {
-            //QString oldName = pm->value.toString();
-            //pm->value = value;
-            //file_items_manager_->InformNameChanged(value.toString(), oldName);
-        }
-        else if (pm->id == "BASE/FILE_NAME")
-        {
-            pm->value = property->valueText();
-
-            QStringList includeNames;
-            propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
-
-            SetGroupNames(includeNames);
-            SetGroupName("<not selected>");
-        }
-        else if (pm->id == "BASE/INCLUDE_NAME")
-        {
-            pm->value = property->valueText();
-
-            QList<QPair<QString, QString>> variables;
-            propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
-
-
-
-            //SetGroupNames(includeNames);
-            //SetGroupName("<not selected>");
-        }
-        else
-            pm->value = value.toString();
+        //QString oldName = pm->value.toString();
+        //pm->value = value;
+        //file_items_manager_->InformNameChanged(value.toString(), oldName);
     }
+    else if (pm->id == "BASE/FILE_NAME")
+    {
+        pm->value = property->valueText();
+
+        QStringList includeNames;
+        propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
+
+        SetGroupNames(includeNames);
+        SetGroupName("<not selected>");
+    }
+    else if (pm->id == "BASE/INCLUDE_NAME")
+    {
+        pm->value = property->valueText();
+
+        QList<QPair<QString, QString>> variables;
+        propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
 
 
-    
+
+        //SetGroupNames(includeNames);
+        //SetGroupName("<not selected>");
+    }
+    else if (pm->id == "EDITOR/POSITION_X")
+    {
+        pm->value = property->valueText().toDouble();
+        double posX = property->valueText().toDouble();
+
+        auto pmY = GetParameterModel("EDITOR/POSITION_Y");
+        double posY = pmY->value.toDouble();
+
+        auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
+        double posZ = pmZ->value.toDouble();
+
+        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+    }
+    else if (pm->id == "EDITOR/POSITION_Y")
+    {
+        auto pmX = GetParameterModel("EDITOR/POSITION_X");
+        double posX = pmX->value.toDouble();
+
+        pm->value = property->valueText().toDouble();
+        double posY = property->valueText().toDouble();
+
+        auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
+        double posZ = pmZ->value.toDouble();
+
+        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+    }
+    else if (pm->id == "EDITOR/POSITION_Z")
+    {
+        auto pmX = GetParameterModel("EDITOR/POSITION_X");
+        double posX = pmX->value.toDouble();
+
+        auto pmY = GetParameterModel("EDITOR/POSITION_Y");
+        double posY = pmY->value.toDouble();
+
+        pm->value = property->valueText().toDouble();
+        double posZ = property->valueText().toDouble();
+
+        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+    }
+    else
+        pm->value = value.toString();
 }
 
 void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)

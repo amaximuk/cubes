@@ -110,6 +110,20 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t pr
 	return nullptr;
 }
 
+bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+{
+	auto pi = GetItem(propertiesId);
+	if (pi == nullptr)
+		return false;
+
+	pfd.pixmap = pi->GetPixmap();
+	pfd.name = GetName(pi.get());
+	pfd.fileName = pi->GetFileName();
+	pfd.groupName = pi->GetGroupName();
+	pfd.color = {};
+	return true;
+}
+
 //QStringList GetFileNames()
 //{
 //	QStringList fileNames;
@@ -117,45 +131,45 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t pr
 //		fileNames.push_back(file->GetName());
 //	return fileNames;
 //}
-
-QColor PropertiesItemsManager::GetFileColor(const QString& fileName)
-{
-	for (auto& fi : items_)
-	{
-		//if (fi->GetName() == fileName)
-		//	return fi->GetColor();
-	}
-	return QColor("Black");
-}
-
-QStringList PropertiesItemsManager::GetFileIncludeNames(const QString& fileName)
-{
-	QStringList fileIncludeNames;
-	fileIncludeNames.push_back("<not selected>");
-	for (auto& fi : items_)
-	{
-		//if (fi->GetName() == fileName)
-		//	fileIncludeNames.append(fi->GetIncludeNames());
-	}
-	return fileIncludeNames;
-}
-
-QList<QPair<QString, QString>> PropertiesItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
-{
-	QList<QPair<QString, QString>> result;
-
-	QStringList fileIncludeNames;
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-		{
-			//result = fi->GetIncludeVariables(includeName);
-			//break;
-		}
-	}
-
-	return result;
-}
+//
+//QColor PropertiesItemsManager::GetFileColor(const QString& fileName)
+//{
+//	for (auto& fi : items_)
+//	{
+//		//if (fi->GetName() == fileName)
+//		//	return fi->GetColor();
+//	}
+//	return QColor("Black");
+//}
+//
+//QStringList PropertiesItemsManager::GetFileIncludeNames(const QString& fileName)
+//{
+//	QStringList fileIncludeNames;
+//	fileIncludeNames.push_back("<not selected>");
+//	for (auto& fi : items_)
+//	{
+//		//if (fi->GetName() == fileName)
+//		//	fileIncludeNames.append(fi->GetIncludeNames());
+//	}
+//	return fileIncludeNames;
+//}
+//
+//QList<QPair<QString, QString>> PropertiesItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
+//{
+//	QList<QPair<QString, QString>> result;
+//
+//	QStringList fileIncludeNames;
+//	for (auto& fi : items_)
+//	{
+//		if (fi->GetName() == fileName)
+//		{
+//			//result = fi->GetIncludeVariables(includeName);
+//			//break;
+//		}
+//	}
+//
+//	return result;
+//}
 
 void PropertiesItemsManager::Clear()
 {
@@ -207,6 +221,11 @@ void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item, QList
 	auto groupName = item->GetGroupName();
 
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
+}
+
+void PropertiesItemsManager::AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ)
+{
+	emit PositionChanged(item->GetPropertiesId(), posX, posY, posZ);
 }
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)

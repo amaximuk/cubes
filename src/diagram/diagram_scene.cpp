@@ -16,6 +16,11 @@ DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     movingItem_ = nullptr;
 }
 
+void DiagramScene::InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+{
+
+}
+
 void DiagramScene::InformItemPositionChanged(DiagramItem* item)
 {
     emit ItemPositionChanged(item);

@@ -23,7 +23,7 @@ public:
     virtual void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) = 0;
 
     virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
-    virtual bool GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd) = 0;
+    virtual bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) = 0;
 
     virtual QString GetNewUnitName(const QString& baseName) = 0;
     virtual QMap<QString, QStringList> GetUnitsConnections() = 0;

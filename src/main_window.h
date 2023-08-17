@@ -77,7 +77,7 @@ public:
     void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
     void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
-    bool GetPropeties(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
+    bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
     QString GetNewUnitName(const QString& baseName) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
@@ -107,7 +107,7 @@ protected:
     QStringList GetFileNames();
     QString GetCurrentFileName();
     QStringList GetCurrentFileIncludeNames();
-    QColor GetFileColor(const QString& fileName);
+    //QColor GetFileColor(const QString& fileName);
     QString GetDisplayName(const QString& baseName);
 
 public slots:
@@ -129,6 +129,7 @@ public slots:
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
+    void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 
 private slots:
     // Кнопки

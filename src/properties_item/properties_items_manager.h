@@ -38,20 +38,24 @@ namespace CubesProperties
 		void Create(const QString& unitId, uint32_t& propertiesId);
 		void Select(const uint32_t& propertiesId);
 		QSharedPointer<PropertiesItem> GetItem(const uint32_t propertiesId);
-		QColor GetFileColor(const QString& fileName);
-		QStringList GetFileIncludeNames(const QString& fileName);
-		QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
+		bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd);
+
+		//QColor GetFileColor(const QString& fileName);
+		//QStringList GetFileIncludeNames(const QString& fileName);
+		//QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
 		void Clear();
 
 	signals:
 		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+		void PositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const uint32_t propertiesId);
 
 	public:
 		// properties_items_manager_interface
 		void AfterNameChanged(PropertiesItem* item) override;
 		void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) override;
-		void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables);
+		void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
+		void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) override;
 
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);
