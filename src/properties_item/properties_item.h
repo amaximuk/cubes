@@ -14,7 +14,7 @@ namespace CubesProperties
 
     private:
         // Params
-        IPropertiesItemsManager* propertiesItemsManager_;
+        IPropertiesItemsManagerBoss* propertiesItemsManager_;
         QPointer<PropertiesEditor> editor_;
         uint32_t propertiesId_;
         CubesUnitTypes::UnitParameters unitParameters_;
@@ -33,7 +33,7 @@ namespace CubesProperties
         bool ignoreEvents_;
 
     public:
-        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);
 
     public:
@@ -66,6 +66,8 @@ namespace CubesProperties
         //QString GetUnitName() { return parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo); };
         //QList<QPair<QString, QString>> GetVariables();
         uint32_t GetPropertiesId() { return propertiesId_; };
+        CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };
+        QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);

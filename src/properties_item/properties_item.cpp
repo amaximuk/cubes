@@ -10,7 +10,7 @@
 
 using namespace CubesProperties;
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;

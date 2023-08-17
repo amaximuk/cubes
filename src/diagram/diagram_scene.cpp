@@ -67,12 +67,12 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     {
         DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
 
-        QString oldName = di->name_;
-        QString newName = topManager_->GetNewUnitName(oldName);
-        di->name_ = newName;
-        qDebug() << "X1: " << oldName << " - " << newName;
+        //QString oldName = di->name_;
+        //QString newName = topManager_->GetNewUnitName(oldName);
+        //di->name_ = newName;
+        //qDebug() << "X1: " << oldName << " - " << newName;
 
-        //di->getProperties()->SetName("<new item>");
+        di->name_ = "<new item>";
         dragItems_.push_back(di);
         di->SetBorderOnly(true);
         addItem(di);
@@ -163,7 +163,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
           clearSelection();
 
 
-          for (auto& item : dragItems_)
+          for (auto& di : dragItems_)
           {
               //diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
 
@@ -179,10 +179,35 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     //          informItemCreated(name, di);
 
               //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
-              item->SetBorderOnly(false);
-              InformItemCreated(item);
 
-              QPointF position = item->pos() - delta;
+              QString unitId;
+              if (!topManager_->GetPropetiesUnitId(di->propertiesId_, unitId))
+              {
+                  qDebug() << "ERROR GetPropetiesUnitParameters: " << di->propertiesId_;
+              }
+
+              uint32_t propertiesId{ 0 };
+              if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
+              {
+                  qDebug() << "ERROR CreatePropetiesItem: " << unitId;
+              }
+
+              PropertiesForDrawing pfd{};
+              if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
+              {
+                  qDebug() << "ERROR GetPropetiesForDrawing: " << propertiesId;
+              }
+
+
+
+              di->name_ = pfd.name;
+              di->propertiesId_ = propertiesId;
+
+
+              di->SetBorderOnly(false);
+              InformItemCreated(di);
+
+              QPointF position = di->pos() - delta;
               //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
 
 
@@ -191,9 +216,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
               qreal yV = round(position.y() / gridSize) * gridSize;
               position = QPoint(xV, yV);
 
-              addItem(item);
-              item->setPos(position);
-              item->setSelected(true);
+              addItem(di);
+              di->setPos(position);
+              di->setSelected(true);
               //addItem(di);
               //di->setPos(position);
     //          di->setSelected(true);

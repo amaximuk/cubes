@@ -9,7 +9,7 @@ namespace CubesProperties
 {
 	class PropertiesItem;
 
-	class PropertiesItemsManager : public QObject, IPropertiesItemsManager
+	class PropertiesItemsManager : public QObject, IPropertiesItemsManagerBoss, IPropertiesItemsManagerWorker
 	{
 		Q_OBJECT
 
@@ -39,6 +39,8 @@ namespace CubesProperties
 		void Select(const uint32_t& propertiesId);
 		QSharedPointer<PropertiesItem> GetItem(const uint32_t propertiesId);
 		bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd);
+		bool GetUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
+		bool GetUnitId(const uint32_t propertiesId, QString& unitId);
 
 		//QColor GetFileColor(const QString& fileName);
 		//QStringList GetFileIncludeNames(const QString& fileName);
@@ -51,12 +53,13 @@ namespace CubesProperties
 		void SelectedItemChanged(const uint32_t propertiesId);
 
 	public:
-		// properties_items_manager_interface
+		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
 		void AfterNameChanged(PropertiesItem* item) override;
 		void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) override;
 		void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) override;
 
+		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);
 		void OnEditorExpanded(QtBrowserItem* item);

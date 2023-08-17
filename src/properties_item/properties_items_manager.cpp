@@ -61,7 +61,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
 
-	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id);
+	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 
 	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
@@ -122,6 +122,27 @@ bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId,
 	pfd.groupName = pi->GetGroupName();
 	pfd.color = {};
 	return true;
+}
+
+bool PropertiesItemsManager::GetUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+{
+	auto pi = GetItem(propertiesId);
+	if (pi == nullptr)
+		return false;
+
+	unitParameters = pi->GetUnitParameters();
+	return true;
+}
+
+bool PropertiesItemsManager::GetUnitId(const uint32_t propertiesId, QString& unitId)
+{
+	auto pi = GetItem(propertiesId);
+	if (pi == nullptr)
+		return false;
+
+	unitId = pi->GetUnitId();
+	return true;
+
 }
 
 //QStringList GetFileNames()

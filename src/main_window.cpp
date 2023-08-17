@@ -128,7 +128,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     pi->SetFileName(GetCurrentFileName());
     pi->SetGroupNames(GetCurrentFileIncludeNames());
     pi->SetGroupName("<not selected>");
-    pi->SetName(GetNewUnitName(pi->GetName()));
+    //pi->SetName(GetNewUnitName(pi->GetName()));
     //properties_items_manager_->Select(propertiesId);
     return true;
 }
@@ -145,6 +145,16 @@ bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesF
         return false;
     pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
     return true;
+}
+
+bool MainWindow::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+{
+    return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
+}
+
+bool MainWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
+{
+    return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
 QString MainWindow::GetNewUnitName(const QString& baseName)

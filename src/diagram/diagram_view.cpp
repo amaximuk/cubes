@@ -69,9 +69,9 @@ void DiagramView::dropEvent(QDropEvent *event)
 
         QPixmap pixmap;
         QPoint offset;
-        QString name;
-        dataStream >> name >> offset;
-        qDebug() << "name: " << name << offset;
+        QString unitId;
+        dataStream >> unitId >> offset;
+        qDebug() << "unitId: " << unitId << offset;
 
 
         //if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
@@ -87,9 +87,9 @@ void DiagramView::dropEvent(QDropEvent *event)
             //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
-            if (!topManager_->CreatePropetiesItem(name, propertiesId))
+            if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
             {
-                qDebug() << "ERROR CreatePropetiesItem: " << name;
+                qDebug() << "ERROR CreatePropetiesItem: " << unitId;
             }
 
             PropertiesForDrawing pfd{};
