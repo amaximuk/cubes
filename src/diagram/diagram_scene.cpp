@@ -31,21 +31,6 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
     emit AfterItemCreated(item);
 }
 
-//void DiagramScene::InformItemNameChanged(DiagramItem* item, QString oldName)
-//{
-//    emit ItemNameChanged(item, oldName);
-//}
-//
-//void DiagramScene::InformItemFileChanged(DiagramItem* item)
-//{
-//    emit ItemFileChanged(item);
-//}
-//
-//void DiagramScene::InformItemGroupChanged(DiagramItem* item)
-//{
-//    emit ItemGroupChanged(item);
-//}
-//
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   //event->ignore();
@@ -93,14 +78,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
   }
 
-//  if (selectedItems().count() > 0)
-//  {
-//    qDebug() << "yes";
-//  }
-  // Reset selectionArea
-  //setSelectionArea(QPainterPath());
-
-
   // Always remember to call parents mousePressEvent
   QGraphicsScene::mousePressEvent(event);
 }
@@ -123,132 +100,117 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-  //event->ignore();
-  isItemMoving_ = false;
+    //event->ignore();
+    isItemMoving_ = false;
 
-  bool ctrl = (event->modifiers() == Qt::ControlModifier);
-//  QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-
-
-//  QPainterPath tmpPath = selectionArea();
-//  if(tmpPath.isEmpty())
-//  {
-//    // if ctrl pressed, then toggle selection
-//    //emit select(event->scenePos(), ctrl);
-//  }
-//  else
-//  {
-//    // if ctrl pressed, then add selection
-//    //emit select(tmpPath, ctrl);
-//  }
-
-  if (movingItem_ != nullptr)
-  {
-      if (ctrl)
-      {
-          QPointF delta = startPosition_ - movingItem_->pos();
-          //      if (selectedItems().count() > 0)
-          //      {
-          //          selectedItems()[0]->setPos(ppp_);
-          //      }
-          for (auto& item : selectedItems())
-          {
-              item->setPos(item->pos() + delta);
-          }
-          clearSelection();
+    bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    //  QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
 
-          for (auto& pair : dragItems_)
-          {
-              //diagram_item* di = new diagram_item(*reinterpret_cast<diagram_item*>(item));
+    //  QPainterPath tmpPath = selectionArea();
+    //  if(tmpPath.isEmpty())
+    //  {
+    //    // if ctrl pressed, then toggle selection
+    //    //emit select(event->scenePos(), ctrl);
+    //  }
+    //  else
+    //  {
+    //    // if ctrl pressed, then add selection
+    //    //emit select(tmpPath, ctrl);
+    //  }
 
-    //          diagram_item* difrom = reinterpret_cast<diagram_item*>(item);
-    //          QString name = difrom->getName();
-    //
-    //          auto up = *main_->GetUnitParameters(name);
-    //
-    //
-    //          diagram_item* di = new diagram_item(up);
-    //          //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
-    //          //ds->informItemCreated(name, di);
-    //          informItemCreated(name, di);
-
-              //item->getProperties()->SetName(main_->GetNewUnitName(item->getProperties()->GetName()));
-
-              QString unitId;
-              if (!topManager_->GetPropetiesUnitId(pair.first->propertiesId_, unitId))
-              {
-                  qDebug() << "ERROR GetPropetiesUnitParameters: " << pair.first->propertiesId_;
-              }
-
-              uint32_t propertiesId{ 0 };
-              if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
-              {
-                  qDebug() << "ERROR CreatePropetiesItem: " << unitId;
-              }
-
-              PropertiesForDrawing pfd{};
-              if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
-              {
-                  qDebug() << "ERROR GetPropetiesForDrawing: " << propertiesId;
-              }
+    if (movingItem_ != nullptr)
+    {
+        const int gridSize = 20;
+        QPointF delta = startPosition_ - movingItem_->pos();
+        if (ctrl && (std::abs(delta.x()) >= gridSize || std::abs(delta.y()) >= gridSize))
+        {
+            for (auto& item : selectedItems())
+            {
+                item->setPos(item->pos() + delta);
+            }
+            clearSelection();
 
 
-              pair.second->name_ = pair.first->name_;
-              pair.second->InformNameChanged(pair.first->name_, "");
+            for (auto& pair : dragItems_)
+            {
+                QString unitId;
+                if (!topManager_->GetPropetiesUnitId(pair.first->propertiesId_, unitId))
+                {
+                    qDebug() << "ERROR GetPropetiesUnitParameters: " << pair.first->propertiesId_;
+                }
 
-              pair.first->name_ = pfd.name;
-              pair.first->InformNameChanged(pfd.name, "");
-              pair.first->propertiesId_ = propertiesId;
+                uint32_t propertiesId{ 0 };
+                if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
+                {
+                    qDebug() << "ERROR CreatePropetiesItem: " << unitId;
+                }
 
+                PropertiesForDrawing pfd{};
+                if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
+                {
+                    qDebug() << "ERROR GetPropetiesForDrawing: " << propertiesId;
+                }
 
-              pair.first->SetBorderOnly(false);
-              InformItemCreated(pair.first);
+                pair.second->name_ = pair.first->name_;
+                pair.second->InformNameChanged(pair.first->name_, "");
 
-              QPointF position = pair.first->pos() - delta;
-              //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
-
-
-              int gridSize = 20;
-              qreal xV = round(position.x() / gridSize) * gridSize;
-              qreal yV = round(position.y() / gridSize) * gridSize;
-              position = QPoint(xV, yV);
-
-              addItem(pair.first);
-              pair.first->setPos(position);
-              pair.first->setSelected(true);
-              //addItem(di);
-              //di->setPos(position);
-    //          di->setSelected(true);
-          }
-          //clearSelection();
-          //for (auto& item : selectedItems())
-          //{
-          //    item->setPos(item->pos() + delta);
-          //}
-          //clearSelection();
-          //for (auto& item : drag_items_)
-          //    item->setSelected(true);
-          dragItems_.clear();
-
-          //emit xxx(ppp_);
-          QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-      }
-      else
-      {
-          for (auto& pair : dragItems_)
-              delete pair.first;
-          dragItems_.clear();
-      }
-
-      movingItem_ = nullptr;
-  }
-
-  // Always remember to call parents mousePressEvent
-  QGraphicsScene::mouseReleaseEvent(event);
+                pair.first->name_ = pfd.name;
+                pair.first->InformNameChanged(pfd.name, "");
+                pair.first->propertiesId_ = propertiesId;
 
 
-  QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
+                pair.first->SetBorderOnly(false);
+                InformItemCreated(pair.first);
+
+                QPointF position = pair.first->pos() - delta;
+
+                qreal xV = round(position.x() / gridSize) * gridSize;
+                qreal yV = round(position.y() / gridSize) * gridSize;
+                position = QPoint(xV, yV);
+
+                addItem(pair.first);
+                pair.first->setPos(position);
+                pair.first->setSelected(true);
+                //addItem(di);
+                //di->setPos(position);
+      //          di->setSelected(true);
+            }
+            //clearSelection();
+            //for (auto& item : selectedItems())
+            //{
+            //    item->setPos(item->pos() + delta);
+            //}
+            //clearSelection();
+            //for (auto& item : drag_items_)
+            //    item->setSelected(true);
+            dragItems_.clear();
+
+            //emit xxx(ppp_);
+            QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+        }
+        else
+        {
+            for (auto& pair : dragItems_)
+            {
+                pair.second->name_ = pair.first->name_;
+                pair.second->InformNameChanged(pair.first->name_, "");
+                delete pair.first;
+            }
+            dragItems_.clear();
+            QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+
+            //for (auto& pair : dragItems_)
+            //    delete pair.first;
+            //dragItems_.clear();
+        }
+
+        movingItem_ = nullptr;
+    }
+
+    // Always remember to call parents mousePressEvent
+    QGraphicsScene::mouseReleaseEvent(event);
+    QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
 }
 
 void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
