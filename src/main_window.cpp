@@ -733,6 +733,9 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
             return false;
     }
 
+    if (!SortUnitsRectangular())
+        return false;
+
     return true;
 }
 
@@ -808,8 +811,8 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
     scene_->clearSelection();
     DiagramAfterItemCreated(di);
 
-    if (!SortUnits())
-        return false;
+    //if (!SortUnitsRectangular())
+    //    return false;
 
     return true;
 }
@@ -884,6 +887,28 @@ bool MainWindow::SortUnits()
     }
     QPointF center = scene_->itemsBoundingRect().center();
     //QPointF centerMapped = view_->mapFromScene(center);
+    view_->centerOn(center);
+
+    scene_->invalidate();
+    return true;
+}
+
+bool MainWindow::SortUnitsRectangular()
+{
+    int size = scene_->items().size();
+    int rows = std::sqrt(scene_->items().size());
+    int columns = (scene_->items().size() + rows - 1) / rows;
+
+    int c = 0;
+    int r = 0;
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        QPoint position(c * 200, r * 80);
+        di->setPos(position);
+        if (++c == columns) { ++r; c = 0; };
+    }
+    QPointF center = scene_->itemsBoundingRect().center();
     view_->centerOn(center);
 
     scene_->invalidate();

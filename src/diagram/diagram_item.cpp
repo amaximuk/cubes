@@ -38,7 +38,8 @@ DiagramItem::DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QS
     groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
 
     // Adjust iconRect_ for colored frame
-    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    //boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2);
     //groupName_ = "Main";
 }
 
@@ -279,7 +280,8 @@ void DiagramItem::InformGroupChanged()
     groupTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, groupName_);
     groupTextRect_.adjust(-1, 0, 1, 0);
     groupTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    //boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2);
     if (scene() != nullptr)
     {
         //reinterpret_cast<DiagramScene*>(scene())->InformItemGroupChanged(this);
@@ -293,7 +295,8 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    //boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(groupTextRect_.toAlignedRect());
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2);
     if (scene() != nullptr)
     {
         //reinterpret_cast<DiagramScene*>(scene())->InformItemNameChanged(this, oldName);
@@ -314,6 +317,10 @@ void DiagramItem::SetBorderOnly(bool borderOnly)
     qDebug() << "set border " << borderOnly << " " << name_;
 
     borderOnly_ = borderOnly;
+    //if (scene() != nullptr)
+    //    scene()->invalidate(mapRectToScene(boundingRect_));
     if (scene() != nullptr)
-        scene()->invalidate(mapRectToScene(boundingRect_));
+    {
+        scene()->invalidate();
+    }
 }
