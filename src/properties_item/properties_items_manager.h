@@ -37,6 +37,7 @@ namespace CubesProperties
 		uint32_t GetCurrentPropertiesId();
 		void Create(const QString& unitId, uint32_t& propertiesId);
 		void Select(const uint32_t& propertiesId);
+		void Remove(const uint32_t& propertiesId);
 		QSharedPointer<PropertiesItem> GetItem(const uint32_t propertiesId);
 		bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd);
 		bool GetUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters);

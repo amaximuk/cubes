@@ -1016,15 +1016,16 @@ void MainWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
 
 void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
 {
-    for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
-    {
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (propertiesItemsManager_->GetSelector()->itemText(i) == pi->GetName())
-        {
-            propertiesItemsManager_->GetSelector()->removeItem(i);
-            break;
-        }
-    }
+    propertiesItemsManager_->Remove(di->propertiesId_);
+    //for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
+    //{
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    if (propertiesItemsManager_->GetSelector()->itemText(i) == pi->GetName())
+    //    {
+    //        propertiesItemsManager_->GetSelector()->removeItem(i);
+    //        break;
+    //    }
+    //}
 }
 
 //void MainWindow::DiagramItemNameChanged(CubeDiagram::DiagramItem* di, QString oldName)

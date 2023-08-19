@@ -98,6 +98,23 @@ void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 	}
 }
 
+void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
+{
+	int index = selector_->findData(propertiesId);
+	if (index != -1)
+		selector_->removeItem(index);
+
+	//for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
+	//{
+	//    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+	//    if (propertiesItemsManager_->GetSelector()->itemText(i) == pi->GetName())
+	//    {
+	//        propertiesItemsManager_->GetSelector()->removeItem(i);
+	//        break;
+	//    }
+	//}
+}
+
 QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
 {
 	//for (auto& properties : items_)
