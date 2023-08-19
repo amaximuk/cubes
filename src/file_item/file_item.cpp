@@ -30,7 +30,9 @@ void FileItem::CreateParametersModel()
     // INCLUDES
     // INCLUDES/ITEM_0
     // INCLUDES/ITEM_0/NAME
-    // INCLUDES/ITEM_0/VALUE
+    // INCLUDES/ITEM_0/VARIABLES
+    // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
+    // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     // PARAMETERS
     // PARAMETERS/CONNECTION
     // PARAMETERS/CONNECTION/HOST
@@ -198,7 +200,9 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     // INCLUDES
     // INCLUDES/ITEM_0
     // INCLUDES/ITEM_0/NAME
-    // INCLUDES/ITEM_0/VALUE
+    // INCLUDES/ITEM_0/VARIABLES
+    // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
+    // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     // PARAMETERS
     // PARAMETERS/CONNECTION
     // PARAMETERS/CONNECTION/HOST
@@ -340,6 +344,28 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             // Отмена
             editor_->SetStringValue(property, oldValue);
         }
+    }
+    else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.contains("VARIABLES") && pm->id.endsWith("NAME"))
+    {
+        // INCLUDES/ITEM_0/NAME
+        // INCLUDES/ITEM_0/VARIABLES
+        // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
+        // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
+
+        QString parameterName = pm->id.left(pm->id.indexOf("VARIABLES")) + "NAME";
+        const auto pmIncludesName = GetParameterModel(parameterName);
+        QString includesName = pmIncludesName->value.toString();
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        fileItemsManager_->AfterVariableNameChanged(GetName(), includesName, value, oldName);
+    }
+    else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.contains("VARIABLES") && pm->id.endsWith("VALUE"))
+    {
+        QString parameterName = pm->id.left(pm->id.indexOf("VARIABLES")) + "NAME";
+        const auto pmIncludesName = GetParameterModel(parameterName);
+        QString includesName = pmIncludesName->value.toString();
+        QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
+        fileItemsManager_->AfterVariablesListChanged(GetName(), includesName, variables);
     }
 }
 
@@ -798,7 +824,7 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int
     }
 
     // Информируем, что создали
-    fileItemsManager_->AfterVariableChanged(GetName(), includeName, variables);
+    fileItemsManager_->AfterVariablesListChanged(GetName(), includeName, variables);
 }
 
 //void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)

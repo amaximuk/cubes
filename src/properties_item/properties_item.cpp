@@ -501,6 +501,9 @@ void PropertiesItem::SetGroupNameReadOnly(bool readOnly)
 
 void PropertiesItem::SetGroupNames(QStringList groupNames)
 {
+    QString oldName = GetGroupName();
+    if (!groupNames.contains(oldName))
+        oldName = groupNames[0]; // <not selected>
     const auto pm = GetParameterModel("BASE/INCLUDE_NAME");
     //int index = pm->editorSettings.ComboBoxValues.indexOf(pm->value.toString());
     if (pm != nullptr)
@@ -510,6 +513,7 @@ void PropertiesItem::SetGroupNames(QStringList groupNames)
         //    pm->value = groupNames[0];
         editor_->SetEnumValues(GetProperty(pm->id), groupNames);
     }
+    SetGroupName(oldName);
 }
 
 void PropertiesItem::SetGroupName(QString groupName)
@@ -985,8 +989,9 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant & value)
     {
         pm->value = property->valueText();
 
-        QList<QPair<QString, QString>> variables;
-        propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
+        //QList<QPair<QString, QString>> variables;
+        //propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
+        propertiesItemsManager_->AfterIncludeNameChanged(this);
 
 
 

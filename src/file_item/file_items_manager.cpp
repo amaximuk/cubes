@@ -284,10 +284,20 @@ void FileItemsManager::AfterIncludesListChanged(const QString& fileName, const Q
 	emit IncludesListChanged(fileName, fileIncludeNames);
 }
 
-void FileItemsManager::AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+void FileItemsManager::AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName)
 {
-	emit VariableChanged(fileName, includeName, variables);
+	emit VariableNameChanged(fileName, includeName, variableName, oldVariableName);
 }
+
+void FileItemsManager::AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+{
+	emit VariablesListChanged(fileName, includeName, variables);
+}
+
+//void FileItemsManager::AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+//{
+//	emit VariableChanged(fileName, includeName, variables);
+//}
 
 //void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
 //{

@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &MainWindow::FileListChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &MainWindow::FileIncludeNameChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &MainWindow::FileIncludesListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &MainWindow::FileVariableNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &MainWindow::FileVariablesListChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
@@ -1150,6 +1152,21 @@ void MainWindow::FileIncludesListChanged(const QString& fileName, const QStringL
     scene_->invalidate();
 }
 
+void MainWindow::FileVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName)
+{
+    propertiesItemsManager_->InformVariableChanged();
+}
+
+void MainWindow::FileVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+{
+    propertiesItemsManager_->InformVariableChanged();
+}
+
+//void MainWindow::FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+//{
+//    propertiesItemsManager_->InformVariableChanged();
+//}
+
 // PropertiesItemsManager
 void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
 {
@@ -1162,7 +1179,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->fileName_ = fileName;
             di->groupName_ = groupName;
             di->color_ = fileItemsManager_->GetFileColor(fileName);
-            di->InformNameChanged(name, name);
+            di->InformNameChanged(name, "");
             di->InformGroupChanged();
         }
     }

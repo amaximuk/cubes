@@ -42,6 +42,7 @@ namespace CubesProperties
 		bool GetUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
 		bool GetUnitId(const uint32_t propertiesId, QString& unitId);
 
+		bool InformVariableChanged();
 		//QColor GetFileColor(const QString& fileName);
 		//QStringList GetFileIncludeNames(const QString& fileName);
 		//QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
@@ -56,7 +57,8 @@ namespace CubesProperties
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
 		void AfterNameChanged(PropertiesItem* item) override;
 		void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) override;
-		void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
+		void AfterIncludeNameChanged(PropertiesItem* item) override;
+		//void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) override;
 
 		// IPropertiesItemsManagerWorker (для общения с TopManager)

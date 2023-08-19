@@ -145,6 +145,23 @@ bool PropertiesItemsManager::GetUnitId(const uint32_t propertiesId, QString& uni
 
 }
 
+bool PropertiesItemsManager::InformVariableChanged()
+{
+	for (auto& p : items_)
+	{
+		auto name = GetName(p.get());
+		int index = selector_->findData(p->GetPropertiesId());
+		if (index != -1)
+			selector_->setItemText(index, name);
+
+		auto fileName = p->GetFileName();
+		auto groupName = p->GetGroupName();
+
+		emit BasePropertiesChanged(p->GetPropertiesId(), name, fileName, groupName);
+	}
+	return true;
+}
+
 //QStringList GetFileNames()
 //{
 //	QStringList fileNames;
@@ -228,7 +245,7 @@ void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringL
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables)
+void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item)
 {
 	auto name = GetName(item);
 	int index = selector_->findData(item->GetPropertiesId());
@@ -236,7 +253,8 @@ void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item, QList
 		selector_->setItemText(index, name);
 
 	// Заполняем переменные
-	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+	//QList<QPair<QString, QString>>& variables
+	//topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
 
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetGroupName();

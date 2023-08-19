@@ -47,7 +47,8 @@ namespace CubesFile
 		void FilesListChanged(const QStringList& fileNames);
 		void IncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
 		void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
-		void VariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
+		void VariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName);
+		void VariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
 
 	public:
 		void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override;
@@ -84,7 +85,9 @@ namespace CubesFile
 		void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
 		void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
 		void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) override;
-		void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
+		//void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
+		void AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName) override;
+		void AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
 
 		//void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
 		//{
