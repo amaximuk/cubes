@@ -328,7 +328,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
+    else if (pm->id.startsWith("INCLUDES/ITEM") && !pm->id.contains("VARIABLES") && pm->id.endsWith("NAME"))
     {
         bool cancel = false;
         fileItemsManager_->BeforeIncludeNameChanged(GetName(), value, oldValue, cancel);
