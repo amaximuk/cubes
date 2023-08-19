@@ -14,6 +14,9 @@ DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget
 {
     topManager_ = topManager;
     setAcceptDrops(true);
+    // setMouseTracking - для корректной работы масштабирования при потере фокуса
+    // без этого в начале масштабирования используется неправильная позиция курсора
+    setMouseTracking(true);
 }
 
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)
@@ -142,6 +145,11 @@ void DiagramView::dropEvent(QDropEvent *event)
 
 void DiagramView::wheelEvent(QWheelEvent* event)
 {
+    //https://bugreports.qt.io/browse/QTBUG-73033
+    //lastMouseMoveScenePoint = mouseEvent.scenePos();
+    // Решение - setMouseTracking(true);
+
+
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     if (ctrl)
     {
@@ -149,8 +157,14 @@ void DiagramView::wheelEvent(QWheelEvent* event)
         qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
         if (factor < 0.25 || factor > 10)
             return;
+
+        const ViewportAnchor anchor = transformationAnchor();
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
         scale(scaleFactor, scaleFactor);
+        setTransformationAnchor(anchor);
         resetCachedContent();
+        event->accept();
     }
     else
         QGraphicsView::wheelEvent(event);
@@ -161,7 +175,10 @@ void DiagramView::mouseDoubleClickEvent(QMouseEvent* event)
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     if (ctrl)
     {
+        const ViewportAnchor anchor = transformationAnchor();
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
         resetTransform();
+        setTransformationAnchor(anchor);
         resetCachedContent();
     }
     else
