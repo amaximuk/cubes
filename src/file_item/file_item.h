@@ -37,6 +37,7 @@ namespace CubesFile
         void UnSelect();
 
         void SetName(QString name, bool setOldName = false, QString oldName = "");
+        void SetPath(QString name, bool setOldName = false, QString oldName = "");
         void SetColor(QColor color);
         void AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables);
         void ExpandedChanged(const QtProperty* property, bool is_expanded);

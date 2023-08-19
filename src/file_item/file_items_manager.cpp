@@ -15,6 +15,7 @@ using namespace CubesFile;
 FileItemsManager::FileItemsManager(ITopManager* topManager)
 {
 	topManager_ = topManager;
+	unique_number_ = 0;
 
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
@@ -46,13 +47,16 @@ QString FileItemsManager::GetCurrentFileName()
 		return "";
 }
 
-void FileItemsManager::Create(const QString& fileName)
+void FileItemsManager::Create(const QString& filePath, QString& fileName)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
+	fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(++unique_number_);
+
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_));
 	fi->SetName(fileName, true, fileName);
+	fi->SetPath(filePath);
 	fi->SetColor(color);
 	items_.push_back(fi);
 	selector_->addItem(fileName);
@@ -402,7 +406,7 @@ void FileItemsManager::OnAddFileClicked()
 
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-	Create(fileName);
+	Create(QString::fromLocal8Bit("config.xml"), fileName);
 	//Select(fileName);
 
 	//for (auto& item : panes_[0].first->items())

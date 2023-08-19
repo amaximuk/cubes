@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    fileItemsManager_->Create(QString::fromLocal8Bit("АРМ"));
+    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"));
 }
 
 MainWindow::~MainWindow()
@@ -660,9 +660,14 @@ void MainWindow::FillParametersInfo()
 // Units
 bool MainWindow::AddMainFile(CubesXml::File& file)
 {
-    QString fileName = QFileInfo(file.fileName).fileName();
+    // Не очищаем, вдруг там уже что-то поменяно
+    //if (scene_->items().size() == 0)
+    //    fileItemsManager_->Clear();
 
-    fileItemsManager_->Create(fileName);
+    //QString fileName = QFileInfo(file.fileName).fileName();
+
+    QString fileName;
+    fileItemsManager_->Create(file.fileName, fileName);
     fileItemsManager_->Select(fileName);
 
     for (int i = 0; i < file.includes.size(); i++)

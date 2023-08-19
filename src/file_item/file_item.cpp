@@ -26,7 +26,7 @@ void FileItem::CreateParametersModel()
     // BASE
     // BASE/NAME
     // BASE/PLATFORM
-    // BASE/FILE_PATH
+    // BASE/PATH
     // INCLUDES
     // INCLUDES/ITEM_0
     // INCLUDES/ITEM_0/NAME
@@ -76,7 +76,7 @@ void FileItem::CreateParametersModel()
         base_group.parameters.push_back(std::move(platform));
 
         CubesUnitTypes::ParameterModel file_path;
-        file_path.id = "BASE/FILE_PATH";
+        file_path.id = "BASE/PATH";
         file_path.name = QString::fromLocal8Bit("Èìÿ ôàéëà");
         file_path.value = QString::fromLocal8Bit("config.xml");
         file_path.valueType = "string";
@@ -196,7 +196,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     // BASE
     // BASE/NAME
     // BASE/PLATFORM
-    // BASE/FILE_PATH
+    // BASE/PATH
     // INCLUDES
     // INCLUDES/ITEM_0
     // INCLUDES/ITEM_0/NAME
@@ -427,6 +427,15 @@ void FileItem::ExpandedChanged(const QtProperty* property, bool is_expanded)
 void FileItem::SetName(QString name, bool setOldName, QString oldName)
 {
     auto pm = GetParameterModel("BASE/NAME");
+    pm->value = name;
+
+    auto pr = GetProperty(pm->id);
+    editor_->SetStringValue(pr, name, setOldName, oldName);
+}
+
+void FileItem::SetPath(QString name, bool setOldName, QString oldName)
+{
+    auto pm = GetParameterModel("BASE/PATH");
     pm->value = name;
 
     auto pr = GetProperty(pm->id);

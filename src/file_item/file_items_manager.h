@@ -22,6 +22,7 @@ namespace CubesFile
 		QPointer<QComboBox> selector_;
 		QList<QSharedPointer<FileItem>> items_;
 		QString selected_;
+		uint32_t unique_number_;
 
 	public:
 		FileItemsManager(ITopManager* topManager);
@@ -31,7 +32,7 @@ namespace CubesFile
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		QString GetCurrentFileName();
-		void Create(const QString& fileName);
+		void Create(const QString& filePath, QString& fileName);
 		void Select(const QString& fileName);
 		QSharedPointer<FileItem> GetItem(const QString& fileName);
 		QStringList GetFileNames();
