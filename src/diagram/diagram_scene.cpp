@@ -351,3 +351,15 @@ void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
         //    main_->ActivateGroup(di->getProperties()->GetName());
     }
 }
+
+//void DiagramScene::wheelEvent(QGraphicsSceneWheelEvent* wheelEvent)
+//{
+//    qreal scaleFactor = pow((double)2, -event->delta() / 240.0);
+//
+//    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+//    if (factor < 0.0002 || factor>0.1950)
+//        return;
+//
+//    scale(scaleFactor, scaleFactor);
+//    resetCachedContent();
+//}

@@ -139,3 +139,31 @@ void DiagramView::dropEvent(QDropEvent *event)
         scene()->invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
 
 }
+
+void DiagramView::wheelEvent(QWheelEvent* event)
+{
+    bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    if (ctrl)
+    {
+        qreal scaleFactor = pow(2.0, event->angleDelta().y() / 240.0);
+        qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+        if (factor < 0.25 || factor > 10)
+            return;
+        scale(scaleFactor, scaleFactor);
+        resetCachedContent();
+    }
+    else
+        QGraphicsView::wheelEvent(event);
+}
+
+void DiagramView::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    if (ctrl)
+    {
+        resetTransform();
+        resetCachedContent();
+    }
+    else
+        QGraphicsView::mouseDoubleClickEvent(event);
+}
