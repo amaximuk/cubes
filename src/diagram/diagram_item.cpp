@@ -187,6 +187,7 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
         if (scene() != nullptr)
         {
             DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+            //if (this->isSelected())
             if (this->isSelected() && sc->IsItemMoving())
             {
                 QPointF newPos = value.toPointF();
@@ -216,6 +217,15 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
  
         //diagram_scene* ds = qobject_cast<diagram_scene*>(this->scene());
         //ds->informItemPositionChanged(name_, value.toPointF());
+    }
+    else if (change == ItemSelectedChange || change == ItemSelectedHasChanged)
+    {
+        if (value.toInt() == 0)
+        {
+            qDebug() << value;
+        }
+
+
     }
     return QGraphicsItem::itemChange(change, value);
 }

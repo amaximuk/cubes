@@ -1231,11 +1231,11 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
         }
     }
 
-    for (auto& item : scene_->selectedItems())
-    {
-        if (item != item_to_select)
-            item->setSelected(false);
-    }
+    //for (auto& item : scene_->selectedItems())
+    //{
+    //    if (item != item_to_select)
+    //        item->setSelected(false);
+    //}
 
     if (item_to_select != nullptr)
         item_to_select->setSelected(true);
