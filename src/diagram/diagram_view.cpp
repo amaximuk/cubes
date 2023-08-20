@@ -17,6 +17,8 @@ DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget
     // setMouseTracking - для корректной работы масштабирования при потере фокуса
     // без этого в начале масштабирования используется неправильная позиция курсора
     setMouseTracking(true);
+
+    //setDragMode(QGraphicsView::ScrollHandDrag);
 }
 
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)
@@ -183,4 +185,44 @@ void DiagramView::mouseDoubleClickEvent(QMouseEvent* event)
     }
     else
         QGraphicsView::mouseDoubleClickEvent(event);
+}
+
+void DiagramView::mousePressEvent(QMouseEvent* event)
+{
+    //bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    //if (ctrl)
+    //{
+    //    setDragMode(QGraphicsView::ScrollHandDrag);
+    //}
+    //else
+    //    setDragMode(QGraphicsView::RubberBandDrag);
+
+
+    QGraphicsView::mousePressEvent(event);
+}
+void DiagramView::mouseReleaseEvent(QMouseEvent* event)
+{
+    //setDragMode(QGraphicsView::RubberBandDrag);
+
+    QGraphicsView::mouseReleaseEvent(event);
+}
+
+void DiagramView::keyPressEvent(QKeyEvent* event)
+{
+    bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    if (ctrl)
+    {
+        setDragMode(QGraphicsView::ScrollHandDrag);
+    }
+    QGraphicsView::keyPressEvent(event);
+}
+
+void DiagramView::keyReleaseEvent(QKeyEvent* event)
+{
+    bool ctrl = (event->modifiers() == Qt::ControlModifier);
+    if (!ctrl)
+    {
+        setDragMode(QGraphicsView::RubberBandDrag);
+    }
+    QGraphicsView::keyReleaseEvent(event);
 }
