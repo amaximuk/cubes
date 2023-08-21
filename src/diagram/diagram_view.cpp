@@ -210,8 +210,8 @@ void DiagramView::mouseReleaseEvent(QMouseEvent* event)
 void DiagramView::keyPressEvent(QKeyEvent* event)
 {
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
-    bool ctrl = (event->modifiers() == Qt::ShiftModifier);
-    if (ctrl)
+    bool shift = (event->modifiers() == Qt::ShiftModifier);
+    if (shift)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
     }
@@ -221,8 +221,8 @@ void DiagramView::keyPressEvent(QKeyEvent* event)
 void DiagramView::keyReleaseEvent(QKeyEvent* event)
 {
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
-    bool ctrl = (event->modifiers() == Qt::ShiftModifier);
-    if (!ctrl)
+    bool shift = (event->modifiers() == Qt::ShiftModifier);
+    if (!shift)
     {
         setDragMode(QGraphicsView::RubberBandDrag);
     }

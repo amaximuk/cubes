@@ -1081,13 +1081,15 @@ void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
 
 void MainWindow::selectionChanged()
 {
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (scene_->selectedItems().count() > 0)
     {
         CubeDiagram::DiagramItem* di = (CubeDiagram::DiagramItem*)(scene_->selectedItems()[0]);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->PositionChanged(di->pos());
-        pi->ZOrderChanged(di->zValue());
-        propertiesItemsManager_->Select(di->propertiesId_);
+        //pi->PositionChanged(di->pos());
+        //pi->ZOrderChanged(di->zValue());
+        if (scene_->selectedItems().count() == 1)
+            propertiesItemsManager_->Select(di->propertiesId_);
     }
     else
     {
@@ -1230,12 +1232,12 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
             break;
         }
     }
-
-    //for (auto& item : scene_->selectedItems())
-    //{
-    //    if (item != item_to_select)
-    //        item->setSelected(false);
-    //}
+//!!!!!!!!!!!!!!!!!!!
+    for (auto& item : scene_->selectedItems())
+    {
+        if (item != item_to_select)
+            item->setSelected(false);
+    }
 
     if (item_to_select != nullptr)
         item_to_select->setSelected(true);

@@ -14,6 +14,7 @@ DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     topManager_ = topManager;
     isItemMoving_ = false;
     movingItem_ = nullptr;
+    selectedWithCtrl_ = false;
 }
 
 void DiagramScene::InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
@@ -30,7 +31,7 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
 {
     emit AfterItemCreated(item);
 }
-bool b = false;
+
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     //QGraphicsScene::mousePressEvent(event);
@@ -55,7 +56,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                 }
                 else
                 {
-                    b = true;
+                    selectedWithCtrl_ = true;
                 }
                 movingItem_->setSelected(true);
             }
@@ -72,9 +73,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
             }
 
             //bool ctrl = (event->modifiers() == Qt::ControlModifier);
-            bool ctrl = (event->modifiers() == Qt::ShiftModifier);
+            bool shift = (event->modifiers() == Qt::ShiftModifier);
 
-            if (ctrl)
+            if (shift)
             {
                 QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
                 for (auto& pair : dragItems_)
@@ -110,7 +111,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
     QGraphicsScene::mouseMoveEvent(event);
 
-    b = false;
+    selectedWithCtrl_ = false;
 
     if (isItemMoving_)
         QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
@@ -125,7 +126,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     isItemMoving_ = false;
 
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
-    bool ctrl = (event->modifiers() == Qt::ShiftModifier);
+    bool shift = (event->modifiers() == Qt::ShiftModifier);
 
     //  QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
@@ -146,7 +147,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     {
         const int gridSize = 20;
         QPointF delta = startPosition_ - movingItem_->pos();
-        if (ctrl && (std::abs(delta.x()) >= gridSize || std::abs(delta.y()) >= gridSize))
+        if (shift && (std::abs(delta.x()) >= gridSize || std::abs(delta.y()) >= gridSize))
         {
             for (auto& item : selectedItems())
             {
@@ -229,10 +230,10 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         }
 
         //if (event->modifiers() == Qt::ControlModifier)
-        if (b)
+        if (selectedWithCtrl_)
         {
             movingItem_->setSelected(false);
-            b = false;
+            selectedWithCtrl_ = false;
         }
         movingItem_ = nullptr;
     }
@@ -252,8 +253,8 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
     if (isItemMoving_)
     {
         //bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
-        bool ctrl = (keyEvent->modifiers() == Qt::ShiftModifier);
-        if (ctrl)
+        bool shift = (keyEvent->modifiers() == Qt::ShiftModifier);
+        if (shift)
         {
             qDebug() << "press" << dragItems_.size();
             QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);

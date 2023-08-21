@@ -17,6 +17,7 @@ namespace CubeDiagram
         bool isItemMoving_;
         QGraphicsItem* movingItem_;
         QList<QPair<DiagramItem*, DiagramItem*>> dragItems_;
+        bool selectedWithCtrl_;
 
     public:
         explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
