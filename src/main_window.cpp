@@ -930,9 +930,10 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     for (const auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name = pi->GetInstanceName();
-        mainUnits.push_back(name);
+        //auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        QString name;
+        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
+            mainUnits.push_back(name);
     }
 
     // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
@@ -941,10 +942,13 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name = pi->GetInstanceName();
-        QStringList conn = depends ? pi->GetDependentNames() : pi->GetConnectedNames();
-        if (conn.size() > 0)
-            connections[name].append(conn);
+        QString name;
+        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
+        {
+            QStringList conn = depends ? pi->GetDependentNames() : pi->GetConnectedNames();
+            if (conn.size() > 0)
+                connections[name].append(conn);
+        }
     }
 
     // Перебираем юниты сцены и для них рисуем соединения

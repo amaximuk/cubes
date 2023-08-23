@@ -186,7 +186,7 @@ void FileItem::CreateProperties()
 {
     QMap<QString, const QtProperty*> idToProperty;
     for (auto& pm : model_.parameters)
-        topLevelProperties_.push_back(editor_->GetPropertyForModel(pm, idToProperty));
+        topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
 }
@@ -253,7 +253,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             QMap<QString, const QtProperty*> idToProperty;
             for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(editor_->GetPropertyForModel(pm->parameters[i], idToProperty));
+                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
             for (const auto& kvp : idToProperty.toStdMap())
                 RegisterProperty(kvp.second, kvp.first);
 

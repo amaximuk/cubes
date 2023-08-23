@@ -193,7 +193,7 @@ void PropertiesItem::CreateProperties()
 {
     QMap<QString, const QtProperty*> idToProperty;
     for (auto& pm : model_.parameters)
-        topLevelProperties_.push_back(editor_->GetPropertyForModel(pm, idToProperty));
+        topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
 }
@@ -760,6 +760,8 @@ void PropertiesItem::ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& 
 {
     auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+    //auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    //    model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
     if (pi != nullptr)
     {
@@ -794,6 +796,9 @@ void PropertiesItem::ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& 
             {
                 qDebug() << xp->name;
                 model.value = xp->val;
+
+                QtProperty* p = GetProperty(model.id);
+                editor_->SetPropertyValue(p, model);
             }
         }
     }

@@ -57,7 +57,7 @@ QtTreePropertyBrowser* PropertiesEditor::GetPropertyEditor()
     return propertyEditor_;
 }
 
-QtProperty* PropertiesEditor::GetPropertyForModel(const CubesUnitTypes::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
+QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
 {
     // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
@@ -139,12 +139,83 @@ QtProperty* PropertiesEditor::GetPropertyForModel(const CubesUnitTypes::Paramete
 
     // »дем по дереву
     for (auto& sp : model.parameters)
-        pr->addSubProperty(GetPropertyForModel(sp, idToProperty));
+        pr->addSubProperty(CreatePropertyForModel(sp, idToProperty));
 
     if (model.readOnly)
         pr->setEnabled(false);
 
     return pr;
+}
+
+void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTypes::ParameterModel& model)
+{
+    // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
+
+    if (model.editorSettings.type == CubesUnitTypes::EditorType::None)
+    {
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::String)
+    {
+        stringManager_->blockSignals(true);
+        stringManager_->setOldValue(property, model.value.toString());
+        stringManager_->setValue(property, model.value.toString());
+        stringManager_->blockSignals(false);
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
+    {
+        intManager_->blockSignals(true);
+        intManager_->setRange(property, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
+        intManager_->setValue(property, model.value.toInt());
+        intManager_->blockSignals(false);
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinDouble)
+    {
+        doubleManager_->blockSignals(true);
+        doubleManager_->setRange(property, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
+        doubleManager_->setSingleStep(property, model.editorSettings.SpinDoubleSingleStep);
+        doubleManager_->setValue(property, model.value.toDouble());
+        doubleManager_->blockSignals(false);
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
+    {
+        enumManager_->blockSignals(true);
+        enumManager_->setEnumNames(property, model.editorSettings.ComboBoxValues);
+
+        int pos = 0;
+        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
+        {
+            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+                break;
+            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+                break;
+            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
+                break;
+        }
+
+        if (pos == model.editorSettings.ComboBoxValues.size())
+            pos = 0;
+
+        enumManager_->setValue(property, pos);
+        enumManager_->blockSignals(false);
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
+    {
+        boolManager_->blockSignals(true);
+        boolManager_->setValue(property, model.value.toBool());
+        boolManager_->blockSignals(false);
+    }
+    else if (model.editorSettings.type == CubesUnitTypes::EditorType::Color)
+    {
+        colorManager_->blockSignals(true);
+        colorManager_->setValue(property, QColor::fromRgba(model.value.toUInt()));
+        colorManager_->blockSignals(false);
+    }
+    else assert(false);
+
+    if (model.readOnly)
+        property->setEnabled(false);
 }
 
 void PropertiesEditor::SetIntValue(QtProperty* property, int value)

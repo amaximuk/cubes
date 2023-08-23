@@ -48,6 +48,7 @@ namespace CubesProperties
 		//QStringList GetFileIncludeNames(const QString& fileName);
 		//QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
 		void Clear();
+		bool GetName(const uint32_t propertiesId, QString& name);
 
 	signals:
 		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);

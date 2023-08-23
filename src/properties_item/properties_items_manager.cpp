@@ -233,6 +233,16 @@ void PropertiesItemsManager::Clear()
 	items_.clear();
 }
 
+bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)
+{
+	auto pi = GetItem(propertiesId);
+	if (pi == nullptr)
+		return false;
+
+	name = GetName(pi.get());
+	return true;
+}
+
 void PropertiesItemsManager::AfterNameChanged(PropertiesItem* item)
 {
 	auto name = GetName(item);
