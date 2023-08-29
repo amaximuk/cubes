@@ -76,14 +76,16 @@ namespace CubesProperties
     private:
         void CreateParametersModel();
         void CreateProperties();
-        void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId, const QString& parentModelId, CubesUnitTypes::ParameterModel& model);
-        void FillParameterModel(CubesUnitTypes::ParameterModel& pm);
-        void FillArrayModel(CubesUnitTypes::ParameterModel& pm);
-        void UpdateArrayModel(CubesUnitTypes::ParameterModel& pm);
+        void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
+            const QString& parentModelId, CubesUnitTypes::ParameterModel& model);
+        void FillParameterModel(CubesUnitTypes::ParameterModel& model);
+        void FillArrayModel(CubesUnitTypes::ParameterModel& model);
+        void UpdateArrayModel(CubesUnitTypes::ParameterModel& model);
 
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
+        void ApplyXmlArrayModel(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
 
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);

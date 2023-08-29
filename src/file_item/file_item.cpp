@@ -603,14 +603,14 @@ QString FileItem::GetIncludeName(const QString& includePath)
     return "";
 }
 
-void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count)
+void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Сначала добавляем
-    if (pm.parameters.size() < count)
+    if (model.parameters.size() < count)
     {
         // Получаем список имеющихся имен включаемых файлов
         QStringList includeNames;
-        for (const auto& i : pm.parameters)
+        for (const auto& i : model.parameters)
         {
             for (const auto& si : i.parameters)
             {
@@ -624,7 +624,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
 
         // Получаем список новых имен файлов
         QStringList addingIncludeNames;
-        for (int i = pm.parameters.size(); i < count; ++i)
+        for (int i = model.parameters.size(); i < count; ++i)
         {
             // Получаем уникальное имя
             QString includeName = CubesUnitTypes::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
@@ -640,12 +640,12 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
-            count = pm.parameters.count();
+            count = model.parameters.count();
             return;
         }
 
         // Добавляем
-        for (int i = pm.parameters.size(); i < count; ++i)
+        for (int i = model.parameters.size(); i < count; ++i)
         {
             // Получаем уникальное имя
             QString includeName = includeNames[i];
@@ -653,7 +653,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
             // Создаем
             CubesUnitTypes::ParameterModel group_model;
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
             CubesUnitTypes::ParameterModel name;
@@ -686,7 +686,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
             variables.editorSettings.SpinIntergerMax = 100;
             group_model.parameters.push_back(std::move(variables));
 
-            pm.parameters.push_back(std::move(group_model));
+            model.parameters.push_back(std::move(group_model));
         }
 
         // Информируем, что создали
@@ -694,13 +694,13 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
     }
 
     // Теперь удаляем
-    if (pm.parameters.size() > count)
+    if (model.parameters.size() > count)
     {
         // Получаем имена удаляемых включаемых файлов
         QStringList removingIncludeNames;
-        for (int i = count; i < pm.parameters.count(); ++i)
+        for (int i = count; i < model.parameters.count(); ++i)
         {
-            for (const auto& si : pm.parameters[i].parameters)
+            for (const auto& si : model.parameters[i].parameters)
             {
                 if (si.id.endsWith("/NAME"))
                 {
@@ -716,20 +716,20 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
-            count = pm.parameters.size();
+            count = model.parameters.size();
             return;
         }
 
         // Удаляем
-        while (pm.parameters.size() > count)
+        while (model.parameters.size() > count)
         {
             // Удаляем параметр
-            pm.parameters.pop_back();
+            model.parameters.pop_back();
         }
 
         // Получаем список имеющихся имен включаемых файлов
         QStringList includeNames;
-        for (const auto& i : pm.parameters)
+        for (const auto& i : model.parameters)
         {
             for (const auto& si : i.parameters)
             {
@@ -746,10 +746,10 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& pm, int&
     }
 }
 
-void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int& count)
+void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Разделяем путь на части
-    QStringList path = pm.id.split("/");
+    QStringList path = model.id.split("/");
     if (path.size() != 3 || path[0] != "INCLUDES")
         return;
 
@@ -770,15 +770,15 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int
     }
 
     // Сначала добавляем
-    if (pm.parameters.size() < count)
+    if (model.parameters.size() < count)
     {
         // Добавляем
-        for (int i = pm.parameters.size(); i < count; ++i)
+        for (int i = model.parameters.size(); i < count; ++i)
         {
             // Создаем
             CubesUnitTypes::ParameterModel group_model;
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
+            group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
             CubesUnitTypes::ParameterModel name;
@@ -800,24 +800,24 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& pm, int
             variable.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(variable));
 
-            pm.parameters.push_back(std::move(group_model));
+            model.parameters.push_back(std::move(group_model));
         }
     }
 
     // Теперь удаляем
-    if (pm.parameters.size() > count)
+    if (model.parameters.size() > count)
     {
         // Удаляем
-        while (pm.parameters.size() > count)
+        while (model.parameters.size() > count)
         {
             // Удаляем параметр
-            pm.parameters.pop_back();
+            model.parameters.pop_back();
         }
     }
 
     // Получаем список имеющихся переменных
     QList<QPair<QString, QString>> variables;
-    for (const auto& v : pm.parameters)
+    for (const auto& v : model.parameters)
     {
         QString name;
         QString value;

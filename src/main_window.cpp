@@ -814,6 +814,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
     }
 
     scene_->clearSelection();
+    propertiesItemsManager_->Select(0);
     DiagramAfterItemCreated(di);
 
     //if (!SortUnitsRectangular())
