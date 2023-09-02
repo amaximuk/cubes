@@ -209,6 +209,10 @@ void PropertiesItem::CreateProperties()
 
 void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId, const QString& parentModelId, CubesUnitTypes::ParameterModel& model)
 {
+    // —оздание модели дл€ параметра по его info ID (тип и им€ из yml файла)
+    // ћодель включает все вложенные параметры и массивы
+    //  аждому параметру назначаетс€ model ID (путь к параметру в модели, разделенный /)
+
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
     CubesUnitTypes::ParameterModel pm;
@@ -232,14 +236,15 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
 
 void PropertiesItem::FillParameterModel(CubesUnitTypes::ParameterModel& model)
 {
+    // «аполнение модели параметра, не €вл€ющегос€ массивом, с учетом ограничений
+    // ѕол€ id, name, parameterInfoId должны быть предварительно заполнены
+
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
     model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
 
     auto piType = pi.type;
     if (parameters_compiler::helper::is_array_type(piType))
         piType = parameters_compiler::helper::get_array_type(pi.type);
-
-
 
     if (piType == "unit")
         model.valueType = "string";
@@ -255,8 +260,6 @@ void PropertiesItem::FillParameterModel(CubesUnitTypes::ParameterModel& model)
     else // enum user type
         model.valueType = "string";
             
-
-
     if (pi.restrictions.set_.size() > 0)
     {
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
@@ -928,6 +931,11 @@ QList<QString> PropertiesItem::GetDependentNames()
 
 void PropertiesItem::FillArrayModel(CubesUnitTypes::ParameterModel& model)
 {
+    // —озадем модель дл€ параметра, хран€щего количество элементов массива
+    // ≈сли задан перечень элементов, используем ComboBox, если нет - SpinBox
+    // ≈сли ограничени€ не заданы, беретс€ - количество элементов равно нулю
+    // ѕол€ id, name, parameterInfoId должны быть предварительно заполнены
+
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
     model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
     model.valueType = "int";
@@ -952,11 +960,13 @@ void PropertiesItem::FillArrayModel(CubesUnitTypes::ParameterModel& model)
         else
             model.editorSettings.SpinIntergerMax = 1000; // !!! todo: make a define for a const
     }
-
 }
 
 void PropertiesItem::UpdateArrayModel(CubesUnitTypes::ParameterModel& model)
 {
+    // ќбновл€ем модель массива, по фактическому количеству элементов в нем
+    // ѕол€ id, name, parameterInfoId должны быть предварительно заполнены
+
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
