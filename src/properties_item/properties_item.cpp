@@ -1044,76 +1044,132 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
     if (pm == nullptr)
         return;
 
-    if (pm->id == "BASE/NAME")
+    if (pm->id.startsWith("BASE"))
     {
-        //QString oldName = pm->value.toString();
-        //pm->value = value;
-        //file_items_manager_->InformNameChanged(value.toString(), oldName);
+        if (pm->id == "BASE/NAME")
+        {
+            //QString oldName = pm->value.toString();
+            //pm->value = value;
+            //file_items_manager_->InformNameChanged(value.toString(), oldName);
+        }
+        else if (pm->id == "BASE/FILE_NAME")
+        {
+            pm->value = property->valueText();
+
+            QStringList includeNames;
+            propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
+
+            SetGroupNames(includeNames);
+            SetGroupName("<not selected>");
+        }
+        else if (pm->id == "BASE/INCLUDE_NAME")
+        {
+            pm->value = property->valueText();
+
+            //QList<QPair<QString, QString>> variables;
+            //propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
+            propertiesItemsManager_->AfterIncludeNameChanged(this);
+
+
+
+            //SetGroupNames(includeNames);
+            //SetGroupName("<not selected>");
+        }
     }
-    else if (pm->id == "BASE/FILE_NAME")
+    else if (pm->id.startsWith("PARAMETERS"))
     {
-        pm->value = property->valueText();
+        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+        if (is_array/* && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name)*/)
+        {
+            int count = std::stoi(property->valueText().toStdString());
+            pm->value = count;
+            UpdateArrayModel(*pm);
+        
+            QMap<QString, const QtProperty*> idToProperty;
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
+            for (const auto& kvp : idToProperty.toStdMap())
+                RegisterProperty(kvp.second, kvp.first);
 
-        QStringList includeNames;
-        propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
+            auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+                list.push_back(property);
+                for (const auto& p : property->subProperties())
+                    collect(p, list, collect);
+            };
 
-        SetGroupNames(includeNames);
-        SetGroupName("<not selected>");
+            QList<QtProperty*> toRemove;
+            QList<QtProperty*> toUnregister;
+            const auto& subProperties = property->subProperties();
+            for (int i = count; i < subProperties.size(); ++i)
+            {
+                collect(subProperties[i], toUnregister, collect);
+                toRemove.push_back(subProperties[i]);
+            }
+
+            for (auto& p : toRemove)
+                property->removeSubProperty(p);
+
+            for (auto& p : toUnregister)
+                UnregisterProperty(p);
+
+            ApplyExpandState();
+        }
+        else
+        {
+            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+                pm->value = property->valueText();
+            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
+                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+                pm->value = std::stoi(property->valueText().toStdString());
+            else if (pi.type == "double" || pi.type == "float")
+                pm->value = std::stod(property->valueText().toStdString());
+            else // enum
+                pm->value = property->valueText();
+        }
     }
-    else if (pm->id == "BASE/INCLUDE_NAME")
+    else if (pm->id.startsWith("EDITOR"))
     {
-        pm->value = property->valueText();
+        if (pm->id == "EDITOR/POSITION_X")
+        {
+            pm->value = property->valueText().toDouble();
+            double posX = property->valueText().toDouble();
 
-        //QList<QPair<QString, QString>> variables;
-        //propertiesItemsManager_->AfterIncludeNameChanged(this, variables);
-        propertiesItemsManager_->AfterIncludeNameChanged(this);
+            auto pmY = GetParameterModel("EDITOR/POSITION_Y");
+            double posY = pmY->value.toDouble();
 
+            auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
+            double posZ = pmZ->value.toDouble();
 
+            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+        }
+        else if (pm->id == "EDITOR/POSITION_Y")
+        {
+            auto pmX = GetParameterModel("EDITOR/POSITION_X");
+            double posX = pmX->value.toDouble();
 
-        //SetGroupNames(includeNames);
-        //SetGroupName("<not selected>");
+            pm->value = property->valueText().toDouble();
+            double posY = property->valueText().toDouble();
+
+            auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
+            double posZ = pmZ->value.toDouble();
+
+            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+        }
+        else if (pm->id == "EDITOR/POSITION_Z")
+        {
+            auto pmX = GetParameterModel("EDITOR/POSITION_X");
+            double posX = pmX->value.toDouble();
+
+            auto pmY = GetParameterModel("EDITOR/POSITION_Y");
+            double posY = pmY->value.toDouble();
+
+            pm->value = property->valueText().toDouble();
+            double posZ = property->valueText().toDouble();
+
+            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+        }
     }
-    else if (pm->id == "EDITOR/POSITION_X")
-    {
-        pm->value = property->valueText().toDouble();
-        double posX = property->valueText().toDouble();
-
-        auto pmY = GetParameterModel("EDITOR/POSITION_Y");
-        double posY = pmY->value.toDouble();
-
-        auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
-        double posZ = pmZ->value.toDouble();
-
-        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
-    }
-    else if (pm->id == "EDITOR/POSITION_Y")
-    {
-        auto pmX = GetParameterModel("EDITOR/POSITION_X");
-        double posX = pmX->value.toDouble();
-
-        pm->value = property->valueText().toDouble();
-        double posY = property->valueText().toDouble();
-
-        auto pmZ = GetParameterModel("EDITOR/POSITION_Z");
-        double posZ = pmZ->value.toDouble();
-
-        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
-    }
-    else if (pm->id == "EDITOR/POSITION_Z")
-    {
-        auto pmX = GetParameterModel("EDITOR/POSITION_X");
-        double posX = pmX->value.toDouble();
-
-        auto pmY = GetParameterModel("EDITOR/POSITION_Y");
-        double posY = pmY->value.toDouble();
-
-        pm->value = property->valueText().toDouble();
-        double posZ = property->valueText().toDouble();
-
-        propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
-    }
-    else
-        pm->value = value.toString();
 }
 
 void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
