@@ -783,10 +783,10 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
         if (up != nullptr)
         {
             uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i].id, propertiesId);
+            propertiesItemsManager_->Create(all_units[i], propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
-            pi->ApplyXmlProperties(all_units[i]);
+            //pi->ApplyXmlProperties(all_units[i]);
             pi->SetFileNames(fileNames);
             pi->SetFileName(fileName);
             if (includedFileName != "")

@@ -35,6 +35,8 @@ namespace CubesProperties
     public:
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);
+        PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+            CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, uint32_t propertiesId);
 
     public:
         void Select();
@@ -47,11 +49,11 @@ namespace CubesProperties
         void PositionChanged(QPointF point);
         void ZOrderChanged(double value);
         QString GetPropertyDescription(QtProperty* property);
-        void ExpandedChanged(QtProperty* property, bool is_expanded);
+        //void ExpandedChanged(QtProperty* property, bool is_expanded);
         QList<QString> GetConnectedNames();
         QList<QString> GetDependentNames();
         QString GetInstanceName();
-        void ApplyXmlProperties(CubesXml::Unit xu);
+        //void ApplyXmlProperties(CubesXml::Unit xu);
         void SetFileNames(QStringList fileNames);
         void SetFileName(QString fileName);
         void SetFileNameReadOnly(bool readOnly);
@@ -74,18 +76,18 @@ namespace CubesProperties
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
     private:
-        void CreateParametersModel();
+        void CreateParametersModel(const CubesXml::Unit* xmlUnit);
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
-            const QString& parentModelId, CubesUnitTypes::ParameterModel& model);
-        void FillParameterModel(CubesUnitTypes::ParameterModel& model);
-        void FillArrayModel(CubesUnitTypes::ParameterModel& model);
-        void UpdateArrayModel(CubesUnitTypes::ParameterModel& model);
+            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+        void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+        void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+        void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
 
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
-        void ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
-        void ApplyXmlArrayModel(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
+        //void ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
+        //void ApplyXmlArrayModel(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
 
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);

@@ -74,6 +74,25 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	//emit FilesListChanged(GetFileNames());
 }
 
+void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId)
+{
+	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+
+	CubesUnitTypes::UnitParameters unitParameters{};
+	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
+
+	propertiesId = ++unique_number_;
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, propertiesId));
+
+	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+
+	pi->SetName(propertiesName);
+	items_[propertiesId] = pi;
+	selector_->addItem(propertiesName, propertiesId);
+	selector_->setCurrentIndex(selector_->count() - 1);
+}
+
 void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 {
 	//QString currentFileName = GetCurrentFileName();
