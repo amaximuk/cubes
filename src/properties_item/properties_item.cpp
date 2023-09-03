@@ -1161,11 +1161,12 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (!model.editorSettings.ComboBoxValues.contains(QString("%1").arg(xmlCount)))
             {
-                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов в xml не соответствует ограничениям"));
+                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }
-            model.value = QString("%1").arg(xmlCount);
+            else
+                model.value = QString("%1").arg(xmlCount);
         }
     }
     else
@@ -1186,11 +1187,12 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (xmlCount < model.editorSettings.SpinIntergerMin || xmlCount > model.editorSettings.SpinIntergerMax)
             {
-                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов в xml не соответствует ограничениям"));
+                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }
-            model.value = QString("%1").arg(xmlCount);
+            else
+                model.value = QString("%1").arg(xmlCount);
         }
     }
 }

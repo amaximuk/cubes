@@ -321,14 +321,9 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 		unit.arrays.push_back(std::move(array));
 	}
 
-	//auto dependsNodes = elementsByTagName(node, "Depends");
-	//for (const auto& ed : dependsNodes)
-	//{
-	//	QList<QString> depends;
-	//	if (!get_depends(ed, depends))
-	//		ELRF("Get Depends failed");
-	//	unit.depends.append(depends);
-	//}
+	// Интерпретируем зависимости юнита как массив строк
+	// При загрузке параметров автоматически добавляется массив строк с именем DEPENDS
+	// Значения для зависимостей хранятся в поле name вместо val, учитываем это при загрузке
 
 	auto dependsNodes = elementsByTagName(node, "Depends");
 	for (const auto& ed : dependsNodes)
