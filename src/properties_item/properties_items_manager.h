@@ -55,6 +55,7 @@ namespace CubesProperties
 		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
 		void PositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const uint32_t propertiesId);
+		void OnError(const uint32_t propertiesId, const QString& message);
 
 	public:
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
@@ -63,6 +64,7 @@ namespace CubesProperties
 		void AfterIncludeNameChanged(PropertiesItem* item) override;
 		//void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) override;
+		void AfterError(PropertiesItem* item, const QString& message) override;
 
 		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:

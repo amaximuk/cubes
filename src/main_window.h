@@ -136,6 +136,7 @@ public slots:
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
+    void PropertiesOnError(const uint32_t propertiesId, const QString& message);
 
 private slots:
     // Кнопки

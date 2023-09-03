@@ -306,6 +306,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         {
             if (!model.editorSettings.ComboBoxValues.contains(xmlParam->val))
             {
+                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                 // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                 // TODO: вернуть ошибку
             }
@@ -400,6 +401,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                 {
                     if (!model.editorSettings.ComboBoxValues.contains(xmlParam->val))
                     {
+                        propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                         // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                         // TODO: вернуть ошибку
                     }
@@ -1034,6 +1036,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (!model.editorSettings.ComboBoxValues.contains(QString("%1").arg(xmlCount)))
             {
+                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов в xml не соответствует ограничениям"));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }
@@ -1058,6 +1061,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (xmlCount < model.editorSettings.SpinIntergerMin || xmlCount > model.editorSettings.SpinIntergerMax)
             {
+                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов в xml не соответствует ограничениям"));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }

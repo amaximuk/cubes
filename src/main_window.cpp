@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnError, this, &MainWindow::PropertiesOnError);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -1260,6 +1261,19 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
             break;
         }
     }
+}
+
+void MainWindow::PropertiesOnError(const uint32_t propertiesId, const QString& message)
+{
+    CubeLog::LogMessage m{};
+    m.type = CubeLog::MessageType::error;
+    m.source = QString("%1").arg(propertiesId);
+    m.description = message;
+    log_table_model_->AddMessage(m);
+
+    log_table_model_->submit();
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->update();
 }
 
 // Кнопки

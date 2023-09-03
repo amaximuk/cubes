@@ -313,6 +313,11 @@ void PropertiesItemsManager::AfterPositionChanged(PropertiesItem* item, double p
 	emit PositionChanged(item->GetPropertiesId(), posX, posY, posZ);
 }
 
+void PropertiesItemsManager::AfterError(PropertiesItem* item, const QString& message)
+{
+	emit OnError(item->GetPropertiesId(), message);
+}
+
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	QString currentFileName = GetCurrentPropertiesId();
