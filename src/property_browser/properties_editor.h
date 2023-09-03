@@ -47,6 +47,7 @@ signals:
     void Collapsed(QtBrowserItem* item);
     void Expanded(QtBrowserItem* item);
     void ContextMenuRequested(const QPoint& pos);
+    void CurrentItemChanged(QtBrowserItem* item);
 
     void IntValueChanged(QtProperty* property, int value);
     void DoubleValueChanged(QtProperty* property, double value);
@@ -62,6 +63,7 @@ private:
     void CollapsedInternal(QtBrowserItem* item);
     void ExpandedInternal(QtBrowserItem* item);
     void ContextMenuRequestedInternal(const QPoint& pos);
+    void CurrentItemChangedInternal(QtBrowserItem* item);
     void IntValueChangedInternal(QtProperty* property, int value);
     void DoubleValueChangedInternal(QtProperty* property, double value);
     void StringValueChangedInternal(QtProperty* property, const QString& value);

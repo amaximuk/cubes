@@ -3,6 +3,7 @@
 #include "properties_items_manager_interface.h"
 
 class QComboBox;
+class QPlainTextEdit;
 class ITopManager;
 
 namespace CubesProperties
@@ -22,6 +23,7 @@ namespace CubesProperties
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
+		QPointer<QPlainTextEdit> hint_;
 		QMap<uint32_t, QSharedPointer<PropertiesItem>> items_;
 		//QList<QSharedPointer<properties_item>> items_;
 		uint32_t selected_;
@@ -71,6 +73,7 @@ namespace CubesProperties
 		void OnEditorCollapsed(QtBrowserItem* item);
 		void OnEditorExpanded(QtBrowserItem* item);
 		void OnContextMenuRequested(const QPoint& pos);
+		void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
 		void OnAddFileClicked();
@@ -79,6 +82,7 @@ namespace CubesProperties
 	private:
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
+		QWidget* CreateHintWidget();
 		void SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(PropertiesItem* item);
 	};

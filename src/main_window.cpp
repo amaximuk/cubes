@@ -474,15 +474,15 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
 
     QWidget* filesWidget = fileItemsManager_->GetWidget();
     QWidget* propertiesWidget = propertiesItemsManager_->GetWidget();
-    QWidget* hintWidget = CreateHintWidget();
+    //QWidget* hintWidget = CreateHintWidget();
 
     QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
     tabVSplitter->addWidget(filesWidget);
     tabVSplitter->addWidget(propertiesWidget);
-    tabVSplitter->addWidget(hintWidget);
+    //tabVSplitter->addWidget(hintWidget);
     tabVSplitter->setStretchFactor(0, 0);
     tabVSplitter->setStretchFactor(1, 1);
-    tabVSplitter->setStretchFactor(2, 0);
+    //tabVSplitter->setStretchFactor(2, 0);
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
     propertiesPaneLayout->addWidget(tabVSplitter);
@@ -493,19 +493,19 @@ QWidget* MainWindow::CreatePropertiesPanelWidget()
     return propertiesPanelWidget;
 }
 
-QWidget* MainWindow::CreateHintWidget()
-{
-    QWidget* hintWidget = new QWidget;
-    plainTextEditHint_ = new QPlainTextEdit;
-    plainTextEditHint_->setFixedHeight(100);
-    plainTextEditHint_->setReadOnly(true);
-    QVBoxLayout* vBoxLayoutHint = new QVBoxLayout;
-    vBoxLayoutHint->setMargin(0);
-    vBoxLayoutHint->addWidget(plainTextEditHint_);
-    vBoxLayoutHint->setContentsMargins(0, 0, 0, 0);
-    hintWidget->setLayout(vBoxLayoutHint);
-    return hintWidget;
-}
+//QWidget* MainWindow::CreateHintWidget()
+//{
+//    QWidget* hintWidget = new QWidget;
+//    plainTextEditHint_ = new QPlainTextEdit;
+//    plainTextEditHint_->setFixedHeight(100);
+//    plainTextEditHint_->setReadOnly(true);
+//    QVBoxLayout* vBoxLayoutHint = new QVBoxLayout;
+//    vBoxLayoutHint->setMargin(0);
+//    vBoxLayoutHint->addWidget(plainTextEditHint_);
+//    vBoxLayoutHint->setContentsMargins(0, 0, 0, 0);
+//    hintWidget->setLayout(vBoxLayoutHint);
+//    return hintWidget;
+//}
 
 void MainWindow::FillTreeView()
 {
@@ -1108,7 +1108,7 @@ void MainWindow::selectionChanged()
     }
     else
     {
-        plainTextEditHint_->setPlainText("");
+        //plainTextEditHint_->setPlainText("");
         propertiesItemsManager_->Select(0);
     }
 }
@@ -1455,21 +1455,21 @@ void MainWindow::OnSortAction()
 }
 
 // TODO: Перенести подсказку в менеджер
-void MainWindow::currentItemChanged(QtBrowserItem* item)
-{
-    if (item != nullptr)
-        qDebug() << item->property()->propertyName();
-
-    if (scene_->selectedItems().size() > 0)
-    {
-        auto di = reinterpret_cast<CubeDiagram::DiagramItem*>(scene_->selectedItems()[0]);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (item != nullptr)
-            plainTextEditHint_->setPlainText(pi->GetPropertyDescription(item->property()));
-        else
-            plainTextEditHint_->setPlainText("");
-    }
-}
+//void MainWindow::currentItemChanged(QtBrowserItem* item)
+//{
+//    if (item != nullptr)
+//        qDebug() << item->property()->propertyName();
+//
+//    if (scene_->selectedItems().size() > 0)
+//    {
+//        auto di = reinterpret_cast<CubeDiagram::DiagramItem*>(scene_->selectedItems()[0]);
+//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//        if (item != nullptr)
+//            plainTextEditHint_->setPlainText(pi->GetPropertyDescription(item->property()));
+//        else
+//            plainTextEditHint_->setPlainText("");
+//    }
+//}
 
 // Лог
 void MainWindow::OnErrorButtonClicked(bool checked)

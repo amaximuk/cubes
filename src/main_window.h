@@ -57,7 +57,7 @@ private:
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
-    QPointer<QPlainTextEdit> plainTextEditHint_;
+    //QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
     QPointer<CubeLog::LogTableModel> log_table_model_;
     QPointer<CubeLog::SortFilterModel> sort_filter_model_;
@@ -94,7 +94,7 @@ protected:
     void CreateView();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
-    QWidget* CreateHintWidget();
+    //QWidget* CreateHintWidget();
     void FillTreeView();
     void FillParametersInfo();
 
@@ -149,7 +149,7 @@ private slots:
     void OnSortAction();
 
     // TODO: Перенести подсказку в менеджер
-    void currentItemChanged(QtBrowserItem* item);
+    //void currentItemChanged(QtBrowserItem* item);
 
     // Лог
     void OnErrorButtonClicked(bool checked);

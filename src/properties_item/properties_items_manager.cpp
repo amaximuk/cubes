@@ -1,4 +1,5 @@
 #include <QComboBox>
+#include <QPlainTextEdit>
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -352,6 +353,18 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	}
 }
 
+void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
+{
+	uint32_t propertiesId = GetCurrentPropertiesId();
+	if (item != nullptr && items_.contains(propertiesId))
+	{
+		QString description = items_[propertiesId]->GetPropertyDescription(item->property());
+		hint_->setPlainText(description);
+	}
+	else
+		hint_->setPlainText("");
+}
+
 void PropertiesItemsManager::OnDeleteInclude(bool checked)
 {
 
@@ -458,16 +471,19 @@ QWidget* PropertiesItemsManager::CreateEditorWidget()
 	qDebug() << connect(editor_, &PropertiesEditor::Collapsed, this, &PropertiesItemsManager::OnEditorCollapsed);
 	qDebug() << connect(editor_, &PropertiesEditor::Expanded, this, &PropertiesItemsManager::OnEditorExpanded);
 	qDebug() << connect(editor_, &PropertiesEditor::ContextMenuRequested, this, &PropertiesItemsManager::OnContextMenuRequested);
+	qDebug() << connect(editor_, &PropertiesEditor::CurrentItemChanged, this, &PropertiesItemsManager::OnCurrentItemChanged);
 
 	QWidget* propertiesPanelWidget = new QWidget;
 
 	QWidget* hostsButtonsWidget = CreateSelectorWidget();
 
-	QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-	propertiesPaneLayout->addWidget(hostsButtonsWidget);
-	propertiesPaneLayout->addWidget(editor_->GetPropertyEditor());
-	propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
+	QWidget* hintWidget = CreateHintWidget();
 
+	QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
+	propertiesPaneLayout->addWidget(hostsButtonsWidget, 0);
+	propertiesPaneLayout->addWidget(editor_->GetPropertyEditor(), 1);
+	propertiesPaneLayout->addWidget(hintWidget, 0);
+	propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 	propertiesPanelWidget->setLayout(propertiesPaneLayout);
 
 	return propertiesPanelWidget;
@@ -515,6 +531,20 @@ QWidget* PropertiesItemsManager::CreateSelectorWidget()
 	QWidget* mainWidget = new QWidget;
 	mainWidget->setLayout(headerLayout);
 	return mainWidget;
+}
+
+QWidget* PropertiesItemsManager::CreateHintWidget()
+{
+	QWidget* hintWidget = new QWidget;
+	hint_ = new QPlainTextEdit;
+	hint_->setFixedHeight(100);
+	hint_->setReadOnly(true);
+	QVBoxLayout* vBoxLayoutHint = new QVBoxLayout;
+	vBoxLayoutHint->setMargin(0);
+	vBoxLayoutHint->addWidget(hint_);
+	vBoxLayoutHint->setContentsMargins(0, 0, 0, 0);
+	hintWidget->setLayout(vBoxLayoutHint);
+	return hintWidget;
 }
 
 void PropertiesItemsManager::SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded)

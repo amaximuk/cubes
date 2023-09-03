@@ -19,6 +19,7 @@ PropertiesEditor::PropertiesEditor()
     qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::collapsed, this, &PropertiesEditor::CollapsedInternal);
     qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::expanded, this, &PropertiesEditor::ExpandedInternal);
     qDebug() << connect(propertyEditor_, &QWidget::customContextMenuRequested, this, &PropertiesEditor::ContextMenuRequestedInternal);
+    qDebug() << connect(propertyEditor_, &QtTreePropertyBrowser::currentItemChanged, this, &PropertiesEditor::CurrentItemChangedInternal);
 
     groupManager_ = new QtGroupPropertyManager(this);
     intManager_ = new QtIntPropertyManager(this);
@@ -295,6 +296,11 @@ void PropertiesEditor::ExpandedInternal(QtBrowserItem* item)
 void PropertiesEditor::ContextMenuRequestedInternal(const QPoint& pos)
 {
     emit ContextMenuRequested(pos);
+}
+
+void PropertiesEditor::CurrentItemChangedInternal(QtBrowserItem* item)
+{
+    emit CurrentItemChanged(item);
 }
 
 void PropertiesEditor::IntValueChangedInternal(QtProperty* property, int value)
