@@ -79,7 +79,7 @@ namespace CubesProperties
 	private:
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
-		void SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded);
+		void SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(PropertiesItem* item);
 	};
 }

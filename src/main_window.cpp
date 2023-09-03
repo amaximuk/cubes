@@ -640,6 +640,8 @@ void MainWindow::FillParametersInfo()
                     log_table_model_->AddMessage(m);
                 }
 
+                // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
+                // Принцип обработки такой же как и у остальных параметров
                 if (fi.info.id != "group" && fi.info.id != "group_mock")
                 {
                     parameters_compiler::parameter_info pi{};
@@ -647,6 +649,8 @@ void MainWindow::FillParametersInfo()
                     pi.name = "DEPENDS";
                     pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
                     pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
+                    pi.required = false;
+                    pi.default_ = QString::fromLocal8Bit("не задано").toStdString();
                     fi.parameters.push_back(std::move(pi));
                 }
 
@@ -814,10 +818,12 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
         }
     }
 
-    scene_->clearSelection();
-    propertiesItemsManager_->Select(0);
-    DiagramAfterItemCreated(di);
-
+    if (all_units.size() > 0 && di != nullptr)
+    {
+        scene_->clearSelection();
+        propertiesItemsManager_->Select(0);
+        DiagramAfterItemCreated(di);
+    }
     //if (!SortUnitsRectangular())
     //    return false;
 
@@ -902,6 +908,9 @@ bool MainWindow::SortUnits()
 
 bool MainWindow::SortUnitsRectangular()
 {
+    if (scene_->items().size() == 0)
+        return true;
+
     int size = scene_->items().size();
     int rows = std::sqrt(scene_->items().size());
     int columns = (scene_->items().size() + rows - 1) / rows;

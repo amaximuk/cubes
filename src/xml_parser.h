@@ -98,7 +98,7 @@ namespace CubesXml
 		QString id;
 		QList<Param> params;
 		QList<Array> arrays;
-		QList<QString> depends;
+		//QList<QString> depends;
 	};
 
 	struct Group
@@ -137,8 +137,10 @@ namespace CubesXml
 		static bool parse(const QString& filename, File& fi);
 		static int getItemsCount(Unit& unit, const QString& id);
 		static Param* getParam(Unit& unit, const QString& id);
+		static Item* getItem(Unit& unit, const QString& id);
+
 		//static QList<QString> getConnections(Unit u);
-		//static QList<QString> getDependencies(Unit u);
+		//static QList<QString>& getDepends(Unit& unit);
 
 	private:
 		//template<typename T> static bool try_get_yaml_value(const QDomElement& node, const std::string& name, T& value);

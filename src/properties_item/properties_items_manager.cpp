@@ -320,14 +320,14 @@ void PropertiesItemsManager::AfterError(PropertiesItem* item, const QString& mes
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
-	QString currentFileName = GetCurrentPropertiesId();
-	SetFilePropertyExpanded(currentFileName, item->property(), false);
+	uint32_t propertiesId = GetCurrentPropertiesId();
+	SetFilePropertyExpanded(propertiesId, item->property(), false);
 }
 
 void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
-	QString currentFileName = GetCurrentPropertiesId();
-	SetFilePropertyExpanded(currentFileName, item->property(), true);
+	uint32_t propertiesId = GetCurrentPropertiesId();
+	SetFilePropertyExpanded(propertiesId, item->property(), true);
 }
 
 void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
@@ -517,13 +517,11 @@ QWidget* PropertiesItemsManager::CreateSelectorWidget()
 	return mainWidget;
 }
 
-void PropertiesItemsManager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
+void PropertiesItemsManager::SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded)
 {
-	QStringList fileIncludeNames;
-	for (auto& fi : items_)
+	if (items_.contains(propertiesId))
 	{
-		//if (fi->GetName() == fileName)
-		//	fi->ExpandedChanged(property, is_expanded);
+		items_[propertiesId]->ExpandedChanged(property, is_expanded);
 	}
 }
 

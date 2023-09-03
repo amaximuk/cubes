@@ -59,6 +59,16 @@ void PropertiesItem::UnSelect()
     qDebug() << disconnect(editor_, &PropertiesEditor::StringEditingFinished, this, &PropertiesItem::StringEditingFinished);
 }
 
+void PropertiesItem::ExpandedChanged(const QtProperty* property, bool is_expanded)
+{
+    if (!ignoreEvents_)
+    {
+        auto pm = GetParameterModel(property);
+        if (pm != nullptr)
+            pm->editorSettings.is_expanded = is_expanded;
+    }
+}
+
 void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
 {
     // BASE
@@ -133,16 +143,15 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
             properties_group.parameters.push_back(std::move(pm));
         }
 
-        //unit_types::ParameterModel pmd;
+        //CubesUnitTypes::ParameterModel pmd;
         //pmd.id = "PARAMETERS/DEPENDS";
         //pmd.name = QString::fromLocal8Bit("Зависимости");
         //pmd.value = 0;
         //pmd.valueType = "string";
         ////properties_group.parameterInfoId = "";
-        //pmd.editorSettings.type = unit_types::EditorType::SpinInterger;
+        //pmd.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
         //pmd.editorSettings.SpinIntergerMax = 100;
         //pmd.editorSettings.is_expanded = false;
-
         //properties_group.parameters.push_back(std::move(pmd));
 
         model_.parameters.push_back(std::move(properties_group));
@@ -246,6 +255,32 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
         FillParameterModel(xmlUnit, pm);
     }
 
+
+
+
+
+    //if (xmlUnit != nullptr)
+    //{
+    //    int i = 0;
+    //    for (const auto& d : xmlUnit->depends)
+    //    {
+    //        CubesUnitTypes::ParameterModel pmo;
+    //        pmo.id = QString("%1/%2/ITEM_%3").arg(model.id, "DEPENDS").arg(i++);
+    //        pmo.name = "";
+    //        pmo.value = d;
+    //        pmo.valueType = "string";
+    //        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
+    //        pmo.editorSettings.type = CubesUnitTypes::EditorType::String;
+
+    //        pm_depends.parameters.push_back(std::move(pmo));
+    //    }
+    //}
+
+
+
+
+
+
     model = pm;
 }
 
@@ -258,6 +293,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     CubesXml::Param* xmlParam = nullptr;
     if (xmlUnit != nullptr)
         xmlParam = CubesXml::parser::getParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+
+    CubesXml::Item* xmlItem = nullptr;
+    if (xmlUnit != nullptr)
+        xmlItem = CubesXml::parser::getItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
     model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
@@ -291,6 +330,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
         if (xmlParam->type != typeName)
         {
+            propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
             // Ошибка! Тип данных в xml не совместим с типом параметра
             // TODO: вернуть ошибку
         }
@@ -312,6 +352,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             }
             model.value = xmlParam->val;
         }
+        else if (xmlItem != nullptr)
+        {
+            model.value = xmlItem->val;
+        }
     }
     else
     {
@@ -330,10 +374,60 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 pm_depends.value = xmlParam->depends;
 
+
+
+
+
+
+
+
+
+
+
+
+            //if (xmlUnit != nullptr)
+            //{
+            //    int i = 0;
+            //    for (const auto& d : xmlUnit->depends)
+            //    {
+            //        CubesUnitTypes::ParameterModel pmo;
+            //        pmo.id = QString("%1/%2/ITEM_%3").arg(model.id, "DEPENDS").arg(i++);
+            //        pmo.name = "";
+            //        pmo.value = d;
+            //        pmo.valueType = "string";
+            //        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
+            //        pmo.editorSettings.type = CubesUnitTypes::EditorType::String;
+
+            //        pm_depends.parameters.push_back(std::move(pmo));
+            //    }
+            //}
+
+
+
+
+
+
+
+
+
+
+
+
+
             model.parameters.push_back(std::move(pm_depends));
 
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 model.value = xmlParam->val;
+            else if (xmlItem != nullptr)
+            {
+                model.value = xmlItem->val;
+            }
+
+
+
+
+
+
         }
         else if (piType == "path" || piType == "string")
         {
@@ -341,6 +435,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 model.value = xmlParam->val;
+            else if (xmlItem != nullptr)
+            {
+                model.value = xmlItem->val;
+            }
         }
         else if (piType == "bool")
         {
@@ -348,6 +446,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 model.value = xmlParam->val;
+            else if (xmlItem != nullptr)
+            {
+                model.value = xmlItem->val;
+            }
         }
         else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
             piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
@@ -366,6 +468,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 model.value = xmlParam->val;
+            else if (xmlItem != nullptr)
+            {
+                model.value = xmlItem->val;
+            }
         }
         else if (piType == "double" || piType == "float")
         {
@@ -383,6 +489,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             if (xmlUnit != nullptr && xmlParam != nullptr)
                 model.value = xmlParam->val;
+            else if (xmlItem != nullptr)
+            {
+                model.value = xmlItem->val;
+            }
         }
         else
         {
@@ -407,6 +517,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                     }
                     model.value = xmlParam->val;
                 }
+                else if (xmlItem != nullptr)
+                {
+                    model.value = xmlItem->val;
+                }
             }
             else assert(false);
         }
@@ -423,11 +537,22 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         pmo.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
 
         if (xmlUnit != nullptr)
-            model.value = (xmlParam == nullptr);
+        {
+            if (xmlParam == nullptr)
+            {
+                model.value = QString::fromLocal8Bit("не задано");
+                pmo.value = true;
+            }
+            else
+            {
+                pmo.value = false;
+            }
+        }
 
         model.parameters.push_back(std::move(pmo));
     }
 }
+
 //
 //QtProperty* properties_item::GetPropertyForModel(unit_types::ParameterModel& model)
 //{

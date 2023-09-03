@@ -321,13 +321,34 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 		unit.arrays.push_back(std::move(array));
 	}
 
+	//auto dependsNodes = elementsByTagName(node, "Depends");
+	//for (const auto& ed : dependsNodes)
+	//{
+	//	QList<QString> depends;
+	//	if (!get_depends(ed, depends))
+	//		ELRF("Get Depends failed");
+	//	unit.depends.append(depends);
+	//}
+
 	auto dependsNodes = elementsByTagName(node, "Depends");
 	for (const auto& ed : dependsNodes)
 	{
 		QList<QString> depends;
 		if (!get_depends(ed, depends))
 			ELRF("Get Depends failed");
-		unit.depends.append(depends);
+
+		Array array{};
+		array.name = "DEPENDS";
+		array.type = "str";
+		QList<Item> items;
+		for (const auto& d : depends)
+		{
+			Item item{};
+			item.val = d;
+			items.push_back(item);
+		}
+		array.items = items;
+		unit.arrays.push_back(std::move(array));
 	}
 
 	return true;
@@ -398,35 +419,57 @@ bool parser::get_depends(const QDomElement& node, QList<QString>& depends)
 
 bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 {
-	if (type != "")
+	QString val = node.attribute("val", "");
+	item.val = val;
+
+	auto paramNodes = elementsByTagName(node, "Param");
+	for (const auto& ep : paramNodes)
 	{
-		QString val = node.attribute("val", "");
-
-		if (val == "")
-			ELRF("Unit/Param val is empty");
-
-		item.val = val;
+		Param param{};
+		if (!get_param(ep, param))
+			ELRF("Get Param failed");
+		item.params.push_back(std::move(param));
 	}
-	else
+
+	auto arrayNodes = elementsByTagName(node, "Array");
+	for (const auto& ea : arrayNodes)
 	{
-		auto paramNodes = elementsByTagName(node, "Param");
-		for (const auto& ep : paramNodes)
-		{
-			Param param{};
-			if (!get_param(ep, param))
-				ELRF("Get Param failed");
-			item.params.push_back(std::move(param));
-		}
-
-		auto arrayNodes = elementsByTagName(node, "Array");
-		for (const auto& ea : arrayNodes)
-		{
-			Array array{};
-			if (!get_array(ea, array))
-				ELRF("Get Array failed");
-			item.arrays.push_back(std::move(array));
-		}
+		Array array{};
+		if (!get_array(ea, array))
+			ELRF("Get Array failed");
+		item.arrays.push_back(std::move(array));
 	}
+
+
+	//if (type != "")
+	//{
+	//	QString val = node.attribute("val", "");
+
+	//	if (val == "")
+	//		ELRF("Unit/Param val is empty");
+
+	//	item.val = val;
+	//}
+	//else
+	//{
+	//	auto paramNodes = elementsByTagName(node, "Param");
+	//	for (const auto& ep : paramNodes)
+	//	{
+	//		Param param{};
+	//		if (!get_param(ep, param))
+	//			ELRF("Get Param failed");
+	//		item.params.push_back(std::move(param));
+	//	}
+
+	//	auto arrayNodes = elementsByTagName(node, "Array");
+	//	for (const auto& ea : arrayNodes)
+	//	{
+	//		Array array{};
+	//		if (!get_array(ea, array))
+	//			ELRF("Get Array failed");
+	//		item.arrays.push_back(std::move(array));
+	//	}
+	//}
 
 	return true;
 }
@@ -560,6 +603,70 @@ Param* parser::getParam(Unit& unit, const QString& id)
 					return &p;
 				}
 			}
+
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+	return nullptr;
+}
+
+Item* parser::getItem(Unit& unit, const QString& id)
+{
+	QList<QString> ss = id.split("/");
+	if (ss.size() < 2)
+		return false;
+	if (ss.front() != "PARAMETERS")
+		return false;
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			if (s.startsWith("ITEM_") && s.size() > 4)
+			{
+				int index = s.mid(5).toInt();
+				if (array->items.size() > index)
+				{
+					if (ss.size() == 1)
+						return &array->items[index];
+					params = &array->items[index].params;
+					arrays = &array->items[index].arrays;
+				}
+				else
+					return nullptr;
+			}
+			else
+				return nullptr;
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			//for (auto& p : *params)
+			//{
+			//	if (s == p.name)
+			//	{
+			//		if (ss.size() != 1)
+			//			return nullptr;
+			//		return &p;
+			//	}
+			//}
 
 			for (auto& a : *arrays)
 			{

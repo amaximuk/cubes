@@ -41,6 +41,7 @@ namespace CubesProperties
     public:
         void Select();
         void UnSelect();
+        void ExpandedChanged(const QtProperty* property, bool is_expanded);
 
     public:
         //void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);

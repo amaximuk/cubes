@@ -357,7 +357,7 @@ namespace parameters_compiler
 
         static bool get_parameter_optional(const parameter_info& pi)
         {
-            if (!pi.required && pi.default_ != "")
+            if (!pi.required && pi.default_ == "")
                 return true;
             else
                 return false;
