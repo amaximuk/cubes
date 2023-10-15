@@ -27,9 +27,9 @@ namespace CubeDiagram
 
         void InformItemPositionChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);
-        void InformItemNameChanged(DiagramItem* item, QString oldName);
-        void InformItemFileChanged(DiagramItem* item);
-        void InformItemGroupChanged(DiagramItem* item);
+        //void InformItemNameChanged(DiagramItem* item, QString oldName);
+        //void InformItemFileChanged(DiagramItem* item);
+        //void InformItemGroupChanged(DiagramItem* item);
         bool IsItemMoving() { return isItemMoving_; };
 
     signals:

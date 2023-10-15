@@ -38,13 +38,13 @@ namespace CubeDiagram
     public:
         //QSharedPointer<properties_item> GetProperties() { return properties_; };
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
-        void InformPositionXChanged(double x);
-        void InformPositionYChanged(double y);
-        void InformPositionZChanged(double z);
-        void InformFileChanged();
+        //void InformPositionXChanged(double x);
+        //void InformPositionYChanged(double y);
+        //void InformPositionZChanged(double z);
+        //void InformFileChanged();
         void InformGroupChanged();
         void InformNameChanged(QString name, QString oldName);
-        void InformDependencyChanged();
+        //void InformDependencyChanged();
         void SetBorderOnly(bool borderOnly);
         //void SetGroupName(QString name) { groupName_ = name; }
         //QString GetGroupName() { return groupName_; }

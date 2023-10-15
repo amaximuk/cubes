@@ -245,45 +245,45 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
 //    }
 //    return QGraphicsItem::itemChange(change, value);
 //}
+//
+//void DiagramItem::InformPositionXChanged(double x)
+//{
+//    if (scene() != nullptr)
+//    {
+//        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+//        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
+//            setX(x);
+//    }
+//}
+//
+//void DiagramItem::InformPositionYChanged(double y)
+//{
+//    if (scene() != nullptr)
+//    {
+//        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+//        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
+//            setY(y);
+//    }
+//}
+//
+//void DiagramItem::InformPositionZChanged(double z)
+//{
+//    if (scene() != nullptr)
+//    {
+//        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+//        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
+//            setZValue(z);
+//    }
+//}
 
-void DiagramItem::InformPositionXChanged(double x)
-{
-    if (scene() != nullptr)
-    {
-        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
-            setX(x);
-    }
-}
-
-void DiagramItem::InformPositionYChanged(double y)
-{
-    if (scene() != nullptr)
-    {
-        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
-            setY(y);
-    }
-}
-
-void DiagramItem::InformPositionZChanged(double z)
-{
-    if (scene() != nullptr)
-    {
-        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
-        if (this->isSelected() && sc != nullptr && !sc->IsItemMoving())
-            setZValue(z);
-    }
-}
-
-void DiagramItem::InformFileChanged()
-{
-    if (scene() != nullptr)
-    {
-        //reinterpret_cast<DiagramScene*>(scene())->InformItemFileChanged(this);
-        scene()->invalidate();
-    }
-}
+//void DiagramItem::InformFileChanged()
+//{
+//    if (scene() != nullptr)
+//    {
+//        //reinterpret_cast<DiagramScene*>(scene())->InformItemFileChanged(this);
+//        scene()->invalidate();
+//    }
+//}
 
 void DiagramItem::InformGroupChanged()
 {
@@ -321,13 +321,13 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     }
 }
 
-void DiagramItem::InformDependencyChanged()
-{
-    if (scene() != nullptr)
-    {
-        scene()->invalidate();
-    }
-}
+//void DiagramItem::InformDependencyChanged()
+//{
+//    if (scene() != nullptr)
+//    {
+//        scene()->invalidate();
+//    }
+//}
 
 void DiagramItem::SetBorderOnly(bool borderOnly)
 {
