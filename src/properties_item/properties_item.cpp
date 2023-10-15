@@ -1326,6 +1326,15 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
     {
         auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
         bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+        std::string pi_type = pi.type;
+
+        QStringList path = pm->id.split("/");
+        if (path.size() > 2 && path.back().startsWith("ITEM_"))
+        {
+            is_array = false;
+            pi_type = parameters_compiler::helper::get_array_type(pi.type);
+        }
+
         if (is_array/* && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name)*/)
         {
             int count = std::stoi(property->valueText().toStdString());
@@ -1363,12 +1372,12 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else
         {
-            if (pi.type == "unit" || pi.type == "path" || pi.type == "string")
+            if (pi_type == "unit" || pi_type == "path" || pi_type == "string")
                 pm->value = property->valueText();
-            else if (pi.type == "int" || pi.type == "int8_t" || pi.type == "int16_t" || pi.type == "int32_t" ||
-                pi.type == "int64_t" || pi.type == "uint8_t" || pi.type == "uint16_t" || pi.type == "uint32_t" || pi.type == "uint64_t")
+            else if (pi_type == "int" || pi_type == "int8_t" || pi_type == "int16_t" || pi_type == "int32_t" ||
+                pi_type == "int64_t" || pi_type == "uint8_t" || pi_type == "uint16_t" || pi_type == "uint32_t" || pi_type == "uint64_t")
                 pm->value = std::stoi(property->valueText().toStdString());
-            else if (pi.type == "double" || pi.type == "float")
+            else if (pi_type == "double" || pi_type == "float")
                 pm->value = std::stod(property->valueText().toStdString());
             else // enum
                 pm->value = property->valueText();
