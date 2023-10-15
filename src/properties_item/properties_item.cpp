@@ -171,7 +171,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
             CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_X";
             pm.name = QString::fromLocal8Bit("Позиция X");
-            pm.value = 0.0;
+            pm.value = xmlUnit->x;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
@@ -185,7 +185,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
             CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_Y";
             pm.name = QString::fromLocal8Bit("Позиция Y");
-            pm.value = 0.0;
+            pm.value = xmlUnit->y;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
@@ -199,7 +199,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
             CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/POSITION_Z";
             pm.name = QString::fromLocal8Bit("Позиция Z");
-            pm.value = 0.0;
+            pm.value = xmlUnit->z;
             pm.valueType = "double";
             //pm.parameterInfoId = "";
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;

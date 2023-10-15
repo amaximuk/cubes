@@ -743,8 +743,8 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
             return false;
     }
 
-    if (!SortUnitsRectangular())
-        return false;
+    //if (!SortUnitsRectangular())
+    //    return false;
 
     return true;
 }
@@ -810,6 +810,9 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             }
 
             di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+            di->setX(all_units[i].x);
+            di->setY(all_units[i].y);
+            di->setZValue(all_units[i].z);
             scene_->addItem(di);
         }
         else

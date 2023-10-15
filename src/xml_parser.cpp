@@ -294,6 +294,9 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 {
 	QString name = node.attribute("Name", "");
 	QString id = node.attribute("Id", "");
+	int32_t x = node.attribute("X", "0").toInt();
+	int32_t y = node.attribute("Y", "0").toInt();
+	int32_t z = node.attribute("Z", "0").toInt();
 
 	if (name == "")
 		ELRF("Unit Name is empty");
@@ -302,6 +305,9 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 
 	unit.name = name;
 	unit.id = id;
+	unit.x = x;
+	unit.y = y;
+	unit.z = z;
 
 	auto paramNodes = elementsByTagName(node, "Param");
 	for (const auto& ep : paramNodes)

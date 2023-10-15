@@ -98,6 +98,9 @@ namespace CubesXml
 		QString id;
 		QList<Param> params;
 		QList<Array> arrays;
+		int32_t x;
+		int32_t y;
+		int32_t z;
 		//QList<QString> depends;
 	};
 
