@@ -1404,7 +1404,9 @@ void MainWindow::OnSaveFileAction()
 
 
                     auto item = propertiesItemsManager_->GetItem(propertiesId);
-                    item->
+
+                    CubesXml::Unit xmlUnit{};
+                    item->GetXml(xmlUnit);
                 }
             }
         }

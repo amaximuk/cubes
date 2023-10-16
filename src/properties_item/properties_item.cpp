@@ -783,6 +783,20 @@ QString PropertiesItem::GetName()
     return "";
 }
 
+void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
+{
+    for (auto& pm : model_.parameters)
+    {
+        if (pm.id.startsWith("PARAMETERS"))
+        {
+            for (auto& pm : pm.parameters)
+            {
+                xmlUnit.id = pm.parameterInfoId.name;
+            }
+        }
+    }
+}
+
 //QList<QPair<QString, QString>> PropertiesItem::GetVariables()
 //{
 //    QList<QPair<QString, QString>> result;
@@ -1269,11 +1283,6 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
 
     while (model.parameters.size() > count)
         model.parameters.pop_back();
-}
-
-void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
-{
-
 }
 
 void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)

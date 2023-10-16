@@ -72,6 +72,11 @@ namespace CubesProperties
         CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };
         QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
 
+
+        void GetXml(CubesXml::Unit& xmlUnit);
+
+
+
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
@@ -84,11 +89,6 @@ namespace CubesProperties
         void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
-
-
-        void GetXml(CubesXml::Unit& xmlUnit);
-
-
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         //void ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
