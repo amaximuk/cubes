@@ -52,7 +52,8 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName)
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(++unique_number_);
+	if (fileName == "")
+		fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(++unique_number_);
 
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_));
 	fi->SetName(fileName, true, fileName);
@@ -130,10 +131,11 @@ void FileItemsManager::AddFileInclude(const QString& fileName, const QString& in
 	}
 }
 
-QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName)
+QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName, bool addEmptyValue)
 {
 	QStringList fileIncludeNames;
-	fileIncludeNames.push_back("<not selected>");
+	if (addEmptyValue)
+		fileIncludeNames.push_back("<not selected>");
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)

@@ -113,7 +113,7 @@ void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
 
 void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
 {
-    includeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+    includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
 }
 
 void MainWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
@@ -743,6 +743,8 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
             return false;
     }
 
+
+
     //if (!SortUnitsRectangular())
     //    return false;
 
@@ -796,7 +798,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             pi->SetFileName(fileName);
             if (includedFileName != "")
             {
-                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
                 QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
                 pi->SetGroupNames(fileIncludeNames);
@@ -1018,7 +1020,7 @@ QString MainWindow::GetCurrentFileName()
 
 QStringList MainWindow::GetCurrentFileIncludeNames()
 {
-    return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName());
+    return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
 }
 
 //QColor MainWindow::GetFileColor(const QString& fileName)
@@ -1120,7 +1122,7 @@ void MainWindow::selectionChanged()
 void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
 {
     QStringList fileNames = fileItemsManager_->GetFileNames();
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1163,7 +1165,7 @@ void MainWindow::FileListChanged(const QStringList& fileNames)
 
 void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName);
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1379,8 +1381,45 @@ void MainWindow::OnImportXmlFileAction()
 
 void MainWindow::OnSaveFileAction()
 {
-    if (!modified_)
-        return;
+    //if (!modified_)
+    //    return;
+
+    QDir dir;
+    dir.mkdir("tmp");
+
+    // Получаем список главных файлов
+    QStringList fileNames = fileItemsManager_->GetFileNames();
+    for (const auto& fileName : fileNames)
+    {
+        // Получаем список включаемых файлов
+        QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, false);
+        if (fileIncludeNames.size() > 0)
+        {
+            for (const auto& fileIncludeName : fileIncludeNames)
+            {
+                QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName, fileIncludeName);
+                for (const auto& propertiesId : propertiesIds)
+                {
+                    qDebug() << propertiesId << " ";
+
+
+                    auto item = propertiesItemsManager_->GetItem(propertiesId);
+                    item->
+                }
+            }
+        }
+        else
+        {
+            QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName);
+            for (const auto& propertiesId : propertiesIds)
+            {
+                qDebug() << propertiesId << " ";
+            }
+        }
+    }
+
+    // Получаем спи
+
 
     //if (currentFileName_ == "")
     //{

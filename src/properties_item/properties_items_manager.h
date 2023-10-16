@@ -47,11 +47,10 @@ namespace CubesProperties
 		bool GetUnitId(const uint32_t propertiesId, QString& unitId);
 
 		bool InformVariableChanged();
-		//QColor GetFileColor(const QString& fileName);
-		//QStringList GetFileIncludeNames(const QString& fileName);
-		//QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
 		void Clear();
 		bool GetName(const uint32_t propertiesId, QString& name);
+
+		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName = "");
 
 	signals:
 		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
@@ -76,8 +75,8 @@ namespace CubesProperties
 		void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
-		void OnAddFileClicked();
-		void OnRemoveFileClicked();
+		//void OnAddFileClicked();
+		//void OnRemoveFileClicked();
 
 	private:
 		QWidget* CreateEditorWidget();
