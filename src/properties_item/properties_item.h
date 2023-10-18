@@ -72,6 +72,11 @@ namespace CubesProperties
         CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };
         QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
 
+        // TODO: move to private
+        void GetXmlProperties(const CubesUnitTypes::ParameterModel& pm,
+            QList<CubesXml::Param>& params, QList<CubesXml::Array>& arrays);
+        bool GetXmlParam(const CubesUnitTypes::ParameterModel& pm, CubesXml::Param& param);
+        void GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array);
 
         void GetXml(CubesXml::Unit& xmlUnit);
 

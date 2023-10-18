@@ -783,16 +783,164 @@ QString PropertiesItem::GetName()
     return "";
 }
 
+void PropertiesItem::GetXmlProperties(const CubesUnitTypes::ParameterModel& pm,
+    QList<CubesXml::Param>& params, QList<CubesXml::Array>& arrays)
+{
+    /*struct Param
+    {
+        QString name;
+        QString type;
+        QString val;
+        bool depends;
+    };
+
+    struct Item
+    {
+        QString val;
+        QList<Param> params;
+        QList<Array> arrays;
+    };
+
+    struct Array
+    {
+        QString name;
+        QString type;
+        QList<Item> items;
+    };*/
+
+
+}
+
+bool PropertiesItem::GetXmlParam(const CubesUnitTypes::ParameterModel& pm, CubesXml::Param& param)
+{
+    //    QString id; // id path, separated by /
+    //    QString name;
+    //    QVariant value;
+    //    QString valueType;
+    //    ParameterInfoId parameterInfoId;
+    //    EditorSettings editorSettings;
+    //    QList<ParameterModel> parameters;
+    //    bool readOnly;
+
+
+    //struct parameter_info
+    //{
+    //    // Required members from yml
+    //    std::string type;
+    //    std::string name;
+    //    // Optional members from yml
+    //    bool required;
+    //    std::string default_;
+    //    std::string display_name;
+    //    std::string description;
+    //    std::string hint;
+    //    restrictions_info restrictions;
+    //};
+
+    // PARAMETERS/CHANNELS/ITEM_0/COMMUTATOR_NAME/DEPENDS
+    // PARAMETERS/CHANNELS/ITEM_0/COMMUTATOR_NAME/OPTIONAL
+
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+        pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+
+    // TODO: перенести в parameters_compiler::helper
+    QString typeName;
+    if (pm.valueType == "string") typeName = "str";
+    else if (pm.valueType == "int") typeName = "int";
+    else if (pm.valueType == "double") typeName = "dbl";
+    else if (pm.valueType == "bool") typeName = "bool";
+    else if (pm.valueType == "library") typeName = "lib";
+
+    bool depends{false};
+    bool not_set{false};
+    for (auto& pmParameter : pm.parameters)
+    {
+        if (pmParameter.id == pm.id + "/DEPENDS")
+            depends = pmParameter.value.toBool();
+        else if (pmParameter.id == pm.id + "/OPTIONAL")
+            not_set = pmParameter.value.toBool();
+    }
+
+    if (not_set)
+        return false;
+
+    param.name = QString::fromStdString(pi.name);
+    param.type = typeName;
+    param.val = pm.value.toString();
+    param.depends = depends;
+
+    return true;
+}
+
+void PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array)
+{
+
+}
+
 void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 {
+    //QString name;
+    //QString id;
+    //QList<Param> params;
+    //QList<Array> arrays;
+    //int32_t x;
+    //int32_t y;
+    //int32_t z;
+
+    xmlUnit.id = QString::fromStdString(unitParameters_.fileInfo.info.id);
+    
     for (auto& pm : model_.parameters)
     {
-        if (pm.id.startsWith("PARAMETERS"))
+        if (pm.id == "BASE")
         {
-            for (auto& pm : pm.parameters)
+            for (auto& pmBase : pm.parameters)
             {
-                xmlUnit.id = pm.parameterInfoId.name;
+                if (pmBase.id == "BASE/NAME")
+                    xmlUnit.name = pmBase.value.toString();
             }
+        }
+        else if (pm.id.startsWith("PARAMETERS"))
+        {
+            //    QString id; // id path, separated by /
+            //    QString name;
+            //    QVariant value;
+            //    QString valueType;
+            //    ParameterInfoId parameterInfoId;
+            //    EditorSettings editorSettings;
+            //    QList<ParameterModel> parameters;
+            //    bool readOnly;
+
+            for (auto& pmParameter : pm.parameters)
+            {
+                auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+                    pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
+                bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+                if (is_array)
+                {
+                    CubesXml::Array array{};
+                    GetXmlArrray(pmParameter, array);
+                    xmlUnit.arrays.push_back(array);
+                }
+                else
+                {
+                    CubesXml::Param param{};
+                    GetXmlParam(pmParameter, param);
+                    xmlUnit.params.push_back(param);
+                }
+            }
+        }
+        else if (pm.id == "EDITOR")
+        {
+            for (auto& pmEditor: pm.parameters)
+            {
+                if (pmEditor.id == "EDITOR/POSITION_X")
+                    xmlUnit.x = pmEditor.value.toInt();
+                else if (pmEditor.id == "EDITOR/POSITION_Y")
+                    xmlUnit.y = pmEditor.value.toInt();
+                else if (pmEditor.id == "EDITOR/POSITION_Z")
+                    xmlUnit.z = pmEditor.value.toInt();
+            }
+
         }
     }
 }

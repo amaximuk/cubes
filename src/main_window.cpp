@@ -1416,6 +1416,12 @@ void MainWindow::OnSaveFileAction()
             for (const auto& propertiesId : propertiesIds)
             {
                 qDebug() << propertiesId << " ";
+
+                auto item = propertiesItemsManager_->GetItem(propertiesId);
+
+                CubesXml::Unit xmlUnit{};
+                item->GetXml(xmlUnit);
+
             }
         }
     }
