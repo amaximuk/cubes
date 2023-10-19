@@ -76,7 +76,7 @@ namespace CubesProperties
         void GetXmlProperties(const CubesUnitTypes::ParameterModel& pm,
             QList<CubesXml::Param>& params, QList<CubesXml::Array>& arrays);
         bool GetXmlParam(const CubesUnitTypes::ParameterModel& pm, CubesXml::Param& param);
-        void GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array);
+        bool GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array);
 
         void GetXml(CubesXml::Unit& xmlUnit);
 
@@ -91,7 +91,7 @@ namespace CubesProperties
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
             const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
-        void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+        void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool is_item);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);

@@ -252,7 +252,7 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
     }
     else
     {
-        FillParameterModel(xmlUnit, pm);
+        FillParameterModel(xmlUnit, pm, false);
     }
 
 
@@ -284,7 +284,7 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
     model = pm;
 }
 
-void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model)
+void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool is_item)
 {
     // Заполнение модели параметра, не являющегося массивом, с учетом ограничений
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
@@ -299,7 +299,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         xmlItem = CubesXml::parser::getItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
+    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi, is_item);
 
     auto piType = pi.type;
     if (parameters_compiler::helper::is_array_type(piType))
@@ -872,9 +872,73 @@ bool PropertiesItem::GetXmlParam(const CubesUnitTypes::ParameterModel& pm, Cubes
     return true;
 }
 
-void PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array)
+bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array)
 {
+    if (pm.parameters.size() == 0)
+        return false;
 
+
+    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+        pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
+
+    array.name = QString::fromStdString(pi.name);
+
+    bool is_inner_type = parameters_compiler::helper::is_inner_type(pi.type);
+    if (is_inner_type)
+    {
+        // TODO: перенести в parameters_compiler::helper
+        QString typeName;
+        if (pm.valueType == "string") typeName = "str";
+        else if (pm.valueType == "int") typeName = "int";
+        else if (pm.valueType == "double") typeName = "dbl";
+        else if (pm.valueType == "bool") typeName = "bool";
+        else if (pm.valueType == "library") typeName = "lib";
+
+        array.type = typeName;
+
+        // TODO: depends pm.valueType = int????????
+        // AAA invalid def val
+        // depends - no type (have int)
+
+        for (const auto& pmItem : pm.parameters)
+        {
+            CubesXml::Item item{};
+            item.val = pmItem.value.toString();
+            array.items.push_back(item);
+        }
+    }
+    else
+    {
+        array.type = "";
+
+        for (const auto& pmItem : pm.parameters)
+        {
+            CubesXml::Item item{};
+            for (const auto& pmParameter : pmItem.parameters)
+            {
+
+                auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+                    pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
+                bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+                if (is_array)
+                {
+                    CubesXml::Array array{};
+                    if (GetXmlArrray(pmParameter, array))
+                        item.arrays.push_back(array);
+                }
+                else
+                {
+                    CubesXml::Param param{};
+                    if (GetXmlParam(pmParameter, param))
+                        item.params.push_back(param);
+                }
+            }
+            array.items.push_back(item);
+        }
+    }
+
+
+    return true;
 }
 
 void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
@@ -918,14 +982,14 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
                 if (is_array)
                 {
                     CubesXml::Array array{};
-                    GetXmlArrray(pmParameter, array);
-                    xmlUnit.arrays.push_back(array);
+                    if (GetXmlArrray(pmParameter, array))
+                        xmlUnit.arrays.push_back(array);
                 }
                 else
                 {
                     CubesXml::Param param{};
-                    GetXmlParam(pmParameter, param);
-                    xmlUnit.params.push_back(param);
+                    if (GetXmlParam(pmParameter, param))
+                        xmlUnit.params.push_back(param);
                 }
             }
         }
@@ -1306,7 +1370,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi);
+    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi, false);
     model.valueType = "int";
 
     int xmlCount = 0;
@@ -1385,7 +1449,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             //model.value = "";
             //model.valueType = "none";
             modelXXX.parameterInfoId = model.parameterInfoId;
-            FillParameterModel(xmlUnit, modelXXX);
+            FillParameterModel(xmlUnit, modelXXX, true);
             model.parameters.push_back(modelXXX);
 
             //parameters_compiler::parameter_info pi_new = pm.parameterInfo;

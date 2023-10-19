@@ -91,11 +91,14 @@ namespace parameters_compiler
             return QString::fromStdString(fi.info.id);
         }
 
-        static QVariant get_parameter_initial(file_info& fi, const parameter_info& pi)
+        static QVariant get_parameter_initial(file_info& fi, const parameter_info& pi, bool is_item)
         {
             QVariant value;
             //bool is_array = is_array_type(pi.type);
             base_types bt = get_base_type(pi.type);
+            if (bt == base_types::array && is_item)
+                bt = get_base_type(get_array_type(pi.type));
+
             if (bt == base_types::array)
             {
                 if (pi.restrictions.set_count.size() > 0)
