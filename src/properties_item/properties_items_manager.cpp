@@ -124,6 +124,7 @@ void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
 	if (index != -1)
 		selector_->removeItem(index);
 
+	items_.remove(propertiesId);
 	//for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
 	//{
 	//    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);

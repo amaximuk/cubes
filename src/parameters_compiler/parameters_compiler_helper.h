@@ -106,7 +106,7 @@ namespace parameters_compiler
                     value = std::stoi(pi.restrictions.set_count[0]);
                 else if (pi.restrictions.min_count != "")
                     value = std::stoi(pi.restrictions.min_count);
-                else if (pi.restrictions.max_count != "")
+                else// if (pi.restrictions.max_count != "")
                     value = 0;
             }
             else

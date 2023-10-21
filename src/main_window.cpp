@@ -1391,10 +1391,17 @@ void MainWindow::OnSaveFileAction()
     QStringList fileNames = fileItemsManager_->GetFileNames();
     for (const auto& fileName : fileNames)
     {
+        // Соберем всю информацию о файле
+        CubesXml::File xmlFile{};
+        xmlFile.fileName = fileName;
+
         // Получаем список включаемых файлов
         QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, false);
         if (fileIncludeNames.size() > 0)
         {
+            // Соберем всю информацию о включаемом файле
+            CubesXml::Include xmlInclude{};
+
             for (const auto& fileIncludeName : fileIncludeNames)
             {
                 QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName, fileIncludeName);
@@ -1409,9 +1416,19 @@ void MainWindow::OnSaveFileAction()
                     item->GetXml(xmlUnit);
                 }
             }
+
+            // Добавляем файл в массив
+            xmlFile.includes.push_back(xmlInclude);
         }
         else
         {
+            // Соберем всю информацию о конфигурации
+            xmlFile.config.networking;
+            xmlFile.config.log;
+            xmlFile.config.groups;
+
+            QMap<QString, CubesXml::Group> xmlGroups;
+
             QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName);
             for (const auto& propertiesId : propertiesIds)
             {
@@ -1421,12 +1438,49 @@ void MainWindow::OnSaveFileAction()
 
                 CubesXml::Unit xmlUnit{};
                 item->GetXml(xmlUnit);
-
+                const auto group = item->GetUnitCategory().toLower();
+                
+                if (!xmlGroups.contains(group))
+                {
+                    CubesXml::Group xmlGroup{};
+                    xmlGroup.path = group;
+                    xmlGroups[group] = xmlGroup;
+                }
+                xmlGroups[group].units.push_back(xmlUnit);
             }
+
+            for (const auto& xmlGroup : xmlGroups)
+                xmlFile.config.groups.push_back(xmlGroup);
+            //xmlFile.config.groups = xmlGroups.values();
+            //std::sort(xmlFile.config.groups.begin(), xmlFile.config.groups.end());
         }
     }
 
     // Получаем спи
+
+
+    //struct Group
+    //{
+    //    QString path;
+    //    QList<Unit> units;
+    //};
+
+    //struct Config
+    //{
+    //    Networking networking;
+    //    bool networking_is_set;
+    //    Log log;
+    //    bool log_is_set;
+    //    QList<Group> groups;
+    //};
+
+    //struct File
+    //{
+    //    QString fileName;
+    //    QList<Include> includes;
+    //    Config config;
+    //};
+
 
 
     //if (currentFileName_ == "")

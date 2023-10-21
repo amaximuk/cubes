@@ -897,7 +897,6 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
         array.type = typeName;
 
         // TODO: depends pm.valueType = int????????
-        // AAA invalid def val
         // depends - no type (have int)
 
         for (const auto& pmItem : pm.parameters)
@@ -1365,7 +1364,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
 {
     // Созадем модель для параметра, хранящего количество элементов массива
     // Если задан перечень элементов, используем ComboBox, если нет - SpinBox
-    // Если ограничения не заданы, берется - количество элементов равно нулю
+    // Если ограничения не заданы - количество элементов равно нулю
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
