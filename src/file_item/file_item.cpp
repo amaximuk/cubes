@@ -34,13 +34,26 @@ void FileItem::CreateParametersModel()
     // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
     // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     // PARAMETERS
-    // PARAMETERS/CONNECTION
-    // PARAMETERS/CONNECTION/HOST
-    // PARAMETERS/CONNECTION/PORT
+    // PARAMETERS/NETWORKING
+    // PARAMETERS/NETWORKING/ID
+    // PARAMETERS/NETWORKING/ACCEPT_PORT
+    // PARAMETERS/NETWORKING/KEEP_ALIVE_SEC
+    // PARAMETERS/NETWORKING/TIME_CLIENT
+    // PARAMETERS/NETWORKING/NETWORK_THREADS
+    // PARAMETERS/NETWORKING/BROADCAST_THREADS
+    // PARAMETERS/NETWORKING/CLIENTS_THREADS
+    // PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS
+    // PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS
+    // PARAMETERS/NETWORKING/CONNECT
+    // PARAMETERS/NETWORKING/CONNECT/PORT
+    // PARAMETERS/NETWORKING/CONNECT/IP
     // PARAMETERS/LOG
+    // PARAMETERS/LOG/LOGGING_LEVEL
+    // PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB
+    // PARAMETERS/LOG/LOG_DIR
     // EDITOR
     // EDITOR/COLOR
-
+    
     {
         CubesUnitTypes::ParameterModel base_group;
         base_group.id = "BASE";
@@ -109,38 +122,111 @@ void FileItem::CreateParametersModel()
         //properties_group.parameterInfoId = "";
         properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = false;
-
+        
         {
-            CubesUnitTypes::ParameterModel pm_connection;
-            pm_connection.id = "PARAMETERS/CONNECTION";
-            pm_connection.name = QString::fromLocal8Bit("Соединение");
-            pm_connection.value = "";
-            pm_connection.valueType = "none";
-            //pm_connection.parameterInfoId = "";
-            pm_connection.editorSettings.type = CubesUnitTypes::EditorType::None;
+            CubesUnitTypes::ParameterModel pm_networking;
+            pm_networking.id = "PARAMETERS/NETWORKING";
+            pm_networking.name = QString::fromLocal8Bit("Соединение");
+            pm_networking.value = "";
+            pm_networking.valueType = "none";
+            pm_networking.editorSettings.type = CubesUnitTypes::EditorType::None;
 
-            CubesUnitTypes::ParameterModel pm_host;
-            pm_host.id = "PARAMETERS/CONNECTION/HOST";
-            pm_host.name = QString::fromLocal8Bit("Хост");
-            pm_host.value = "";
-            pm_host.valueType = "string";
-            //pm_host.parameterInfoId = "";
-            pm_host.editorSettings.type = CubesUnitTypes::EditorType::String;
-            pm_host.value = "127.0.0.1";
-            pm_connection.parameters.push_back(std::move(pm_host));
+            CubesUnitTypes::ParameterModel pm_id;
+            pm_id.id = "PARAMETERS/NETWORKING/ID";
+            pm_id.name = QString::fromLocal8Bit("Идентифиикатор");
+            pm_id.value = "1000";
+            pm_id.valueType = "int";
+            pm_id.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_id.editorSettings.SpinIntergerMin = 0;
+            pm_id.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
+            pm_networking.parameters.push_back(std::move(pm_id));
 
-            CubesUnitTypes::ParameterModel pm_port;
-            pm_port.id = "PARAMETERS/CONNECTION/PORT";
-            pm_port.name = QString::fromLocal8Bit("Порт");
-            pm_port.value = 50000;
-            pm_port.valueType = "int";
-            //pm_port.parameterInfoId = "";
-            pm_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
-            pm_port.editorSettings.SpinIntergerMin = 1000;
-            pm_port.editorSettings.SpinIntergerMin = 65535;
-            pm_connection.parameters.push_back(std::move(pm_port));
+            CubesUnitTypes::ParameterModel pm_accept_port;
+            pm_accept_port.id = "PARAMETERS/NETWORKING/ACCEPT_PORT";
+            pm_accept_port.name = QString::fromLocal8Bit("Порт");
+            pm_accept_port.value = "60000";
+            pm_accept_port.valueType = "int";
+            pm_accept_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_accept_port.editorSettings.SpinIntergerMin = 1000;
+            pm_accept_port.editorSettings.SpinIntergerMax = 65535;
+            pm_networking.parameters.push_back(std::move(pm_accept_port));
 
-            properties_group.parameters.push_back(std::move(pm_connection));
+            CubesUnitTypes::ParameterModel pm_keep_alive_sec;
+            pm_keep_alive_sec.id = "PARAMETERS/NETWORKING/KEEP_ALIVE_SEC";
+            pm_keep_alive_sec.name = QString::fromLocal8Bit("Таймаут");
+            pm_keep_alive_sec.value = "10";
+            pm_keep_alive_sec.valueType = "int";
+            pm_keep_alive_sec.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_keep_alive_sec.editorSettings.SpinIntergerMin = 0;
+            pm_keep_alive_sec.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
+            pm_networking.parameters.push_back(std::move(pm_keep_alive_sec));
+
+            CubesUnitTypes::ParameterModel pm_time_client;
+            pm_time_client.id = "PARAMETERS/NETWORKING/TIME_CLIENT";
+            pm_time_client.name = QString::fromLocal8Bit("Получать время");
+            pm_time_client.value = "false";
+            pm_time_client.valueType = "bool";
+            pm_time_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
+            pm_networking.parameters.push_back(std::move(pm_time_client));
+
+            CubesUnitTypes::ParameterModel pm_network_threads;
+            pm_network_threads.id = "PARAMETERS/NETWORKING/NETWORK_THREADS";
+            pm_network_threads.name = QString::fromLocal8Bit("Сетевых потоков");
+            pm_network_threads.value = "4";
+            pm_network_threads.valueType = "int";
+            pm_network_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_network_threads.editorSettings.SpinIntergerMin = 1;
+            pm_network_threads.editorSettings.SpinIntergerMax = 1024;
+            pm_networking.parameters.push_back(std::move(pm_network_threads));
+
+            CubesUnitTypes::ParameterModel pm_broadcast_threads;
+            pm_broadcast_threads.id = "PARAMETERS/NETWORKING/BROADCAST_THREADS";
+            pm_broadcast_threads.name = QString::fromLocal8Bit("Широковещательных потоков");
+            pm_broadcast_threads.value = "1";
+            pm_broadcast_threads.valueType = "int";
+            pm_broadcast_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_broadcast_threads.editorSettings.SpinIntergerMin = 1;
+            pm_broadcast_threads.editorSettings.SpinIntergerMax = 1024;
+            pm_networking.parameters.push_back(std::move(pm_broadcast_threads));
+
+            CubesUnitTypes::ParameterModel pm_client_threads;
+            pm_client_threads.id = "PARAMETERS/NETWORKING/CLIENTS_THREADS";
+            pm_client_threads.name = QString::fromLocal8Bit("Клиентских потоков");
+            pm_client_threads.value = "1";
+            pm_client_threads.valueType = "int";
+            pm_client_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_client_threads.editorSettings.SpinIntergerMin = 1;
+            pm_client_threads.editorSettings.SpinIntergerMax = 1024;
+            pm_networking.parameters.push_back(std::move(pm_client_threads));
+
+            CubesUnitTypes::ParameterModel pm_notify_ready_client;
+            pm_notify_ready_client.id = "PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS";
+            pm_notify_ready_client.name = QString::fromLocal8Bit("Информировать клиента");
+            pm_notify_ready_client.value = "true";
+            pm_notify_ready_client.valueType = "bool";
+            pm_notify_ready_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
+            pm_networking.parameters.push_back(std::move(pm_notify_ready_client));
+
+            CubesUnitTypes::ParameterModel pm_notify_ready_server;
+            pm_notify_ready_server.id = "PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS";
+            pm_notify_ready_server.name = QString::fromLocal8Bit("Информировать сервер");
+            pm_notify_ready_server.value = "false";
+            pm_notify_ready_server.valueType = "bool";
+            pm_notify_ready_server.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
+            pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
+
+            CubesUnitTypes::ParameterModel connect;
+            connect.id = "CONNECT";
+            connect.name = QString::fromLocal8Bit("Подключения");
+            connect.value = 0;
+            connect.valueType = "int";
+            connect.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            connect.editorSettings.is_expanded = true;
+            connect.editorSettings.SpinIntergerMin = 0;
+            connect.editorSettings.SpinIntergerMax = 1024;
+            model_.parameters.push_back(std::move(connect));
+
+            properties_group.parameters.push_back(std::move(pm_networking));
         }
 
         {
@@ -204,10 +290,23 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
     // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     // PARAMETERS
-    // PARAMETERS/CONNECTION
-    // PARAMETERS/CONNECTION/HOST
-    // PARAMETERS/CONNECTION/PORT
+    // PARAMETERS/NETWORKING
+    // PARAMETERS/NETWORKING/ID
+    // PARAMETERS/NETWORKING/ACCEPT_PORT
+    // PARAMETERS/NETWORKING/KEEP_ALIVE_SEC
+    // PARAMETERS/NETWORKING/TIME_CLIENT
+    // PARAMETERS/NETWORKING/NETWORK_THREADS
+    // PARAMETERS/NETWORKING/BROADCAST_THREADS
+    // PARAMETERS/NETWORKING/CLIENTS_THREADS
+    // PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS
+    // PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS
+    // PARAMETERS/NETWORKING/CONNECT
+    // PARAMETERS/NETWORKING/CONNECT/PORT
+    // PARAMETERS/NETWORKING/CONNECT/IP
     // PARAMETERS/LOG
+    // PARAMETERS/LOG/LOGGING_LEVEL
+    // PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB
+    // PARAMETERS/LOG/LOG_DIR
     // EDITOR
     // EDITOR/COLOR
 
@@ -285,7 +384,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith("PARAMETERS"))
     {
-        if (pm->id == "PARAMETERS/CONNECTION/PORT")
+        if (pm->id == "PARAMETERS/NETWORKING/PORT")
         {
             pm->value = value.toInt();
         }
