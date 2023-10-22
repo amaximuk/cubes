@@ -119,7 +119,6 @@ void FileItem::CreateParametersModel()
         properties_group.name = QString::fromLocal8Bit("Параметры");
         properties_group.value = "";
         properties_group.valueType = "none";
-        //properties_group.parameterInfoId = "";
         properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = false;
         
@@ -130,6 +129,7 @@ void FileItem::CreateParametersModel()
             pm_networking.value = "";
             pm_networking.valueType = "none";
             pm_networking.editorSettings.type = CubesUnitTypes::EditorType::None;
+            properties_group.editorSettings.is_expanded = true;
 
             CubesUnitTypes::ParameterModel pm_id;
             pm_id.id = "PARAMETERS/NETWORKING/ID";
@@ -230,14 +230,42 @@ void FileItem::CreateParametersModel()
         }
 
         {
-            CubesUnitTypes::ParameterModel pm;
-            pm.id = "PARAMETERS/LOG";
-            pm.name = QString::fromLocal8Bit("Логирование");
-            pm.value = "";
-            pm.valueType = "none";
-            //pm.parameterInfoId = "";
-            pm.editorSettings.type = CubesUnitTypes::EditorType::None;
-            properties_group.parameters.push_back(pm);
+            CubesUnitTypes::ParameterModel pm_logging;
+            pm_logging.id = "PARAMETERS/LOG";
+            pm_logging.name = QString::fromLocal8Bit("Логирование");
+            pm_logging.value = "";
+            pm_logging.valueType = "none";
+            pm_logging.editorSettings.type = CubesUnitTypes::EditorType::None;
+            properties_group.editorSettings.is_expanded = true;
+
+            CubesUnitTypes::ParameterModel pm_logging_level;
+            pm_logging_level.id = "PARAMETERS/LOG/LOGGING_LEVEL";
+            pm_logging_level.name = QString::fromLocal8Bit("Уровень логирования");
+            pm_logging_level.value = "TRACE";
+            pm_logging_level.valueType = "string";
+            pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
+            pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
+            pm_logging.parameters.push_back(std::move(pm_logging_level));
+
+            CubesUnitTypes::ParameterModel pm_log_limit;
+            pm_log_limit.id = "PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB";
+            pm_log_limit.name = QString::fromLocal8Bit("Подключения");
+            pm_log_limit.value = 500;
+            pm_log_limit.valueType = "int";
+            pm_log_limit.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            pm_log_limit.editorSettings.SpinIntergerMin = 0;
+            pm_log_limit.editorSettings.SpinIntergerMax = 1024 * 1024;
+            pm_logging.parameters.push_back(std::move(pm_log_limit));
+
+            CubesUnitTypes::ParameterModel pm_log_dir;
+            pm_log_dir.id = "PARAMETERS/LOG/LOG_DIR";
+            pm_log_dir.name = QString::fromLocal8Bit("Директория");
+            pm_log_dir.value = "";
+            pm_log_dir.valueType = "string";
+            pm_log_dir.editorSettings.type = CubesUnitTypes::EditorType::String;
+            pm_logging.parameters.push_back(std::move(pm_log_dir));
+
+            properties_group.parameters.push_back(pm_logging);
         }
 
         model_.parameters.push_back(std::move(properties_group));
