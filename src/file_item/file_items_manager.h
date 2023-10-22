@@ -42,6 +42,7 @@ namespace CubesFile
 		QString GetFileIncludeName(const QString& fileName, const QString& filePath);
 		QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
 		void Clear();
+		File GetFile(const QString& fileName);
 
 	signals:
 		void FileNameChanged(const QString& fileName, const QString& oldFileName);

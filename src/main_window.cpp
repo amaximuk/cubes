@@ -1395,6 +1395,8 @@ void MainWindow::OnSaveFileAction()
         CubesXml::File xmlFile{};
         xmlFile.fileName = fileName;
 
+        auto file = fileItemsManager_->GetFile(fileName);
+
         // Получаем список включаемых файлов
         QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, false);
         if (fileIncludeNames.size() > 0)

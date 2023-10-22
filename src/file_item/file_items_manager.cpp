@@ -181,6 +181,22 @@ void FileItemsManager::Clear()
 	items_.clear();
 }
 
+File FileItemsManager::GetFile(const QString& fileName)
+{
+	File result{};
+
+	for (auto& fi : items_)
+	{
+		if (fi->GetName() == fileName)
+		{
+			result = fi->GetFile();
+			break;
+		}
+	}
+
+	return result;
+}
+
 void FileItemsManager::BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel)
 {
 	int count = 0;

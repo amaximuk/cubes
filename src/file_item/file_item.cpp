@@ -240,7 +240,7 @@ void FileItem::CreateParametersModel()
 
             CubesUnitTypes::ParameterModel pm_logging_level;
             pm_logging_level.id = "PARAMETERS/LOG/LOGGING_LEVEL";
-            pm_logging_level.name = QString::fromLocal8Bit("Уровень логирования");
+            pm_logging_level.name = QString::fromLocal8Bit("Уровень");
             pm_logging_level.value = "TRACE";
             pm_logging_level.valueType = "string";
             pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
@@ -249,7 +249,7 @@ void FileItem::CreateParametersModel()
 
             CubesUnitTypes::ParameterModel pm_log_limit;
             pm_log_limit.id = "PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB";
-            pm_log_limit.name = QString::fromLocal8Bit("Подключения");
+            pm_log_limit.name = QString::fromLocal8Bit("Размер");
             pm_log_limit.value = 500;
             pm_log_limit.valueType = "int";
             pm_log_limit.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
@@ -279,7 +279,7 @@ void FileItem::CreateParametersModel()
         editor_group.valueType = "none";
         //editor_group.parameterInfoId = "";
         editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
-        editor_group.editorSettings.is_expanded = false;
+        editor_group.editorSettings.is_expanded = true;
 
         {
             CubesUnitTypes::ParameterModel pm;
@@ -761,6 +761,64 @@ QString FileItem::GetIncludeName(const QString& includePath)
         }
     }
     return "";
+}
+
+QString FileItem::GetIncludePath(const QString& includeName)
+{
+    const auto pm = GetParameterModel("INCLUDES");
+    if (pm == nullptr)
+        return "";
+
+    for (int i = 0; i < pm->value.toInt(); i++)
+    {
+        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        if (pmi->value == includeName)
+        {
+            const auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(i));
+            return pmiv->value.toString();
+        }
+    }
+
+    return "";
+}
+
+File FileItem::GetFile()
+{
+    File result{};
+    result.network.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
+    result.network.accept_port = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
+    result.network.keep_alive_sec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
+    result.network.time_client = GetParameterModel("PARAMETERS/NETWORKING/TIME_CLIENT")->value.toBool();
+    result.network.network_threads = GetParameterModel("PARAMETERS/NETWORKING/NETWORK_THREADS")->value.toInt();
+    result.network.broadcast_threads = GetParameterModel("PARAMETERS/NETWORKING/BROADCAST_THREADS")->value.toInt();
+    result.network.clients_threads = GetParameterModel("PARAMETERS/NETWORKING/CLIENTS_THREADS")->value.toInt();
+    result.network.notify_ready_clients = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS")->value.toBool();
+    result.network.notify_ready_servers = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS")->value.toBool();
+
+    int count = GetParameterModel("PARAMETERS/NETWORKING/CONNECT")->value.toInt();
+    for (int i = 0; i < count; i++)
+    {
+        Connect connect{};
+        connect.port = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/PORT").arg(i))->value.toInt();
+        connect.ip = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/IP").arg(i))->value.toString();
+        result.network.connect.push_back(connect);
+    }
+
+    result.log.level = static_cast<LoggingLevel>(GetParameterModel("PARAMETERS/LOG/LOGGING_LEVEL")->value.toInt());
+    result.log.limit_mb = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
+    result.log.directory_path = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
+
+    QStringList includeNames = GetIncludeNames();
+    for (const auto& includeName : includeNames)
+    {
+        Include include{};
+        include.name = includeName;
+        include.path = GetIncludePath(includeName);
+        include.variables = GetIncludeVariables(includeName);
+        result.includes.push_back(include);
+    }
+
+    return result;
 }
 
 void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, int& count)

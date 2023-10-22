@@ -49,6 +49,9 @@ namespace CubesFile
         QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
         QString GetIncludeName(const QString& includePath);
 
+        QString GetIncludePath(const QString& includeName);
+        File GetFile();
+
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
