@@ -216,7 +216,7 @@ void FileItem::CreateParametersModel()
             pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
 
             CubesUnitTypes::ParameterModel connect;
-            connect.id = "CONNECT";
+            connect.id = "PARAMETERS/NETWORKING/CONNECT";
             connect.name = QString::fromLocal8Bit("Подключения");
             connect.value = 0;
             connect.valueType = "int";
@@ -224,7 +224,7 @@ void FileItem::CreateParametersModel()
             connect.editorSettings.is_expanded = true;
             connect.editorSettings.SpinIntergerMin = 0;
             connect.editorSettings.SpinIntergerMax = 1024;
-            model_.parameters.push_back(std::move(connect));
+            pm_networking.parameters.push_back(std::move(connect));
 
             properties_group.parameters.push_back(std::move(pm_networking));
         }
@@ -384,9 +384,42 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith("PARAMETERS"))
     {
-        if (pm->id == "PARAMETERS/NETWORKING/PORT")
+        if (pm->id == "PARAMETERS/NETWORKING/CONNECT")
         {
-            pm->value = value.toInt();
+            int count = value.toInt();
+
+            UpdateConnectArrayModel(*pm, count);
+            pm->value = count;
+            editor_->SetIntValue(property, count);
+
+            QMap<QString, const QtProperty*> idToProperty;
+            for (int i = property->subProperties().size(); i < count; ++i)
+                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
+            for (const auto& kvp : idToProperty.toStdMap())
+                RegisterProperty(kvp.second, kvp.first);
+
+            auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+                list.push_back(property);
+                for (const auto& p : property->subProperties())
+                    collect(p, list, collect);
+            };
+
+            QList<QtProperty*> toRemove;
+            QList<QtProperty*> toUnregister;
+            const auto& subProperties = property->subProperties();
+            for (int i = count; i < subProperties.size(); ++i)
+            {
+                collect(subProperties[i], toUnregister, collect);
+                toRemove.push_back(subProperties[i]);
+            }
+
+            for (auto& p : toRemove)
+                property->removeSubProperty(p);
+
+            for (auto& p : toUnregister)
+                UnregisterProperty(p);
+
+            ApplyExpandState();
         }
         else
             pm->value = value.toString();
@@ -933,6 +966,52 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, 
 
     // Информируем, что создали
     fileItemsManager_->AfterVariablesListChanged(GetName(), includeName, variables);
+}
+
+void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
+{
+    // Сначала добавляем
+    if (model.parameters.size() < count)
+    {
+        // Добавляем
+        for (int i = model.parameters.size(); i < count; ++i)
+        {
+            // Создаем
+            CubesUnitTypes::ParameterModel group_model;
+            group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
+            group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
+            group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+
+            CubesUnitTypes::ParameterModel port;
+            port.editorSettings.type = CubesUnitTypes::EditorType::String;
+            port.id = QString("%1/%2").arg(group_model.id, "PORT");
+            port.name = QString::fromLocal8Bit("Порт");
+            port.value = 50000;
+            port.valueType = "int";
+            port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            port.editorSettings.SpinIntergerMin = 1000;
+            port.editorSettings.SpinIntergerMax = 65535;
+            group_model.parameters.push_back(std::move(port));
+
+            CubesUnitTypes::ParameterModel ip;
+            ip.editorSettings.type = CubesUnitTypes::EditorType::String;
+            ip.id = QString("%1/%2").arg(group_model.id, "IP");
+            ip.name = QString::fromLocal8Bit("Хост");
+            ip.value = QString::fromLocal8Bit("127.0.0.1");
+            ip.valueType = "string";
+            ip.editorSettings.type = CubesUnitTypes::EditorType::String;
+            group_model.parameters.push_back(std::move(ip));
+
+            model.parameters.push_back(std::move(group_model));
+        }
+    }
+
+    // Теперь удаляем
+    while (model.parameters.size() > count)
+    {
+        // Удаляем параметр
+        model.parameters.pop_back();
+    }
 }
 
 //void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)

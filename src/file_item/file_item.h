@@ -58,6 +58,7 @@ namespace CubesFile
         void CreateProperties();
         void UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
         void UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
+        void UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);
         void UnregisterProperty(const QtProperty* property);
