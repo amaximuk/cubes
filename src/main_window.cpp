@@ -1396,7 +1396,15 @@ void MainWindow::OnSaveFileAction()
         xmlFile.fileName = fileName;
 
         auto file = fileItemsManager_->GetFile(fileName);
+        auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
+        xmlFile.config.groups = std::move(groups);
+        for (const auto& include : file.includes)
+        {
+            auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
+        }
+    }
 
+        /*
         // Получаем список включаемых файлов
         QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, false);
         if (fileIncludeNames.size() > 0)
@@ -1456,8 +1464,7 @@ void MainWindow::OnSaveFileAction()
             //xmlFile.config.groups = xmlGroups.values();
             //std::sort(xmlFile.config.groups.begin(), xmlFile.config.groups.end());
         }
-    }
-
+    */
     // Получаем спи
 
 

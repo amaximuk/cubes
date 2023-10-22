@@ -267,12 +267,39 @@ bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)
 QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName)
 {
 	QList<uint32_t> result;
-	for (const auto& i : items_)
+	for (const auto& item : items_)
 	{
-		if (i->GetFileName() == fileName &&
-			(includeFileName == "" || i->GetGroupName() == includeFileName))
-			result.push_back(i->GetPropertiesId());
+		if (item->GetFileName() == fileName && item->GetGroupName() == includeFileName)
+			result.push_back(item->GetPropertiesId());
 	}
+	return result;
+}
+
+QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileName, const QString& includeFileName)
+{
+	QMap<QString, CubesXml::Group> xmlGroups;
+	for (const auto& item : items_)
+	{
+		if (item->GetFileName() == fileName && item->GetGroupName() == includeFileName)
+		{
+			CubesXml::Unit xmlUnit{};
+			item->GetXml(xmlUnit);
+			const auto group = item->GetUnitCategory().toLower();
+
+			if (!xmlGroups.contains(group))
+			{
+				CubesXml::Group xmlGroup{};
+				xmlGroup.path = group;
+				xmlGroups[group] = xmlGroup;
+			}
+			xmlGroups[group].units.push_back(xmlUnit);
+		}
+	}
+
+	QList<CubesXml::Group> result;
+	for (const auto& xmlGroup : xmlGroups)
+		result.push_back(xmlGroup);
+
 	return result;
 }
 
