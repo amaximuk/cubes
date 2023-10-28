@@ -11,7 +11,7 @@ using namespace CubesXml;
 // !!! remove -> last error???
 #define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)
 
-bool parser::parse(const QString& filename, File& fi)
+bool Parser::Parse(const QString& filename, File& fi)
 {
 	fi.fileName = filename;
 	//QFile xmlFile(filename);
@@ -47,13 +47,13 @@ bool parser::parse(const QString& filename, File& fi)
 	//if (root.tagName() != "Config")
 	//	ELRF("File have no Config or doc malformed");
 
-	if (!get_file(root, fi))
+	if (!GetFile(root, fi))
 		ELRF("File info parse failed");
 
 	return true;
 }
 
-bool parser::get_file(const QDomElement& node, File& fi)
+bool Parser::GetFile(const QDomElement& node, File& fi)
 {
 	QDomNode n = node.firstChild();
 	while (!n.isNull())
@@ -65,12 +65,12 @@ bool parser::get_file(const QDomElement& node, File& fi)
 
 			if (ne.tagName() == "Includes")
 			{
-				if (!get_includes(ne, fi.includes))
+				if (!GetIncludes(ne, fi.includes))
 					ELRF("Get Includes failed");
 			}
 			else if (ne.tagName() == "Config")
 			{
-				if (!get_config(ne, fi.config))
+				if (!GetConfig(ne, fi.config))
 					ELRF("Get Config failed");
 			}
 		}
@@ -80,7 +80,7 @@ bool parser::get_file(const QDomElement& node, File& fi)
 	return true;
 }
 
-bool parser::get_includes(const QDomElement& node, QList<Include>& includes)
+bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 {
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
@@ -130,7 +130,7 @@ bool parser::get_includes(const QDomElement& node, QList<Include>& includes)
 	return true;
 }
 
-bool parser::get_config(const QDomElement& node, Config& config)
+bool Parser::GetConfig(const QDomElement& node, Config& config)
 {
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
@@ -140,19 +140,19 @@ bool parser::get_config(const QDomElement& node, Config& config)
 		{
 			if (ei.tagName() == "Networking")
 			{
-				config.networking_is_set = true;
-				if (!get_networking(ei, config.networking))
+				config.networkingIsSet = true;
+				if (!GetNetworking(ei, config.networking))
 					ELRF("Get Networking failed");
 			}
 			else if (ei.tagName() == "Log")
 			{
-				config.log_is_set = true;
-				if (!get_log(ei, config.log))
+				config.logIsSet = true;
+				if (!GetLog(ei, config.log))
 					ELRF("Get Log failed");
 			}
 			else if (ei.tagName() == "Units")
 			{
-				if (!get_units(ei, config.groups))
+				if (!GetUnits(ei, config.groups))
 					ELRF("Get Units failed");
 			}
 			else
@@ -164,7 +164,7 @@ bool parser::get_config(const QDomElement& node, Config& config)
 	return true;
 }
 
-bool parser::get_networking(const QDomElement& node, Networking& networking)
+bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 {
 	QString id = node.attribute("id", "");
 	QString accept_port = node.attribute("accept_port", "");
@@ -210,7 +210,7 @@ bool parser::get_networking(const QDomElement& node, Networking& networking)
 	return true;
 }
 
-bool parser::get_log(const QDomElement& node, Log& log)
+bool Parser::GetLog(const QDomElement& node, Log& log)
 {
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
@@ -238,7 +238,7 @@ bool parser::get_log(const QDomElement& node, Log& log)
 	return true;
 }
 
-bool parser::get_units(const QDomElement& node, QList<Group>& groups)
+bool Parser::GetUnits(const QDomElement& node, QList<Group>& groups)
 {
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
@@ -250,7 +250,7 @@ bool parser::get_units(const QDomElement& node, QList<Group>& groups)
 				ELRF("Units have unknown child");
 
 			Group group{};
-			if (!get_group(ei, group))
+			if (!GetGroup(ei, group))
 				ELRF("Get Group failed");
 
 			groups.push_back(std::move(group));
@@ -261,9 +261,9 @@ bool parser::get_units(const QDomElement& node, QList<Group>& groups)
 	return true;
 }
 
-bool parser::get_group(const QDomElement& node, Group& group)
+bool Parser::GetGroup(const QDomElement& node, Group& group)
 {
-	auto paramNodes = elementsByTagName(node, "Param");
+	auto paramNodes = ElementsByTagName(node, "Param");
 
 	if (paramNodes.size() != 1)
 		ELRF("Group/Param not found or more then one");
@@ -278,11 +278,11 @@ bool parser::get_group(const QDomElement& node, Group& group)
 	else
 		ELRF("Group/Param is unknown");
 
-	auto unitNodes = elementsByTagName(node, "Unit");
+	auto unitNodes = ElementsByTagName(node, "Unit");
 	for (const auto& eu : unitNodes)
 	{
 		Unit unit{};
-		if (!get_unit(eu, unit))
+		if (!GetUnit(eu, unit))
 			ELRF("Get Unit failed");
 		group.units.push_back(std::move(unit));
 	}
@@ -290,7 +290,7 @@ bool parser::get_group(const QDomElement& node, Group& group)
 	return true;
 }
 
-bool parser::get_unit(const QDomElement& node, Unit& unit)
+bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 {
 	QString name = node.attribute("Name", "");
 	QString id = node.attribute("Id", "");
@@ -309,20 +309,20 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 	unit.y = y;
 	unit.z = z;
 
-	auto paramNodes = elementsByTagName(node, "Param");
+	auto paramNodes = ElementsByTagName(node, "Param");
 	for (const auto& ep : paramNodes)
 	{
 		Param param{};
-		if (!get_param(ep, param))
+		if (!GetParam(ep, param))
 			ELRF("Get Param failed");
 		unit.params.push_back(std::move(param));
 	}
 
-	auto arrayNodes = elementsByTagName(node, "Array");
+	auto arrayNodes = ElementsByTagName(node, "Array");
 	for (const auto& ea : arrayNodes)
 	{
 		Array array{};
-		if (!get_array(ea, array))
+		if (!GetArray(ea, array))
 			ELRF("Get Array failed");
 		unit.arrays.push_back(std::move(array));
 	}
@@ -331,11 +331,11 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 	// ѕри загрузке параметров автоматически добавл€етс€ массив строк с именем DEPENDS
 	// «начени€ дл€ зависимостей хран€тс€ в поле name вместо val, учитываем это при загрузке
 
-	auto dependsNodes = elementsByTagName(node, "Depends");
+	auto dependsNodes = ElementsByTagName(node, "Depends");
 	for (const auto& ed : dependsNodes)
 	{
 		QList<QString> depends;
-		if (!get_depends(ed, depends))
+		if (!GetDepends(ed, depends))
 			ELRF("Get Depends failed");
 
 		Array array{};
@@ -355,7 +355,7 @@ bool parser::get_unit(const QDomElement& node, Unit& unit)
 	return true;
 }
 
-bool parser::get_param(const QDomElement& node, Param& param)
+bool Parser::GetParam(const QDomElement& node, Param& param)
 {
 	QString name = node.attribute("name", "");
 	QString type = node.attribute("type", "");
@@ -378,7 +378,7 @@ bool parser::get_param(const QDomElement& node, Param& param)
 	return true;
 }
 
-bool parser::get_array(const QDomElement& node, Array& array)
+bool Parser::GetArray(const QDomElement& node, Array& array)
 {
 	QString name = node.attribute("name", "");
 	QString type = node.attribute("type", "");
@@ -390,11 +390,11 @@ bool parser::get_array(const QDomElement& node, Array& array)
 	array.name = name;
 	array.type = type;
 
-	auto itemNodes = elementsByTagName(node, "Item");
+	auto itemNodes = ElementsByTagName(node, "Item");
 	for (const auto& ei : itemNodes)
 	{
 		Item item;
-		if (!get_item(ei, type, item))
+		if (!GetItem(ei, type, item))
 			ELRF("Get Item failed");
 		array.items.push_back(std::move(item));
 	}
@@ -402,9 +402,9 @@ bool parser::get_array(const QDomElement& node, Array& array)
 	return true;
 }
 
-bool parser::get_depends(const QDomElement& node, QList<QString>& depends)
+bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 {
-	auto itemNodes = elementsByTagName(node, "Item");
+	auto itemNodes = ElementsByTagName(node, "Item");
 	for (const auto& ei : itemNodes)
 	{
 		QString name = ei.attribute("name", "");
@@ -418,25 +418,25 @@ bool parser::get_depends(const QDomElement& node, QList<QString>& depends)
 	return true;
 }
 
-bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
+bool Parser::GetItem(const QDomElement& node, const QString& type, Item& item)
 {
 	QString val = node.attribute("val", "");
 	item.val = val;
 
-	auto paramNodes = elementsByTagName(node, "Param");
+	auto paramNodes = ElementsByTagName(node, "Param");
 	for (const auto& ep : paramNodes)
 	{
 		Param param{};
-		if (!get_param(ep, param))
+		if (!GetParam(ep, param))
 			ELRF("Get Param failed");
 		item.params.push_back(std::move(param));
 	}
 
-	auto arrayNodes = elementsByTagName(node, "Array");
+	auto arrayNodes = ElementsByTagName(node, "Array");
 	for (const auto& ea : arrayNodes)
 	{
 		Array array{};
-		if (!get_array(ea, array))
+		if (!GetArray(ea, array))
 			ELRF("Get Array failed");
 		item.arrays.push_back(std::move(array));
 	}
@@ -475,7 +475,7 @@ bool parser::get_item(const QDomElement& node, const QString& type, Item& item)
 	return true;
 }
 
-QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QString& tagname)
+QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QString& tagname)
 {
 	QList<QDomElement> list;
 
@@ -494,7 +494,7 @@ QList<QDomElement> parser::elementsByTagName(const QDomElement& node, const QStr
 	return list;
 }
 
-int parser::getItemsCount(Unit& unit, const QString& id)
+int Parser::GetItemsCount(Unit& unit, const QString& id)
 {
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
@@ -558,7 +558,7 @@ int parser::getItemsCount(Unit& unit, const QString& id)
 	return -1;
 }
 
-Param* parser::getParam(Unit& unit, const QString& id)
+Param* Parser::GetParam(Unit& unit, const QString& id)
 {
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
@@ -620,7 +620,7 @@ Param* parser::getParam(Unit& unit, const QString& id)
 	return nullptr;
 }
 
-Item* parser::getItem(Unit& unit, const QString& id)
+Item* Parser::GetItem(Unit& unit, const QString& id)
 {
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QtXml>
-
 namespace CubesXml
 {
 	/*<Includes>
@@ -101,7 +99,6 @@ namespace CubesXml
 		int32_t x;
 		int32_t y;
 		int32_t z;
-		//QList<QString> depends;
 	};
 
 	struct Group
@@ -110,20 +107,12 @@ namespace CubesXml
 		QList<Unit> units;
 	};
 
-	//struct File
-	//{
-	//	QList<Include> includes;
-	//	Networking networking;
-	//	Log log;
-	//	QList<Group> groups;
-	//};
-
 	struct Config
 	{
 		Networking networking;
-		bool networking_is_set;
+		bool networkingIsSet;
 		Log log;
-		bool log_is_set;
+		bool logIsSet;
 		QList<Group> groups;
 	};
 
@@ -132,35 +121,5 @@ namespace CubesXml
 		QString fileName;
 		QList<Include> includes;
 		Config config;
-	};
-
-	class parser
-	{
-	public:
-		static bool parse(const QString& filename, File& fi);
-		static int getItemsCount(Unit& unit, const QString& id);
-		static Param* getParam(Unit& unit, const QString& id);
-		static Item* getItem(Unit& unit, const QString& id);
-
-		//static QList<QString> getConnections(Unit u);
-		//static QList<QString>& getDepends(Unit& unit);
-
-	private:
-		//template<typename T> static bool try_get_yaml_value(const QDomElement& node, const std::string& name, T& value);
-
-		static bool get_file(const QDomElement& node, File& file);
-		static bool get_includes(const QDomElement& node, QList<Include>& includes);
-		static bool get_config(const QDomElement& node, Config& config);
-		static bool get_networking(const QDomElement& node, Networking& networking);
-		static bool get_log(const QDomElement& node, Log& log);
-		static bool get_units(const QDomElement& node, QList<Group>& groups);
-		static bool get_group(const QDomElement& node, Group& group);
-		static bool get_unit(const QDomElement& node, Unit& unit);
-		static bool get_param(const QDomElement& node, Param& param);
-		static bool get_array(const QDomElement& node, Array& array);
-		static bool get_depends(const QDomElement& node, QList<QString>& depends);
-		static bool get_item(const QDomElement& node, const QString& type, Item& item);
-
-		static QList<QDomElement> elementsByTagName(const QDomElement& node, const QString& tagname);
 	};
 }

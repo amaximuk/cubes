@@ -292,11 +292,11 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
     CubesXml::Param* xmlParam = nullptr;
     if (xmlUnit != nullptr)
-        xmlParam = CubesXml::parser::getParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+        xmlParam = CubesXml::Parser::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     CubesXml::Item* xmlItem = nullptr;
     if (xmlUnit != nullptr)
-        xmlItem = CubesXml::parser::getItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+        xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
     model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi, is_item);
@@ -1374,7 +1374,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
 
     int xmlCount = 0;
     if (xmlUnit != nullptr)
-        xmlCount = CubesXml::parser::getItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+        xmlCount = CubesXml::Parser::GetItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     if (pi.restrictions.set_count.size() > 0)
     {

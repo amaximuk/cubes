@@ -35,7 +35,7 @@
 #include "properties_item/properties_items_manager.h"
 #include "qttreepropertybrowser.h" // потом убрать
 #include "tree_item_model.h"
-#include "xml_parser.h"
+#include "xml/xml_parser.h"
 #include "graph.h"
 #include "main_window.h"
 
@@ -736,7 +736,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     {
         QString includedFileName = dir.filePath(file.includes[i].fileName);
         CubesXml::File includedFile{};
-        if (!CubesXml::parser::parse(includedFileName, includedFile))
+        if (!CubesXml::Parser::Parse(includedFileName, includedFile))
             return false;
 
         if (!AddUnits(fileName, file.includes[i].fileName, includedFile))
@@ -1363,10 +1363,10 @@ void MainWindow::OnImportXmlFileAction()
         if (fileNames.size() == 0)
             return;
 
-        CubesXml::parser::parse(fileNames[0], f);
+        CubesXml::Parser::Parse(fileNames[0], f);
     }
 
-    if (f.config.networking_is_set)
+    if (f.config.networkingIsSet)
     {
         log_table_model_->Clear();
 

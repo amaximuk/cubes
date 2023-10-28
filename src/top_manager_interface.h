@@ -1,7 +1,7 @@
 #pragma once
 
 #include "unit_types.h"
-#include "xml_parser.h"
+#include "xml/xml_parser.h"
 
 struct PropertiesForDrawing
 {
