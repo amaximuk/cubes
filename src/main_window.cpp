@@ -676,13 +676,14 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     fileItemsManager_->Create(file.fileName, fileName);
     fileItemsManager_->Select(fileName);
 
-    for (int i = 0; i < file.includes.size(); i++)
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& kvp : file.includes[i].variables.toStdMap())
-            variables.push_back({ kvp.first, kvp.second });
-        fileItemsManager_->AddFileInclude(fileName, file.includes[i].fileName, variables);
-    }
+    for (const auto& include : file.includes)
+        fileItemsManager_->AddFileInclude(fileName, include.fileName, include.variables);
+    //for (int i = 0; i < file.includes.size(); i++)
+    //{
+    //    QList<QPair<QString, QString>> variables;
+    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
+    //        variables.push_back({ kvp.first, kvp.second });
+    //}
 
     //QStringList fileNames = fileItemsManager_->GetFileNames();
     //for (auto& item : scene_->items())
@@ -1392,19 +1393,26 @@ void MainWindow::OnSaveFileAction()
     QStringList fileNames = fileItemsManager_->GetFileNames();
     for (const auto& fileName : fileNames)
     {
-        // Соберем всю информацию о файле
-        CubesXml::File xmlFile{};
-        xmlFile.fileName = fileName;
+        //// Соберем всю информацию о файле
+        //auto file = fileItemsManager_->GetFile(fileName);
+        //auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
 
-        auto file = fileItemsManager_->GetFile(fileName);
-        auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
-        xmlFile.config.groups = std::move(groups);
+        //// Соберем всю информацию о файле
+        //CubesXml::File xmlFile{};
+        //xmlFile.fileName = fileName;
+        //xmlFile.config.networkingIsSet = true;
+        //xmlFile.config.logIsSet = true;
 
-        CubesXml::Writer::Write(QString("tmp/%1").arg(file.path), xmlFile);
+        //xmlFile.config.networking = file.network;
+        auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
+        auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
+        xmlFile.config.groups = std::move(xmlGroups);
+
+        CubesXml::Writer::Write(QString("tmp/%1").arg(xmlFile.fileName), xmlFile);
 
 
 
-        for (const auto& include : file.includes)
+        for (const auto& include : xmlFile.includes)
         {
             auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
         }

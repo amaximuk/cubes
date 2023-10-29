@@ -98,6 +98,7 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 				ELRF("Includes/Include val is empty");
 			include.fileName = i_val;
 
+			QMap<QString, QString> variables;
 			QDomNode v = i.firstChild();
 			while (!v.isNull())
 			{
@@ -115,13 +116,15 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 					if (v_val == "")
 						ELRF("Includes/Include/Variable val is empty");
 
-					if (include.variables.contains(v_name))
+					if (variables.contains(v_name))
 						ELRF("Includes/Include/Variable name duplicate");
 
-					include.variables[v_name] = v_val;
+					variables[v_name] = v_val;
 				}
 				v = v.nextSibling();
 			}
+			for (const auto& variable : variables.toStdMap())
+				include.variables.push_back(QPair<QString, QString>(variable.first, variable.second));
 			includes.push_back(std::move(include));
 		}
 		i = i.nextSibling();

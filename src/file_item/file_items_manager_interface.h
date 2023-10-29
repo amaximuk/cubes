@@ -8,7 +8,7 @@ namespace CubesFile
 		QString ip;
 	};
 
-	struct Network
+	struct Networking
 	{
 		uint32_t id;
 		uint16_t accept_port;
@@ -51,7 +51,7 @@ namespace CubesFile
 		QString name;
 		QString platform;
 		QString path;
-		Network network;
+		Networking network;
 		Log log;
 		QList<Include> includes;
 	};

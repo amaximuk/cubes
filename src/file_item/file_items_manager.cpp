@@ -197,6 +197,22 @@ File FileItemsManager::GetFile(const QString& fileName)
 	return result;
 }
 
+CubesXml::File FileItemsManager::GetXmlFile(const QString& fileName)
+{
+	CubesXml::File result{};
+
+	for (auto& fi : items_)
+	{
+		if (fi->GetName() == fileName)
+		{
+			result = fi->GetXmlFile();
+			break;
+		}
+	}
+
+	return result;
+}
+
 void FileItemsManager::BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel)
 {
 	int count = 0;

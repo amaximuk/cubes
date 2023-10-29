@@ -43,6 +43,9 @@ bool Writer::SetFile(const File& file, QDomDocument& document)
 
 	QDomElement elementRoot = document.createElement("Config");
 
+	if (!SetConfig(file.config, document))
+		ELRF("Set Config failed");
+
 	//if (file.includes.size() > 0)
 	//{
 	//	QDomElement elementIncludes = document.createElement("Includes");
@@ -102,7 +105,7 @@ bool Writer::SetIncludes(const QList<Include>& includes, QDomDocument& document)
 		{
 			QDomElement elementInclude = document.createElement("Include");;
 			elementInclude.setAttribute("val", include.fileName);
-			for (const auto& variable : include.variables.toStdMap())
+			for (const auto& variable : include.variables)
 			{
 				QDomElement elementVariable = document.createElement("Variable");;
 				elementVariable.setAttribute("name", variable.first);
@@ -232,7 +235,7 @@ bool Writer::SetNetworking(const Networking& networking, QDomElement& node)
 	//result.log.limit_mb = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
 	//result.log.directory_path = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
 
-	QDomElement elementNetworking = node.ownerDocument().createElement("Config");
+	QDomElement elementNetworking = node.ownerDocument().createElement("Networking");
 	elementNetworking.setAttribute("id", networking.id);
 	elementNetworking.setAttribute("accept_port", networking.acceptPort);
 	elementNetworking.setAttribute("keep_alive_sec", networking.keepAliveSec);

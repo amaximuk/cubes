@@ -51,6 +51,7 @@ namespace CubesFile
 
         QString GetIncludePath(const QString& includeName);
         File GetFile();
+        CubesXml::File GetXmlFile();
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);

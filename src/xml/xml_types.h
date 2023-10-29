@@ -9,8 +9,9 @@ namespace CubesXml
 	</Includes>*/
 	struct Include
 	{
+		QString name; // TODO: Add to xm format - short name of file
 		QString fileName;
-		QMap<QString, QString> variables;
+		QList<QPair<QString, QString>> variables;
 	};
 
 	/*<Networking id="1000" accept_port="62000" keep_alive_sec="30000">
@@ -39,6 +40,9 @@ namespace CubesXml
 
 	struct NetworkingDefaults
 	{
+		static const int id = 1000;
+		static const int acceptPort = 60000;
+		static const int keepAliveSec = 10;
 		static const bool timeClient = false;
 		static const int networkThreads = 4;
 		static const int broadcastThreads = 1;
@@ -63,6 +67,7 @@ namespace CubesXml
 	{
 		int loggingLevel;
 		int totalLogLimit;
+		QString logDir;
 	};
 
 	/*<Units>
@@ -134,6 +139,7 @@ namespace CubesXml
 
 	struct File
 	{
+		QString name; // TODO: Add to xm format - short name of file
 		QString fileName;
 		QList<Include> includes;
 		Config config;

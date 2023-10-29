@@ -134,7 +134,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_id;
             pm_id.id = "PARAMETERS/NETWORKING/ID";
             pm_id.name = QString::fromLocal8Bit("Идентифиикатор");
-            pm_id.value = "1000";
+            pm_id.value = CubesXml::NetworkingDefaults::id;
             pm_id.valueType = "int";
             pm_id.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_id.editorSettings.SpinIntergerMin = 0;
@@ -144,7 +144,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_accept_port;
             pm_accept_port.id = "PARAMETERS/NETWORKING/ACCEPT_PORT";
             pm_accept_port.name = QString::fromLocal8Bit("Порт");
-            pm_accept_port.value = "60000";
+            pm_accept_port.value = CubesXml::NetworkingDefaults::acceptPort;
             pm_accept_port.valueType = "int";
             pm_accept_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_accept_port.editorSettings.SpinIntergerMin = 1000;
@@ -154,7 +154,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_keep_alive_sec;
             pm_keep_alive_sec.id = "PARAMETERS/NETWORKING/KEEP_ALIVE_SEC";
             pm_keep_alive_sec.name = QString::fromLocal8Bit("Таймаут");
-            pm_keep_alive_sec.value = "10";
+            pm_keep_alive_sec.value = CubesXml::NetworkingDefaults::keepAliveSec;
             pm_keep_alive_sec.valueType = "int";
             pm_keep_alive_sec.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_keep_alive_sec.editorSettings.SpinIntergerMin = 0;
@@ -172,7 +172,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_network_threads;
             pm_network_threads.id = "PARAMETERS/NETWORKING/NETWORK_THREADS";
             pm_network_threads.name = QString::fromLocal8Bit("Сетевых потоков");
-            pm_network_threads.value = "4";
+            pm_network_threads.value = CubesXml::NetworkingDefaults::networkThreads;
             pm_network_threads.valueType = "int";
             pm_network_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_network_threads.editorSettings.SpinIntergerMin = 1;
@@ -182,7 +182,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_broadcast_threads;
             pm_broadcast_threads.id = "PARAMETERS/NETWORKING/BROADCAST_THREADS";
             pm_broadcast_threads.name = QString::fromLocal8Bit("Широковещательных потоков");
-            pm_broadcast_threads.value = "1";
+            pm_broadcast_threads.value = CubesXml::NetworkingDefaults::broadcastThreads;
             pm_broadcast_threads.valueType = "int";
             pm_broadcast_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_broadcast_threads.editorSettings.SpinIntergerMin = 1;
@@ -192,7 +192,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_client_threads;
             pm_client_threads.id = "PARAMETERS/NETWORKING/CLIENTS_THREADS";
             pm_client_threads.name = QString::fromLocal8Bit("Клиентских потоков");
-            pm_client_threads.value = "1";
+            pm_client_threads.value = CubesXml::NetworkingDefaults::clientsThreads;
             pm_client_threads.valueType = "int";
             pm_client_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_client_threads.editorSettings.SpinIntergerMin = 1;
@@ -202,7 +202,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_notify_ready_client;
             pm_notify_ready_client.id = "PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS";
             pm_notify_ready_client.name = QString::fromLocal8Bit("Информировать клиента");
-            pm_notify_ready_client.value = "true";
+            pm_notify_ready_client.value = CubesXml::NetworkingDefaults::notifyReadyClients;
             pm_notify_ready_client.valueType = "bool";
             pm_notify_ready_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_client));
@@ -210,7 +210,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_notify_ready_server;
             pm_notify_ready_server.id = "PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS";
             pm_notify_ready_server.name = QString::fromLocal8Bit("Информировать сервер");
-            pm_notify_ready_server.value = "false";
+            pm_notify_ready_server.value = CubesXml::NetworkingDefaults::notifyReadyServers;
             pm_notify_ready_server.valueType = "bool";
             pm_notify_ready_server.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
@@ -818,6 +818,54 @@ File FileItem::GetFile()
         Include include{};
         include.name = includeName;
         include.path = GetIncludePath(includeName);
+        include.variables = GetIncludeVariables(includeName);
+        result.includes.push_back(include);
+    }
+
+    return result;
+}
+
+CubesXml::File FileItem::GetXmlFile()
+{
+    CubesXml::File result{};
+    result.fileName = GetParameterModel("BASE/PATH")->value.toString();
+
+    result.config.networkingIsSet = true;
+    result.config.networking.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
+    result.config.networking.acceptPort = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
+    result.config.networking.keepAliveSec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
+    result.config.networking.timeClient = GetParameterModel("PARAMETERS/NETWORKING/TIME_CLIENT")->value.toBool();
+    result.config.networking.networkThreads = GetParameterModel("PARAMETERS/NETWORKING/NETWORK_THREADS")->value.toInt();
+    result.config.networking.broadcastThreads = GetParameterModel("PARAMETERS/NETWORKING/BROADCAST_THREADS")->value.toInt();
+    result.config.networking.clientsThreads = GetParameterModel("PARAMETERS/NETWORKING/CLIENTS_THREADS")->value.toInt();
+    result.config.networking.notifyReadyClients = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS")->value.toBool();
+    result.config.networking.notifyReadyServers = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS")->value.toBool();
+
+    int count = GetParameterModel("PARAMETERS/NETWORKING/CONNECT")->value.toInt();
+    for (int i = 0; i < count; i++)
+    {
+        CubesXml::Connect connect{};
+        connect.port = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/PORT").arg(i))->value.toInt();
+        connect.ip = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/IP").arg(i))->value.toString();
+        result.config.networking.connects.push_back(connect);
+    }
+
+    result.config.logIsSet = true;
+    result.config.log.loggingLevel = static_cast<LoggingLevel>(GetParameterModel("PARAMETERS/LOG/LOGGING_LEVEL")->value.toInt());
+    result.config.log.totalLogLimit = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
+    result.config.log.logDir = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
+
+    QStringList includeNames = GetIncludeNames();
+    for (const auto& includeName : includeNames)
+    {
+        CubesXml::Include include{};
+        include.name = includeName;
+        include.fileName = GetIncludePath(includeName);
+        //for (const auto& variable : GetIncludeVariables(includeName))
+        //{
+        //    if ()
+        //    include.variables.insert(variable.first, variable.second);
+        //}
         include.variables = GetIncludeVariables(includeName);
         result.includes.push_back(include);
     }
