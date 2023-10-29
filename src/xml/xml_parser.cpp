@@ -169,30 +169,6 @@ bool Parser::GetConfig(const QDomElement& node, Config& config)
 
 bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 {
-	//result.network.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
-	//result.network.accept_port = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
-	//result.network.keep_alive_sec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
-	//result.network.time_client = GetParameterModel("PARAMETERS/NETWORKING/TIME_CLIENT")->value.toBool();
-	//result.network.network_threads = GetParameterModel("PARAMETERS/NETWORKING/NETWORK_THREADS")->value.toInt();
-	//result.network.broadcast_threads = GetParameterModel("PARAMETERS/NETWORKING/BROADCAST_THREADS")->value.toInt();
-	//result.network.clients_threads = GetParameterModel("PARAMETERS/NETWORKING/CLIENTS_THREADS")->value.toInt();
-	//result.network.notify_ready_clients = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS")->value.toBool();
-	//result.network.notify_ready_servers = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS")->value.toBool();
-
-	//int count = GetParameterModel("PARAMETERS/NETWORKING/CONNECT")->value.toInt();
-	//for (int i = 0; i < count; i++)
-	//{
-	//	Connect connect{};
-	//	connect.port = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/PORT").arg(i))->value.toInt();
-	//	connect.ip = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/IP").arg(i))->value.toString();
-	//	result.network.connect.push_back(connect);
-	//}
-
-	//result.log.level = static_cast<LoggingLevel>(GetParameterModel("PARAMETERS/LOG/LOGGING_LEVEL")->value.toInt());
-	//result.log.limit_mb = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
-	//result.log.directory_path = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
-
-
 	QString id = node.attribute("id", "");
 	QString accept_port = node.attribute("accept_port", "");
 	QString keep_alive_sec = node.attribute("keep_alive_sec", "");
@@ -268,6 +244,8 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 				log.loggingLevel = val.toInt();
 			else if (name == "TOTAL_LOG_LIMIT_MB" && type == "int")
 				log.totalLogLimit = val.toInt();
+			else if (name == "LogDir" && type == "str")
+				log.logDir = val;
 			else
 				ELRF("Log/Param is unknown");
 		}
@@ -433,7 +411,7 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	for (const auto& ei : itemNodes)
 	{
 		Item item;
-		if (!GetItem(ei, type, item))
+		if (!GetItem(ei, item))
 			ELRF("Get Item failed");
 		array.items.push_back(std::move(item));
 	}
@@ -457,7 +435,7 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 	return true;
 }
 
-bool Parser::GetItem(const QDomElement& node, const QString& type, Item& item)
+bool Parser::GetItem(const QDomElement& node, Item& item)
 {
 	QString val = node.attribute("val", "");
 	item.val = val;
@@ -479,37 +457,6 @@ bool Parser::GetItem(const QDomElement& node, const QString& type, Item& item)
 			ELRF("Get Array failed");
 		item.arrays.push_back(std::move(array));
 	}
-
-
-	//if (type != "")
-	//{
-	//	QString val = node.attribute("val", "");
-
-	//	if (val == "")
-	//		ELRF("Unit/Param val is empty");
-
-	//	item.val = val;
-	//}
-	//else
-	//{
-	//	auto paramNodes = elementsByTagName(node, "Param");
-	//	for (const auto& ep : paramNodes)
-	//	{
-	//		Param param{};
-	//		if (!get_param(ep, param))
-	//			ELRF("Get Param failed");
-	//		item.params.push_back(std::move(param));
-	//	}
-
-	//	auto arrayNodes = elementsByTagName(node, "Array");
-	//	for (const auto& ea : arrayNodes)
-	//	{
-	//		Array array{};
-	//		if (!get_array(ea, array))
-	//			ELRF("Get Array failed");
-	//		item.arrays.push_back(std::move(array));
-	//	}
-	//}
 
 	return true;
 }

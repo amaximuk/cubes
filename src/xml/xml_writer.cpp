@@ -41,56 +41,8 @@ bool Writer::SetFile(const File& file, QDomDocument& document)
 	if (!SetIncludes(file.includes, document))
 		ELRF("Set Includes failed");
 
-	QDomElement elementRoot = document.createElement("Config");
-
 	if (!SetConfig(file.config, document))
 		ELRF("Set Config failed");
-
-	//if (file.includes.size() > 0)
-	//{
-	//	QDomElement elementIncludes = document.createElement("Includes");
-
-	//	for (const auto& include : file.includes)
-	//	{
-	//		QDomElement elementInclude = document.createElement("Include");;
-	//		elementInclude.setAttribute("val", include.fileName);
-	//		for (const auto& variable : include.variables.toStdMap())
-	//		{
-	//			QDomElement elementVariable = document.createElement("Variable");;
-	//			elementVariable.setAttribute("name", variable.first);
-	//			elementVariable.setAttribute("val", variable.second);
-	//			elementInclude.appendChild(elementVariable);
-	//		}
-	//		elementIncludes.appendChild(elementInclude);
-	//	}
-
-	//	elementRoot.appendChild(elementIncludes);
-	//}
-	
-	document.appendChild(elementRoot);
-
-
-	//QDomNode n = node.firstChild();
-	//while (!n.isNull())
-	//{
-	//	QDomElement ne = n.toElement();
-	//	if (!ne.isNull())
-	//	{
-	//		qDebug() << ne.tagName();
-
-	//		if (ne.tagName() == "Includes")
-	//		{
-	//			if (!GetIncludes(ne, fi.includes))
-	//				ELRF("Get Includes failed");
-	//		}
-	//		else if (ne.tagName() == "Config")
-	//		{
-	//			if (!GetConfig(ne, fi.config))
-	//				ELRF("Get Config failed");
-	//		}
-	//	}
-	//	n = n.nextSibling();
-	//}
 
 	return true;
 }
@@ -118,51 +70,6 @@ bool Writer::SetIncludes(const QList<Include>& includes, QDomDocument& document)
 		document.appendChild(elementIncludes);
 	}
 
-	//QDomNode i = node.firstChild();
-	//while (!i.isNull())
-	//{
-	//	QDomElement ei = i.toElement();
-	//	if (!ei.isNull())
-	//	{
-	//		if (ei.tagName() != "Include")
-	//			ELRF("Includes have unknown child");
-
-	//		Include include{};
-
-	//		QString i_val = ei.attribute("val", "");
-	//		if (i_val == "")
-	//			ELRF("Includes/Include val is empty");
-	//		include.fileName = i_val;
-
-	//		QDomNode v = i.firstChild();
-	//		while (!v.isNull())
-	//		{
-	//			QDomElement ev = v.toElement();
-	//			if (!ev.isNull())
-	//			{
-	//				if (ev.tagName() != "Variable")
-	//					ELRF("Includes/Include have unknown child");
-
-	//				QString v_name = ev.attribute("name", "");
-	//				QString v_val = ev.attribute("val", "");
-
-	//				if (v_name == "")
-	//					ELRF("Includes/Include/Variable name is empty");
-	//				if (v_val == "")
-	//					ELRF("Includes/Include/Variable val is empty");
-
-	//				if (include.variables.contains(v_name))
-	//					ELRF("Includes/Include/Variable name duplicate");
-
-	//				include.variables[v_name] = v_val;
-	//			}
-	//			v = v.nextSibling();
-	//		}
-	//		includes.push_back(std::move(include));
-	//	}
-	//	i = i.nextSibling();
-	//}
-
 	return true;
 }
 
@@ -176,65 +83,22 @@ bool Writer::SetConfig(const Config& config, QDomDocument& document)
 			ELRF("Set Networking failed");
 	}
 
-	document.appendChild(elementConfig);
+	if (config.logIsSet)
+	{
+		if (!SetLog(config.log, elementConfig))
+			ELRF("Set Log failed");
+	}
 
-	//QDomNode i = node.firstChild();
-	//while (!i.isNull())
-	//{
-	//	QDomElement ei = i.toElement();
-	//	if (!ei.isNull())
-	//	{
-	//		if (ei.tagName() == "Networking")
-	//		{
-	//			config.networkingIsSet = true;
-	//			if (!GetNetworking(ei, config.networking))
-	//				ELRF("Get Networking failed");
-	//		}
-	//		else if (ei.tagName() == "Log")
-	//		{
-	//			config.logIsSet = true;
-	//			if (!GetLog(ei, config.log))
-	//				ELRF("Get Log failed");
-	//		}
-	//		else if (ei.tagName() == "Units")
-	//		{
-	//			if (!GetUnits(ei, config.groups))
-	//				ELRF("Get Units failed");
-	//		}
-	//		else
-	//			ELRF("Config have unknown child");
-	//	}
-	//	i = i.nextSibling();
-	//}
+	if (!SetUnits(config.groups, elementConfig))
+		ELRF("Set Log failed");
+
+	document.appendChild(elementConfig);
 
 	return true;
 }
 
 bool Writer::SetNetworking(const Networking& networking, QDomElement& node)
 {
-	//result.network.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
-	//result.network.accept_port = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
-	//result.network.keep_alive_sec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
-	//result.network.time_client = GetParameterModel("PARAMETERS/NETWORKING/TIME_CLIENT")->value.toBool();
-	//result.network.network_threads = GetParameterModel("PARAMETERS/NETWORKING/NETWORK_THREADS")->value.toInt();
-	//result.network.broadcast_threads = GetParameterModel("PARAMETERS/NETWORKING/BROADCAST_THREADS")->value.toInt();
-	//result.network.clients_threads = GetParameterModel("PARAMETERS/NETWORKING/CLIENTS_THREADS")->value.toInt();
-	//result.network.notify_ready_clients = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS")->value.toBool();
-	//result.network.notify_ready_servers = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS")->value.toBool();
-
-	//int count = GetParameterModel("PARAMETERS/NETWORKING/CONNECT")->value.toInt();
-	//for (int i = 0; i < count; i++)
-	//{
-	//	Connect connect{};
-	//	connect.port = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/PORT").arg(i))->value.toInt();
-	//	connect.ip = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/IP").arg(i))->value.toString();
-	//	result.network.connect.push_back(connect);
-	//}
-
-	//result.log.level = static_cast<LoggingLevel>(GetParameterModel("PARAMETERS/LOG/LOGGING_LEVEL")->value.toInt());
-	//result.log.limit_mb = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
-	//result.log.directory_path = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
-
 	QDomElement elementNetworking = node.ownerDocument().createElement("Networking");
 	elementNetworking.setAttribute("id", networking.id);
 	elementNetworking.setAttribute("accept_port", networking.acceptPort);
@@ -262,311 +126,240 @@ bool Writer::SetNetworking(const Networking& networking, QDomElement& node)
 
 	node.appendChild(elementNetworking);
 
-	//QString id = node.attribute("id", "");
-	//QString accept_port = node.attribute("accept_port", "");
-	//QString keep_alive_sec = node.attribute("keep_alive_sec", "");
-
-	//if (id == "")
-	//	ELRF("Networking id is empty");
-	//if (accept_port == "")
-	//	ELRF("Networking accept_port is empty");
-	//if (keep_alive_sec == "")
-	//	ELRF("Networking keep_alive_sec is empty");
-
-	//networking.id = id.toInt();
-	//networking.acceptPort = accept_port.toInt();
-	//networking.keepAlive = keep_alive_sec.toInt();
-
-	//QDomNode v = node.firstChild();
-	//while (!v.isNull())
-	//{
-	//	QDomElement ev = v.toElement();
-	//	if (!ev.isNull())
-	//	{
-	//		if (ev.tagName() != "connect")
-	//			ELRF("Networking have unknown child");
-
-	//		QString v_port = ev.attribute("port", "");
-	//		QString v_ip = ev.attribute("ip", "");
-
-	//		if (v_port == "")
-	//			ELRF("Networking/connect port is empty");
-	//		if (v_ip == "")
-	//			ELRF("Networking/connect ip is empty");
-
-	//		Connect connect{};
-	//		connect.host = v_ip;
-	//		connect.port = v_port.toInt();
-
-	//		networking.connects.push_back(std::move(connect));
-	//	}
-	//	v = v.nextSibling();
-	//}
-
 	return true;
 }
 
-bool Writer::GetLog(const QDomElement& node, Log& log)
+bool Writer::SetLog(const Log& log, QDomElement& node)
 {
-	QDomNode i = node.firstChild();
-	while (!i.isNull())
+	//<Log>
+	//	<Param name="LoggingLevel" type="int" val="0"/>
+	//	<Param name="TOTAL_LOG_LIMIT_MB" type="int" val="500"/>
+	//</Log>
+
+	QDomElement elementLog = node.ownerDocument().createElement("Log");
+
+	QDomElement elementLoggingLevelParam = node.ownerDocument().createElement("Param");
+	elementLoggingLevelParam.setAttribute("name", "LoggingLevel");
+	elementLoggingLevelParam.setAttribute("type", "int");
+	elementLoggingLevelParam.setAttribute("val", log.loggingLevel);
+	elementLog.appendChild(elementLoggingLevelParam);
+
+	QDomElement elementTotalLogLimitMbParam = node.ownerDocument().createElement("Param");
+	elementTotalLogLimitMbParam.setAttribute("name", "TOTAL_LOG_LIMIT_MB");
+	elementTotalLogLimitMbParam.setAttribute("type", "int");
+	elementTotalLogLimitMbParam.setAttribute("val", log.totalLogLimit);
+	elementLog.appendChild(elementTotalLogLimitMbParam);
+
+	if (log.logDir != "")
 	{
-		QDomElement ei = i.toElement();
-		if (!ei.isNull())
-		{
-			if (ei.tagName() != "Param")
-				ELRF("Log have unknown child");
-
-			QString name = ei.attribute("name", "");
-			QString type = ei.attribute("type", "");
-			QString val = ei.attribute("val", "");
-
-			if (name == "LoggingLevel" && type == "int")
-				log.loggingLevel = val.toInt();
-			else if (name == "TOTAL_LOG_LIMIT_MB" && type == "int")
-				log.totalLogLimit = val.toInt();
-			else
-				ELRF("Log/Param is unknown");
-		}
-		i = i.nextSibling();
+		QDomElement elementLogDirParam = node.ownerDocument().createElement("Param");
+		elementLogDirParam.setAttribute("name", "LogDir");
+		elementLogDirParam.setAttribute("type", "str");
+		elementLogDirParam.setAttribute("val", log.logDir);
+		elementLog.appendChild(elementLogDirParam);
 	}
 
+	node.appendChild(elementLog);
+
 	return true;
 }
 
-bool Writer::GetUnits(const QDomElement& node, QList<Group>& groups)
+bool Writer::SetUnits(const QList<Group>& groups, QDomElement& node)
 {
-	QDomNode i = node.firstChild();
-	while (!i.isNull())
+	//<Units>
+	//	<Group>
+	//		<Param name="Path" type="str" val="handlers"/>
+	//		<Unit Name="Sigma IQ Source" Id="sigma_iq_source" X="20" Y="40" Z="0">
+	//		</Unit>
+	//	</Group>
+	//</Units>
+	
+	QDomElement elementUnits = node.ownerDocument().createElement("Units");
+	for (const auto& group : groups)
 	{
-		QDomElement ei = i.toElement();
-		if (!ei.isNull())
-		{
-			if (ei.tagName() != "Group")
-				ELRF("Units have unknown child");
+		if (!SetGroup(group, elementUnits))
+			ELRF("Set Group failed");
 
-			Group group{};
-			if (!GetGroup(ei, group))
-				ELRF("Get Group failed");
+		//QDomElement elementGroup = node.ownerDocument().createElement("Group");
 
-			groups.push_back(std::move(group));
-		}
-		i = i.nextSibling();
+		//QDomElement elementGroupParam = node.ownerDocument().createElement("Param");
+		//elementGroupParam.setAttribute("name", "Path");
+		//elementGroupParam.setAttribute("type", "str");
+		//elementGroupParam.setAttribute("val", group.path);
+		//elementGroup.appendChild(elementGroupParam);
+
+		//if (!SetGroup(group, elementGroup))
+		//	ELRF("Set Group failed");
+
+		//elementUnits.appendChild(elementGroup);
 	}
 
+	node.appendChild(elementUnits);
+
 	return true;
 }
 
-bool Writer::GetGroup(const QDomElement& node, Group& group)
+bool Writer::SetGroup(const Group& group, QDomElement& node)
 {
-	auto paramNodes = ElementsByTagName(node, "Param");
+	QDomElement elementGroup = node.ownerDocument().createElement("Group");
 
-	if (paramNodes.size() != 1)
-		ELRF("Group/Param not found or more then one");
+	QDomElement elementGroupParam = node.ownerDocument().createElement("Param");
+	elementGroupParam.setAttribute("name", "Path");
+	elementGroupParam.setAttribute("type", "str");
+	elementGroupParam.setAttribute("val", group.path);
+	elementGroup.appendChild(elementGroupParam);
 
-	const auto& ep = paramNodes[0];
-	QString name = ep.attribute("name", "");
-	QString type = ep.attribute("type", "");
-	QString val = ep.attribute("val", "");
+	for (const auto& unit : group.units)
+	{
+		if (!SetUnit(unit, elementGroup))
+			ELRF("Set Unit failed");
+	}
 
-	if (name == "Path" && type == "str")
-		group.path = val;
+	node.appendChild(elementGroup);
+
+	return true;
+}
+
+bool Writer::SetUnit(const Unit& unit, QDomElement& node)
+{
+	//<Unit Name="Configurator Sigma" Id="sigma_poly" X="20" Y="140" Z="0">
+	//	<Param name="DRIVER_NAME" type="str" val="Driver" depends="true"/>
+	//	<Array name="CHANNELS">
+	//		<Item>
+	//			<Param name="RECEIVER_NAME" type="str" val="Receiver" depends="true"/>
+	//		</Item>
+	//	</Array>
+	//</Unit>
+
+	QDomElement elementUnit = node.ownerDocument().createElement("Unit");
+	elementUnit.setAttribute("Name", unit.name);
+	elementUnit.setAttribute("Id", unit.id);
+	elementUnit.setAttribute("X", unit.x);
+	elementUnit.setAttribute("Y", unit.y);
+	elementUnit.setAttribute("Z", unit.z);
+
+	for (const auto& param : unit.params)
+	{
+		if (!SetParam(param, elementUnit))
+			ELRF("Set Param failed");
+	}
+
+	for (const auto& array : unit.arrays)
+	{
+		if (array.name != "DEPENDS")
+		{
+			if (!SetArray(array, elementUnit))
+				ELRF("Set Param failed");
+		}
+	}
+
+	for (const auto& array : unit.arrays)
+	{
+		if (array.name == "DEPENDS")
+		{
+			QList<QString> depends;
+			for (const auto& depend : array.items)
+				depends.push_back(depend.val);
+			if (!SetDepends(depends, elementUnit))
+				ELRF("Set Depends failed");
+		}
+	}
+
+	node.appendChild(elementUnit);
+
+	return true;
+}
+
+bool Writer::SetParam(const Param& param, QDomElement& node)
+{
+	//<Param name="DRIVER_NAME" type="str" val="Driver" depends="true"/>
+
+	QDomElement elementParam = node.ownerDocument().createElement("Param");
+	elementParam.setAttribute("name", param.name);
+	elementParam.setAttribute("type", param.type);
+	elementParam.setAttribute("val", param.val);
+	if (param.depends)
+		elementParam.setAttribute("depends", param.depends);
+
+	node.appendChild(elementParam);
+
+	return true;
+}
+
+bool Writer::SetArray(const Array& array, QDomElement& node)
+{
+	//<Array name="CHANNELS">
+	//	<Item>
+	//		<Param name="RECEIVER_NAME" type="str" val="Receiver" depends="true"/>
+	//	</Item>
+	//</Array>
+
+	QDomElement elementArray = node.ownerDocument().createElement("Array");
+	elementArray.setAttribute("name", array.name);
+	if (array.type != "")
+		elementArray.setAttribute("type", array.type);
+
+	for (const auto& item : array.items)
+	{
+		if (!SetItem(item, elementArray))
+			ELRF("Set Param failed");
+	}
+
+	node.appendChild(elementArray);
+
+	return true;
+}
+
+bool Writer::SetDepends(const QList<QString>& depends, QDomElement& node)
+{
+	//<Depends>
+	//	<Item name="FL_DB_PG_1"/>
+	//	<Item name="LRK_1"/>
+	//</Depends>
+
+	QDomElement elementDepends = node.ownerDocument().createElement("Depends");
+
+	for (const auto& item : depends)
+	{
+		QDomElement elementItem = node.ownerDocument().createElement("Item");
+		elementItem.setAttribute("name", item);
+		elementDepends.appendChild(elementItem);
+	}
+
+	node.appendChild(elementDepends);
+
+	return true;
+}
+
+bool Writer::SetItem(const Item& item, QDomElement& node)
+{
+	//<Array name="BlockingStates" type="int">
+	//	<Item val="0"/>
+	//	<Item val="1"/>
+	//</Array>
+
+	QDomElement elementItem = node.ownerDocument().createElement("Item");
+
+	if (item.params.size() == 0 && item.arrays.size() == 0)
+	{
+		elementItem.setAttribute("val", item.val);
+	}
 	else
-		ELRF("Group/Param is unknown");
-
-	auto unitNodes = ElementsByTagName(node, "Unit");
-	for (const auto& eu : unitNodes)
 	{
-		Unit unit{};
-		if (!GetUnit(eu, unit))
-			ELRF("Get Unit failed");
-		group.units.push_back(std::move(unit));
-	}
-
-	return true;
-}
-
-bool Writer::GetUnit(const QDomElement& node, Unit& unit)
-{
-	QString name = node.attribute("Name", "");
-	QString id = node.attribute("Id", "");
-	int32_t x = node.attribute("X", "0").toInt();
-	int32_t y = node.attribute("Y", "0").toInt();
-	int32_t z = node.attribute("Z", "0").toInt();
-
-	if (name == "")
-		ELRF("Unit Name is empty");
-	if (id == "")
-		ELRF("Unit Id is empty");
-
-	unit.name = name;
-	unit.id = id;
-	unit.x = x;
-	unit.y = y;
-	unit.z = z;
-
-	auto paramNodes = ElementsByTagName(node, "Param");
-	for (const auto& ep : paramNodes)
-	{
-		Param param{};
-		if (!GetParam(ep, param))
-			ELRF("Get Param failed");
-		unit.params.push_back(std::move(param));
-	}
-
-	auto arrayNodes = ElementsByTagName(node, "Array");
-	for (const auto& ea : arrayNodes)
-	{
-		Array array{};
-		if (!GetArray(ea, array))
-			ELRF("Get Array failed");
-		unit.arrays.push_back(std::move(array));
-	}
-
-	// Интерпретируем зависимости юнита как массив строк
-	// При загрузке параметров автоматически добавляется массив строк с именем DEPENDS
-	// Значения для зависимостей хранятся в поле name вместо val, учитываем это при загрузке
-
-	auto dependsNodes = ElementsByTagName(node, "Depends");
-	for (const auto& ed : dependsNodes)
-	{
-		QList<QString> depends;
-		if (!GetDepends(ed, depends))
-			ELRF("Get Depends failed");
-
-		Array array{};
-		array.name = "DEPENDS";
-		array.type = "str";
-		QList<Item> items;
-		for (const auto& d : depends)
+		for (const auto& param : item.params)
 		{
-			Item item{};
-			item.val = d;
-			items.push_back(item);
+			if (!SetParam(param, elementItem))
+				ELRF("Set Param failed");
 		}
-		array.items = items;
-		unit.arrays.push_back(std::move(array));
+
+		for (const auto& array : item.arrays)
+		{
+			if (!SetArray(array, elementItem))
+				ELRF("Set Array failed");
+		}
 	}
 
-	return true;
-}
-
-bool Writer::GetParam(const QDomElement& node, Param& param)
-{
-	QString name = node.attribute("name", "");
-	QString type = node.attribute("type", "");
-	QString val = node.attribute("val", "");
-	QString depends = node.attribute("depends", "");
-
-	if (name == "")
-		ELRF("Unit/Param name is empty");
-	if (type == "")
-		ELRF("Unit/Param type is empty");
-	if (val == "")
-		ELRF("Unit/Param val is empty");
-	// depends is optional
-
-	param.name = name;
-	param.type = type;
-	param.val = val;
-	param.depends = QVariant(depends).toBool();
-
-	return true;
-}
-
-bool Writer::GetArray(const QDomElement& node, Array& array)
-{
-	QString name = node.attribute("name", "");
-	QString type = node.attribute("type", "");
-
-	if (name == "")
-		ELRF("Unit/Param name is empty");
-	// type is optional
-
-	array.name = name;
-	array.type = type;
-
-	auto itemNodes = ElementsByTagName(node, "Item");
-	for (const auto& ei : itemNodes)
-	{
-		Item item;
-		if (!GetItem(ei, type, item))
-			ELRF("Get Item failed");
-		array.items.push_back(std::move(item));
-	}
-
-	return true;
-}
-
-bool Writer::GetDepends(const QDomElement& node, QList<QString>& depends)
-{
-	auto itemNodes = ElementsByTagName(node, "Item");
-	for (const auto& ei : itemNodes)
-	{
-		QString name = ei.attribute("name", "");
-
-		if (name == "")
-			ELRF("Unit/Depends/Item name is empty");
-
-		depends.push_back(name);
-	}
-
-	return true;
-}
-
-bool Writer::GetItem(const QDomElement& node, const QString& type, Item& item)
-{
-	QString val = node.attribute("val", "");
-	item.val = val;
-
-	auto paramNodes = ElementsByTagName(node, "Param");
-	for (const auto& ep : paramNodes)
-	{
-		Param param{};
-		if (!GetParam(ep, param))
-			ELRF("Get Param failed");
-		item.params.push_back(std::move(param));
-	}
-
-	auto arrayNodes = ElementsByTagName(node, "Array");
-	for (const auto& ea : arrayNodes)
-	{
-		Array array{};
-		if (!GetArray(ea, array))
-			ELRF("Get Array failed");
-		item.arrays.push_back(std::move(array));
-	}
-
-
-	//if (type != "")
-	//{
-	//	QString val = node.attribute("val", "");
-
-	//	if (val == "")
-	//		ELRF("Unit/Param val is empty");
-
-	//	item.val = val;
-	//}
-	//else
-	//{
-	//	auto paramNodes = elementsByTagName(node, "Param");
-	//	for (const auto& ep : paramNodes)
-	//	{
-	//		Param param{};
-	//		if (!get_param(ep, param))
-	//			ELRF("Get Param failed");
-	//		item.params.push_back(std::move(param));
-	//	}
-
-	//	auto arrayNodes = elementsByTagName(node, "Array");
-	//	for (const auto& ea : arrayNodes)
-	//	{
-	//		Array array{};
-	//		if (!get_array(ea, array))
-	//			ELRF("Get Array failed");
-	//		item.arrays.push_back(std::move(array));
-	//	}
-	//}
+	node.appendChild(elementItem);
 
 	return true;
 }

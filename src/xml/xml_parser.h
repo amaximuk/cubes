@@ -25,7 +25,7 @@ namespace CubesXml
 		static bool GetParam(const QDomElement& node, Param& param);
 		static bool GetArray(const QDomElement& node, Array& array);
 		static bool GetDepends(const QDomElement& node, QList<QString>& depends);
-		static bool GetItem(const QDomElement& node, const QString& type, Item& item);
+		static bool GetItem(const QDomElement& node, Item& item);
 
 		static QList<QDomElement> ElementsByTagName(const QDomElement& node, const QString& tagname);
 	};
