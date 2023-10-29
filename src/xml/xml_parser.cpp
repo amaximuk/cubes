@@ -166,9 +166,39 @@ bool Parser::GetConfig(const QDomElement& node, Config& config)
 
 bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 {
+	//result.network.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
+	//result.network.accept_port = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
+	//result.network.keep_alive_sec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
+	//result.network.time_client = GetParameterModel("PARAMETERS/NETWORKING/TIME_CLIENT")->value.toBool();
+	//result.network.network_threads = GetParameterModel("PARAMETERS/NETWORKING/NETWORK_THREADS")->value.toInt();
+	//result.network.broadcast_threads = GetParameterModel("PARAMETERS/NETWORKING/BROADCAST_THREADS")->value.toInt();
+	//result.network.clients_threads = GetParameterModel("PARAMETERS/NETWORKING/CLIENTS_THREADS")->value.toInt();
+	//result.network.notify_ready_clients = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS")->value.toBool();
+	//result.network.notify_ready_servers = GetParameterModel("PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS")->value.toBool();
+
+	//int count = GetParameterModel("PARAMETERS/NETWORKING/CONNECT")->value.toInt();
+	//for (int i = 0; i < count; i++)
+	//{
+	//	Connect connect{};
+	//	connect.port = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/PORT").arg(i))->value.toInt();
+	//	connect.ip = GetParameterModel(QString("PARAMETERS/NETWORKING/CONNECT/ITEM_%1/IP").arg(i))->value.toString();
+	//	result.network.connect.push_back(connect);
+	//}
+
+	//result.log.level = static_cast<LoggingLevel>(GetParameterModel("PARAMETERS/LOG/LOGGING_LEVEL")->value.toInt());
+	//result.log.limit_mb = GetParameterModel("PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB")->value.toInt();
+	//result.log.directory_path = GetParameterModel("PARAMETERS/LOG/LOG_DIR")->value.toString();
+
+
 	QString id = node.attribute("id", "");
 	QString accept_port = node.attribute("accept_port", "");
 	QString keep_alive_sec = node.attribute("keep_alive_sec", "");
+	QString time_client = node.attribute("time_client", "");
+	QString network_threads = node.attribute("network_threads", "");
+	QString broadcast_threads = node.attribute("broadcast_threads", "");
+	QString clients_threads = node.attribute("clients_threads", "");
+	QString notify_ready_clients = node.attribute("notify_ready_clients", "");
+	QString notify_ready_servers = node.attribute("notify_ready_servers", "");
 
 	if (id == "")
 		ELRF("Networking id is empty");
@@ -179,7 +209,13 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 
 	networking.id = id.toInt();
 	networking.acceptPort = accept_port.toInt();
-	networking.keepAlive = keep_alive_sec.toInt();
+	networking.keepAliveSec = keep_alive_sec.toInt();
+	networking.timeClient = QVariant(time_client).toBool();
+	networking.networkThreads = network_threads.toInt();
+	networking.broadcastThreads = broadcast_threads.toInt();
+	networking.clientsThreads = clients_threads.toInt();
+	networking.notifyReadyClients = QVariant(notify_ready_clients).toBool();
+	networking.notifyReadyServers = QVariant(notify_ready_servers).toBool();
 
 	QDomNode v = node.firstChild();
 	while (!v.isNull())
@@ -199,7 +235,7 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 				ELRF("Networking/connect ip is empty");
 
 			Connect connect{};
-			connect.host = v_ip;
+			connect.ip = v_ip;
 			connect.port = v_port.toInt();
 
 			networking.connects.push_back(std::move(connect));

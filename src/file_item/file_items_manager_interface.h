@@ -48,6 +48,9 @@ namespace CubesFile
 
 	struct File
 	{
+		QString name;
+		QString platform;
+		QString path;
 		Network network;
 		Log log;
 		QList<Include> includes;

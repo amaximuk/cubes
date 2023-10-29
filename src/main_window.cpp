@@ -36,6 +36,7 @@
 #include "qttreepropertybrowser.h" // потом убрать
 #include "tree_item_model.h"
 #include "xml/xml_parser.h"
+#include "xml/xml_writer.h"
 #include "graph.h"
 #include "main_window.h"
 
@@ -1398,6 +1399,11 @@ void MainWindow::OnSaveFileAction()
         auto file = fileItemsManager_->GetFile(fileName);
         auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
         xmlFile.config.groups = std::move(groups);
+
+        CubesXml::Writer::Write(QString("tmp/%1").arg(file.path), xmlFile);
+
+
+
         for (const auto& include : file.includes)
         {
             auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);

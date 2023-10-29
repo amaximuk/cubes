@@ -19,7 +19,7 @@ namespace CubesXml
 	</Networking>*/
 	struct Connect
 	{
-		QString host;
+		QString ip;
 		int port;
 	};
 
@@ -27,8 +27,24 @@ namespace CubesXml
 	{
 		int id;
 		int acceptPort;
-		int keepAlive;
+		int keepAliveSec;
+		bool timeClient;
+		int networkThreads;
+		int broadcastThreads;
+		int clientsThreads;
+		bool notifyReadyClients;
+		bool notifyReadyServers;
 		QList<Connect> connects;
+	};
+
+	struct NetworkingDefaults
+	{
+		static const bool timeClient = false;
+		static const int networkThreads = 4;
+		static const int broadcastThreads = 1;
+		static const int clientsThreads = 1;
+		static const bool notifyReadyClients = true;
+		static const bool notifyReadyServers = false;
 	};
 
 	/*<Log>

@@ -785,6 +785,10 @@ QString FileItem::GetIncludePath(const QString& includeName)
 File FileItem::GetFile()
 {
     File result{};
+    result.name = GetParameterModel("BASE/NAME")->value.toString();
+    result.platform = GetParameterModel("BASE/PLATFORM")->value.toString();
+    result.path = GetParameterModel("BASE/PATH")->value.toString();
+
     result.network.id = GetParameterModel("PARAMETERS/NETWORKING/ID")->value.toInt();
     result.network.accept_port = GetParameterModel("PARAMETERS/NETWORKING/ACCEPT_PORT")->value.toInt();
     result.network.keep_alive_sec = GetParameterModel("PARAMETERS/NETWORKING/KEEP_ALIVE_SEC")->value.toInt();
