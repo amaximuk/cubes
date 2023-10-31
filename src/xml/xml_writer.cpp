@@ -13,24 +13,33 @@ using namespace CubesXml;
 
 bool Writer::Write(const QString& filename, const File& fi)
 {
-	QDomDocument document{};
-	if (!SetFile(fi, document))
-		ELRF("File info set failed");
-
 	QFile xmlFile(filename);
 	if (!xmlFile.open(QIODevice::WriteOnly | QFile::Text))
 	{
 		ELRF("File " << filename.toStdString() << " create failed");
 	}
-	QTextStream xmlContent(&xmlFile);
-	xmlContent << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>\n";
-	xmlContent << document.toString(4);
+
+	QXmlStreamWriter xmlWriter;
+	xmlWriter.setDevice(&xmlFile);
+	xmlWriter.setAutoFormatting(true);
+	xmlWriter.setAutoFormattingIndent(4);
+	xmlWriter.setCodec("windows-1251");
+	xmlWriter.writeStartDocument();
+	
+	if (!SetFile(fi, xmlWriter))
+		ELRF("File info set failed");
+
+	xmlWriter.writeEndDocument();
+
+	//QTextStream xmlContent(&xmlFile);
+	//xmlContent << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>\n";
+	//xmlContent << document.toString(4);
 	xmlFile.close();
 
 	return true;
 }
 
-bool Writer::SetFile(const File& file, QDomDocument& document)
+bool Writer::SetFile(const File& file, QXmlStreamWriter& xmlWriter)
 {
 	//<Includes>
 	//	<Include val="include1.xml">
@@ -38,133 +47,132 @@ bool Writer::SetFile(const File& file, QDomDocument& document)
 	//	</Include>
 	//</Includes>
 	
-	if (!SetIncludes(file.includes, document))
+	if (!SetIncludes(file.includes, xmlWriter))
 		ELRF("Set Includes failed");
 
-	if (!SetConfig(file.config, document))
+	if (!SetConfig(file.config, xmlWriter))
 		ELRF("Set Config failed");
 
 	return true;
 }
 
-bool Writer::SetIncludes(const QList<Include>& includes, QDomDocument& document)
+bool Writer::SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWriter)
 {
 	if (includes.size() > 0)
 	{
-		QDomElement elementIncludes = document.createElement("Includes");
-
+		xmlWriter.writeStartElement("Includes");
 		for (const auto& include : includes)
 		{
-			QDomElement elementInclude = document.createElement("Include");;
-			elementInclude.setAttribute("val", include.fileName);
+			xmlWriter.writeStartElement("Include");
+			xmlWriter.writeAttribute("name", include.name);
+			xmlWriter.writeAttribute("val", include.fileName);
 			for (const auto& variable : include.variables)
 			{
-				QDomElement elementVariable = document.createElement("Variable");;
-				elementVariable.setAttribute("name", variable.first);
-				elementVariable.setAttribute("val", variable.second);
-				elementInclude.appendChild(elementVariable);
+				xmlWriter.writeStartElement("Variable");
+				xmlWriter.writeAttribute("name", variable.first);
+				xmlWriter.writeAttribute("val", variable.second);
+				xmlWriter.writeEndElement();
 			}
-			elementIncludes.appendChild(elementInclude);
+			xmlWriter.writeEndElement();
 		}
-
-		document.appendChild(elementIncludes);
+		xmlWriter.writeEndElement();
 	}
 
 	return true;
 }
 
-bool Writer::SetConfig(const Config& config, QDomDocument& document)
+bool Writer::SetConfig(const Config& config, QXmlStreamWriter& xmlWriter)
 {
-	QDomElement elementConfig = document.createElement("Config");
+	xmlWriter.writeStartElement("Config");
 
 	if (config.networkingIsSet)
 	{
-		if (!SetNetworking(config.networking, elementConfig))
+		if (!SetNetworking(config.networking, xmlWriter))
 			ELRF("Set Networking failed");
 	}
 
 	if (config.logIsSet)
 	{
-		if (!SetLog(config.log, elementConfig))
+		if (!SetLog(config.log, xmlWriter))
 			ELRF("Set Log failed");
 	}
 
-	if (!SetUnits(config.groups, elementConfig))
+	if (!SetUnits(config.groups, xmlWriter))
 		ELRF("Set Log failed");
 
-	document.appendChild(elementConfig);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetNetworking(const Networking& networking, QDomElement& node)
+bool Writer::SetNetworking(const Networking& networking, QXmlStreamWriter& xmlWriter)
 {
-	QDomElement elementNetworking = node.ownerDocument().createElement("Networking");
-	elementNetworking.setAttribute("id", networking.id);
-	elementNetworking.setAttribute("accept_port", networking.acceptPort);
-	elementNetworking.setAttribute("keep_alive_sec", networking.keepAliveSec);
+	xmlWriter.writeStartElement("Networking");
+	xmlWriter.writeAttribute("id", QString("%1").arg(networking.id));
+	xmlWriter.writeAttribute("accept_port", QString("%1").arg(networking.acceptPort));
+	xmlWriter.writeAttribute("keep_alive_sec", QString("%1").arg(networking.keepAliveSec));
 	if (networking.timeClient != NetworkingDefaults::timeClient)
-		elementNetworking.setAttribute("time_client", networking.timeClient);
+		xmlWriter.writeAttribute("time_client", QString("%1").arg(networking.timeClient));
 	if (networking.networkThreads != NetworkingDefaults::networkThreads)
-		elementNetworking.setAttribute("network_threads", networking.networkThreads);
+		xmlWriter.writeAttribute("network_threads", QString("%1").arg(networking.networkThreads));
 	if (networking.broadcastThreads != NetworkingDefaults::broadcastThreads)
-		elementNetworking.setAttribute("broadcast_threads", networking.broadcastThreads);
+		xmlWriter.writeAttribute("broadcast_threads", QString("%1").arg(networking.broadcastThreads));
 	if (networking.clientsThreads != NetworkingDefaults::clientsThreads)
-		elementNetworking.setAttribute("clients_threads", networking.clientsThreads);
+		xmlWriter.writeAttribute("clients_threads", QString("%1").arg(networking.clientsThreads));
 	if (networking.notifyReadyClients != NetworkingDefaults::notifyReadyClients)
-		elementNetworking.setAttribute("notify_ready_clients", networking.notifyReadyClients);
+		xmlWriter.writeAttribute("notify_ready_clients", QString("%1").arg(networking.notifyReadyClients));
 	if (networking.notifyReadyServers != NetworkingDefaults::notifyReadyServers)
-		elementNetworking.setAttribute("notify_ready_servers", networking.notifyReadyServers);
+		xmlWriter.writeAttribute("notify_ready_servers", QString("%1").arg(networking.notifyReadyServers));
 
 	for (const auto& connect : networking.connects)
 	{
-		QDomElement elementConnect = node.ownerDocument().createElement("connect");
-		elementConnect.setAttribute("port", connect.port);
-		elementConnect.setAttribute("ip", connect.ip);
-		elementNetworking.appendChild(elementConnect);
+		xmlWriter.writeStartElement("connect");
+		xmlWriter.writeAttribute("port", QString("%1").arg(connect.port));
+		xmlWriter.writeAttribute("ip", QString("%1").arg(connect.ip));
+		xmlWriter.writeEndElement();
 	}
 
-	node.appendChild(elementNetworking);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetLog(const Log& log, QDomElement& node)
+bool Writer::SetLog(const Log& log, QXmlStreamWriter& xmlWriter)
 {
 	//<Log>
 	//	<Param name="LoggingLevel" type="int" val="0"/>
 	//	<Param name="TOTAL_LOG_LIMIT_MB" type="int" val="500"/>
 	//</Log>
 
-	QDomElement elementLog = node.ownerDocument().createElement("Log");
+	xmlWriter.writeStartElement("Log");
 
-	QDomElement elementLoggingLevelParam = node.ownerDocument().createElement("Param");
-	elementLoggingLevelParam.setAttribute("name", "LoggingLevel");
-	elementLoggingLevelParam.setAttribute("type", "int");
-	elementLoggingLevelParam.setAttribute("val", log.loggingLevel);
-	elementLog.appendChild(elementLoggingLevelParam);
+	xmlWriter.writeStartElement("Param");
+	xmlWriter.writeAttribute("name", "LoggingLevel");
+	xmlWriter.writeAttribute("type", "int");
+	xmlWriter.writeAttribute("val", QString("%1").arg(log.loggingLevel));
+	xmlWriter.writeEndElement();
 
-	QDomElement elementTotalLogLimitMbParam = node.ownerDocument().createElement("Param");
-	elementTotalLogLimitMbParam.setAttribute("name", "TOTAL_LOG_LIMIT_MB");
-	elementTotalLogLimitMbParam.setAttribute("type", "int");
-	elementTotalLogLimitMbParam.setAttribute("val", log.totalLogLimit);
-	elementLog.appendChild(elementTotalLogLimitMbParam);
+	xmlWriter.writeStartElement("Param");
+	xmlWriter.writeAttribute("name", "TOTAL_LOG_LIMIT_MB");
+	xmlWriter.writeAttribute("type", "int");
+	xmlWriter.writeAttribute("val", QString("%1").arg(log.totalLogLimit));
+	xmlWriter.writeEndElement();
 
 	if (log.logDir != "")
 	{
-		QDomElement elementLogDirParam = node.ownerDocument().createElement("Param");
-		elementLogDirParam.setAttribute("name", "LogDir");
-		elementLogDirParam.setAttribute("type", "str");
-		elementLogDirParam.setAttribute("val", log.logDir);
-		elementLog.appendChild(elementLogDirParam);
+		xmlWriter.writeStartElement("Param");
+		xmlWriter.writeAttribute("name", "LogDir");
+		xmlWriter.writeAttribute("type", "str");
+		xmlWriter.writeAttribute("val", log.logDir);
+		xmlWriter.writeEndElement();
 	}
 
-	node.appendChild(elementLog);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetUnits(const QList<Group>& groups, QDomElement& node)
+bool Writer::SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter)
 {
 	//<Units>
 	//	<Group>
@@ -174,53 +182,41 @@ bool Writer::SetUnits(const QList<Group>& groups, QDomElement& node)
 	//	</Group>
 	//</Units>
 	
-	QDomElement elementUnits = node.ownerDocument().createElement("Units");
+	xmlWriter.writeStartElement("Units");
+
 	for (const auto& group : groups)
 	{
-		if (!SetGroup(group, elementUnits))
+		if (!SetGroup(group, xmlWriter))
 			ELRF("Set Group failed");
-
-		//QDomElement elementGroup = node.ownerDocument().createElement("Group");
-
-		//QDomElement elementGroupParam = node.ownerDocument().createElement("Param");
-		//elementGroupParam.setAttribute("name", "Path");
-		//elementGroupParam.setAttribute("type", "str");
-		//elementGroupParam.setAttribute("val", group.path);
-		//elementGroup.appendChild(elementGroupParam);
-
-		//if (!SetGroup(group, elementGroup))
-		//	ELRF("Set Group failed");
-
-		//elementUnits.appendChild(elementGroup);
 	}
 
-	node.appendChild(elementUnits);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetGroup(const Group& group, QDomElement& node)
+bool Writer::SetGroup(const Group& group, QXmlStreamWriter& xmlWriter)
 {
-	QDomElement elementGroup = node.ownerDocument().createElement("Group");
+	xmlWriter.writeStartElement("Group");
 
-	QDomElement elementGroupParam = node.ownerDocument().createElement("Param");
-	elementGroupParam.setAttribute("name", "Path");
-	elementGroupParam.setAttribute("type", "str");
-	elementGroupParam.setAttribute("val", group.path);
-	elementGroup.appendChild(elementGroupParam);
+	xmlWriter.writeStartElement("Param");
+	xmlWriter.writeAttribute("name", "Path");
+	xmlWriter.writeAttribute("type", "str");
+	xmlWriter.writeAttribute("val", group.path);
+	xmlWriter.writeEndElement();
 
 	for (const auto& unit : group.units)
 	{
-		if (!SetUnit(unit, elementGroup))
+		if (!SetUnit(unit, xmlWriter))
 			ELRF("Set Unit failed");
 	}
 
-	node.appendChild(elementGroup);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetUnit(const Unit& unit, QDomElement& node)
+bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 {
 	//<Unit Name="Configurator Sigma" Id="sigma_poly" X="20" Y="140" Z="0">
 	//	<Param name="DRIVER_NAME" type="str" val="Driver" depends="true"/>
@@ -231,16 +227,16 @@ bool Writer::SetUnit(const Unit& unit, QDomElement& node)
 	//	</Array>
 	//</Unit>
 
-	QDomElement elementUnit = node.ownerDocument().createElement("Unit");
-	elementUnit.setAttribute("Name", unit.name);
-	elementUnit.setAttribute("Id", unit.id);
-	elementUnit.setAttribute("X", unit.x);
-	elementUnit.setAttribute("Y", unit.y);
-	elementUnit.setAttribute("Z", unit.z);
+	xmlWriter.writeStartElement("Unit");
+	xmlWriter.writeAttribute("Name", unit.name);
+	xmlWriter.writeAttribute("Id", unit.id);
+	xmlWriter.writeAttribute("X", QString("%1").arg(unit.x));
+	xmlWriter.writeAttribute("Y", QString("%1").arg(unit.y));
+	xmlWriter.writeAttribute("Z", QString("%1").arg(unit.z));
 
 	for (const auto& param : unit.params)
 	{
-		if (!SetParam(param, elementUnit))
+		if (!SetParam(param, xmlWriter))
 			ELRF("Set Param failed");
 	}
 
@@ -248,7 +244,7 @@ bool Writer::SetUnit(const Unit& unit, QDomElement& node)
 	{
 		if (array.name != "DEPENDS")
 		{
-			if (!SetArray(array, elementUnit))
+			if (!SetArray(array, xmlWriter))
 				ELRF("Set Param failed");
 		}
 	}
@@ -260,33 +256,33 @@ bool Writer::SetUnit(const Unit& unit, QDomElement& node)
 			QList<QString> depends;
 			for (const auto& depend : array.items)
 				depends.push_back(depend.val);
-			if (!SetDepends(depends, elementUnit))
+			if (!SetDepends(depends, xmlWriter))
 				ELRF("Set Depends failed");
 		}
 	}
 
-	node.appendChild(elementUnit);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetParam(const Param& param, QDomElement& node)
+bool Writer::SetParam(const Param& param, QXmlStreamWriter& xmlWriter)
 {
 	//<Param name="DRIVER_NAME" type="str" val="Driver" depends="true"/>
 
-	QDomElement elementParam = node.ownerDocument().createElement("Param");
-	elementParam.setAttribute("name", param.name);
-	elementParam.setAttribute("type", param.type);
-	elementParam.setAttribute("val", param.val);
+	xmlWriter.writeStartElement("Param");
+	xmlWriter.writeAttribute("name", param.name);
+	xmlWriter.writeAttribute("type", param.type);
+	xmlWriter.writeAttribute("val", param.val);
 	if (param.depends)
-		elementParam.setAttribute("depends", param.depends);
+		xmlWriter.writeAttribute("depends", QString("%1").arg(param.depends));
 
-	node.appendChild(elementParam);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetArray(const Array& array, QDomElement& node)
+bool Writer::SetArray(const Array& array, QXmlStreamWriter& xmlWriter)
 {
 	//<Array name="CHANNELS">
 	//	<Item>
@@ -294,291 +290,72 @@ bool Writer::SetArray(const Array& array, QDomElement& node)
 	//	</Item>
 	//</Array>
 
-	QDomElement elementArray = node.ownerDocument().createElement("Array");
-	elementArray.setAttribute("name", array.name);
+	xmlWriter.writeStartElement("Array");
+	xmlWriter.writeAttribute("name", array.name);
 	if (array.type != "")
-		elementArray.setAttribute("type", array.type);
+		xmlWriter.writeAttribute("type", array.type);
 
 	for (const auto& item : array.items)
 	{
-		if (!SetItem(item, elementArray))
-			ELRF("Set Param failed");
+		if (!SetItem(item, xmlWriter))
+			ELRF("Set Item failed");
 	}
 
-	node.appendChild(elementArray);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetDepends(const QList<QString>& depends, QDomElement& node)
+bool Writer::SetDepends(const QList<QString>& depends, QXmlStreamWriter& xmlWriter)
 {
 	//<Depends>
 	//	<Item name="FL_DB_PG_1"/>
 	//	<Item name="LRK_1"/>
 	//</Depends>
 
-	QDomElement elementDepends = node.ownerDocument().createElement("Depends");
+	xmlWriter.writeStartElement("Depends");
 
 	for (const auto& item : depends)
 	{
-		QDomElement elementItem = node.ownerDocument().createElement("Item");
-		elementItem.setAttribute("name", item);
-		elementDepends.appendChild(elementItem);
+		xmlWriter.writeStartElement("Item");
+		xmlWriter.writeAttribute("name", item);
+		xmlWriter.writeEndElement();
 	}
 
-	node.appendChild(elementDepends);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
 
-bool Writer::SetItem(const Item& item, QDomElement& node)
+bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 {
 	//<Array name="BlockingStates" type="int">
 	//	<Item val="0"/>
 	//	<Item val="1"/>
 	//</Array>
 
-	QDomElement elementItem = node.ownerDocument().createElement("Item");
+	xmlWriter.writeStartElement("Item");
 
 	if (item.params.size() == 0 && item.arrays.size() == 0)
 	{
-		elementItem.setAttribute("val", item.val);
+		xmlWriter.writeAttribute("val", item.val);
 	}
 	else
 	{
 		for (const auto& param : item.params)
 		{
-			if (!SetParam(param, elementItem))
+			if (!SetParam(param, xmlWriter))
 				ELRF("Set Param failed");
 		}
 
 		for (const auto& array : item.arrays)
 		{
-			if (!SetArray(array, elementItem))
+			if (!SetArray(array, xmlWriter))
 				ELRF("Set Array failed");
 		}
 	}
 
-	node.appendChild(elementItem);
+	xmlWriter.writeEndElement();
 
 	return true;
 }
-
-QList<QDomElement> Writer::ElementsByTagName(const QDomElement& node, const QString& tagname)
-{
-	QList<QDomElement> list;
-
-	QDomNode i = node.firstChild();
-	while (!i.isNull())
-	{
-		QDomElement ei = i.toElement();
-		if (!ei.isNull())
-		{
-			if (ei.tagName() == tagname)
-				list.push_back(ei);
-		}
-		i = i.nextSibling();
-	}
-
-	return list;
-}
-
-int Writer::GetItemsCount(Unit& unit, const QString& id)
-{
-	QList<QString> ss = id.split("/");
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != "PARAMETERS")
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
-			{
-				int index = s.mid(5).toInt();
-				if (array->items.size() > index)
-				{
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
-				}
-				else
-					return -1;
-			}
-			else
-				return -1;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					return -1;
-				}
-			}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-
-	if (array != nullptr)
-		return array->items.size();
-
-	return -1;
-}
-
-Param* Writer::GetParam(Unit& unit, const QString& id)
-{
-	QList<QString> ss = id.split("/");
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != "PARAMETERS")
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
-			{
-				int index = s.mid(5).toInt();
-				if (array->items.size() > index)
-				{
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
-				}
-				else
-					return nullptr;
-			}
-			else
-				return nullptr;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					if (ss.size() != 1)
-						return nullptr;
-					return &p;
-				}
-			}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-
-Item* Writer::GetItem(Unit& unit, const QString& id)
-{
-	QList<QString> ss = id.split("/");
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != "PARAMETERS")
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
-			{
-				int index = s.mid(5).toInt();
-				if (array->items.size() > index)
-				{
-					if (ss.size() == 1)
-						return &array->items[index];
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
-				}
-				else
-					return nullptr;
-			}
-			else
-				return nullptr;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			//for (auto& p : *params)
-			//{
-			//	if (s == p.name)
-			//	{
-			//		if (ss.size() != 1)
-			//			return nullptr;
-			//		return &p;
-			//	}
-			//}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-
-//QList<QString> parser::getConnections(Unit u)
-//{
-//	return {};
-//}
-//
-//QList<QString> parser::getDependencies(Unit u)
-//{
-//	return {};
-//}
