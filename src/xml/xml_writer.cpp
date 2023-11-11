@@ -275,7 +275,7 @@ bool Writer::SetParam(const Param& param, QXmlStreamWriter& xmlWriter)
 	xmlWriter.writeAttribute("type", param.type);
 	xmlWriter.writeAttribute("val", param.val);
 	if (param.depends)
-		xmlWriter.writeAttribute("depends", QString("%1").arg(param.depends));
+		xmlWriter.writeAttribute("depends", QVariant(param.depends).toString());
 
 	xmlWriter.writeEndElement();
 
