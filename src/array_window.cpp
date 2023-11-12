@@ -48,13 +48,13 @@ ArrayWindow::ArrayWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
-    fileItemsManager_ = new CubesFile::FileItemsManager(this);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &ArrayWindow::FileNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &ArrayWindow::FileListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &ArrayWindow::FileIncludeNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &ArrayWindow::FileIncludesListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &ArrayWindow::FileVariableNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &ArrayWindow::FileVariablesListChanged);
+    //fileItemsManager_ = new CubesFile::FileItemsManager(this);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &ArrayWindow::FileNameChanged);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &ArrayWindow::FileListChanged);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &ArrayWindow::FileIncludeNameChanged);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &ArrayWindow::FileIncludesListChanged);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &ArrayWindow::FileVariableNameChanged);
+    //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &ArrayWindow::FileVariablesListChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
@@ -68,7 +68,7 @@ ArrayWindow::ArrayWindow(QWidget *parent)
 
     CreateUi();
 
-    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"));
+    //fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"));
 }
 
 ArrayWindow::~ArrayWindow()
@@ -114,12 +114,12 @@ void ArrayWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitP
 
 void ArrayWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
 {
-    includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    //includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
 }
 
 void ArrayWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
 {
-    variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
+    //variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
 }
 
 bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
@@ -147,7 +147,8 @@ bool ArrayWindow::GetPropetiesForDrawing(const uint32_t propertiesId, Properties
     //pfd.color = GetFileColor(pi->GetFileName());
     if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
         return false;
-    pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
+    //pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
+    pfd.color = QColor("Red");
     return true;
 }
 
@@ -196,41 +197,41 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
         name = baseName.left(sharp_index);
     QString varName = name;
 
-    {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& item : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
+    //{
+    //    QList<QPair<QString, QString>> variables;
+    //    for (const auto& item : scene_->items())
+    //    {
+    //        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //        if (pi->GetGroupName() != "<not selected>")
+    //        {
+    //            variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+    //                pi->GetGroupName());
+    //        }
+    //    }
 
-        for (const auto& v : variables)
-        {
-            QString replace = QString("@%1@").arg(v.first);
-            varName.replace(replace, v.second);
-        }
-    }
+    //    for (const auto& v : variables)
+    //    {
+    //        QString replace = QString("@%1@").arg(v.first);
+    //        varName.replace(replace, v.second);
+    //    }
+    //}
     QString newName = varName;
 
     int counter = 0;
     while (true)
     {
-        QList<QPair<QString, QString>> variables;
-        for (const auto& pi : scene_->items())
-        {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            if (pi->GetGroupName() != "<not selected>")
-            {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                    pi->GetGroupName());
-            }
-        }
+        //QList<QPair<QString, QString>> variables;
+        //for (const auto& pi : scene_->items())
+        //{
+        //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(pi);
+        //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        //    if (pi->GetGroupName() != "<not selected>")
+        //    {
+        //        variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+        //            pi->GetGroupName());
+        //    }
+        //}
 
         bool found = false;
         for (const auto& item : scene_->items())
@@ -238,11 +239,11 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
             CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             QString realName = pi->GetName();
-            for (const auto& v : variables)
-            {
-                QString replace = QString("@%1@").arg(v.first);
-                realName.replace(replace, v.second);
-            }
+            //for (const auto& v : variables)
+            //{
+            //    QString replace = QString("@%1@").arg(v.first);
+            //    realName.replace(replace, v.second);
+            //}
             if (realName == newName)
             {
                 found = true;
@@ -388,63 +389,64 @@ QWidget* ArrayWindow::CreateMainWidget()
 
 QWidget* ArrayWindow::CreateLogWidget()
 {
-    table_view_log_ = new QTableView;
+    //table_view_log_ = new QTableView;
 
-    log_table_model_ = new CubeLog::LogTableModel;
-    sort_filter_model_ = new CubeLog::SortFilterModel;
-    sort_filter_model_->setSourceModel(log_table_model_);
-    sort_filter_model_->SetFilter({ CubeLog::MessageType::error, CubeLog::MessageType::warning, CubeLog::MessageType::information });
+    //log_table_model_ = new CubeLog::LogTableModel;
+    //sort_filter_model_ = new CubeLog::SortFilterModel;
+    //sort_filter_model_->setSourceModel(log_table_model_);
+    //sort_filter_model_->SetFilter({ CubeLog::MessageType::error, CubeLog::MessageType::warning, CubeLog::MessageType::information });
 
-    table_view_log_->setModel(sort_filter_model_);
-    table_view_log_->setSortingEnabled(true);
-    table_view_log_->verticalHeader()->hide();
-    table_view_log_->horizontalHeader()->setHighlightSections(false);
-    //table_view_log_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table_view_log_->horizontalHeader()->setStretchLastSection(true);
-    table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
-    //table_view_log_->sortByColumn(0, Qt::AscendingOrder);
-    table_view_log_->resizeColumnsToContents();
+    //table_view_log_->setModel(sort_filter_model_);
+    //table_view_log_->setSortingEnabled(true);
+    //table_view_log_->verticalHeader()->hide();
+    //table_view_log_->horizontalHeader()->setHighlightSections(false);
+    ////table_view_log_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    //table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
+    ////table_view_log_->sortByColumn(0, Qt::AscendingOrder);
+    //table_view_log_->resizeColumnsToContents();
 
-    QToolButton* buttonError = new QToolButton;
-    buttonError->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    buttonError->setCheckable(true);
-    buttonError->setIcon(QIcon(":/images/error.png"));
-    buttonError->setText(QString::fromLocal8Bit("Ошибка"));
-    buttonError->setChecked(true);
-    qDebug() << connect(buttonError, &QToolButton::clicked, this, &ArrayWindow::OnErrorButtonClicked);
-    QToolButton* buttonWarning = new QToolButton;
-    buttonWarning->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    buttonWarning->setCheckable(true);
-    buttonWarning->setIcon(QIcon(":/images/warning.png"));
-    buttonWarning->setText(QString::fromLocal8Bit("Предупреждение"));
-    buttonWarning->setChecked(true);
-    qDebug() << connect(buttonWarning, &QToolButton::clicked, this, &ArrayWindow::OnWarningButtonClicked);
-    QToolButton* buttonInformation = new QToolButton;
-    buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    buttonInformation->setCheckable(true);
-    buttonInformation->setIcon(QIcon(":/images/information.png"));
-    buttonInformation->setText(QString::fromLocal8Bit("Информация"));
-    buttonInformation->setChecked(true);
-    qDebug() << connect(buttonInformation, &QToolButton::clicked, this, &ArrayWindow::OnInformationButtonClicked);
+    //QToolButton* buttonError = new QToolButton;
+    //buttonError->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //buttonError->setCheckable(true);
+    //buttonError->setIcon(QIcon(":/images/error.png"));
+    //buttonError->setText(QString::fromLocal8Bit("Ошибка"));
+    //buttonError->setChecked(true);
+    //qDebug() << connect(buttonError, &QToolButton::clicked, this, &ArrayWindow::OnErrorButtonClicked);
+    //QToolButton* buttonWarning = new QToolButton;
+    //buttonWarning->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //buttonWarning->setCheckable(true);
+    //buttonWarning->setIcon(QIcon(":/images/warning.png"));
+    //buttonWarning->setText(QString::fromLocal8Bit("Предупреждение"));
+    //buttonWarning->setChecked(true);
+    //qDebug() << connect(buttonWarning, &QToolButton::clicked, this, &ArrayWindow::OnWarningButtonClicked);
+    //QToolButton* buttonInformation = new QToolButton;
+    //buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //buttonInformation->setCheckable(true);
+    //buttonInformation->setIcon(QIcon(":/images/information.png"));
+    //buttonInformation->setText(QString::fromLocal8Bit("Информация"));
+    //buttonInformation->setChecked(true);
+    //qDebug() << connect(buttonInformation, &QToolButton::clicked, this, &ArrayWindow::OnInformationButtonClicked);
 
-    QHBoxLayout* buttonsLayout = new QHBoxLayout;
-    buttonsLayout->addWidget(buttonError);
-    buttonsLayout->addWidget(buttonWarning);
-    buttonsLayout->addWidget(buttonInformation);
-    buttonsLayout->addStretch();
-    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+    //QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    //buttonsLayout->addWidget(buttonError);
+    //buttonsLayout->addWidget(buttonWarning);
+    //buttonsLayout->addWidget(buttonInformation);
+    //buttonsLayout->addStretch();
+    //buttonsLayout->setContentsMargins(0, 0, 0, 0);
 
-    QWidget* buttonsWidget = new QWidget;
-    buttonsWidget->setLayout(buttonsLayout);
+    //QWidget* buttonsWidget = new QWidget;
+    //buttonsWidget->setLayout(buttonsLayout);
 
-    QWidget* mainWidget = new QWidget;
-    QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(buttonsWidget);
-    mainLayout->addWidget(table_view_log_);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainWidget->setLayout(mainLayout);
-    return mainWidget;
+    //QWidget* mainWidget = new QWidget;
+    //QVBoxLayout* mainLayout = new QVBoxLayout;
+    //mainLayout->addWidget(buttonsWidget);
+    //mainLayout->addWidget(table_view_log_);
+    //mainLayout->setContentsMargins(0, 0, 0, 0);
+    //mainWidget->setLayout(mainLayout);
+    //return mainWidget;
+    return nullptr;
 }
 
 void ArrayWindow::CreateScene()
@@ -469,30 +471,33 @@ void ArrayWindow::CreateView()
 
 void ArrayWindow::CreateTreeView()
 {
-    tree_ = new QTreeView();
-    tree_->setDragEnabled(true);
-    tree_->setHeaderHidden(true);
-    tree_->setMinimumWidth(300);
+    //tree_ = new QTreeView();
+    //tree_->setDragEnabled(true);
+    //tree_->setHeaderHidden(true);
+    //tree_->setMinimumWidth(300);
 }
 
 QWidget* ArrayWindow::CreatePropertiesPanelWidget()
 {
     QWidget* propertiesPanelWidget = new QWidget;
 
-    QWidget* filesWidget = fileItemsManager_->GetWidget();
-    QWidget* propertiesWidget = propertiesItemsManager_->GetWidget();
-    //QWidget* hintWidget = CreateHintWidget();
+    //QWidget* filesWidget = fileItemsManager_->GetWidget();
+    //QWidget* propertiesWidget = propertiesItemsManager_->GetWidget();
+    ////QWidget* hintWidget = CreateHintWidget();
 
-    QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
-    tabVSplitter->addWidget(filesWidget);
-    tabVSplitter->addWidget(propertiesWidget);
-    //tabVSplitter->addWidget(hintWidget);
-    tabVSplitter->setStretchFactor(0, 0);
-    tabVSplitter->setStretchFactor(1, 1);
-    //tabVSplitter->setStretchFactor(2, 0);
+    //QSplitter* tabVSplitter = new QSplitter(Qt::Vertical);
+    //tabVSplitter->addWidget(filesWidget);
+    //tabVSplitter->addWidget(propertiesWidget);
+    ////tabVSplitter->addWidget(hintWidget);
+    //tabVSplitter->setStretchFactor(0, 0);
+    //tabVSplitter->setStretchFactor(1, 1);
+    ////tabVSplitter->setStretchFactor(2, 0);
+
+    QWidget* propertiesWidget = propertiesItemsManager_->GetWidget();
 
     QVBoxLayout* propertiesPaneLayout = new QVBoxLayout;
-    propertiesPaneLayout->addWidget(tabVSplitter);
+    propertiesPaneLayout->addWidget(propertiesWidget);
+    //propertiesPaneLayout->addWidget(tabVSplitter);
     propertiesPaneLayout->setContentsMargins(0, 0, 0, 0);
 
     propertiesPanelWidget->setLayout(propertiesPaneLayout);
@@ -516,329 +521,329 @@ QWidget* ArrayWindow::CreatePropertiesPanelWidget()
 
 void ArrayWindow::FillTreeView()
 {
-    TreeItemModel* model = new TreeItemModel();
+    //TreeItemModel* model = new TreeItemModel();
 
-    QMap<QString, QSet<QString>> categoriesMap;
-    for (const auto& up : unitParameters_)
-    {
-        QString category = "Default";
-        if (up.fileInfo.info.category != "")
-            category = QString::fromStdString(up.fileInfo.info.category).toLower();
-        categoriesMap[category].insert(QString::fromStdString(up.fileInfo.info.id));
-    }
-
-    int row = 0;
-    for (const auto& cat : categoriesMap.toStdMap())
-    {
-        QStandardItem* item = new QStandardItem(cat.first);
-        item->setEditable(false);
-        item->setDragEnabled(false);
-        model->setItem(row, 0, item);
-        int col = 0;
-        for (const auto& id : cat.second)
-        {
-            QStandardItem* child = new QStandardItem(id);
-            child->setEditable(false);
-
-            QPixmap px;
-            bool loaded = false;
-            if (unitParameters_[id].fileInfo.info.pictogram != "")
-            {
-                std::string s = base64_decode(unitParameters_[id].fileInfo.info.pictogram);
-                QByteArray ba(s.c_str(), static_cast<int>(s.size()));
-                try
-                {
-                    loaded = px.loadFromData(ba);
-                }
-                catch (...)
-                {
-                    loaded = false;
-                }
-            }
-            if (!loaded)
-                px.load(":/images/ice.png");
-            child->setIcon(QIcon(px));
-            
-            //child->setData(QPoint(row, col), Qt::UserRole + 1);
-            item->appendRow(child);
-            col++;
-        }
-        model->setItem(row, 0, item);
-        row++;
-    }
+    //QMap<QString, QSet<QString>> categoriesMap;
+    //for (const auto& up : unitParameters_)
     //{
-    //    QStandardItem* item = new QStandardItem(QString::fromLocal8Bit("Служебные"));
+    //    QString category = "Default";
+    //    if (up.fileInfo.info.category != "")
+    //        category = QString::fromStdString(up.fileInfo.info.category).toLower();
+    //    categoriesMap[category].insert(QString::fromStdString(up.fileInfo.info.id));
+    //}
+
+    //int row = 0;
+    //for (const auto& cat : categoriesMap.toStdMap())
+    //{
+    //    QStandardItem* item = new QStandardItem(cat.first);
     //    item->setEditable(false);
     //    item->setDragEnabled(false);
     //    model->setItem(row, 0, item);
-    //    QStandardItem* child = new QStandardItem(QString::fromLocal8Bit("Группа"));
-    //    child->setEditable(false);
-
-    //    QPixmap px;
-    //    px.load(":/images/module.png");
-    //    child->setIcon(QIcon(px));
-    //    item->appendRow(child);
-    //}
-
-    tree_->setModel(model);
-    tree_->expandAll();
-
-    //tree_item_model* model = new tree_item_model();
-    ////QStandardItemModel* model = new QStandardItemModel( 5, 1 );
-    //for (int r = 0; r < 5; r++)
-    //    for (int c = 0; c < 1; c++)
+    //    int col = 0;
+    //    for (const auto& id : cat.second)
     //    {
-    //        QStandardItem* item = new QStandardItem(QString("Category %0").arg(r));
-    //        item->setEditable(false);
-    //        item->setDragEnabled(false);
-    //        if (c == 0)
-    //            for (int i = 0; i < 3; i++)
+    //        QStandardItem* child = new QStandardItem(id);
+    //        child->setEditable(false);
+
+    //        QPixmap px;
+    //        bool loaded = false;
+    //        if (unitParameters_[id].fileInfo.info.pictogram != "")
+    //        {
+    //            std::string s = base64_decode(unitParameters_[id].fileInfo.info.pictogram);
+    //            QByteArray ba(s.c_str(), static_cast<int>(s.size()));
+    //            try
     //            {
-    //                QStandardItem* child = new QStandardItem(QString("Item %0").arg(i));
-    //                child->setEditable(false);
-
-    //                QFile f("c:/QtProjects/cubes/resource/plus.png");
-    //                if (!f.open(QIODevice::ReadOnly))
-    //                    return; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //                QByteArray ba = f.readAll();
-    //                QPixmap px;
-    //                bool isLoaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
-    //                QIcon ico(px);
-    //                child->setIcon(ico);
-    //                //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
-
-    //                child->setData(QPoint(r, i), Qt::UserRole + 1);
-
-    //                item->appendRow(child);
+    //                loaded = px.loadFromData(ba);
     //            }
-
-    //        model->setItem(r, c, item);
+    //            catch (...)
+    //            {
+    //                loaded = false;
+    //            }
+    //        }
+    //        if (!loaded)
+    //            px.load(":/images/ice.png");
+    //        child->setIcon(QIcon(px));
+    //        
+    //        //child->setData(QPoint(row, col), Qt::UserRole + 1);
+    //        item->appendRow(child);
+    //        col++;
     //    }
+    //    model->setItem(row, 0, item);
+    //    row++;
+    //}
+    ////{
+    ////    QStandardItem* item = new QStandardItem(QString::fromLocal8Bit("Служебные"));
+    ////    item->setEditable(false);
+    ////    item->setDragEnabled(false);
+    ////    model->setItem(row, 0, item);
+    ////    QStandardItem* child = new QStandardItem(QString::fromLocal8Bit("Группа"));
+    ////    child->setEditable(false);
+
+    ////    QPixmap px;
+    ////    px.load(":/images/module.png");
+    ////    child->setIcon(QIcon(px));
+    ////    item->appendRow(child);
+    ////}
 
     //tree_->setModel(model);
+    //tree_->expandAll();
+
+    ////tree_item_model* model = new tree_item_model();
+    //////QStandardItemModel* model = new QStandardItemModel( 5, 1 );
+    ////for (int r = 0; r < 5; r++)
+    ////    for (int c = 0; c < 1; c++)
+    ////    {
+    ////        QStandardItem* item = new QStandardItem(QString("Category %0").arg(r));
+    ////        item->setEditable(false);
+    ////        item->setDragEnabled(false);
+    ////        if (c == 0)
+    ////            for (int i = 0; i < 3; i++)
+    ////            {
+    ////                QStandardItem* child = new QStandardItem(QString("Item %0").arg(i));
+    ////                child->setEditable(false);
+
+    ////                QFile f("c:/QtProjects/cubes/resource/plus.png");
+    ////                if (!f.open(QIODevice::ReadOnly))
+    ////                    return; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ////                QByteArray ba = f.readAll();
+    ////                QPixmap px;
+    ////                bool isLoaded = px.loadFromData(ba, "PNG", Qt::AutoColor);
+    ////                QIcon ico(px);
+    ////                child->setIcon(ico);
+    ////                //child->setIcon(QIcon("c:/QtProjects/cubes/resource/plus.png"));
+
+    ////                child->setData(QPoint(r, i), Qt::UserRole + 1);
+
+    ////                item->appendRow(child);
+    ////            }
+
+    ////        model->setItem(r, c, item);
+    ////    }
+
+    ////tree_->setModel(model);
 }
 
 void ArrayWindow::FillParametersInfo()
 {
-    QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
-    QStringList platformDirs;
-    QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-    while (directories.hasNext()) {
-        directories.next();
-        platformDirs << directories.filePath();
-    }
+    //QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
+    //QStringList platformDirs;
+    //QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+    //while (directories.hasNext()) {
+    //    directories.next();
+    //    platformDirs << directories.filePath();
+    //}
 
-    for (const auto& platformDir : platformDirs)
-    {
-        QString ymlPath = QDir(platformDir).filePath("yml");
-        if (QFileInfo(ymlPath).exists() && QFileInfo(ymlPath).isDir())
-        {
-            QStringList propFiles = QDir(ymlPath).entryList(QStringList() << "*.yml" << "*.json", QDir::Files);
-            foreach(QString filename, propFiles)
-            {
-                QString fullPath = QDir(ymlPath).filePath(filename);
-                parameters_compiler::file_info fi{};
-                if (!yaml::parser::parse(fullPath.toStdString(), fi))
-                {
-                    CubeLog::LogMessage m{};
-                    m.type = CubeLog::MessageType::error;
-                    m.source = filename;
-                    m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    log_table_model_->AddMessage(m);
-                }
+    //for (const auto& platformDir : platformDirs)
+    //{
+    //    QString ymlPath = QDir(platformDir).filePath("yml");
+    //    if (QFileInfo(ymlPath).exists() && QFileInfo(ymlPath).isDir())
+    //    {
+    //        QStringList propFiles = QDir(ymlPath).entryList(QStringList() << "*.yml" << "*.json", QDir::Files);
+    //        foreach(QString filename, propFiles)
+    //        {
+    //            QString fullPath = QDir(ymlPath).filePath(filename);
+    //            parameters_compiler::file_info fi{};
+    //            if (!yaml::parser::parse(fullPath.toStdString(), fi))
+    //            {
+    //                CubeLog::LogMessage m{};
+    //                m.type = CubeLog::MessageType::error;
+    //                m.source = filename;
+    //                m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
+    //                log_table_model_->AddMessage(m);
+    //            }
 
-                // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
-                // Принцип обработки такой же как и у остальных параметров
-                if (fi.info.id != "group" && fi.info.id != "group_mock")
-                {
-                    parameters_compiler::parameter_info pi{};
-                    pi.type = "array<string>";
-                    pi.name = "DEPENDS";
-                    pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
-                    pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
-                    pi.required = false;
-                    pi.default_ = QString::fromLocal8Bit("не задано").toStdString();
-                    fi.parameters.push_back(std::move(pi));
-                }
+    //            // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
+    //            // Принцип обработки такой же как и у остальных параметров
+    //            if (fi.info.id != "group" && fi.info.id != "group_mock")
+    //            {
+    //                parameters_compiler::parameter_info pi{};
+    //                pi.type = "array<string>";
+    //                pi.name = "DEPENDS";
+    //                pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
+    //                pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
+    //                pi.required = false;
+    //                pi.default_ = QString::fromLocal8Bit("не задано").toStdString();
+    //                fi.parameters.push_back(std::move(pi));
+    //            }
 
-                auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
-                up.fileInfo = fi;
-                up.platforms.insert(QFileInfo(platformDir).baseName());
-            }
-        }
-    }
+    //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
+    //            up.fileInfo = fi;
+    //            up.platforms.insert(QFileInfo(platformDir).baseName());
+    //        }
+    //    }
+    //}
 }
 
 // Units
 bool ArrayWindow::AddMainFile(CubesXml::File& file)
 {
-    // Не очищаем, вдруг там уже что-то поменяно
-    //if (scene_->items().size() == 0)
-    //    fileItemsManager_->Clear();
+    //// Не очищаем, вдруг там уже что-то поменяно
+    ////if (scene_->items().size() == 0)
+    ////    fileItemsManager_->Clear();
 
-    //QString fileName = QFileInfo(file.fileName).fileName();
+    ////QString fileName = QFileInfo(file.fileName).fileName();
 
-    QString fileName;
-    fileItemsManager_->Create(file.fileName, fileName);
-    fileItemsManager_->Select(fileName);
+    //QString fileName;
+    //fileItemsManager_->Create(file.fileName, fileName);
+    //fileItemsManager_->Select(fileName);
 
-    for (const auto& include : file.includes)
-        fileItemsManager_->AddFileInclude(fileName, include.fileName, include.variables);
-    //for (int i = 0; i < file.includes.size(); i++)
-    //{
-    //    QList<QPair<QString, QString>> variables;
-    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
-    //        variables.push_back({ kvp.first, kvp.second });
-    //}
+    //for (const auto& include : file.includes)
+    //    fileItemsManager_->AddFileInclude(fileName, include.fileName, include.variables);
+    ////for (int i = 0; i < file.includes.size(); i++)
+    ////{
+    ////    QList<QPair<QString, QString>> variables;
+    ////    for (const auto& kvp : file.includes[i].variables.toStdMap())
+    ////        variables.push_back({ kvp.first, kvp.second });
+    ////}
 
-    //QStringList fileNames = fileItemsManager_->GetFileNames();
-    //for (auto& item : scene_->items())
-    //{
-    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    //    pi->SetFileNames(fileNames);
-    //}
+    ////QStringList fileNames = fileItemsManager_->GetFileNames();
+    ////for (auto& item : scene_->items())
+    ////{
+    ////    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    ////    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    ////    pi->SetFileNames(fileNames);
+    ////}
 
-    // Convert includes into unit
-    //CubesXml::Group g{};
-    //g.path = "service";
-    //for (int i = 0; i < file.includes.size(); i++)
-    //{
-    //    CubesXml::Unit u{};
-    //    u.id = "group";
-    //    u.name = QString::fromLocal8Bit("Группа %1").arg(i);
-    //    CubesXml::Param p{};
-    //    p.name = "FILE_PATH";
-    //    p.type = "str";
-    //    p.val = file.includes[i].fileName;
-    //    u.params.push_back(std::move(p));
-    //    CubesXml::Array a{};
-    //    a.name = "VARIABLES";
-    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
-    //    {
-    //        CubesXml::Item i1{};
-    //        CubesXml::Param p1{};
-    //        p1.name = "NAME";
-    //        p1.type = "str";
-    //        p1.val = kvp.first;
-    //        i1.params.push_back(std::move(p1));
-    //        CubesXml::Param p2{};
-    //        p2.name = "VALUE";
-    //        p2.type = "str";
-    //        p2.val = kvp.second;
-    //        i1.params.push_back(std::move(p2));
-    //        a.items.push_back(std::move(i1));
-    //    }
-    //    u.arrays.push_back(std::move(a));
-    //    g.units.push_back(std::move(u));
-    //}
+    //// Convert includes into unit
+    ////CubesXml::Group g{};
+    ////g.path = "service";
+    ////for (int i = 0; i < file.includes.size(); i++)
+    ////{
+    ////    CubesXml::Unit u{};
+    ////    u.id = "group";
+    ////    u.name = QString::fromLocal8Bit("Группа %1").arg(i);
+    ////    CubesXml::Param p{};
+    ////    p.name = "FILE_PATH";
+    ////    p.type = "str";
+    ////    p.val = file.includes[i].fileName;
+    ////    u.params.push_back(std::move(p));
+    ////    CubesXml::Array a{};
+    ////    a.name = "VARIABLES";
+    ////    for (const auto& kvp : file.includes[i].variables.toStdMap())
+    ////    {
+    ////        CubesXml::Item i1{};
+    ////        CubesXml::Param p1{};
+    ////        p1.name = "NAME";
+    ////        p1.type = "str";
+    ////        p1.val = kvp.first;
+    ////        i1.params.push_back(std::move(p1));
+    ////        CubesXml::Param p2{};
+    ////        p2.name = "VALUE";
+    ////        p2.type = "str";
+    ////        p2.val = kvp.second;
+    ////        i1.params.push_back(std::move(p2));
+    ////        a.items.push_back(std::move(i1));
+    ////    }
+    ////    u.arrays.push_back(std::move(a));
+    ////    g.units.push_back(std::move(u));
+    ////}
 
-    //if (file.includes.size() > 0)
-    //    file.config.groups.push_back(std::move(g));
+    ////if (file.includes.size() > 0)
+    ////    file.config.groups.push_back(std::move(g));
 
-    if (!AddUnits(fileName, "", file))
-        return false;
-
-    QDir dir = QFileInfo(file.fileName).absoluteDir();
-    for (int i = 0; i < file.includes.size(); i++)
-    {
-        QString includedFileName = dir.filePath(file.includes[i].fileName);
-        CubesXml::File includedFile{};
-        if (!CubesXml::Parser::Parse(includedFileName, includedFile))
-            return false;
-
-        if (!AddUnits(fileName, file.includes[i].fileName, includedFile))
-            return false;
-    }
-
-
-
-    //if (!SortUnitsRectangular())
+    //if (!AddUnits(fileName, "", file))
     //    return false;
+
+    //QDir dir = QFileInfo(file.fileName).absoluteDir();
+    //for (int i = 0; i < file.includes.size(); i++)
+    //{
+    //    QString includedFileName = dir.filePath(file.includes[i].fileName);
+    //    CubesXml::File includedFile{};
+    //    if (!CubesXml::Parser::Parse(includedFileName, includedFile))
+    //        return false;
+
+    //    if (!AddUnits(fileName, file.includes[i].fileName, includedFile))
+    //        return false;
+    //}
+
+
+
+    ////if (!SortUnitsRectangular())
+    ////    return false;
 
     return true;
 }
 
 bool ArrayWindow::AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file)
 {
-    QVector<CubesXml::Unit> all_units;
-    for (const auto& g : file.config.groups)
-    {
-        for (const auto& u : g.units)
-        {
-            auto up = GetUnitParameters(u.id);
-            if (up != nullptr)
-            {
-                all_units.push_back(u);
-            }
-            else
-            {
-                CubeLog::LogMessage m{};
-                m.type = CubeLog::MessageType::error;
-                m.source = QFileInfo(file.fileName).fileName();
-                m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                log_table_model_->AddMessage(m);
-            }
-        }
-    }
-    log_table_model_->submit();
-    table_view_log_->resizeColumnsToContents();
-    table_view_log_->update();
+    //QVector<CubesXml::Unit> all_units;
+    //for (const auto& g : file.config.groups)
+    //{
+    //    for (const auto& u : g.units)
+    //    {
+    //        auto up = GetUnitParameters(u.id);
+    //        if (up != nullptr)
+    //        {
+    //            all_units.push_back(u);
+    //        }
+    //        else
+    //        {
+    //            CubeLog::LogMessage m{};
+    //            m.type = CubeLog::MessageType::error;
+    //            m.source = QFileInfo(file.fileName).fileName();
+    //            m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+    //            log_table_model_->AddMessage(m);
+    //        }
+    //    }
+    //}
+    //log_table_model_->submit();
+    //table_view_log_->resizeColumnsToContents();
+    //table_view_log_->update();
 
-    // Get fileNames list
-    QStringList fileNames = fileItemsManager_->GetFileNames();
+    //// Get fileNames list
+    //QStringList fileNames = fileItemsManager_->GetFileNames();
 
-    // Transform
-    CubeDiagram::DiagramItem* di = nullptr;
-    for (int i = 0; i < all_units.size(); i++)
-    {
-        QString name = all_units[i].id;
-        auto up = GetUnitParameters(name);
+    //// Transform
+    //CubeDiagram::DiagramItem* di = nullptr;
+    //for (int i = 0; i < all_units.size(); i++)
+    //{
+    //    QString name = all_units[i].id;
+    //    auto up = GetUnitParameters(name);
 
-        if (up != nullptr)
-        {
-            uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i], propertiesId);
-            auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    //    if (up != nullptr)
+    //    {
+    //        uint32_t propertiesId{ 0 };
+    //        propertiesItemsManager_->Create(all_units[i], propertiesId);
+    //        auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
-            //pi->ApplyXmlProperties(all_units[i]);
-            pi->SetFileNames(fileNames);
-            pi->SetFileName(fileName);
-            if (includedFileName != "")
-            {
-                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
-                // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
-                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
-                pi->SetGroupNames(fileIncludeNames);
-                pi->SetGroupName(fileIncludeName);
-            }
+    //        //pi->ApplyXmlProperties(all_units[i]);
+    //        pi->SetFileNames(fileNames);
+    //        pi->SetFileName(fileName);
+    //        if (includedFileName != "")
+    //        {
+    //            QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    //            // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
+    //            QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
+    //            pi->SetGroupNames(fileIncludeNames);
+    //            pi->SetGroupName(fileIncludeName);
+    //        }
 
-            PropertiesForDrawing pfd{};
-            if (!GetPropetiesForDrawing(propertiesId, pfd))
-            {
-                qDebug() << "ERROR GetPropeties: " << propertiesId;
-            }
+    //        PropertiesForDrawing pfd{};
+    //        if (!GetPropetiesForDrawing(propertiesId, pfd))
+    //        {
+    //            qDebug() << "ERROR GetPropeties: " << propertiesId;
+    //        }
 
-            di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
-            di->setX(all_units[i].x);
-            di->setY(all_units[i].y);
-            di->setZValue(all_units[i].z);
-            scene_->addItem(di);
-        }
-        else
-        {
-            // error
-        }
-    }
+    //        di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+    //        di->setX(all_units[i].x);
+    //        di->setY(all_units[i].y);
+    //        di->setZValue(all_units[i].z);
+    //        scene_->addItem(di);
+    //    }
+    //    else
+    //    {
+    //        // error
+    //    }
+    //}
 
-    if (all_units.size() > 0 && di != nullptr)
-    {
-        scene_->clearSelection();
-        propertiesItemsManager_->Select(0);
-        DiagramAfterItemCreated(di);
-    }
-    //if (!SortUnitsRectangular())
-    //    return false;
+    //if (all_units.size() > 0 && di != nullptr)
+    //{
+    //    scene_->clearSelection();
+    //    propertiesItemsManager_->Select(0);
+    //    DiagramAfterItemCreated(di);
+    //}
+    ////if (!SortUnitsRectangular())
+    ////    return false;
 
     return true;
 }
@@ -1018,17 +1023,20 @@ CubesUnitTypes::UnitParameters* ArrayWindow::GetUnitParameters(const QString& id
 // Files
 QStringList ArrayWindow::GetFileNames()
 {
-    return fileItemsManager_->GetFileNames();
+    //return fileItemsManager_->GetFileNames();
+    return {};
 }
 
 QString ArrayWindow::GetCurrentFileName()
 {
-    return fileItemsManager_->GetCurrentFileName();
+    //return fileItemsManager_->GetCurrentFileName();
+    return {};
 }
 
 QStringList ArrayWindow::GetCurrentFileIncludeNames()
 {
-    return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
+    //return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
+    return {};
 }
 
 //QColor ArrayWindow::GetFileColor(const QString& fileName)
@@ -1038,24 +1046,24 @@ QStringList ArrayWindow::GetCurrentFileIncludeNames()
 
 QString ArrayWindow::GetDisplayName(const QString& baseName)
 {
-    QList<QPair<QString, QString>> variables;
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetGroupName() != "<not selected>")
-        {
-            variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-                pi->GetGroupName());
-        }
-    }
+    //QList<QPair<QString, QString>> variables;
+    //for (const auto& item : scene_->items())
+    //{
+    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    if (pi->GetGroupName() != "<not selected>")
+    //    {
+    //        variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+    //            pi->GetGroupName());
+    //    }
+    //}
 
     QString realName = baseName;
-    for (const auto& v : variables)
-    {
-        QString replace = QString("@%1@").arg(v.first);
-        realName.replace(replace, v.second);
-    }
+    //for (const auto& v : variables)
+    //{
+    //    QString replace = QString("@%1@").arg(v.first);
+    //    realName.replace(replace, v.second);
+    //}
 
     return realName;
 }
@@ -1129,20 +1137,20 @@ void ArrayWindow::selectionChanged()
 // FileItemsManager
 void ArrayWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
 {
-    QStringList fileNames = fileItemsManager_->GetFileNames();
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString currentName = pi->GetFileName();
-        pi->SetFileNames(fileNames);
-        if (currentName == oldFileName)
-            pi->SetFileName(fileName);
+    //QStringList fileNames = fileItemsManager_->GetFileNames();
+    //QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    //for (auto& item : scene_->items())
+    //{
+    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    QString currentName = pi->GetFileName();
+    //    pi->SetFileNames(fileNames);
+    //    if (currentName == oldFileName)
+    //        pi->SetFileName(fileName);
 
-        //if (fileName == di->getProperties()->GetFileName())
-        //    di->getProperties()->SetGroupNames(fileIncludeNames);
-    }
+    //    //if (fileName == di->getProperties()->GetFileName())
+    //    //    di->getProperties()->SetGroupNames(fileIncludeNames);
+    //}
 
     //for (int i = 0; i < comboBoxFiles_->count(); ++i)
     //{
@@ -1173,19 +1181,19 @@ void ArrayWindow::FileListChanged(const QStringList& fileNames)
 
 void ArrayWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (fileName == pi->GetFileName())
-        {
-            QString currentName = pi->GetGroupName();
-            pi->SetGroupNames(fileIncludeNames);
-            if (currentName == oldIncludeName)
-                pi->SetGroupName(includeName);
-        }
-    }
+    //QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    //for (auto& item : scene_->items())
+    //{
+    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    if (fileName == pi->GetFileName())
+    //    {
+    //        QString currentName = pi->GetGroupName();
+    //        pi->SetGroupNames(fileIncludeNames);
+    //        if (currentName == oldIncludeName)
+    //            pi->SetGroupName(includeName);
+    //    }
+    //}
 
     //auto fi = file_items_manager_->GetItem(fileName);
     //if (fi != nullptr)
@@ -1239,7 +1247,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
             di->name_ = name;
             di->fileName_ = fileName;
             di->groupName_ = groupName;
-            di->color_ = fileItemsManager_->GetFileColor(fileName);
+            di->color_ = QColor("Red");
             di->InformNameChanged(name, "");
             di->InformGroupChanged();
         }
@@ -1287,15 +1295,15 @@ void ArrayWindow::PropertiesPositionChanged(const uint32_t propertiesId, double 
 
 void ArrayWindow::PropertiesOnError(const uint32_t propertiesId, const QString& message)
 {
-    CubeLog::LogMessage m{};
-    m.type = CubeLog::MessageType::error;
-    m.source = QString("%1").arg(propertiesId);
-    m.description = message;
-    log_table_model_->AddMessage(m);
+    //CubeLog::LogMessage m{};
+    //m.type = CubeLog::MessageType::error;
+    //m.source = QString("%1").arg(propertiesId);
+    //m.description = message;
+    //log_table_model_->AddMessage(m);
 
-    log_table_model_->submit();
-    table_view_log_->resizeColumnsToContents();
-    table_view_log_->update();
+    //log_table_model_->submit();
+    //table_view_log_->resizeColumnsToContents();
+    //table_view_log_->update();
 }
 
 // Кнопки
@@ -1376,7 +1384,7 @@ void ArrayWindow::OnImportXmlFileAction()
 
     if (f.config.networkingIsSet)
     {
-        log_table_model_->Clear();
+        //log_table_model_->Clear();
 
         if (!AddMainFile(f))
             return;
@@ -1392,37 +1400,37 @@ void ArrayWindow::OnSaveFileAction()
     //if (!modified_)
     //    return;
 
-    QDir dir;
-    dir.mkdir("tmp");
+    //QDir dir;
+    //dir.mkdir("tmp");
 
     // Получаем список главных файлов
-    QStringList fileNames = fileItemsManager_->GetFileNames();
-    for (const auto& fileName : fileNames)
-    {
-        //// Соберем всю информацию о файле
-        //auto file = fileItemsManager_->GetFile(fileName);
-        //auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
+    //QStringList fileNames = fileItemsManager_->GetFileNames();
+    //for (const auto& fileName : fileNames)
+    //{
+    //    //// Соберем всю информацию о файле
+    //    //auto file = fileItemsManager_->GetFile(fileName);
+    //    //auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
 
-        //// Соберем всю информацию о файле
-        //CubesXml::File xmlFile{};
-        //xmlFile.fileName = fileName;
-        //xmlFile.config.networkingIsSet = true;
-        //xmlFile.config.logIsSet = true;
+    //    //// Соберем всю информацию о файле
+    //    //CubesXml::File xmlFile{};
+    //    //xmlFile.fileName = fileName;
+    //    //xmlFile.config.networkingIsSet = true;
+    //    //xmlFile.config.logIsSet = true;
 
-        //xmlFile.config.networking = file.network;
-        auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
-        auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
-        xmlFile.config.groups = std::move(xmlGroups);
+    //    //xmlFile.config.networking = file.network;
+    //    auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
+    //    auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
+    //    xmlFile.config.groups = std::move(xmlGroups);
 
-        CubesXml::Writer::Write(QString("tmp/%1").arg(xmlFile.fileName), xmlFile);
+    //    CubesXml::Writer::Write(QString("tmp/%1").arg(xmlFile.fileName), xmlFile);
 
 
 
-        for (const auto& include : xmlFile.includes)
-        {
-            auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
-        }
-    }
+    //    for (const auto& include : xmlFile.includes)
+    //    {
+    //        auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
+    //    }
+    //}
 
         /*
         // Получаем список включаемых файлов
@@ -1607,24 +1615,24 @@ void ArrayWindow::OnSortAction()
 // Лог
 void ArrayWindow::OnErrorButtonClicked(bool checked)
 {
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
+    //if (checked)
+    //    sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
+    //else
+    //    sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
 }
 
 void ArrayWindow::OnWarningButtonClicked(bool checked)
 {
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
+    //if (checked)
+    //    sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
+    //else
+    //    sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
 }
 
 void ArrayWindow::OnInformationButtonClicked(bool checked)
 {
-    if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
-    else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
+    //if (checked)
+    //    sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
+    //else
+    //    sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
 }
