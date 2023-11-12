@@ -54,15 +54,15 @@ private:
 
     QPointer<CubeDiagram::DiagramScene> scene_;
     QPointer<CubeDiagram::DiagramView> view_;
-    QPointer<QTreeView> tree_view_;
-    QPointer<QTableView> table_view_log_;
-    QPointer<QTreeView> tree_;
+    //QPointer<QTreeView> tree_view_;
+    //QPointer<QTableView> table_view_log_;
+    //QPointer<QTreeView> tree_;
     //QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
-    QPointer<CubeLog::LogTableModel> log_table_model_;
-    QPointer<CubeLog::SortFilterModel> sort_filter_model_;
+    //QPointer<CubeLog::LogTableModel> log_table_model_;
+    //QPointer<CubeLog::SortFilterModel> sort_filter_model_;
 
-    QPointer<CubesFile::FileItemsManager> fileItemsManager_;
+    //QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
 
 public:
