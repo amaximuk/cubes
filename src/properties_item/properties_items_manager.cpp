@@ -12,6 +12,7 @@
 #include "../xml_parser.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
+#include <src/array_window.h>
 
 using namespace CubesProperties;
 
@@ -379,18 +380,26 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	if (pe->currentItem()->parent() == nullptr)
 		return;
 
-	QString name = pe->currentItem()->property()->propertyName();
-	QString parentName = pe->currentItem()->parent()->property()->propertyName();
-	if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-	{
-		QMenu contextMenu("Context menu");
+	ArrayWindow* mv = new ArrayWindow();
+	mv->setWindowModality(Qt::ApplicationModal);
+	//mv->setAttribute(Qt::WA_DeleteOnClose, true);
+	qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
+	mv->show();
+	//mv->deleteLater();
 
-		QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name));
-		connect(&action1, &QAction::triggered, this, &PropertiesItemsManager::OnDeleteInclude);
-		contextMenu.addAction(&action1);
+	int a = 0;
+	//QString name = pe->currentItem()->property()->propertyName();
+	//QString parentName = pe->currentItem()->parent()->property()->propertyName();
+	//if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
+	//{
+	//	QMenu contextMenu("Context menu");
 
-		contextMenu.exec(pe->mapToGlobal(pos));
-	}
+	//	QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name));
+	//	connect(&action1, &QAction::triggered, this, &PropertiesItemsManager::OnDeleteInclude);
+	//	contextMenu.addAction(&action1);
+
+	//	contextMenu.exec(pe->mapToGlobal(pos));
+	//}
 }
 
 void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
@@ -417,93 +426,93 @@ void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 	emit SelectedItemChanged(currentId);
 }
 
-//void PropertiesItemsManager::OnAddFileClicked()
-//{
-//	bool ok;
-//	QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
-//	if (!ok || fileName.isEmpty())
-//		return;
-//
-//	int count = 0;
-//	for (const auto& i : items_)
-//	{
-//		if (i->GetName() == fileName)
-//			count++;
-//	}
-//	if (count > 0)
-//	{
-//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-//		return;
-//	}
-//
-//	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-//		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-//
-//	uint32_t propertiesId{ 0 };
-//	Create(fileName, propertiesId);
-//	//Select(fileName);
-//
-//	//for (auto& item : panes_[0].first->items())
-//	//{
-//	//	diagram_item* di = reinterpret_cast<diagram_item*>(item);
-//	//	QStringList fileNames = properties_items_manager_->GetFileNames();
-//	//	di->getProperties()->SetFileNames(fileNames);
-//	//}
-//
-//	//if (panes_[0].first->selectedItems().size() > 0)
-//	//	reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-//
-//	//panes_[0].first->invalidate();
-//
-//}
-//
-//void PropertiesItemsManager::OnRemoveFileClicked()
-//{
-//	//if (selected_ == 0)
-//	//{
-//	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
-//	//	return;
-//	//}
-//
-//	//// Проверяем возможность удаления
-//	//QStringList unitNames;
-//	//top_manager_->GetUnitsInFileList(selected_, unitNames);
-//	//if (unitNames.count() > 0)
-//	//{
-//	//	QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-//	//	text.append(unitNames.join('\n'));
-//	//	QMessageBox::critical(widget_, "Error", text);
-//	//	return;
-//	//}
-//
-//	//// Сохраняем копию, после удаления selected_ изменится
-//	//QString selected = selected_;
-//
-//	//// Удаляем из селектора, автоматически происходит UnSelect
-//	//selector_->removeItem(selector_->findText(selected_));
-//
-//	//// Получаем все имена, заодно запоминаем элемент для удаления
-//	//QStringList fileNames;
-//	//QSharedPointer<properties_item> toRemove;
-//	//for (const auto& item : items_)
-//	//{
-//	//	QString name = item->GetName();
-//	//	if (name == selected)
-//	//		toRemove = item;
-//	//	else
-//	//		fileNames.push_back(item->GetName());
-//	//}
-//
-//	//// Удаляем из списка
-//	////items_.removeAll(toRemove);
-//
-//	//// Если это был последний
-//	//if (items_.count() == 0)
-//	//	editor_->GetPropertyEditor()->clear();
-//
-//	//// Сообщаяем об удалении
-//	//emit FilesListChanged(fileNames);
-//}
+void PropertiesItemsManager::OnAddFileClicked()
+{
+	bool ok;
+	QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
+	if (!ok || fileName.isEmpty())
+		return;
+
+	int count = 0;
+	for (const auto& i : items_)
+	{
+		if (i->GetName() == fileName)
+			count++;
+	}
+	if (count > 0)
+	{
+		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+		return;
+	}
+
+	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+
+	uint32_t propertiesId{ 0 };
+	Create(fileName, propertiesId);
+	//Select(fileName);
+
+	//for (auto& item : panes_[0].first->items())
+	//{
+	//	diagram_item* di = reinterpret_cast<diagram_item*>(item);
+	//	QStringList fileNames = properties_items_manager_->GetFileNames();
+	//	di->getProperties()->SetFileNames(fileNames);
+	//}
+
+	//if (panes_[0].first->selectedItems().size() > 0)
+	//	reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
+
+	//panes_[0].first->invalidate();
+
+}
+
+void PropertiesItemsManager::OnRemoveFileClicked()
+{
+	//if (selected_ == 0)
+	//{
+	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
+	//	return;
+	//}
+
+	//// Проверяем возможность удаления
+	//QStringList unitNames;
+	//top_manager_->GetUnitsInFileList(selected_, unitNames);
+	//if (unitNames.count() > 0)
+	//{
+	//	QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
+	//	text.append(unitNames.join('\n'));
+	//	QMessageBox::critical(widget_, "Error", text);
+	//	return;
+	//}
+
+	//// Сохраняем копию, после удаления selected_ изменится
+	//QString selected = selected_;
+
+	//// Удаляем из селектора, автоматически происходит UnSelect
+	//selector_->removeItem(selector_->findText(selected_));
+
+	//// Получаем все имена, заодно запоминаем элемент для удаления
+	//QStringList fileNames;
+	//QSharedPointer<properties_item> toRemove;
+	//for (const auto& item : items_)
+	//{
+	//	QString name = item->GetName();
+	//	if (name == selected)
+	//		toRemove = item;
+	//	else
+	//		fileNames.push_back(item->GetName());
+	//}
+
+	//// Удаляем из списка
+	////items_.removeAll(toRemove);
+
+	//// Если это был последний
+	//if (items_.count() == 0)
+	//	editor_->GetPropertyEditor()->clear();
+
+	//// Сообщаяем об удалении
+	//emit FilesListChanged(fileNames);
+}
 
 QWidget* PropertiesItemsManager::CreateEditorWidget()
 {
@@ -539,21 +548,21 @@ QWidget* PropertiesItemsManager::CreateSelectorWidget()
 	hBoxLayoutPropertyListButtons->setMargin(0);
 	hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
 
-	//QToolButton* toolButtonPropertyListAdd = new QToolButton;
-	//toolButtonPropertyListAdd->setFixedSize(24, 24);
-	//toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-	//toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-	//toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-	//hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-	//connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &PropertiesItemsManager::OnAddFileClicked);
+	QToolButton* toolButtonPropertyListAdd = new QToolButton;
+	toolButtonPropertyListAdd->setFixedSize(24, 24);
+	toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+	toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+	toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
+	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &PropertiesItemsManager::OnAddFileClicked);
 
-	//QToolButton* toolButtonPropertyListRemove = new QToolButton;
-	//toolButtonPropertyListRemove->setFixedSize(24, 24);
-	//toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-	//toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-	//toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
-	//hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-	//connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnRemoveFileClicked);
+	QToolButton* toolButtonPropertyListRemove = new QToolButton;
+	toolButtonPropertyListRemove->setFixedSize(24, 24);
+	toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+	toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+	toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
+	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnRemoveFileClicked);
 
 	QWidget* buttonsWidget = new QWidget;
 	buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);
@@ -608,4 +617,9 @@ QString PropertiesItemsManager::GetName(PropertiesItem* item)
 	}
 
 	return name;
+}
+
+void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result)
+{
+	int a = 0;
 }

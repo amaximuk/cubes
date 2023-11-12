@@ -1,10 +1,12 @@
 #include <QApplication>
 #include "main_window.h"
+#include "array_window.h"
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
+    //ArrayWindow window;
     MainWindow window;
     window.setMinimumSize(800, 600);
     window.show();

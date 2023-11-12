@@ -76,8 +76,8 @@ namespace CubesProperties
 		void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
-		//void OnAddFileClicked();
-		//void OnRemoveFileClicked();
+		void OnAddFileClicked();
+		void OnRemoveFileClicked();
 
 	private:
 		QWidget* CreateEditorWidget();
@@ -85,5 +85,8 @@ namespace CubesProperties
 		QWidget* CreateHintWidget();
 		void SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(PropertiesItem* item);
+
+		void OnArrayWindowBeforeClose(const bool result);
+
 	};
 }
