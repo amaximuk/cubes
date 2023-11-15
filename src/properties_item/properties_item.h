@@ -18,6 +18,7 @@ namespace CubesProperties
         QPointer<PropertiesEditor> editor_;
         uint32_t propertiesId_;
         CubesUnitTypes::UnitParameters unitParameters_;
+        QString startPath_;
 
         // Модель параметров
         CubesUnitTypes::ParametersModel model_;
@@ -34,7 +35,7 @@ namespace CubesProperties
 
     public:
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-            CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);
+            CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, QString startPath = "");
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, uint32_t propertiesId);
 
@@ -87,11 +88,12 @@ namespace CubesProperties
         void ValueChanged(QtProperty* property, const QVariant& value);
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
-    private:
-        void CreateParametersModel(const CubesXml::Unit* xmlUnit);
+    public:
+        void CreateParametersModel(const CubesXml::Unit* xmlUnit, QString startPath = "");
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
-            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model,
+            QString startPath = "");
         void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool is_item);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
@@ -107,6 +109,7 @@ namespace CubesProperties
         QString GetPropertyId(const QtProperty* property);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QString& id);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
+        CubesUnitTypes::UnitParameters* GetPropertyUnitParameters(const QtProperty* property);
 
         //void SaveExpandState();
         //void SaveExpandState(QtBrowserItem* index);

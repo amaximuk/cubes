@@ -262,6 +262,39 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
         return QString("%1#%2").arg(name).arg(counter);
 }
 
+void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitTypes::ParameterModel* pm)
+{
+//            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
+//            up.fileInfo = fi;
+//            up.platforms.insert(QFileInfo(platformDir).baseName());
+
+    auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
+    up.fileInfo = afi;
+
+    uint32_t propertiesId{ 0 };
+    propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), propertiesId, pm->id);
+    auto pi = propertiesItemsManager_->GetItem(propertiesId);
+
+    PropertiesForDrawing pfd{};
+    if (!GetPropetiesForDrawing(propertiesId, pfd))
+    {
+        qDebug() << "ERROR GetPropeties: " << propertiesId;
+    }
+
+    auto di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+    di->setX(0);
+    di->setY(0);
+    di->setZValue(0);
+    scene_->addItem(di);
+
+    //if (pm-> && di != nullptr)
+    {
+        scene_->clearSelection();
+        propertiesItemsManager_->Select(0);
+        DiagramAfterItemCreated(di);
+    }
+}
+
 QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
 {
     return GetConnectionsInternal(false);
@@ -649,7 +682,7 @@ void ArrayWindow::FillParametersInfo()
     //                m.type = CubeLog::MessageType::error;
     //                m.source = filename;
     //                m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-    //                log_table_model_->AddMessage(m);
+    //                //log_table_model_->AddMessage(m);
     //            }
 
     //            // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
