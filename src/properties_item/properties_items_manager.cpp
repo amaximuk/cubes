@@ -10,6 +10,7 @@
 #include "../top_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml_parser.h"
+#include "../parameters_compiler/parameters_compiler_helper.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 #include <src/array_window.h>
@@ -52,7 +53,7 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId, QString startPath)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -61,7 +62,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, startPath));
 
 	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 
@@ -380,14 +381,51 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	if (pe->currentItem()->parent() == nullptr)
 		return;
 
-	ArrayWindow* mv = new ArrayWindow();
-	mv->setWindowModality(Qt::ApplicationModal);
-	//mv->setAttribute(Qt::WA_DeleteOnClose, true);
-	qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
-	mv->show();
-	//mv->deleteLater();
 
-	int a = 0;
+
+	auto propertiesId = GetCurrentPropertiesId();
+	auto item = GetItem(propertiesId);
+	if (item != nullptr)
+	{
+		auto pm = item->GetParameterModel(pe->currentItem()->property());
+		auto ui = item->GetUnitParameters();
+
+
+		parameters_compiler::file_info afi{};
+		bool b = parameters_compiler::helper::extract_array_file_info(ui.fileInfo,
+			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
+
+
+
+
+		if (b)
+		{
+			qDebug() << pm->id;
+
+
+
+
+
+			ArrayWindow* mv = new ArrayWindow();
+			mv->setWindowModality(Qt::ApplicationModal);
+			//mv->setAttribute(Qt::WA_DeleteOnClose, true);
+			qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
+			mv->SetItemModel(afi, pm);
+			mv->show();
+			//mv->deleteLater();
+
+		}
+		else
+			return;
+	}
+
+
+
+
+
+
+	
+
 	//QString name = pe->currentItem()->property()->propertyName();
 	//QString parentName = pe->currentItem()->parent()->property()->propertyName();
 	//if (parentName == QString::fromLocal8Bit("¬ключаемые файлы"))

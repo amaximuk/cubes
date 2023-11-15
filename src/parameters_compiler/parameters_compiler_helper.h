@@ -547,6 +547,51 @@ namespace parameters_compiler
 			return ppi;
 		}
 
+        static bool extract_array_file_info(file_info& fi, const std::string& type, const std::string& name, file_info& afi)
+        {
+            afi = {};
+
+            // Работает только для массивов пользовательского типа данных, не перечислений
+            // Находим тип элемента массива, переносим все его параметры в основную секцию
+            // Все типы, которыые идут после этого нам не нужны,их удаляем
+            // Имя и описание юнита заменяем на имя и описание параметра
+
+            auto& pi = *parameters_compiler::helper::get_parameter_info(fi, type, name);
+
+            bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+            bool is_inner_type = parameters_compiler::helper::is_inner_type(pi.type);
+
+            if (is_array && !is_inner_type)
+            {
+                std::string array_type = parameters_compiler::helper::get_array_type(pi.type);
+
+                qDebug() << QString::fromStdString(array_type);
+                auto pti = get_type_info(fi, array_type);
+
+                if (pti == nullptr || pti->type != "yml")
+                    return false;
+
+                afi.format = fi.format;
+                afi.info = fi.info;
+                afi.info.id = pti->name;
+                afi.info.display_name = pi.display_name;
+                afi.info.description = pi.description;
+                afi.parameters = pti->parameters;
+
+                for (const auto& t : fi.types)
+                {
+                    if (t.name != array_type)
+                        afi.types.push_back(t);
+                    else
+                        break;
+                }
+            }
+            else
+                return false;
+
+            return true;
+        }
+
         static bool set_parameter_info(file_info& fi, const std::string& type, const parameter_info& pi)
         {
             auto ppi = get_parameter_info(fi, type, pi.name);

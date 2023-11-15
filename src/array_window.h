@@ -76,13 +76,17 @@ public:
     void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
     void GetFileIncludeList(const QString& fileName, QStringList& includeNames) override;
     void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
+    QMap<QString, QStringList> GetUnitsConnections() override;
+    QMap<QString, QStringList> GetDependsConnections() override;
+    // ISimpleTopManager
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
     bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
     bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
     bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) override;
     QString GetNewUnitName(const QString& baseName) override;
-    QMap<QString, QStringList> GetUnitsConnections() override;
-    QMap<QString, QStringList> GetDependsConnections() override;
+
+
+    void SetItemModel(parameters_compiler::file_info afi, CubesUnitTypes::ParameterModel* pm);
 
 public:
     void closeEvent(QCloseEvent* event) override;
