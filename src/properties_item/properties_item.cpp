@@ -26,6 +26,30 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm)
+{
+    propertiesItemsManager_ = propertiesItemsManager;
+    editor_ = editor;
+    unitParameters_ = unitParameters;
+    propertiesId_ = propertiesId;
+    model_ = {};
+    ignoreEvents_ = false;
+
+    CreateParametersModel(nullptr, "");
+    for (auto& section : model_.parameters)
+    {
+        if (section.id == "PARAMETERS")
+        {
+            section.parameters = pm.parameters;
+            //section.parameters.clear();
+            //section.parameters.push_back(pm);
+        }
+    }
+
+    CreateProperties();
+}
+
+PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;

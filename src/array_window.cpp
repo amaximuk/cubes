@@ -267,27 +267,34 @@ void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitType
 //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
 //            up.fileInfo = fi;
 //            up.platforms.insert(QFileInfo(platformDir).baseName());
+    CubeDiagram::DiagramItem* di = nullptr;
 
-    auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
-    up.fileInfo = afi;
-
-    uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), propertiesId, pm->id);
-    auto pi = propertiesItemsManager_->GetItem(propertiesId);
-
-    PropertiesForDrawing pfd{};
-    if (!GetPropetiesForDrawing(propertiesId, pfd))
+    for (const auto& item : pm->parameters)
     {
-        qDebug() << "ERROR GetPropeties: " << propertiesId;
+        auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
+        up.fileInfo = afi;
+
+        CubesUnitTypes::ParametersModel m{};
+        m.parameters = item.parameters;
+
+        uint32_t propertiesId{ 0 };
+        propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
+        auto pi = propertiesItemsManager_->GetItem(propertiesId);
+
+        PropertiesForDrawing pfd{};
+        if (!GetPropetiesForDrawing(propertiesId, pfd))
+        {
+            qDebug() << "ERROR GetPropeties: " << propertiesId;
+        }
+
+        di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+        di->setX(0);
+        di->setY(0);
+        di->setZValue(0);
+        scene_->addItem(di);
     }
 
-    auto di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
-    di->setX(0);
-    di->setY(0);
-    di->setZValue(0);
-    scene_->addItem(di);
-
-    //if (pm-> && di != nullptr)
+    if (di != nullptr)
     {
         scene_->clearSelection();
         propertiesItemsManager_->Select(0);

@@ -556,14 +556,16 @@ namespace parameters_compiler
             // Все типы, которыые идут после этого нам не нужны,их удаляем
             // Имя и описание юнита заменяем на имя и описание параметра
 
-            auto& pi = *parameters_compiler::helper::get_parameter_info(fi, type, name);
+            auto pi = parameters_compiler::helper::get_parameter_info(fi, type, name);
+            if (pi == nullptr)
+                return false;
 
-            bool is_array = parameters_compiler::helper::is_array_type(pi.type);
-            bool is_inner_type = parameters_compiler::helper::is_inner_type(pi.type);
+            bool is_array = parameters_compiler::helper::is_array_type(pi->type);
+            bool is_inner_type = parameters_compiler::helper::is_inner_type(pi->type);
 
             if (is_array && !is_inner_type)
             {
-                std::string array_type = parameters_compiler::helper::get_array_type(pi.type);
+                std::string array_type = parameters_compiler::helper::get_array_type(pi->type);
 
                 qDebug() << QString::fromStdString(array_type);
                 auto pti = get_type_info(fi, array_type);
@@ -574,8 +576,8 @@ namespace parameters_compiler
                 afi.format = fi.format;
                 afi.info = fi.info;
                 afi.info.id = pti->name;
-                afi.info.display_name = pi.display_name;
-                afi.info.description = pi.description;
+                afi.info.display_name = pi->display_name;
+                afi.info.description = pi->description;
                 afi.parameters = pti->parameters;
 
                 for (const auto& t : fi.types)
