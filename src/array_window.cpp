@@ -269,10 +269,28 @@ void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitType
 //            up.platforms.insert(QFileInfo(platformDir).baseName());
     CubeDiagram::DiagramItem* di = nullptr;
 
-    for (const auto& item : pm->parameters)
+    for (auto& item : pm->parameters)
     {
         auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
         up.fileInfo = afi;
+
+
+        auto id_renamer = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove)->void {
+            auto id_renamer_impl = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
+                for (auto& parameter : parameters)
+                {
+                    parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+                    id_renamer_ref(parameter.parameters, to_remove, id_renamer_ref);
+                }
+            };
+            return id_renamer_impl(parameters, to_remove, id_renamer_impl);
+        };
+
+        id_renamer(item.parameters, item.id);
+
+        for (auto& parameter : item.parameters)
+            parameter.parameterInfoId.type = "Main";
+
 
         CubesUnitTypes::ParametersModel m{};
         m.parameters = item.parameters;
