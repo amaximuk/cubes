@@ -149,6 +149,7 @@ bool ArrayWindow::GetPropetiesForDrawing(const uint32_t propertiesId, Properties
         return false;
     //pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
     pfd.color = QColor("Red");
+    pfd.color.setAlpha(0x20);
     return true;
 }
 
@@ -1315,6 +1316,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
             di->fileName_ = fileName;
             di->groupName_ = groupName;
             di->color_ = QColor("Red");
+            di->color_.setAlpha(0x20);
             di->InformNameChanged(name, "");
             di->InformGroupChanged();
         }

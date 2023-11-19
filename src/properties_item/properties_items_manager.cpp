@@ -53,7 +53,7 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId, QString startPath)
+void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -62,7 +62,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, startPath));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
 
 	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 
