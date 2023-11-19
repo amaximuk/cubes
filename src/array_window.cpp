@@ -274,19 +274,28 @@ void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitType
         auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
         up.fileInfo = afi;
 
-
-        auto id_renamer = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove)->void {
-            auto id_renamer_impl = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
-                for (auto& parameter : parameters)
-                {
-                    parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
-                    id_renamer_ref(parameter.parameters, to_remove, id_renamer_ref);
-                }
-            };
-            return id_renamer_impl(parameters, to_remove, id_renamer_impl);
+        auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+            for (auto& parameter : parameters)
+            {
+                parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+                rename(parameter.parameters, to_remove, rename);
+            }
         };
 
-        id_renamer(item.parameters, item.id);
+        //auto id_renamer = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove)->void {
+        //    auto id_renamer_impl = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
+        //        for (auto& parameter : parameters)
+        //        {
+        //            parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+        //            id_renamer_ref(parameter.parameters, to_remove, id_renamer_ref);
+        //        }
+        //    };
+        //    return id_renamer_impl(parameters, to_remove, id_renamer_impl);
+        //};
+
+        //id_renamer(item.parameters, item.id);
+
+        rename(item.parameters, item.id, rename);
 
         for (auto& parameter : item.parameters)
             parameter.parameterInfoId.type = "Main";
