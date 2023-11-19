@@ -18,7 +18,6 @@ namespace CubesProperties
         QPointer<PropertiesEditor> editor_;
         uint32_t propertiesId_;
         CubesUnitTypes::UnitParameters unitParameters_;
-        QString startPath_;
 
         // Модель параметров
         CubesUnitTypes::ParametersModel model_;
@@ -35,7 +34,7 @@ namespace CubesProperties
 
     public:
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-            CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, QString startPath = "");
+            CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm);
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
@@ -91,11 +90,10 @@ namespace CubesProperties
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
     public:
-        void CreateParametersModel(const CubesXml::Unit* xmlUnit, QString startPath = "");
+        void CreateParametersModel(const CubesXml::Unit* xmlUnit);
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
-            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model,
-            QString startPath = "");
+            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool is_item);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);

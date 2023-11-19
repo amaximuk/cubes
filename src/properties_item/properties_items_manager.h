@@ -37,7 +37,7 @@ namespace CubesProperties
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		uint32_t GetCurrentPropertiesId();
-		void Create(const QString& unitId, uint32_t& propertiesId, QString startPath = "");
+		void Create(const QString& unitId, uint32_t& propertiesId);
 		void Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, uint32_t& propertiesId);
 		void Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId);
 		void Select(const uint32_t& propertiesId);

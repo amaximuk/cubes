@@ -11,17 +11,16 @@
 using namespace CubesProperties;
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, QString startPath)
+    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
-    startPath_ = startPath;
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel(nullptr, startPath);
+    CreateParametersModel(nullptr);
     CreateProperties();
 }
 
@@ -35,7 +34,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel(nullptr, "");
+    CreateParametersModel(nullptr);
     for (auto& section : model_.parameters)
     {
         if (section.id == "PARAMETERS")
@@ -94,7 +93,7 @@ void PropertiesItem::ExpandedChanged(const QtProperty* property, bool is_expande
     }
 }
 
-void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, QString startPath)
+void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
 {
     // BASE
     // BASE/NAME
@@ -164,7 +163,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, QStrin
         for (const auto& pi : unitParameters_.fileInfo.parameters)
         {
             CubesUnitTypes::ParameterModel pm;
-            CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", xmlUnit, pm, startPath);
+            CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", xmlUnit, pm);
             properties_group.parameters.push_back(std::move(pm));
         }
 
@@ -256,8 +255,7 @@ void PropertiesItem::CreateProperties()
 //}
 
 void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
-    const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model,
-    QString startPath)
+    const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model)
 {
     // Создание модели для параметра по его info ID (тип и имя из yml файла)
     // Модель включает все вложенные параметры и массивы
@@ -269,11 +267,6 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
     pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
     pm.name = QString::fromStdString(parameters_compiler::helper::get_parameter_display_name(pi));
     pm.parameterInfoId = parameterInfoId;
-
-    if (startPath != "")
-    {
-        int a = 0;
-    }
 
     bool is_array = parameters_compiler::helper::is_array_type(pi.type);
     if (is_array)
