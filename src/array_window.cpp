@@ -278,7 +278,8 @@ void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitType
         auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
-                parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+                parameter.id = parameter.id.mid(to_remove.length() + 1);
+                //parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
                 rename(parameter.parameters, to_remove, rename);
             }
         };
@@ -298,9 +299,12 @@ void ArrayWindow::SetItemModel(parameters_compiler::file_info afi, CubesUnitType
 
         rename(item.parameters, item.id, rename);
 
-        for (auto& parameter : item.parameters)
-            parameter.parameterInfoId.type = "Main";
-
+        for (auto& group : item.parameters)
+        {
+            if (group.id == "PARAMETERS")
+            for (auto& parameter : group.parameters)
+                parameter.parameterInfoId.type = "Main";
+        }
 
         CubesUnitTypes::ParametersModel m{};
         m.parameters = item.parameters;

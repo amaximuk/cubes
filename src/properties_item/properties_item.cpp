@@ -34,17 +34,18 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel(nullptr);
-    for (auto& section : model_.parameters)
-    {
-        if (section.id == "PARAMETERS")
-        {
-            section.parameters = pm.parameters;
-            //section.parameters.clear();
-            //section.parameters.push_back(pm);
-        }
-    }
+    //CreateParametersModel(nullptr);
+    //for (auto& section : model_.parameters)
+    //{
+    //    if (section.id == "PARAMETERS")
+    //    {
+    //        section.parameters = pm.parameters;
+    //        //section.parameters.clear();
+    //        //section.parameters.push_back(pm);
+    //    }
+    //}
 
+    model_.parameters = pm.parameters;
     CreateProperties();
 }
 
@@ -166,17 +167,6 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
             CreateParameterModel({ "Main", QString::fromStdString(pi.name) }, "PARAMETERS", xmlUnit, pm);
             properties_group.parameters.push_back(std::move(pm));
         }
-
-        //CubesUnitTypes::ParameterModel pmd;
-        //pmd.id = "PARAMETERS/DEPENDS";
-        //pmd.name = QString::fromLocal8Bit("Зависимости");
-        //pmd.value = 0;
-        //pmd.valueType = "string";
-        ////properties_group.parameterInfoId = "";
-        //pmd.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
-        //pmd.editorSettings.SpinIntergerMax = 100;
-        //pmd.editorSettings.is_expanded = false;
-        //properties_group.parameters.push_back(std::move(pmd));
 
         model_.parameters.push_back(std::move(properties_group));
     }
@@ -1494,25 +1484,116 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             group_model.value = "";
             group_model.valueType = "none";
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            for (auto p : ti->parameters)
-            {
-                CubesUnitTypes::ParameterModel modelYYY;
-                CreateParameterModel({ QString::fromStdString(ti->name), QString::fromStdString(p.name) }, group_model.id, xmlUnit, modelYYY);
-                group_model.parameters.push_back(std::move(modelYYY));
-            }
-            model.parameters.push_back(std::move(group_model));
 
-            //unit_types::ParameterModel group_model;
-            //group_model.editorSettings.type = unit_types::EditorType::None;
-            //group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-            //group_model.parameterInfo.display_name = QString::fromLocal8Bit("Элемент %1").arg(i).toStdString();
+            {
+                CubesUnitTypes::ParameterModel base_group;
+                base_group.id = group_model.id + "/BASE";
+                base_group.name = QString::fromLocal8Bit("Базовые");
+                base_group.value = "";
+                base_group.valueType = "none";
+                //base_group.parameterInfoId = "";
+                base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
+                //base_group.editorSettings.is_expanded = true;
+
+                CubesUnitTypes::ParameterModel instance_name;
+                instance_name.id = group_model.id + "/BASE/NAME";
+                instance_name.name = QString::fromLocal8Bit("Имя");
+                instance_name.value = group_model.name;
+                instance_name.valueType = "string";
+                //instance_name.parameterInfoId = "";
+                instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
+                //instance_name.editorSettings.is_expanded = false;
+                base_group.parameters.push_back(std::move(instance_name));
+
+                group_model.parameters.push_back(std::move(base_group));
+            }
+
+            if (ti->parameters.size() > 0)
+            {
+                CubesUnitTypes::ParameterModel properties_group;
+                properties_group.id = group_model.id + "/PARAMETERS";
+                properties_group.name = QString::fromLocal8Bit("Параметры");
+                properties_group.value = "";
+                properties_group.valueType = "none";
+                //properties_group.parameterInfoId = "";
+                properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
+                properties_group.editorSettings.is_expanded = true;
+
+                for (const auto& pi : ti->parameters)
+                {
+                    CubesUnitTypes::ParameterModel pm;
+                    CreateParameterModel({ QString::fromStdString(ti->name), QString::fromStdString(pi.name) }, group_model.id + "/PARAMETERS", xmlUnit, pm);
+                    properties_group.parameters.push_back(std::move(pm));
+                }
+
+                group_model.parameters.push_back(std::move(properties_group));
+            }
+
+
+
             //for (auto p : ti->parameters)
             //{
-            //    unit_types::ParameterModel model;
-            //    CreateParameterModel(p, group_model.id, model);
-            //    group_model.parameters.push_back(model);
+            //    CubesUnitTypes::ParameterModel modelYYY;
+            //    CreateParameterModel({ QString::fromStdString(ti->name), QString::fromStdString(p.name) }, group_model.id, xmlUnit, modelYYY);
+            //    group_model.parameters.push_back(std::move(modelYYY));
             //}
-            //pm.parameters.push_back(group_model);
+
+
+            {
+                CubesUnitTypes::ParameterModel editor_group;
+                editor_group.id = group_model.id + "/EDITOR";
+                editor_group.name = QString::fromLocal8Bit("Редактор");
+                editor_group.value = "";
+                editor_group.valueType = "none";
+                //editor_group.parameterInfoId = "";
+                editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
+                //editor_group.editorSettings.is_expanded = true;
+
+                {
+                    CubesUnitTypes::ParameterModel pm;
+                    pm.id = group_model.id + "/EDITOR/POSITION_X";
+                    pm.name = QString::fromLocal8Bit("Позиция X");
+                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->x;
+                    pm.valueType = "double";
+                    //pm.parameterInfoId = "";
+                    pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
+                    pm.editorSettings.SpinDoubleMin = -10000;
+                    pm.editorSettings.SpinDoubleMax = 10000;
+                    pm.editorSettings.SpinDoubleSingleStep = 20;
+                    editor_group.parameters.push_back(std::move(pm));
+                }
+
+                {
+                    CubesUnitTypes::ParameterModel pm;
+                    pm.id = group_model.id + "/EDITOR/POSITION_Y";
+                    pm.name = QString::fromLocal8Bit("Позиция Y");
+                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->y;
+                    pm.valueType = "double";
+                    //pm.parameterInfoId = "";
+                    pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
+                    pm.editorSettings.SpinDoubleMin = -10000;
+                    pm.editorSettings.SpinDoubleMax = 10000;
+                    pm.editorSettings.SpinDoubleSingleStep = 20;
+                    editor_group.parameters.push_back(std::move(pm));
+                }
+
+                {
+                    CubesUnitTypes::ParameterModel pm;
+                    pm.id = group_model.id + "/EDITOR/POSITION_Z";
+                    pm.name = QString::fromLocal8Bit("Позиция Z");
+                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->z;
+                    pm.valueType = "double";
+                    //pm.parameterInfoId = "";
+                    pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
+                    pm.editorSettings.SpinDoubleMin = -10000;
+                    pm.editorSettings.SpinDoubleMax = 10000;
+                    editor_group.parameters.push_back(std::move(pm));
+                }
+
+                group_model.parameters.push_back(std::move(editor_group));
+            }
+
+            model.parameters.push_back(std::move(group_model));
         }
     }
 
