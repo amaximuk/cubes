@@ -85,6 +85,8 @@ namespace CubesProperties
 
 
 
+        void RemoveSubProperties(QtProperty* property);
+
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);

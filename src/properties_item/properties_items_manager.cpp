@@ -88,7 +88,8 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, pm));
 
-	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	QString propertiesName = pm.parameters[0].parameters[0].value.toString();
 
 	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
@@ -418,6 +419,68 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		parameters_compiler::file_info afi{};
 		bool b = parameters_compiler::helper::extract_array_file_info(ui.fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
+
+
+
+
+
+		auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+			for (auto& parameter : parameters)
+			{
+				parameter.id = parameter.id.mid(to_remove.length() + 1);
+				//parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+				rename(parameter.parameters, to_remove, rename);
+			}
+		};
+
+
+
+
+		item->RemoveSubProperties(pe->currentItem()->property());
+
+
+		//{
+		//	auto property = pe->currentItem()->property();
+
+		//	//QMap<QString, const QtProperty*> idToProperty;
+		//	//for (int i = property->subProperties().size(); i < count; ++i)
+		//	//	property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
+		//	//for (const auto& kvp : idToProperty.toStdMap())
+		//	//	RegisterProperty(kvp.second, kvp.first);
+
+		//	auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+		//		list.push_back(property);
+		//		for (const auto& p : property->subProperties())
+		//		{
+		//			collect(p, list, collect);
+		//			property->removeSubProperty(p);
+		//		}
+		//	};
+
+
+		//	//QList<QtProperty*> toRemove;
+		//	QList<QtProperty*> toUnregister;
+		//	//const auto& subProperties = property->subProperties();
+		//	//for (int i = count; i < subProperties.size(); ++i)
+		//	//{
+		//	//	collect(subProperties[i], toUnregister, collect);
+		//	//	toRemove.push_back(subProperties[i]);
+		//	//}
+		//	collect(property, toUnregister, collect);
+
+		//	//for (auto& p : toRemove)
+		//	//	property->removeSubProperty(p);
+
+		//	for (auto& p : toUnregister)
+		//		UnregisterProperty(p);
+		//}
+
+
+
+
+
+
+
 
 
 

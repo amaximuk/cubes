@@ -1022,6 +1022,30 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
     }
 }
 
+
+void PropertiesItem::RemoveSubProperties(QtProperty* property)
+{
+    auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+        list.push_back(property);
+        for (const auto& p : property->subProperties())
+        {
+            collect(p, list, collect);
+            property->removeSubProperty(p);
+        }
+    };
+
+    QList<QtProperty*> toUnregister;
+    collect(property, toUnregister, collect);
+
+    for (auto& p : toUnregister)
+    {
+        if (p != property)
+            UnregisterProperty(p);
+    }
+}
+
+
+
 //QList<QPair<QString, QString>> PropertiesItem::GetVariables()
 //{
 //    QList<QPair<QString, QString>> result;
