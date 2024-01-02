@@ -1,3 +1,6 @@
 [submodule "submodules/parameters"]
 	path = submodules/parameters
 	url = https://github.com/amaximuk/parameters.git
+[submodule "submodules/QtPropertyBrowser"]
+	path = submodules/QtPropertyBrowser
+	url = https://github.com/abhijitkundu/QtPropertyBrowser.git
