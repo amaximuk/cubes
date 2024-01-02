@@ -1,40 +1,53 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
+cmake_minimum_required(VERSION 2.8...3.28)
 
-project(cubes LANGUAGES CXX)
+project(cubes
+    VERSION   1.0.0
+    LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)  # Includes the contents of the conanbuildinfo.cmake file.
-conan_basic_setup()  # Prepares the CMakeList.txt for Conan.
-
-find_package(Qt5 COMPONENTS Core Gui Widgets Xml REQUIRED)
-find_package(QtPropertyBrowser PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/install)
-
-if(TARGET QtPropertyBrowser)
-    message("!!!!!!!!!!!! Have target QtPropertyBrowser")
-else()
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    execute_process(COMMAND ${CMAKE_COMMAND} -B ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build
-        -DQt5Widgets_DIR=${Qt5Widgets_DIR} -DCMAKE_DEBUG_POSTFIX=d -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=install -G ${CMAKE_GENERATOR}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser)
-    execute_process(COMMAND ${CMAKE_COMMAND} --build . --config Debug
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    execute_process(COMMAND ${CMAKE_COMMAND} --install . --config Debug
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    execute_process(COMMAND ${CMAKE_COMMAND} --build . --config Release
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    execute_process(COMMAND ${CMAKE_COMMAND} --install . --config Release
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/build)
-    find_package(QtPropertyBrowser REQUIRED PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/QtPropertyBrowser/install)
-endif()
-
-# execute_process(COMMAND build.cmd WORKING_DIRECTORY 3rdparty)
-# find_package(QtPropertyBrowser REQUIRED PATHS 3rdparty/QtPropertyBrowser/install)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+
+set(PACKAGE_MANAGER "NONE" CACHE STRING "Type of package manager to be used for configure project")
+set_property(CACHE PACKAGE_MANAGER PROPERTY STRINGS NONE CONAN 3RDPARTY)
+
+if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
+	set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
+	
+	find_package(Boost REQUIRED CONFIG)
+	find_package(Qt5 COMPONENTS Core Gui Widgets Xml REQUIRED CONFIG)
+	find_package(yaml-cpp REQUIRED CONFIG)
+	find_package(jsoncpp REQUIRED CONFIG)
+	
+	set(QT_ROOT_DEBUG "${Qt5_Core_LIB_DIRS_DEBUG}/..")
+	set(QT_ROOT_RELEASE "${Qt5_Core_LIB_DIRS_RELEASE}/..")
+elseif("${PACKAGE_MANAGER}" STREQUAL "3RDPARTY")
+	include("${CMAKE_CURRENT_LIST_DIR}/3rdparty_v2/cmake/configure.cmake")
+	find_package(Qt5 COMPONENTS Core Gui Widgets Xml REQUIRED PATHS ${QT_ROOT} NO_SYSTEM_ENVIRONMENT_PATH)
+else()
+	find_package(parameters REQUIRED PATHS ${PARAMETERS_ROOT} CONFIG)
+	find_package(QtPropertyBrowser REQUIRED PATHS ${QTPROPERTYBROWSER_ROOT} CONFIG)
+	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+	find_package(yaml-cpp REQUIRED)
+	find_package(jsoncpp REQUIRED)
+endif()
+
+if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
+	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		patches/submodules/QtPropertyBrowser/CMakeLists.txt
+		submodules/QtPropertyBrowser/CMakeLists.txt)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		patches/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake
+		submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake)
+	add_subdirectory(submodules/QtPropertyBrowser)
+	add_subdirectory(submodules/parameters)
+endif()
+
+include(GNUInstallDirs)
 
 file(GLOB PROJ_HDRS src/*.h)
 file(GLOB PROJ_SRCS src/*.cpp)
@@ -71,23 +84,35 @@ source_group("Source Files/Diagram" FILES ${DIAGRAM_SRCS})
 source_group("Header Files/Xml" FILES ${XML_HDRS})
 source_group("Source Files/Xml" FILES ${XML_SRCS})
 
+if(UNIX)
+	set(CMAKE_SKIP_BUILD_RPATH FALSE)
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+	set(CMAKE_INSTALL_RPATH "$ORIGIN/:$ORIGIN/lib/:./:./lib/")
+	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+endif()
+
 add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES}
 	${FILE_ITEM_HDRS} ${FILE_ITEM_SRCS} ${LOG_TABLE_ITEM_HDRS} ${LOG_TABLE_ITEM_SRCS}
 	${PARAMETERS_COMPIER_HDRS} ${PARAMETERS_COMPIER_SRCS} ${PROPERTIES_ITEM_HDRS} ${PROPERTIES_ITEM_SRCS}
 	${PROPERTY_BROWSER_HDRS} ${PROPERTY_BROWSER_SRCS} ${DIAGRAM_HDRS} ${DIAGRAM_SRCS}
     ${XML_HDRS} ${XML_SRCS})
 
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml QtPropertyBrowser ${CONAN_LIBS})
-#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets QtPropertyBrowser)
+if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
+	target_link_libraries(${PROJECT_NAME} parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static)
+	target_include_directories(${PROJECT_NAME} PRIVATE submodules/QtPropertyBrowser/src)
+elseif("${PACKAGE_MANAGER}" STREQUAL "3RDPARTY")
+	target_link_libraries(${PROJECT_NAME} tpv2::parameters tpv2::qtpropertybrowser tpv2::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml tpv2::yamlcpp tpv2::jsoncpp)
+else()
+	target_link_libraries(${PROJECT_NAME} parameters::parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static)
+endif()
 
 if(WIN32)
 	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:/SUBSYSTEM:CONSOLE>)
 	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>)
 	target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:/ENTRY:mainCRTStartup>)
 	target_compile_options(${PROJECT_NAME} PRIVATE /MP)
-	
-	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/Debug/qtlogging.ini COPYONLY)
-	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/Release/qtlogging.ini COPYONLY)
-# else()
-	# configure_file(${PROJECT_SOURCE_DIR}/qtlogging.ini ${CMAKE_BINARY_DIR}/qtlogging.ini COPYONLY)
 endif()
+
+configure_file(${PROJECT_SOURCE_DIR}/deploy_linux.sh.in ${PROJECT_SOURCE_DIR}/deploy_linux.sh @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/deploy_windows_debug.cmd.in ${PROJECT_SOURCE_DIR}/deploy_windows_debug.cmd @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/deploy_windows_release.cmd.in ${PROJECT_SOURCE_DIR}/deploy_windows_release.cmd @ONLY)

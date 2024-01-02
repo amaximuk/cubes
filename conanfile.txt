@@ -1,6 +1,13 @@
 [requires]
-yaml-cpp/0.7.0
 boost/1.80.0
+yaml-cpp/0.7.0
+jsoncpp/1.8.3
+qt/5.15.2
+gtest/1.8.1
+zlib/1.2.13
+
+[options]
+qt:shared=True
 
 [generators]
-cmake
+cmake_find_package_multi
