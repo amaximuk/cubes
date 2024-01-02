@@ -38,11 +38,11 @@ endif()
 
 if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		patches/submodules/QtPropertyBrowser/CMakeLists.txt
-		submodules/QtPropertyBrowser/CMakeLists.txt)
+		${PROJECT_SOURCE_DIR}/patches/submodules/QtPropertyBrowser/CMakeLists.txt
+		${PROJECT_SOURCE_DIR}/submodules/QtPropertyBrowser/CMakeLists.txt)
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		patches/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake
-		submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake)
+		${PROJECT_SOURCE_DIR}/patches/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake
+		${PROJECT_SOURCE_DIR}/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake)
 	add_subdirectory(submodules/QtPropertyBrowser)
 	add_subdirectory(submodules/parameters)
 endif()
