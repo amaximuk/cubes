@@ -7,10 +7,10 @@
 #include <QToolButton>
 #include <QLabel>
 #include "qttreepropertybrowser.h"
+#include "yaml_helper.h"
 #include "../top_manager_interface.h"
 #include "../unit_types.h"
-#include "../xml_parser.h"
-#include "../parameters_compiler/parameters_compiler_helper.h"
+#include "../xml/xml_parser.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 #include <src/array_window.h>
@@ -416,8 +416,8 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		auto ui = item->GetUnitParameters();
 
 
-		parameters_compiler::file_info afi{};
-		bool b = parameters_compiler::helper::extract_array_file_info(ui.fileInfo,
+		yaml::file_info afi{};
+		bool b = yaml::helper::common::extract_array_file_info(ui.fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
 
 

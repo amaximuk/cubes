@@ -22,6 +22,7 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QHeaderView>
+#include "yaml_parser.h"
 #include "diagram/diagram_view.h"
 #include "diagram/diagram_scene.h"
 #include "diagram/diagram_item.h"
@@ -29,7 +30,6 @@
 #include "file_item/file_items_manager.h"
 #include "log_table/log_table_model.h"
 #include "log_table/sort_filter_model.h"
-#include "parameters_compiler/yaml_parser.h"
 #include "parameters_compiler/base64.h"
 #include "properties_item/properties_item.h"
 #include "properties_item/properties_items_manager.h"
@@ -631,8 +631,8 @@ void MainWindow::FillParametersInfo()
             foreach(QString filename, propFiles)
             {
                 QString fullPath = QDir(ymlPath).filePath(filename);
-                parameters_compiler::file_info fi{};
-                if (!yaml::parser::parse(fullPath.toStdString(), fi))
+                yaml::file_info fi{};
+                if (!yaml::parser::parse(fullPath.toStdString(), false, fi))
                 {
                     CubeLog::LogMessage m{};
                     m.type = CubeLog::MessageType::error;
@@ -645,12 +645,12 @@ void MainWindow::FillParametersInfo()
                 // Принцип обработки такой же как и у остальных параметров
                 if (fi.info.id != "group" && fi.info.id != "group_mock")
                 {
-                    parameters_compiler::parameter_info pi{};
-                    pi.type = "array<string>";
-                    pi.name = "DEPENDS";
+                    yaml::parameter_info pi{};
+                    pi.type = QString::fromLocal8Bit("array<string>").toStdString();
+                    pi.name = QString::fromLocal8Bit("DEPENDS").toStdString();
                     pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
                     pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
-                    pi.required = false;
+                    pi.required = QString::fromLocal8Bit("false").toStdString();
                     pi.default_ = QString::fromLocal8Bit("не задано").toStdString();
                     fi.parameters.push_back(std::move(pi));
                 }

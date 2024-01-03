@@ -7,7 +7,7 @@
 #include <regex>
 #include <QVariant>
 #include <QSet>
-#include "parameters_compiler/parameters_compiler_types.h"
+#include "yaml_types.h"
 
 namespace CubesUnitTypes
 {
@@ -69,7 +69,7 @@ namespace CubesUnitTypes
 
 	struct UnitParameters
 	{
-		parameters_compiler::file_info fileInfo;
+		yaml::file_info fileInfo;
 		QSet<QString> platforms;
 	};
 

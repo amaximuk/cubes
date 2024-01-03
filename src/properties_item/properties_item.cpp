@@ -1,11 +1,12 @@
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
+#include "yaml_helper.h"
 #include "../main_window.h"
 #include "../diagram/diagram_scene.h"
 #include "../diagram/diagram_item.h"
+#include "../parameters_compiler/variant_converter.h"
 #include "../parameters_compiler/base64.h"
-#include "../parameters_compiler/parameters_compiler_helper.h"
 #include "properties_item.h"
 
 using namespace CubesProperties;
@@ -120,7 +121,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
         CubesUnitTypes::ParameterModel instance_name;
         instance_name.id = "BASE/NAME";
         instance_name.name = QString::fromLocal8Bit("Имя");
-        instance_name.value = parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo);
+        instance_name.value = QString::fromStdString(yaml::helper::file::get_display_name(unitParameters_.fileInfo));
         instance_name.valueType = "string";
         //instance_name.parameterInfoId = "";
         instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -237,7 +238,7 @@ void PropertiesItem::CreateProperties()
 
 //QVariant GetValue(const QString& type, const QString& value)
 //{
-//    bool is_array = parameters_compiler::helper::is_array_type(type.toStdString());
+//    bool is_array = yaml::helper::common::get_is_array_type(type.toStdString());
 //    if (is_array)
 //    {
 //        value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
@@ -251,14 +252,14 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
     // Модель включает все вложенные параметры и массивы
     // Каждому параметру назначается model ID (путь к параметру в модели, разделенный /)
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
     CubesUnitTypes::ParameterModel pm;
     pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
-    pm.name = QString::fromStdString(parameters_compiler::helper::get_parameter_display_name(pi));
+    pm.name = QString::fromStdString(yaml::helper::parameter::get_display_name(pi));
     pm.parameterInfoId = parameterInfoId;
 
-    bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+    bool is_array = yaml::helper::common::get_is_array_type(pi.type);
     if (is_array)
     {
         FillArrayModel(xmlUnit, pm);
@@ -312,12 +313,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     if (xmlUnit != nullptr)
         xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi, is_item);
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+    auto v = yaml::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, is_item);
+    bool res = CubesParameters::convert_variant(v, model.value);
 
     auto piType = pi.type;
-    if (parameters_compiler::helper::is_array_type(piType))
-        piType = parameters_compiler::helper::get_array_type(pi.type);
+    if (yaml::helper::common::get_is_array_type(piType))
+        piType = yaml::helper::common::get_item_type(pi.type);
 
     if (piType == "unit")
         model.valueType = "string";
@@ -511,7 +513,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         else
         {
             // enum user type
-            const auto pti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, piType);
+            const auto pti = yaml::helper::type::get_type_info(unitParameters_.fileInfo, piType);
             if (pti->type == "enum")
             {
                 model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
@@ -540,7 +542,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         }
     }
 
-    if (parameters_compiler::helper::get_parameter_optional(pi))
+    if (yaml::helper::parameter::get_is_optional(pi))
     {
         CubesUnitTypes::ParameterModel pmo;
         pmo.id = QString("%1/%2").arg(model.id, "OPTIONAL");
@@ -854,7 +856,7 @@ bool PropertiesItem::GetXmlParam(const CubesUnitTypes::ParameterModel& pm, Cubes
     // PARAMETERS/CHANNELS/ITEM_0/COMMUTATOR_NAME/DEPENDS
     // PARAMETERS/CHANNELS/ITEM_0/COMMUTATOR_NAME/OPTIONAL
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
     // TODO: перенести в parameters_compiler::helper
@@ -892,12 +894,12 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
         return false;
 
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
     array.name = QString::fromStdString(pi.name);
 
-    bool is_inner_type = parameters_compiler::helper::is_inner_type(pi.type);
+    bool is_inner_type = yaml::helper::common::get_is_inner_type(pi.type);
     if (is_inner_type)
     {
         // TODO: перенести в parameters_compiler::helper
@@ -930,9 +932,9 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
             for (const auto& pmParameter : pmItem.parameters)
             {
 
-                auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+                auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
                     pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
-                bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+                bool is_array = yaml::helper::common::get_is_array_type(pi.type);
                 if (is_array)
                 {
                     CubesXml::Array array{};
@@ -989,9 +991,9 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 
             for (auto& pmParameter : pm.parameters)
             {
-                auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+                auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
                     pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
-                bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+                bool is_array = yaml::helper::common::get_is_array_type(pi.type);
                 if (is_array)
                 {
                     CubesXml::Array array{};
@@ -1185,7 +1187,7 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 
 void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list)
 {
-    auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    auto pi = yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
     if (pi != nullptr && pi->type == "unit")
@@ -1200,7 +1202,7 @@ void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterMo
 
 void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list)
 {
-    auto pi = parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    auto pi = yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
     if (model.id == "PARAMETERS/DEPENDS")
@@ -1235,7 +1237,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
 //
 //    if (pi != nullptr)
 //    {
-//        if (parameters_compiler::helper::is_array_type(pi->type))
+//        if (yaml::helper::common::get_is_array_type(pi->type))
 //        {
 //            int i = CubesXml::parser::getItemsCount(xu, model.id);
 //            qDebug() << i;
@@ -1286,7 +1288,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
 //    QtProperty* p = GetProperty(model.id);
 //    editor_->SetPropertyValue(p, model);
 //
-//    auto at = parameters_compiler::helper::get_array_type(pi.type);
+//    auto at = yaml::helper::common::get_array_type(pi.type);
 //    auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, at);
 //    if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
 //    {
@@ -1406,8 +1408,9 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    model.value = parameters_compiler::helper::get_parameter_initial(unitParameters_.fileInfo, pi, false);
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+    auto v = yaml::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, false);
+    bool res = CubesParameters::convert_variant(v, model.value);
     model.valueType = "int";
 
     int xmlCount = 0;
@@ -1466,16 +1469,16 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
-    auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
     int count = model.value.toInt();
     //if (pi.restrictions.set_count.size() > 0 && count < pi.restrictions.set_count.size())
     //    count = std::stoi(pi.restrictions.set_count[count]);
 
-    auto at = parameters_compiler::helper::get_array_type(pi.type);
-    auto ti = parameters_compiler::helper::get_type_info(unitParameters_.fileInfo, at);
-    if (parameters_compiler::helper::is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
+    auto at = yaml::helper::common::get_item_type(pi.type);
+    auto ti = yaml::helper::type::get_type_info(unitParameters_.fileInfo, at);
+    if (yaml::helper::common::get_is_inner_type(at) || (ti != nullptr && ti->type == "enum"))
     {
         for (int i = model.parameters.size(); i < count; ++i)
         {
@@ -1678,15 +1681,15 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith("PARAMETERS"))
     {
-        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
-        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+        auto& pi = *yaml::helper::parameter::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+        bool is_array = yaml::helper::common::get_is_array_type(pi.type);
         std::string pi_type = pi.type;
 
         QStringList path = pm->id.split("/");
         if (path.size() > 2 && path.back().startsWith("ITEM_"))
         {
             is_array = false;
-            pi_type = parameters_compiler::helper::get_array_type(pi.type);
+            pi_type = yaml::helper::common::get_item_type(pi.type);
         }
 
         if (is_array/* && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name)*/)
@@ -1854,7 +1857,7 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
 //////    {
 //////        auto& pi = *parameters_compiler::helper::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 //////
-//////        bool is_array = parameters_compiler::helper::is_array_type(pi.type);
+//////        bool is_array = yaml::helper::common::get_is_array_type(pi.type);
 //////        if (is_array && pm->id == QString("%1/%2").arg("PARAMETERS", pm->parameterInfoId.name))
 //////        {
 //////            SaveExpandState();

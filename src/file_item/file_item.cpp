@@ -1,11 +1,11 @@
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
+#include "yaml_helper.h"
 #include "../main_window.h"
 #include "../diagram/diagram_scene.h"
 #include "../diagram/diagram_item.h"
 #include "../parameters_compiler/base64.h"
-#include "../parameters_compiler/parameters_compiler_helper.h"
 #include "file_item.h"
 
 using namespace CubesFile;
