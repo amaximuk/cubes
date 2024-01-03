@@ -86,7 +86,7 @@ public:
     QString GetNewUnitName(const QString& baseName) override;
 
 
-    void SetItemModel(yaml::file_info afi, CubesUnitTypes::ParameterModel* pm);
+    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel* pm);
 
 public:
     void closeEvent(QCloseEvent* event) override;

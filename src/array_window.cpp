@@ -22,7 +22,7 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QHeaderView>
-#include "yaml_parser.h"
+#include "parameters/yaml_parser.h"
 #include "diagram/diagram_view.h"
 #include "diagram/diagram_scene.h"
 #include "diagram/diagram_item.h"
@@ -263,7 +263,7 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
         return QString("%1#%2").arg(name).arg(counter);
 }
 
-void ArrayWindow::SetItemModel(yaml::file_info afi, CubesUnitTypes::ParameterModel* pm)
+void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel* pm)
 {
 //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
 //            up.fileInfo = fi;

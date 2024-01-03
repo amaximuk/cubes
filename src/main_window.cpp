@@ -22,7 +22,7 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QHeaderView>
-#include "yaml_parser.h"
+#include "parameters/yaml_parser.h"
 #include "diagram/diagram_view.h"
 #include "diagram/diagram_scene.h"
 #include "diagram/diagram_item.h"
@@ -631,8 +631,8 @@ void MainWindow::FillParametersInfo()
             foreach(QString filename, propFiles)
             {
                 QString fullPath = QDir(ymlPath).filePath(filename);
-                yaml::file_info fi{};
-                if (!yaml::parser::parse(fullPath.toStdString(), false, fi))
+                parameters::file_info fi{};
+                if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
                 {
                     CubeLog::LogMessage m{};
                     m.type = CubeLog::MessageType::error;
@@ -645,7 +645,7 @@ void MainWindow::FillParametersInfo()
                 // Принцип обработки такой же как и у остальных параметров
                 if (fi.info.id != "group" && fi.info.id != "group_mock")
                 {
-                    yaml::parameter_info pi{};
+                    parameters::parameter_info pi{};
                     pi.type = QString::fromLocal8Bit("array<string>").toStdString();
                     pi.name = QString::fromLocal8Bit("DEPENDS").toStdString();
                     pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();

@@ -1,7 +1,7 @@
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
-#include "yaml_helper.h"
+#include "parameters.h"
 #include "../main_window.h"
 #include "../diagram/diagram_scene.h"
 #include "../diagram/diagram_item.h"
