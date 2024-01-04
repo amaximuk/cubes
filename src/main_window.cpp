@@ -745,10 +745,8 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
             return false;
     }
 
-
-
-    //if (!SortUnitsRectangular())
-    //    return false;
+    if (!SortUnitsRectangular())
+        return false;
 
     return true;
 }
@@ -929,6 +927,10 @@ bool MainWindow::SortUnitsRectangular()
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         QPoint position(c * 200, r * 80);
         di->setPos(position);
+
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->PositionChanged(di->pos());
+
         if (++c == columns) { ++r; c = 0; };
     }
     QPointF center = scene_->itemsBoundingRect().center();
