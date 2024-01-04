@@ -13,7 +13,9 @@ using namespace CubesXml;
 
 bool Parser::Parse(const QString& filename, File& fi)
 {
-	fi.fileName = QFileInfo(filename).fileName();
+	fi.fileName = filename;
+	//fi.fileName = QFileInfo(filename).fileName();
+
 	//QFile xmlFile(filename);
 	//if (!xmlFile.open(QIODevice::ReadOnly))
 	//{
