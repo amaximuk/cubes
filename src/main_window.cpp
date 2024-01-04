@@ -1112,7 +1112,8 @@ void MainWindow::selectionChanged()
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         //pi->PositionChanged(di->pos());
         //pi->ZOrderChanged(di->zValue());
-        if (scene_->selectedItems().count() == 1)
+        //if (scene_->selectedItems().count() == 1)
+        if (propertiesItemsManager_->GetCurrentPropertiesId() == 0)
             propertiesItemsManager_->Select(di->propertiesId_);
     }
     else
