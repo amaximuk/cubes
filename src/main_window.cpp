@@ -916,27 +916,41 @@ bool MainWindow::SortUnitsRectangular()
     if (scene_->items().size() == 0)
         return true;
 
-    int size = scene_->items().size();
-    int rows = std::sqrt(scene_->items().size());
-    int columns = (scene_->items().size() + rows - 1) / rows;
-
-    int c = 0;
-    int r = 0;
+    int count = 0;
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        QPoint position(c * 200, r * 80);
-        di->setPos(position);
-
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->PositionChanged(di->pos());
-
-        if (++c == columns) { ++r; c = 0; };
+        QPointF p = di->pos();
+        if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+            ++count;
     }
-    QPointF center = scene_->itemsBoundingRect().center();
-    view_->centerOn(center);
 
-    scene_->invalidate();
+    if (count == scene_->items().size())
+    {
+        // Все нулевые, распределяем по сетке
+        int size = scene_->items().size();
+        int rows = std::sqrt(scene_->items().size());
+        int columns = (scene_->items().size() + rows - 1) / rows;
+
+        int c = 0;
+        int r = 0;
+        for (auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            QPoint position(c * 200, r * 80);
+            di->setPos(position);
+
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            pi->PositionChanged(di->pos());
+
+            if (++c == columns) { ++r; c = 0; };
+        }
+        QPointF center = scene_->itemsBoundingRect().center();
+        view_->centerOn(center);
+
+        scene_->invalidate();
+    }
+
     return true;
 }
 
@@ -1411,7 +1425,8 @@ void MainWindow::OnSaveFileAction()
         auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
         xmlFile.config.groups = std::move(xmlGroups);
 
-        CubesXml::Writer::Write(QString("tmp/%1").arg(xmlFile.fileName), xmlFile);
+        QFileInfo fi(xmlFile.fileName);
+        CubesXml::Writer::Write(QString("tmp/%1").arg(fi.fileName()), xmlFile);
 
 
 
