@@ -139,7 +139,8 @@ namespace CubesXml
 
 	struct File
 	{
-		QString name; // TODO: Add to xm format - short name of file
+		QString name; // TODO: Add to xml format - short name of file
+		QString platform; // TODO: Add to xml format - target patform
 		QString fileName;
 		QList<Include> includes;
 		Config config;

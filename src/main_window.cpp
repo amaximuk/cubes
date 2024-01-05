@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("ÀÐÌ"));
+    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("ÀÐÌ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]));
 }
 
 MainWindow::~MainWindow()
@@ -672,12 +672,12 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
 
     //QString fileName = QFileInfo(file.fileName).fileName();
 
-    QString fileName;
-    fileItemsManager_->Create(file.fileName, fileName);
-    fileItemsManager_->Select(fileName);
+    QString name = file.name;
+    fileItemsManager_->Create(file.fileName, name, file.platform);
+    fileItemsManager_->Select(name);
 
     for (const auto& include : file.includes)
-        fileItemsManager_->AddFileInclude(fileName, include.fileName, include.variables);
+        fileItemsManager_->AddFileInclude(name, include.fileName, include.variables);
     //for (int i = 0; i < file.includes.size(); i++)
     //{
     //    QList<QPair<QString, QString>> variables;
@@ -730,7 +730,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     //if (file.includes.size() > 0)
     //    file.config.groups.push_back(std::move(g));
 
-    if (!AddUnits(fileName, "", file))
+    if (!AddUnits(name, "", file))
         return false;
 
     QDir dir = QFileInfo(file.fileName).absoluteDir();
@@ -741,7 +741,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
         if (!CubesXml::Parser::Parse(includedFileName, includedFile))
             return false;
 
-        if (!AddUnits(fileName, file.includes[i].fileName, includedFile))
+        if (!AddUnits(name, file.includes[i].fileName, includedFile))
             return false;
     }
 
@@ -1342,6 +1342,8 @@ void MainWindow::OnOpenFileAction()
         if (resBtn != QMessageBox::Yes)
             return;
     }
+
+    auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
 
     //QFileDialog dialog(this);
     //dialog.setNameFilters({ "Parameters Compiler YAML Files (*.yml *.yaml)", "Parameters Compiler JSON Files (*.json)" });

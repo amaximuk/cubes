@@ -7,6 +7,7 @@
 #include <QLabel>
 #include "qttreepropertybrowser.h"
 #include "../top_manager_interface.h"
+#include "../unit_types.h"
 #include "file_item.h"
 #include "file_items_manager.h"
 
@@ -47,13 +48,18 @@ QString FileItemsManager::GetCurrentFileName()
 		return "";
 }
 
-void FileItemsManager::Create(const QString& filePath, QString& fileName)
+void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	if (fileName == "")
+	auto item = GetItem(fileName);
+	if (fileName == "" || item != nullptr)
 		fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(++unique_number_);
+
+	auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
+	if (platform == "" || it == CubesUnitTypes::platform_names_.cend())
+		platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
 
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_));
 	fi->SetName(fileName, true, fileName);
@@ -440,7 +446,7 @@ void FileItemsManager::OnAddFileClicked()
 
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-	Create(QString::fromLocal8Bit("config.xml"), fileName);
+	Create(QString::fromLocal8Bit("config.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]));
 	//Select(fileName);
 
 	//for (auto& item : panes_[0].first->items())

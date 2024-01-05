@@ -16,7 +16,7 @@ namespace CubesXml
 	private:
 		static bool GetFile(const QDomElement& node, File& file);
 		static bool GetIncludes(const QDomElement& node, QList<Include>& includes);
-		static bool GetConfig(const QDomElement& node, Config& config);
+		static bool GetConfig(const QDomElement& node, QString& name, QString& platform, Config& config);
 		static bool GetNetworking(const QDomElement& node, Networking& networking);
 		static bool GetLog(const QDomElement& node, Log& log);
 		static bool GetUnits(const QDomElement& node, QList<Group>& groups);

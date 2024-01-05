@@ -50,7 +50,7 @@ bool Writer::SetFile(const File& file, QXmlStreamWriter& xmlWriter)
 	if (!SetIncludes(file.includes, xmlWriter))
 		ELRF("Set Includes failed");
 
-	if (!SetConfig(file.config, xmlWriter))
+	if (!SetConfig(file.config, file.name, file.platform, xmlWriter))
 		ELRF("Set Config failed");
 
 	return true;
@@ -81,9 +81,14 @@ bool Writer::SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWr
 	return true;
 }
 
-bool Writer::SetConfig(const Config& config, QXmlStreamWriter& xmlWriter)
+bool Writer::SetConfig(const Config& config, const QString& name, const QString& platform, QXmlStreamWriter& xmlWriter)
 {
 	xmlWriter.writeStartElement("Config");
+
+	if (name != "")
+		xmlWriter.writeAttribute("name", name);
+	if (platform != "")
+		xmlWriter.writeAttribute("platform", platform);
 
 	if (config.networkingIsSet)
 	{

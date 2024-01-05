@@ -32,7 +32,7 @@ namespace CubesFile
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		QString GetCurrentFileName();
-		void Create(const QString& filePath, QString& fileName);
+		void Create(const QString& filePath, QString& fileName, QString& platform);
 		void Select(const QString& fileName);
 		QSharedPointer<FileItem> GetItem(const QString& fileName);
 		QStringList GetFileNames();

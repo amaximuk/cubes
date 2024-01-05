@@ -593,6 +593,15 @@ void FileItem::SetName(QString name, bool setOldName, QString oldName)
     editor_->SetStringValue(pr, name, setOldName, oldName);
 }
 
+void FileItem::SetPlatform(QString platform)
+{
+    auto pm = GetParameterModel("BASE/PLATFORM");
+    pm->value = platform;
+
+    auto pr = GetProperty(pm->id);
+    editor_->SetEnumValue(pr, "string", platform);
+}
+
 void FileItem::SetPath(QString name, bool setOldName, QString oldName)
 {
     auto pm = GetParameterModel("BASE/PATH");
@@ -828,6 +837,8 @@ File FileItem::GetFile()
 CubesXml::File FileItem::GetXmlFile()
 {
     CubesXml::File result{};
+    result.name = GetParameterModel("BASE/NAME")->value.toString();
+    result.platform = GetParameterModel("BASE/PLATFORM")->value.toString();
     result.fileName = GetParameterModel("BASE/PATH")->value.toString();
 
     result.config.networkingIsSet = true;

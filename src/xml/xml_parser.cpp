@@ -72,8 +72,12 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 			}
 			else if (ne.tagName() == "Config")
 			{
-				if (!GetConfig(ne, fi.config))
+				QString name;
+				QString platform;
+				if (!GetConfig(ne, name, platform, fi.config))
 					ELRF("Get Config failed");
+				fi.name = name;
+				fi.platform = platform;
 			}
 		}
 		n = n.nextSibling();
@@ -135,8 +139,11 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 	return true;
 }
 
-bool Parser::GetConfig(const QDomElement& node, Config& config)
+bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform, Config& config)
 {
+	name = node.attribute("name", "");
+	platform = node.attribute("platform", "");
+
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
 	{
