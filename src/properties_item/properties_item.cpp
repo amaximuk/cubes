@@ -690,7 +690,9 @@ void PropertiesItem::SetFileNames(QStringList fileNames)
         //?????????
         //if (pm->value.toString() == "" && fileNames.size() > 0)
         //    pm->value = fileNames[0];
+        editor_->blockSignals(true);
         editor_->SetEnumValues(GetProperty(pm->id), fileNames);
+        editor_->blockSignals(false);
     }
 }
 
