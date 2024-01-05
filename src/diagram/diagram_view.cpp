@@ -126,6 +126,8 @@ void DiagramView::dropEvent(QDropEvent *event)
             this->scene()->addItem(di);
             this->scene()->clearSelection();
             di->setPos(position);
+            ds->InformItemPositionChanged(di);
+
             di->setSelected(true);
         }
 
