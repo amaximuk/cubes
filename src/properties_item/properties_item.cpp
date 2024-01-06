@@ -931,23 +931,55 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
         for (const auto& pmItem : pm.parameters)
         {
             CubesXml::Item item{};
-            for (const auto& pmParameter : pmItem.parameters)
+            for (const auto& pmGroup : pmItem.parameters)
             {
-
-                auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
-                    pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
-                bool is_array = parameters::helper::common::get_is_array_type(pi.type);
-                if (is_array)
+                QString id = pmGroup.id;
+                id.replace(pmItem.id + "/", "");
+                if (id == "BASE")
                 {
-                    CubesXml::Array array{};
-                    if (GetXmlArrray(pmParameter, array))
-                        item.arrays.push_back(array);
+                    for (auto& pmBase : pmGroup.parameters)
+                    {
+                        QString idBase = pmBase.id;
+                        idBase.replace(pmItem.id + "/", "");
+                        if (idBase == "BASE/NAME")
+                            item.name = pmBase.value.toString();
+                    }
                 }
-                else
+                else if (id.startsWith("PARAMETERS"))
                 {
-                    CubesXml::Param param{};
-                    if (GetXmlParam(pmParameter, param))
-                        item.params.push_back(param);
+                    for (auto& pmParameter : pmGroup.parameters)
+                    {
+                        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+                            pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
+                        bool is_array = parameters::helper::common::get_is_array_type(pi.type);
+                        if (is_array)
+                        {
+                            CubesXml::Array array{};
+                            if (GetXmlArrray(pmParameter, array))
+                                item.arrays.push_back(array);
+                        }
+                        else
+                        {
+                            CubesXml::Param param{};
+                            if (GetXmlParam(pmParameter, param))
+                                item.params.push_back(param);
+                        }
+                    }
+                }
+                else if (id == "EDITOR")
+                {
+                    for (auto& pmEditor : pmGroup.parameters)
+                    {
+                        QString idEditor = pmEditor.id;
+                        idEditor.replace(pmItem.id + "/", "");
+
+                        if (idEditor == "EDITOR/POSITION_X")
+                            item.x = pmEditor.value.toInt();
+                        else if (idEditor == "EDITOR/POSITION_Y")
+                            item.y = pmEditor.value.toInt();
+                        else if (idEditor == "EDITOR/POSITION_Z")
+                            item.z = pmEditor.value.toInt();
+                    }
                 }
             }
             array.items.push_back(item);
@@ -970,17 +1002,17 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 
     xmlUnit.id = QString::fromStdString(unitParameters_.fileInfo.info.id);
     
-    for (auto& pm : model_.parameters)
+    for (auto& pmGroup : model_.parameters)
     {
-        if (pm.id == "BASE")
+        if (pmGroup.id == "BASE")
         {
-            for (auto& pmBase : pm.parameters)
+            for (auto& pmBase : pmGroup.parameters)
             {
                 if (pmBase.id == "BASE/NAME")
                     xmlUnit.name = pmBase.value.toString();
             }
         }
-        else if (pm.id.startsWith("PARAMETERS"))
+        else if (pmGroup.id.startsWith("PARAMETERS"))
         {
             //    QString id; // id path, separated by /
             //    QString name;
@@ -991,7 +1023,7 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
             //    QList<ParameterModel> parameters;
             //    bool readOnly;
 
-            for (auto& pmParameter : pm.parameters)
+            for (auto& pmParameter : pmGroup.parameters)
             {
                 auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
                     pmParameter.parameterInfoId.type.toStdString(), pmParameter.parameterInfoId.name.toStdString());
@@ -1010,9 +1042,9 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
                 }
             }
         }
-        else if (pm.id == "EDITOR")
+        else if (pmGroup.id == "EDITOR")
         {
-            for (auto& pmEditor: pm.parameters)
+            for (auto& pmEditor: pmGroup.parameters)
             {
                 if (pmEditor.id == "EDITOR/POSITION_X")
                     xmlUnit.x = pmEditor.value.toInt();

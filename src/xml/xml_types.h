@@ -102,6 +102,11 @@ namespace CubesXml
 		QString val;
 		QList<Param> params;
 		QList<Array> arrays;
+
+		QString name;
+		int32_t x;
+		int32_t y;
+		int32_t z;
 	};
 
 	struct Array
