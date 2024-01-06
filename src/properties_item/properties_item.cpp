@@ -11,11 +11,12 @@
 
 using namespace CubesProperties;
 
-const QString baseGroupName = QString::fromLocal8Bit("$BASE");
-const QString parametersGroupName = QString::fromLocal8Bit("$PARAMETERS");
-const QString editorGroupName = QString::fromLocal8Bit("$EDITOR");
-const QString itemGroupName = QString::fromLocal8Bit("$ITEM");
-const QString dependsGroupName = QString::fromLocal8Bit("$DEPENDS");
+const QString CubesProperties::baseGroupName = QString::fromLocal8Bit("$BASE");
+const QString CubesProperties::parametersGroupName = QString::fromLocal8Bit("$PARAMETERS");
+const QString CubesProperties::editorGroupName = QString::fromLocal8Bit("$EDITOR");
+const QString CubesProperties::itemGroupName = QString::fromLocal8Bit("$ITEM");
+const QString CubesProperties::dependsParameterName = QString::fromLocal8Bit("$DEPENDS");
+const QString CubesProperties::optionalParameterName = QString::fromLocal8Bit("$OPTIONAL");
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId)
@@ -397,7 +398,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             model.editorSettings.type = CubesUnitTypes::EditorType::String;
 
             CubesUnitTypes::ParameterModel pm_depends;
-            pm_depends.id = QString("%1/%2").arg(model.id, dependsGroupName);
+            pm_depends.id = QString("%1/%2").arg(model.id, dependsParameterName);
             pm_depends.name = QString::fromLocal8Bit("Зависимость");
             pm_depends.value = false;
             pm_depends.valueType = "bool";
@@ -566,7 +567,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     if (parameters::helper::parameter::get_is_optional(pi))
     {
         CubesUnitTypes::ParameterModel pmo;
-        pmo.id = QString("%1/%2").arg(model.id, "OPTIONAL");
+        pmo.id = QString("%1/%2").arg(model.id, optionalParameterName);
         pmo.name = QString::fromLocal8Bit("Не задавать");
         pmo.value = false;
         pmo.valueType = "bool";
@@ -882,29 +883,31 @@ bool PropertiesItem::GetXmlParam(const CubesUnitTypes::ParameterModel& pm, Cubes
     auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
+    auto typeName = parameters::helper::parameter::get_type_xml(unitParameters_.fileInfo, pi);
+
     // TODO: перенести в parameters_compiler::helper
-    QString typeName;
-    if (pm.valueType == "string") typeName = "str";
-    else if (pm.valueType == "int") typeName = "int";
-    else if (pm.valueType == "double") typeName = "dbl";
-    else if (pm.valueType == "bool") typeName = "bool";
-    else if (pm.valueType == "library") typeName = "lib";
+    //QString typeName;
+    //if (pm.valueType == "string") typeName = "str";
+    //else if (pm.valueType == "int") typeName = "int";
+    //else if (pm.valueType == "double") typeName = "dbl";
+    //else if (pm.valueType == "bool") typeName = "bool";
+    //else if (pm.valueType == "library") typeName = "lib";
 
     bool depends{false};
-    bool not_set{false};
+    bool notSet{false};
     for (auto& pmParameter : pm.parameters)
     {
-        if (pmParameter.id == pm.id + "/" + dependsGroupName)
+        if (pmParameter.id == pm.id + "/" + dependsParameterName)
             depends = pmParameter.value.toBool();
-        else if (pmParameter.id == pm.id + "/OPTIONAL")
-            not_set = pmParameter.value.toBool();
+        else if (pmParameter.id == pm.id + "/" + optionalParameterName)
+            notSet = pmParameter.value.toBool();
     }
 
-    if (not_set)
+    if (notSet)
         return false;
 
     param.name = QString::fromStdString(pi.name);
-    param.type = typeName;
+    param.type = QString::fromStdString(typeName);
     param.val = pm.value.toString();
     param.depends = depends;
 
@@ -916,7 +919,6 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
     if (pm.parameters.size() == 0)
         return false;
 
-
     auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         pm.parameterInfoId.type.toStdString(), pm.parameterInfoId.name.toStdString());
 
@@ -925,15 +927,17 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
     bool is_inner_type = parameters::helper::common::get_is_inner_type(pi.type);
     if (is_inner_type)
     {
-        // TODO: перенести в parameters_compiler::helper
-        QString typeName;
-        if (pm.valueType == "string") typeName = "str";
-        else if (pm.valueType == "int") typeName = "int";
-        else if (pm.valueType == "double") typeName = "dbl";
-        else if (pm.valueType == "bool") typeName = "bool";
-        else if (pm.valueType == "library") typeName = "lib";
+        auto typeName = parameters::helper::parameter::get_type_xml(unitParameters_.fileInfo, pi);
 
-        array.type = typeName;
+        // TODO: перенести в parameters_compiler::helper
+        //QString typeName;
+        //if (pm.valueType == "string") typeName = "str";
+        //else if (pm.valueType == "int") typeName = "int";
+        //else if (pm.valueType == "double") typeName = "dbl";
+        //else if (pm.valueType == "bool") typeName = "bool";
+        //else if (pm.valueType == "library") typeName = "lib";
+
+        array.type = QString::fromStdString(typeName);
 
         // TODO: depends pm.valueType = int????????
         // depends - no type (have int)
@@ -1260,7 +1264,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
     auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
-    if (model.id == parametersGroupName + "/" + dependsGroupName)
+    if (model.id == parametersGroupName + "/" + dependsParameterName)
     {
         for (const auto& sub : model.parameters)
         {
@@ -1273,7 +1277,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
     {
         for (const auto& sub : model.parameters)
         {
-            if (sub.id.endsWith(dependsGroupName) && sub.valueType == "bool" && sub.value.toBool() == true)
+            if (sub.id.endsWith(dependsParameterName) && sub.valueType == "bool" && sub.value.toBool() == true)
             {
                 QString name = model.value.toString();
                 list.push_back(name);
@@ -1502,7 +1506,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         if (pi.restrictions.max_count != "")
             model.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max_count);
         else
-            model.editorSettings.SpinIntergerMax = 1000; // !!! todo: make a define for a const
+            model.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
 
         if (xmlUnit != nullptr && xmlCount != -1)
         {
@@ -1537,15 +1541,15 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
     {
         for (int i = model.parameters.size(); i < count; ++i)
         {
-            CubesUnitTypes::ParameterModel modelXXX;
-            modelXXX.id = QString("%1/%2_%3").arg(model.id, itemGroupName).arg(i);
-            modelXXX.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+            CubesUnitTypes::ParameterModel itemModel;
+            itemModel.id = QString("%1/%2_%3").arg(model.id, itemGroupName).arg(i);
+            itemModel.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 //!!!!!!!!!!!!!!!!!!!!!!!
             //model.value = "";
             //model.valueType = "none";
-            modelXXX.parameterInfoId = model.parameterInfoId;
-            FillParameterModel(xmlUnit, modelXXX, true);
-            model.parameters.push_back(modelXXX);
+            itemModel.parameterInfoId = model.parameterInfoId;
+            FillParameterModel(xmlUnit, itemModel, true);
+            model.parameters.push_back(itemModel);
 
             //parameters_compiler::parameter_info pi_new = pm.parameterInfo;
             //pi_new.type = at;
@@ -1567,6 +1571,13 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             group_model.valueType = "none";
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
 
+
+
+            CubesXml::Item* xmlItem = nullptr;
+            if (xmlUnit != nullptr)
+                xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id);
+
+
             {
                 CubesUnitTypes::ParameterModel base_group;
                 base_group.id = group_model.id + "/" + baseGroupName;
@@ -1577,10 +1588,35 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                 base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
                 //base_group.editorSettings.is_expanded = true;
 
+
+
+
+
+
+
+
+                //CubesXml::Param* xmlParam = nullptr;
+                //if (xmlUnit != nullptr)
+                //    xmlParam = CubesXml::Parser::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id);
+
+                //CubesXml::Item* xmlItem = nullptr;
+                //if (xmlUnit != nullptr)
+                //    xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id);
+
+
+
+
+
+
+
+
                 CubesUnitTypes::ParameterModel instance_name;
                 instance_name.id = group_model.id + "/" + baseGroupName + "/NAME";
                 instance_name.name = QString::fromLocal8Bit("Имя");
-                instance_name.value = group_model.name;
+                if (xmlItem == nullptr || xmlItem->name == "")
+                    instance_name.value = group_model.name;
+                else
+                    instance_name.value = xmlItem->name;
                 instance_name.valueType = "string";
                 //instance_name.parameterInfoId = "";
                 instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -1636,7 +1672,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + "/" + editorGroupName + "/POSITION_X";
                     pm.name = QString::fromLocal8Bit("Позиция X");
-                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->x;
+                    pm.value = xmlItem == nullptr ? 0 : xmlItem->x;
                     pm.valueType = "double";
                     //pm.parameterInfoId = "";
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
@@ -1650,7 +1686,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + "/" + editorGroupName + "/POSITION_Y";
                     pm.name = QString::fromLocal8Bit("Позиция Y");
-                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->y;
+                    pm.value = xmlItem == nullptr ? 0 : xmlItem->y;
                     pm.valueType = "double";
                     //pm.parameterInfoId = "";
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
@@ -1664,7 +1700,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + "/" + editorGroupName + "/POSITION_Z";
                     pm.name = QString::fromLocal8Bit("Позиция Z");
-                    pm.value = xmlUnit == nullptr ? 0 : xmlUnit->z;
+                    pm.value = xmlItem == nullptr ? 0 : xmlItem->z;
                     pm.valueType = "double";
                     //pm.parameterInfoId = "";
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
@@ -1746,69 +1782,80 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         // Например: $PARAMETERS/CHANNELS/$ITEM_0/$BASE/NAME,
         // $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/FIRMWARE и т.п.
         // Поэтому дополнительно проверяем предпоследний пункт в id
-        if (path[path.size() - 1] != parametersGroupName)
+
+        //if (path.size() > 2 && (path[path.size() - 1] == parametersGroupName))
+        if (path.size() > 2 && (path[path.size() - 2] == baseGroupName || path[path.size() - 2] == editorGroupName))
         {
-            //pm->valueType
-        }
-
-        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
-        bool is_array = parameters::helper::common::get_is_array_type(pi.type);
-        std::string pi_type = pi.type;
-
-        //QStringList path = pm->id.split("/");
-        if (path.size() > 2 && path.back().startsWith(itemGroupName))
-        {
-            is_array = false;
-            pi_type = parameters::helper::common::get_item_type(pi.type);
-        }
-
-        if (is_array/* && pm->id == QString("%1/%2").arg(parametersGroupName, pm->parameterInfoId.name)*/)
-        {
-            int count = std::stoi(property->valueText().toStdString());
-            pm->value = count;
-            UpdateArrayModel(nullptr, *pm);
-        
-            QMap<QString, const QtProperty*> idToProperty;
-            for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
-            for (const auto& kvp : idToProperty.toStdMap())
-                RegisterProperty(kvp.second, kvp.first);
-
-            auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
-                list.push_back(property);
-                for (const auto& p : property->subProperties())
-                    collect(p, list, collect);
-            };
-
-            QList<QtProperty*> toRemove;
-            QList<QtProperty*> toUnregister;
-            const auto& subProperties = property->subProperties();
-            for (int i = count; i < subProperties.size(); ++i)
+            if (path[path.size() - 2] == baseGroupName)
             {
-                collect(subProperties[i], toUnregister, collect);
-                toRemove.push_back(subProperties[i]);
+                pm->value = property->valueText();
             }
-
-            for (auto& p : toRemove)
-                property->removeSubProperty(p);
-
-            for (auto& p : toUnregister)
-                UnregisterProperty(p);
-
-            ApplyExpandState();
+            else if (path[path.size() - 2] == editorGroupName)
+            {
+                pm->value = property->valueText().toDouble();
+            }
         }
         else
         {
-            // TODO: убрать весь хардкод, тем более он относится к библиотеке parameters
-            if (pi_type == "unit" || pi_type == "path" || pi_type == "string")
-                pm->value = property->valueText();
-            else if (pi_type == "int" || pi_type == "int8_t" || pi_type == "int16_t" || pi_type == "int32_t" ||
-                pi_type == "int64_t" || pi_type == "uint8_t" || pi_type == "uint16_t" || pi_type == "uint32_t" || pi_type == "uint64_t")
-                pm->value = std::stoi(property->valueText().toStdString());
-            else if (pi_type == "double" || pi_type == "float")
-                pm->value = std::stod(property->valueText().toStdString());
-            else // enum
-                pm->value = property->valueText();
+            auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+            bool is_array = parameters::helper::common::get_is_array_type(pi.type);
+            std::string pi_type = pi.type;
+
+            //QStringList path = pm->id.split("/");
+            if (path.size() > 2 && path.back().startsWith(itemGroupName))
+            {
+                is_array = false;
+                pi_type = parameters::helper::common::get_item_type(pi.type);
+            }
+
+            if (is_array/* && pm->id == QString("%1/%2").arg(parametersGroupName, pm->parameterInfoId.name)*/)
+            {
+                int count = std::stoi(property->valueText().toStdString());
+                pm->value = count;
+                UpdateArrayModel(nullptr, *pm);
+
+                QMap<QString, const QtProperty*> idToProperty;
+                for (int i = property->subProperties().size(); i < count; ++i)
+                    property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
+                for (const auto& kvp : idToProperty.toStdMap())
+                    RegisterProperty(kvp.second, kvp.first);
+
+                auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+                    list.push_back(property);
+                    for (const auto& p : property->subProperties())
+                        collect(p, list, collect);
+                };
+
+                QList<QtProperty*> toRemove;
+                QList<QtProperty*> toUnregister;
+                const auto& subProperties = property->subProperties();
+                for (int i = count; i < subProperties.size(); ++i)
+                {
+                    collect(subProperties[i], toUnregister, collect);
+                    toRemove.push_back(subProperties[i]);
+                }
+
+                for (auto& p : toRemove)
+                    property->removeSubProperty(p);
+
+                for (auto& p : toUnregister)
+                    UnregisterProperty(p);
+
+                ApplyExpandState();
+            }
+            else
+            {
+                // TODO: убрать весь хардкод, тем более он относится к библиотеке parameters
+                if (pi_type == "unit" || pi_type == "path" || pi_type == "string")
+                    pm->value = property->valueText();
+                else if (pi_type == "int" || pi_type == "int8_t" || pi_type == "int16_t" || pi_type == "int32_t" ||
+                    pi_type == "int64_t" || pi_type == "uint8_t" || pi_type == "uint16_t" || pi_type == "uint32_t" || pi_type == "uint64_t")
+                    pm->value = std::stoi(property->valueText().toStdString());
+                else if (pi_type == "double" || pi_type == "float")
+                    pm->value = std::stod(property->valueText().toStdString());
+                else // enum
+                    pm->value = property->valueText();
+            }
         }
     }
     else if (pm->id.startsWith(editorGroupName))

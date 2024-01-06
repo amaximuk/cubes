@@ -4,6 +4,7 @@
 #include <chrono>
 #include <regex>
 #include <QTextStream>
+#include "../properties_item/properties_item.h"
 #include "xml_parser.h"
 
 using namespace CubesXml;
@@ -446,6 +447,16 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 
 bool Parser::GetItem(const QDomElement& node, Item& item)
 {
+	QString name = node.attribute("name", "");
+	int32_t x = node.attribute("x", "0").toInt();
+	int32_t y = node.attribute("y", "0").toInt();
+	int32_t z = node.attribute("z", "0").toInt();
+
+	item.name = name;
+	item.x = x;
+	item.y = y;
+	item.z = z;
+
 	QString val = node.attribute("val", "");
 	item.val = val;
 
@@ -494,7 +505,7 @@ int Parser::GetItemsCount(Unit& unit, const QString& id)
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != "PARAMETERS")
+	if (ss.front() != CubesProperties::parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -507,7 +518,7 @@ int Parser::GetItemsCount(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
+			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > 4)
 			{
 				int index = s.mid(5).toInt();
 				if (array->items.size() > index)
@@ -558,7 +569,7 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != "PARAMETERS")
+	if (ss.front() != CubesProperties::parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -571,9 +582,9 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
+			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > 4)
 			{
-				int index = s.mid(5).toInt();
+				int index = s.mid(CubesProperties::itemGroupName.size() + 1).toInt();
 				if (array->items.size() > index)
 				{
 					params = &array->items[index].params;
@@ -620,7 +631,7 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != "PARAMETERS")
+	if (ss.front() != CubesProperties::parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -633,7 +644,7 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith("ITEM_") && s.size() > 4)
+			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > 4)
 			{
 				int index = s.mid(5).toInt();
 				if (array->items.size() > index)

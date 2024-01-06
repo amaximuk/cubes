@@ -341,6 +341,15 @@ bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 
 	xmlWriter.writeStartElement("Item");
 
+	if (item.name != "")
+		xmlWriter.writeAttribute("name", item.name);
+	if (item.x != 0 || item.y != 0 || item.z != 0)
+	{
+		xmlWriter.writeAttribute("x", QString("%1").arg(item.x));
+		xmlWriter.writeAttribute("y", QString("%1").arg(item.y));
+		xmlWriter.writeAttribute("z", QString("%1").arg(item.z));
+	}
+
 	if (item.params.size() == 0 && item.arrays.size() == 0)
 	{
 		xmlWriter.writeAttribute("val", item.val);

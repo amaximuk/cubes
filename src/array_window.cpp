@@ -301,7 +301,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
 
         for (auto& group : item.parameters)
         {
-            if (group.id == "PARAMETERS")
+            if (group.id == CubesProperties::parametersGroupName)
             for (auto& parameter : group.parameters)
                 parameter.parameterInfoId.type = "Main";
         }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 #include "properties_items_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml/xml_parser.h"
@@ -8,6 +9,14 @@
 
 namespace CubesProperties
 {
+    extern const QString baseGroupName;
+    extern const QString parametersGroupName;
+    extern const QString editorGroupName;
+    extern const QString itemGroupName;
+    extern const QString dependsParameterName;
+    extern const QString optionalParameterName;
+
+
     class PropertiesItem : public QObject
     {
         Q_OBJECT
