@@ -18,7 +18,7 @@ namespace CubesParameters
         case parameters::base_types::floating:
             qv = v.get<double>();
             break;
-        case parameters::base_types::bool_:
+        case parameters::base_types::boolean:
             qv = v.get<bool>();
             break;
         default:
