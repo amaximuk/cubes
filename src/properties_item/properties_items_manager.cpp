@@ -184,7 +184,7 @@ bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId,
 	pfd.pixmap = pi->GetPixmap();
 	pfd.name = GetName(pi.get());
 	pfd.fileName = pi->GetFileName();
-	pfd.groupName = pi->GetGroupName();
+	pfd.groupName = pi->GetIncludeName();
 	pfd.color = {};
 	return true;
 }
@@ -220,7 +220,7 @@ bool PropertiesItemsManager::InformVariableChanged()
 			selector_->setItemText(index, name);
 
 		auto fileName = p->GetFileName();
-		auto groupName = p->GetGroupName();
+		auto groupName = p->GetIncludeName();
 
 		emit BasePropertiesChanged(p->GetPropertiesId(), name, fileName, groupName);
 	}
@@ -296,7 +296,7 @@ QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& 
 	QList<uint32_t> result;
 	for (const auto& item : items_)
 	{
-		if (item->GetFileName() == fileName && item->GetGroupName() == includeFileName)
+		if (item->GetFileName() == fileName && item->GetIncludeName() == includeFileName)
 			result.push_back(item->GetPropertiesId());
 	}
 	return result;
@@ -307,7 +307,7 @@ QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileN
 	QMap<QString, CubesXml::Group> xmlGroups;
 	for (const auto& item : items_)
 	{
-		if (item->GetFileName() == fileName && item->GetGroupName() == includeFileName)
+		if (item->GetFileName() == fileName && item->GetIncludeName() == includeFileName)
 		{
 			CubesXml::Unit xmlUnit{};
 			item->GetXml(xmlUnit);
@@ -338,7 +338,7 @@ void PropertiesItemsManager::AfterNameChanged(PropertiesItem* item)
 		selector_->setItemText(index, name);
 
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetGroupName();
+	auto groupName = item->GetIncludeName();
 
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
@@ -354,7 +354,7 @@ void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringL
 	topManager_->GetFileIncludeList(item->GetFileName(), includeNames);
 
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetGroupName();
+	auto groupName = item->GetIncludeName();
 
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
@@ -371,7 +371,7 @@ void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item)
 	//topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
 
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetGroupName();
+	auto groupName = item->GetIncludeName();
 
 	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
 }
@@ -732,7 +732,7 @@ void PropertiesItemsManager::SetFilePropertyExpanded(const uint32_t propertiesId
 QString PropertiesItemsManager::GetName(PropertiesItem* item)
 {
 	QList<QPair<QString, QString>> variables;
-	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
+	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetIncludeName(), variables);
 
 	QString name = item->GetName();
 	for (const auto& v : variables)

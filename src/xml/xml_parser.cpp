@@ -582,7 +582,7 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > 4)
+			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > CubesProperties::itemGroupName.size() + 1)
 			{
 				int index = s.mid(CubesProperties::itemGroupName.size() + 1).toInt();
 				if (array->items.size() > index)
@@ -644,9 +644,9 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > 4)
+			if (s.startsWith(CubesProperties::itemGroupName) && s.size() > CubesProperties::itemGroupName.size() + 1)
 			{
-				int index = s.mid(5).toInt();
+				int index = s.mid(CubesProperties::itemGroupName.size() + 1).toInt();
 				if (array->items.size() > index)
 				{
 					if (ss.size() == 1)

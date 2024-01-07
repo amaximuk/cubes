@@ -70,10 +70,10 @@ namespace CubesProperties
         void SetFileName(QString fileName);
         void SetFileNameReadOnly(bool readOnly);
         QString GetFileName();
-        void SetGroupNames(QStringList groupNames);
-        void SetGroupName(QString groupName);
-        void SetGroupNameReadOnly(bool readOnly);
-        QString GetGroupName();
+        void SetIncludeNames(QStringList includeNames);
+        void SetIncludeName(QString includeName);
+        void SetIncludeNameReadOnly(bool readOnly);
+        QString GetIncludeName();
         void SetName(QString name);
         QString GetName();
         QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };

@@ -99,7 +99,7 @@ void ArrayWindow::GetUnitsInFileIncludeList(const QString& fileName, const QStri
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileName() == fileName &&
-            pi->GetGroupName() == includeName)
+            pi->GetIncludeName() == includeName)
         {
             QString name = pi->GetInstanceName();
             unitNames.push_back(name);
@@ -130,8 +130,8 @@ bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertie
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     pi->SetFileNames(GetFileNames());
     pi->SetFileName(GetCurrentFileName());
-    pi->SetGroupNames(GetCurrentFileIncludeNames());
-    pi->SetGroupName("<not selected>");
+    pi->SetIncludeNames(GetCurrentFileIncludeNames());
+    pi->SetIncludeName("<not selected>");
     //pi->SetName(GetNewUnitName(pi->GetName()));
     //properties_items_manager_->Select(propertiesId);
     return true;
@@ -1284,7 +1284,7 @@ void ArrayWindow::FileIncludesListChanged(const QString& fileName, const QString
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (fileName == pi->GetFileName())
-            pi->SetGroupNames(includeNames);
+            pi->SetIncludeNames(includeNames);
     }
 
     //////if (scene_->selectedItems().size() > 0)
