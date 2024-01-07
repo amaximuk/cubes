@@ -42,17 +42,6 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     model_ = {};
     ignoreEvents_ = false;
 
-    //CreateParametersModel(nullptr);
-    //for (auto& section : model_.parameters)
-    //{
-    //    if (section.id == "PARAMETERS")
-    //    {
-    //        section.parameters = pm.parameters;
-    //        //section.parameters.clear();
-    //        //section.parameters.push_back(pm);
-    //    }
-    //}
-
     model_.parameters = pm.parameters;
     CreateProperties();
 }
@@ -243,15 +232,6 @@ void PropertiesItem::CreateProperties()
         RegisterProperty(kvp.second, kvp.first);
 }
 
-//QVariant GetValue(const QString& type, const QString& value)
-//{
-//    bool is_array = yaml::helper::common::get_is_array_type(type.toStdString());
-//    if (is_array)
-//    {
-//        value = parameters_compiler::helper::get_parameter_initial<int>(unitParameters_.fileInfo, pi);
-//    }
-//}
-
 void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
     const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model)
 {
@@ -277,57 +257,35 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
         FillParameterModel(xmlUnit, pm, false);
     }
 
-
-
-
-
-    //if (xmlUnit != nullptr)
-    //{
-    //    int i = 0;
-    //    for (const auto& d : xmlUnit->depends)
-    //    {
-    //        CubesUnitTypes::ParameterModel pmo;
-    //        pmo.id = QString("%1/%2/ITEM_%3").arg(model.id, "DEPENDS").arg(i++);
-    //        pmo.name = "";
-    //        pmo.value = d;
-    //        pmo.valueType = "string";
-    //        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
-    //        pmo.editorSettings.type = CubesUnitTypes::EditorType::String;
-
-    //        pm_depends.parameters.push_back(std::move(pmo));
-    //    }
-    //}
-
-
-
-
-
-
     model = pm;
 }
 
-void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool is_item)
+void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool isItem)
 {
     // Заполнение модели параметра, не являющегося массивом, с учетом ограничений
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
     // parameterInfoId может быть не заполнен для дополнительных полей (BASE, EDITOR и т.п.)
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
+    // Предварительно получаем значение параметра из xml файла, если он доступен
     CubesXml::Param* xmlParam = nullptr;
     if (xmlUnit != nullptr)
         xmlParam = CubesXml::Parser::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
+    // Предварительно получаем значение элемента массива из xml файла, если он доступен
     CubesXml::Item* xmlItem = nullptr;
     if (xmlUnit != nullptr)
         xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, is_item);
-    bool res = CubesParameters::convert_variant(v, model.value);
+    // Вычисляем значение из xml файла (параметра или элемента массива)
+    QString xmlValue = xmlParam != nullptr ? xmlParam->val : (xmlItem != nullptr ? xmlItem->val : "");
+    bool haveXmlValue = (xmlParam != nullptr || xmlItem != nullptr);
 
-    //auto piType = pi.type;
-    //if (parameters::helper::common::get_is_array_type(piType))
-    //    piType = parameters::helper::common::get_item_type(pi.type);
+    // Получаем описание параметра из его yml файла
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
+    bool res = CubesParameters::convert_variant(v, model.value);
 
     // Параметр не должен быть массивом
     if (parameters::helper::common::get_is_array_type(pi.type))
@@ -336,31 +294,9 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     auto isUnitType = parameters::helper::common::get_is_unit_type(pi.type);
     auto baseType = parameters::helper::common::get_base_item_type(pi.type);
 
-    // TODO: убрать весь хардкод, тем более он относится к библиотеке parameters
-
-    //if (piType == "unit")
-    //    model.valueType = "string";
-    //else if (piType == "path" || piType == "string")
-    //    model.valueType = "string";
-    //else if (piType == "bool")
-    //    model.valueType = "bool";
-    //else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
-    //    piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
-    //    model.valueType = "int";
-    //else if (piType == "double" || piType == "float")
-    //    model.valueType = "double";
-    //else // enum user type
-    //    model.valueType = "string";
-    
-    if (xmlUnit != nullptr && xmlParam != nullptr)
+    if (xmlParam != nullptr)
     {
-        //QString typeName;
-        //if (model.valueType == "string") typeName = "str";
-        //else if (model.valueType == "int") typeName = "int";
-        //else if (model.valueType == "double") typeName = "dbl";
-        //else if (model.valueType == "bool") typeName = "bool";
-        //else if (model.valueType == "library") typeName = "lib";
-
+        // Проверяем совместимость типов параметров из xml и из описания yml
         auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(xmlParam->type.toStdString());
         if (xmlBaseType != baseType)
         {
@@ -372,198 +308,130 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
     if (pi.restrictions.set_.size() > 0)
     {
+        // Задан список допустимых значений
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
+
+        // Заполняем допустимые значения из ограничений в yml файле
         for (const auto& s : pi.restrictions.set_)
             model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
 
-        if (xmlUnit != nullptr && xmlParam != nullptr)
+        // Проверяем допустимость значений из xml файла (параметра или элемента массива)
+        if (haveXmlValue)
         {
-            if (!model.editorSettings.ComboBoxValues.contains(xmlParam->val))
+            // Проверяем ограничения на список элементов
+            if (!model.editorSettings.ComboBoxValues.contains(xmlValue))
             {
                 propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                 // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                 // TODO: вернуть ошибку
             }
-            model.value = xmlParam->val;
-        }
-        else if (xmlItem != nullptr)
-        {
-            model.value = xmlItem->val;
         }
     }
     else
     {
+        // Ограничения на список значений не заданы, заполняем модель в зависимости от базового типа
         if (isUnitType)
         {
+            // Это особый случай - тип unit, его базовый тип строка
             model.editorSettings.type = CubesUnitTypes::EditorType::String;
 
-            CubesUnitTypes::ParameterModel pm_depends;
-            pm_depends.id = QString("%1/%2").arg(model.id, dependsParameterName);
-            pm_depends.name = QString::fromLocal8Bit("Зависимость");
-            pm_depends.value = false;
-            pm_depends.valueType = "bool";
-            //pm_depends.parameterInfo.display_name = QString::fromLocal8Bit("Зависимость").toStdString();
-            pm_depends.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
-
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                pm_depends.value = xmlParam->depends;
-
-
-
-
-
-
-
-
-
-
-
-
-            //if (xmlUnit != nullptr)
-            //{
-            //    int i = 0;
-            //    for (const auto& d : xmlUnit->depends)
-            //    {
-            //        CubesUnitTypes::ParameterModel pmo;
-            //        pmo.id = QString("%1/%2/ITEM_%3").arg(model.id, "DEPENDS").arg(i++);
-            //        pmo.name = "";
-            //        pmo.value = d;
-            //        pmo.valueType = "string";
-            //        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
-            //        pmo.editorSettings.type = CubesUnitTypes::EditorType::String;
-
-            //        pm_depends.parameters.push_back(std::move(pmo));
-            //    }
-            //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-            model.parameters.push_back(std::move(pm_depends));
-
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                model.value = xmlParam->val;
-            else if (xmlItem != nullptr)
             {
-                model.value = xmlItem->val;
+                // Для типа unit добавляется дополнительное поле - зависимость (depends)
+                CubesUnitTypes::ParameterModel pm_depends;
+                pm_depends.id = QString("%1/%2").arg(model.id, dependsParameterName);
+                pm_depends.name = QString::fromLocal8Bit("Зависимость");
+                pm_depends.value = false;
+                pm_depends.valueType = "bool";
+                pm_depends.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
+
+                // Если есть значение в xml, заполняем его в модели зависимости
+                if (xmlParam != nullptr)
+                    pm_depends.value = xmlParam->depends;
+
+                model.parameters.push_back(std::move(pm_depends));
             }
-
-
-
-
-
-
         }
-        //else if (piType == "path" || piType == "string")
         else if (baseType == parameters::base_item_types::string)
         {
+            // Остальные типы, основанные на строках (path, string и т.п.)
             model.editorSettings.type = CubesUnitTypes::EditorType::String;
-
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                model.value = xmlParam->val;
-            else if (xmlItem != nullptr)
-            {
-                model.value = xmlItem->val;
-            }
         }
-        //else if (piType == "bool")
         else if (baseType == parameters::base_item_types::boolean)
         {
+            // Тип bool
             model.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
-
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                model.value = xmlParam->val;
-            else if (xmlItem != nullptr)
-            {
-                model.value = xmlItem->val;
-            }
         }
-        //else if (piType == "int" || piType == "int8_t" || piType == "int16_t" || piType == "int32_t" ||
-        //    piType == "int64_t" || piType == "uint8_t" || piType == "uint16_t" || piType == "uint32_t" || piType == "uint64_t")
         else if (baseType == parameters::base_item_types::integer)
         {
+            // Типы, основанные на целочисленных значениях int (int8_t, uint16_t и т.п.)
             model.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
 
+            // Устанавливаем ограничения из yml файла юнита
             if (pi.restrictions.min != "")
                 model.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
             else
                 model.editorSettings.SpinIntergerMin = parameters::helper::common::get_min_for_integral_type(pi.type);
-
             if (pi.restrictions.max != "")
                 model.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
             else
                 model.editorSettings.SpinIntergerMax = parameters::helper::common::get_max_for_integral_type(pi.type);
-
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                model.value = xmlParam->val;
-            else if (xmlItem != nullptr)
-            {
-                model.value = xmlItem->val;
-            }
         }
-        //else if (piType == "double" || piType == "float")
         else if (baseType == parameters::base_item_types::floating)
         {
+            // Типы, основанные на значениях с плавающей точкой double (float, double)
             model.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
 
+            // Устанавливаем ограничения из yml файла юнита
             if (pi.restrictions.min != "")
                 model.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
             else
                 model.editorSettings.SpinDoubleMin = parameters::helper::common::get_min_for_floating_point_type(pi.type);
-
             if (pi.restrictions.max != "")
                 model.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
             else
                 model.editorSettings.SpinDoubleMax = parameters::helper::common::get_max_for_floating_point_type(pi.type);
+        }
+        else if (baseType == parameters::base_item_types::user)
+        {
+            // Пользовательский тип данных
+            // Поскольку параметр не является массивом, единственный допустимый тип это enum
+            const auto pti = parameters::helper::type::get_type_info(unitParameters_.fileInfo, pi.type);
+            if (pti->type != "enum")
+                assert(false);
 
-            if (xmlUnit != nullptr && xmlParam != nullptr)
-                model.value = xmlParam->val;
-            else if (xmlItem != nullptr)
+            model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
+
+            // Заполняем допустимые значения перечисления из описания юнита в yml файле в ComboBox
+            // TODO: могут быть еще ограничения на список значений, это не учтено
+            if (pti->values.size() > 0)
             {
-                model.value = xmlItem->val;
+                for (const auto v : pti->values)
+                    model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
+            }
+
+            // Проверяем допустимость значений из xml файла
+            if (haveXmlValue)
+            {
+                if (!model.editorSettings.ComboBoxValues.contains(xmlValue))
+                {
+                    propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
+                    // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
+                    // TODO: вернуть ошибку
+                }
             }
         }
         else
         {
-            // enum user type
-            const auto pti = parameters::helper::type::get_type_info(unitParameters_.fileInfo, pi.type);
-            if (pti->type == "enum")
-            {
-                model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-                if (pti->values.size() > 0)
-                {
-                    for (const auto v : pti->values)
-                        model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
-                }
-
-                if (xmlUnit != nullptr && xmlParam != nullptr)
-                {
-                    if (!model.editorSettings.ComboBoxValues.contains(xmlParam->val))
-                    {
-                        propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
-                        // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
-                        // TODO: вернуть ошибку
-                    }
-                    model.value = xmlParam->val;
-                }
-                else if (xmlItem != nullptr)
-                {
-                    model.value = xmlItem->val;
-                }
-            }
-            else assert(false);
+            // Тип неизвестен
+            assert(false);
         }
     }
 
+    // Установка значения из xml в модель (если не задано, берется значение по-умолчанию для типа)
+    if (haveXmlValue)
+        model.value = xmlValue;
+
+    // Для опциональных параметров добавляем дополнительное поле - не задавать
     if (parameters::helper::parameter::get_is_optional(pi))
     {
         CubesUnitTypes::ParameterModel pmo;
@@ -571,18 +439,21 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         pmo.name = QString::fromLocal8Bit("Не задавать");
         pmo.value = false;
         pmo.valueType = "bool";
-        //pm_optional.parameterInfo.display_name = QString::fromLocal8Bit("Не задавать").toStdString();
         pmo.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
 
+        // Если xml файл есть, устанавливаем значение флага
         if (xmlUnit != nullptr)
         {
             if (xmlParam == nullptr)
             {
-                model.value = QString::fromLocal8Bit("не задано");
+                // Параметр отсутствует, ставим флаг не задавать
+                // TODO: надо как-то помечать не заданные параметры,
+                // вариант - model.value = QString::fromLocal8Bit("не задано"); - плохой, не учитывает тип данных
                 pmo.value = true;
             }
             else
             {
+                // Параметр есть, сбрасываем флаг не задавать
                 pmo.value = false;
             }
         }
