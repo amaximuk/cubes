@@ -1240,13 +1240,25 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         if (path.size() < 2)
             return;
 
+        // У некоторых параметров есть дополнительные параметры DEPENDS у unit,
+        // у всех остальных может быть параметр OPTIONAL
+
         // У элементов массива имеются группы параметров BASE, PARAMETERS, EDITOR
         // Реально же у юнита есть только параметры, находящиеся в группе PARAMETERS
         // Например: $PARAMETERS/CHANNELS/$ITEM_0/$BASE/NAME,
         // $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/FIRMWARE и т.п.
         // Поэтому дополнительно проверяем предпоследний пункт в id
 
-        if (path.size() > 2 && (path[path.size() - 2] == baseGroupName || path[path.size() - 2] == editorGroupName))
+        if (path.size() > 0 && (path[path.size() - 1] == dependsParameterName || path[path.size() - 1] == optionalParameterName))
+        {
+            // Получаем дополнительные свойства
+            // У них нет описания в parameter_info, т.к. они добавлены нами для служебных целей
+            bool b = false;
+            auto boolString = property->valueText().toLower().toStdString();
+            std::istringstream(boolString) >> std::boolalpha >> b;
+            pm->value = b;
+        }
+        else if (path.size() > 2 && (path[path.size() - 2] == baseGroupName || path[path.size() - 2] == editorGroupName))
         {
             // Если это элемент массива типа yml, получаем дополнительные свойства
             // У них нет описания в parameter_info, т.к. они добавлены нами для служебных целей
