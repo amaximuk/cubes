@@ -142,8 +142,8 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 
 bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform, Config& config)
 {
-	name = node.attribute("name", "");
-	platform = node.attribute("platform", "");
+	name = node.attribute("_name", "");
+	platform = node.attribute("_platform", "");
 
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
@@ -321,9 +321,9 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 {
 	QString name = node.attribute("Name", "");
 	QString id = node.attribute("Id", "");
-	int32_t x = node.attribute("X", "0").toInt();
-	int32_t y = node.attribute("Y", "0").toInt();
-	int32_t z = node.attribute("Z", "0").toInt();
+	int32_t x = node.attribute("_x", "0").toInt();
+	int32_t y = node.attribute("_y", "0").toInt();
+	int32_t z = node.attribute("_z", "0").toInt();
 
 	if (name == "")
 		ELRF("Unit Name is empty");
@@ -447,10 +447,10 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 
 bool Parser::GetItem(const QDomElement& node, Item& item)
 {
-	QString name = node.attribute("name", "");
-	int32_t x = node.attribute("x", "0").toInt();
-	int32_t y = node.attribute("y", "0").toInt();
-	int32_t z = node.attribute("z", "0").toInt();
+	QString name = node.attribute("_name", "");
+	int32_t x = node.attribute("_x", "0").toInt();
+	int32_t y = node.attribute("_y", "0").toInt();
+	int32_t z = node.attribute("_z", "0").toInt();
 
 	item.name = name;
 	item.x = x;

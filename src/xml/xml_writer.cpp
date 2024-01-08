@@ -86,9 +86,9 @@ bool Writer::SetConfig(const Config& config, const QString& name, const QString&
 	xmlWriter.writeStartElement("Config");
 
 	if (name != "")
-		xmlWriter.writeAttribute("name", name);
+		xmlWriter.writeAttribute("_name", name);
 	if (platform != "")
-		xmlWriter.writeAttribute("platform", platform);
+		xmlWriter.writeAttribute("_platform", platform);
 
 	if (config.networkingIsSet)
 	{
@@ -235,9 +235,9 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 	xmlWriter.writeStartElement("Unit");
 	xmlWriter.writeAttribute("Name", unit.name);
 	xmlWriter.writeAttribute("Id", unit.id);
-	xmlWriter.writeAttribute("X", QString("%1").arg(unit.x));
-	xmlWriter.writeAttribute("Y", QString("%1").arg(unit.y));
-	xmlWriter.writeAttribute("Z", QString("%1").arg(unit.z));
+	xmlWriter.writeAttribute("_x", QString("%1").arg(unit.x));
+	xmlWriter.writeAttribute("_y", QString("%1").arg(unit.y));
+	xmlWriter.writeAttribute("_z", QString("%1").arg(unit.z));
 
 	for (const auto& param : unit.params)
 	{
@@ -342,12 +342,12 @@ bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 	xmlWriter.writeStartElement("Item");
 
 	if (item.name != "")
-		xmlWriter.writeAttribute("name", item.name);
+		xmlWriter.writeAttribute("_name", item.name);
 	if (item.x != 0 || item.y != 0 || item.z != 0)
 	{
-		xmlWriter.writeAttribute("x", QString("%1").arg(item.x));
-		xmlWriter.writeAttribute("y", QString("%1").arg(item.y));
-		xmlWriter.writeAttribute("z", QString("%1").arg(item.z));
+		xmlWriter.writeAttribute("_x", QString("%1").arg(item.x));
+		xmlWriter.writeAttribute("_y", QString("%1").arg(item.y));
+		xmlWriter.writeAttribute("_z", QString("%1").arg(item.z));
 	}
 
 	if (item.params.size() == 0 && item.arrays.size() == 0)

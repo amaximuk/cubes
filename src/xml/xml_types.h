@@ -102,7 +102,8 @@ namespace CubesXml
 		QString val;
 		QList<Param> params;
 		QList<Array> arrays;
-
+		// Additional parameters for yml arrays
+		// TODO: Add to xml format
 		QString name;
 		int32_t x;
 		int32_t y;
@@ -122,6 +123,8 @@ namespace CubesXml
 		QString id;
 		QList<Param> params;
 		QList<Array> arrays;
+		// Additional parameters
+		// TODO: Add to xml format
 		int32_t x;
 		int32_t y;
 		int32_t z;
