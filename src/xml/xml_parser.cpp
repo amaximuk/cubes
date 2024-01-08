@@ -626,7 +626,7 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 	return nullptr;
 }
 
-Item* Parser::GetItem(Unit& unit, const QString& id)
+Item* Parser::GetItem(Unit& unit, const QString& id, QString& type)
 {
 	QList<QString> ss = id.split("/");
 	if (ss.size() < 2)
@@ -637,6 +637,7 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 
 	bool inside_array = false;
 	Array* array = nullptr;
+	QString array_type;
 	QList<Param>* params = &unit.params;
 	QList<Array>* arrays = &unit.arrays;
 	while (ss.size() > 0)
@@ -650,7 +651,10 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 				if (array->items.size() > index)
 				{
 					if (ss.size() == 1)
+					{
+						type = array_type;
 						return &array->items[index];
+					}
 					params = &array->items[index].params;
 					arrays = &array->items[index].arrays;
 				}
@@ -665,22 +669,13 @@ Item* Parser::GetItem(Unit& unit, const QString& id)
 		}
 		else
 		{
-			//for (auto& p : *params)
-			//{
-			//	if (s == p.name)
-			//	{
-			//		if (ss.size() != 1)
-			//			return nullptr;
-			//		return &p;
-			//	}
-			//}
-
 			for (auto& a : *arrays)
 			{
 				if (s == a.name)
 				{
 					array = &a;
 					inside_array = true;
+					array_type = a.type;
 					break;
 				}
 			}

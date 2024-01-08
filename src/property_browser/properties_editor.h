@@ -34,11 +34,11 @@ public:
     QtProperty* CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty);
     void SetPropertyValue(QtProperty* property, const CubesUnitTypes::ParameterModel& model);
     void SetIntValue(QtProperty* property, int value);
-    void SetDoubleValue(QtProperty* property, int value);
+    void SetDoubleValue(QtProperty* property, double value);
     void SetStringValue(QtProperty* property, const QString& value, bool setOldValue = false, const QString& oldValue = "");
     void SetEnumValue(QtProperty* property, int value);
     void SetEnumValues(QtProperty* property, QStringList values);
-    void SetEnumValue(QtProperty* property, QString valueType, QString value);
+    void SetEnumValue(QtProperty* property, QVariant value);
     void SetBoolValue(QtProperty* property, bool value);
     void SetColorValue(QtProperty* property, QColor value);
     void SetReadOnly(QtProperty* property, bool readOnly);

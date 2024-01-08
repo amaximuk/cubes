@@ -103,13 +103,17 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
         {
-            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            if (model.value.type() == QVariant::Type::Double &&
+                model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
-            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            else if (model.value.type() == QVariant::Type::Int &&
+                model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
-            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+            else if (model.value.type() == QVariant::Type::Bool &&
+                model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
                 break;
-            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
+            else if (model.value.type() == QVariant::Type::String &&
+                model.value.toString() == model.editorSettings.ComboBoxValues[pos])
                 break;
         }
 
@@ -185,13 +189,17 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
         {
-            if (model.valueType == "double" && model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            if (model.value.type() == QVariant::Type::Double &&
+                model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
-            else if (model.valueType == "int" && model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
+            else if (model.value.type() == QVariant::Type::Int &&
+                model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
                 break;
-            else if (model.valueType == "bool" && model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
+            else if (model.value.type() == QVariant::Type::Bool &&
+                model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
                 break;
-            else if (model.valueType == "string" && model.value.toString() == model.editorSettings.ComboBoxValues[pos])
+            else if (model.value.type() == QVariant::Type::String &&
+                model.value.toString() == model.editorSettings.ComboBoxValues[pos])
                 break;
         }
 
@@ -224,7 +232,7 @@ void PropertiesEditor::SetIntValue(QtProperty* property, int value)
     intManager_->setValue(property, value);
 }
 
-void PropertiesEditor::SetDoubleValue(QtProperty* property, int value)
+void PropertiesEditor::SetDoubleValue(QtProperty* property, double value)
 {
     doubleManager_->setValue(property, value);
 }
@@ -246,19 +254,19 @@ void PropertiesEditor::SetEnumValues(QtProperty* property, QStringList values)
     enumManager_->setEnumNames(property, values);
 }
     
-void PropertiesEditor::SetEnumValue(QtProperty* property, QString valueType, QString value)
+void PropertiesEditor::SetEnumValue(QtProperty* property, QVariant value)
 {
     auto values = enumManager_->enumNames(property);
     int pos = 0;
     for (; pos < values.size(); ++pos)
     {
-        if (valueType == "double" && value.toDouble() == std::stod(values[pos].toStdString()))
+        if (value.type() == QVariant::Type::Double && value.toDouble() == std::stod(values[pos].toStdString()))
             break;
-        else if (valueType == "int" && value.toInt() == std::stoi(values[pos].toStdString()))
+        else if (value.type() == QVariant::Type::Int && value.toInt() == std::stoi(values[pos].toStdString()))
             break;
-        else if (valueType == "bool" && (value == "true") == (values[pos] == "true"))
+        else if (value.type() == QVariant::Type::Bool && value.toBool() == (values[pos] == "true"))
             break;
-        else if (valueType == "string" && value == values[pos])
+        else if (value.type() == QVariant::Type::String && value.toString() == values[pos])
             break;
     }
 

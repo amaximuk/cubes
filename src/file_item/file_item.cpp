@@ -58,8 +58,8 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel base_group;
         base_group.id = "BASE";
         base_group.name = QString::fromLocal8Bit("Базовые");
-        base_group.value = "";
-        base_group.valueType = "none";
+        base_group.value = QVariant();
+        //base_group.valueType = "none";
         //base_group.parameterInfoId = "";
         base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         base_group.editorSettings.is_expanded = true;
@@ -68,7 +68,7 @@ void FileItem::CreateParametersModel()
         name.id = "BASE/NAME";
         name.name = QString::fromLocal8Bit("Имя");
         name.value = QString::fromLocal8Bit("АРМ");
-        name.valueType = "string";
+        //name.valueType = "string";
         //name.parameterInfoId = "";
         name.editorSettings.type = CubesUnitTypes::EditorType::String;
         name.editorSettings.is_expanded = false;
@@ -77,8 +77,8 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel platform;
         platform.id = "BASE/PLATFORM";
         platform.name = QString::fromLocal8Bit("Платформа");
-        platform.value = "";
-        platform.valueType = "string";
+        platform.value = QString();
+        //platform.valueType = "string";
         //platform.parameterInfoId = "";
         platform.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         platform.editorSettings.is_expanded = false;
@@ -92,7 +92,7 @@ void FileItem::CreateParametersModel()
         file_path.id = "BASE/PATH";
         file_path.name = QString::fromLocal8Bit("Имя файла");
         file_path.value = QString::fromLocal8Bit("config.xml");
-        file_path.valueType = "string";
+        //file_path.valueType = "string";
         //file_path.parameterInfoId = "";
         file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
         file_path.editorSettings.is_expanded = false;
@@ -104,8 +104,8 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel includes;
         includes.id = "INCLUDES";
         includes.name = QString::fromLocal8Bit("Включаемые файлы");
-        includes.value = 0;
-        includes.valueType = "int";
+        includes.value = int{ 0 };
+        //includes.valueType = "int";
         includes.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
         includes.editorSettings.is_expanded = true;
         includes.editorSettings.SpinIntergerMin = 0;
@@ -117,8 +117,8 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel properties_group;
         properties_group.id = "PARAMETERS";
         properties_group.name = QString::fromLocal8Bit("Параметры");
-        properties_group.value = "";
-        properties_group.valueType = "none";
+        properties_group.value = QVariant();
+        //properties_group.valueType = "none";
         properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = false;
         
@@ -126,16 +126,16 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_networking;
             pm_networking.id = "PARAMETERS/NETWORKING";
             pm_networking.name = QString::fromLocal8Bit("Соединение");
-            pm_networking.value = "";
-            pm_networking.valueType = "none";
+            pm_networking.value = QVariant();
+            //pm_networking.valueType = "none";
             pm_networking.editorSettings.type = CubesUnitTypes::EditorType::None;
             properties_group.editorSettings.is_expanded = true;
 
             CubesUnitTypes::ParameterModel pm_id;
             pm_id.id = "PARAMETERS/NETWORKING/ID";
             pm_id.name = QString::fromLocal8Bit("Идентифиикатор");
-            pm_id.value = CubesXml::NetworkingDefaults::id;
-            pm_id.valueType = "int";
+            pm_id.value = int{ CubesXml::NetworkingDefaults::id };
+            //pm_id.valueType = "int";
             pm_id.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_id.editorSettings.SpinIntergerMin = 0;
             pm_id.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -144,8 +144,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_accept_port;
             pm_accept_port.id = "PARAMETERS/NETWORKING/ACCEPT_PORT";
             pm_accept_port.name = QString::fromLocal8Bit("Порт");
-            pm_accept_port.value = CubesXml::NetworkingDefaults::acceptPort;
-            pm_accept_port.valueType = "int";
+            pm_accept_port.value = int{ CubesXml::NetworkingDefaults::acceptPort };
+            //pm_accept_port.valueType = "int";
             pm_accept_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_accept_port.editorSettings.SpinIntergerMin = 1000;
             pm_accept_port.editorSettings.SpinIntergerMax = 65535;
@@ -154,8 +154,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_keep_alive_sec;
             pm_keep_alive_sec.id = "PARAMETERS/NETWORKING/KEEP_ALIVE_SEC";
             pm_keep_alive_sec.name = QString::fromLocal8Bit("Таймаут");
-            pm_keep_alive_sec.value = CubesXml::NetworkingDefaults::keepAliveSec;
-            pm_keep_alive_sec.valueType = "int";
+            pm_keep_alive_sec.value = int{ CubesXml::NetworkingDefaults::keepAliveSec };
+            //pm_keep_alive_sec.valueType = "int";
             pm_keep_alive_sec.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_keep_alive_sec.editorSettings.SpinIntergerMin = 0;
             pm_keep_alive_sec.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -164,16 +164,16 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_time_client;
             pm_time_client.id = "PARAMETERS/NETWORKING/TIME_CLIENT";
             pm_time_client.name = QString::fromLocal8Bit("Получать время");
-            pm_time_client.value = "false";
-            pm_time_client.valueType = "bool";
+            pm_time_client.value = bool{ false };
+            //pm_time_client.valueType = "bool";
             pm_time_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_time_client));
 
             CubesUnitTypes::ParameterModel pm_network_threads;
             pm_network_threads.id = "PARAMETERS/NETWORKING/NETWORK_THREADS";
             pm_network_threads.name = QString::fromLocal8Bit("Сетевых потоков");
-            pm_network_threads.value = CubesXml::NetworkingDefaults::networkThreads;
-            pm_network_threads.valueType = "int";
+            pm_network_threads.value = int{ CubesXml::NetworkingDefaults::networkThreads };
+            //pm_network_threads.valueType = "int";
             pm_network_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_network_threads.editorSettings.SpinIntergerMin = 1;
             pm_network_threads.editorSettings.SpinIntergerMax = 1024;
@@ -182,8 +182,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_broadcast_threads;
             pm_broadcast_threads.id = "PARAMETERS/NETWORKING/BROADCAST_THREADS";
             pm_broadcast_threads.name = QString::fromLocal8Bit("Широковещательных потоков");
-            pm_broadcast_threads.value = CubesXml::NetworkingDefaults::broadcastThreads;
-            pm_broadcast_threads.valueType = "int";
+            pm_broadcast_threads.value = int{ CubesXml::NetworkingDefaults::broadcastThreads };
+            //pm_broadcast_threads.valueType = "int";
             pm_broadcast_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_broadcast_threads.editorSettings.SpinIntergerMin = 1;
             pm_broadcast_threads.editorSettings.SpinIntergerMax = 1024;
@@ -192,8 +192,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_client_threads;
             pm_client_threads.id = "PARAMETERS/NETWORKING/CLIENTS_THREADS";
             pm_client_threads.name = QString::fromLocal8Bit("Клиентских потоков");
-            pm_client_threads.value = CubesXml::NetworkingDefaults::clientsThreads;
-            pm_client_threads.valueType = "int";
+            pm_client_threads.value = int{ CubesXml::NetworkingDefaults::clientsThreads };
+            //pm_client_threads.valueType = "int";
             pm_client_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_client_threads.editorSettings.SpinIntergerMin = 1;
             pm_client_threads.editorSettings.SpinIntergerMax = 1024;
@@ -202,24 +202,24 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_notify_ready_client;
             pm_notify_ready_client.id = "PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS";
             pm_notify_ready_client.name = QString::fromLocal8Bit("Информировать клиента");
-            pm_notify_ready_client.value = CubesXml::NetworkingDefaults::notifyReadyClients;
-            pm_notify_ready_client.valueType = "bool";
+            pm_notify_ready_client.value = bool{ CubesXml::NetworkingDefaults::notifyReadyClients };
+            //pm_notify_ready_client.valueType = "bool";
             pm_notify_ready_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_client));
 
             CubesUnitTypes::ParameterModel pm_notify_ready_server;
             pm_notify_ready_server.id = "PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS";
             pm_notify_ready_server.name = QString::fromLocal8Bit("Информировать сервер");
-            pm_notify_ready_server.value = CubesXml::NetworkingDefaults::notifyReadyServers;
-            pm_notify_ready_server.valueType = "bool";
+            pm_notify_ready_server.value = bool{ CubesXml::NetworkingDefaults::notifyReadyServers };
+            //pm_notify_ready_server.valueType = "bool";
             pm_notify_ready_server.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
 
             CubesUnitTypes::ParameterModel connect;
             connect.id = "PARAMETERS/NETWORKING/CONNECT";
             connect.name = QString::fromLocal8Bit("Подключения");
-            connect.value = 0;
-            connect.valueType = "int";
+            connect.value = int{ 0 };
+            //connect.valueType = "int";
             connect.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             connect.editorSettings.is_expanded = true;
             connect.editorSettings.SpinIntergerMin = 0;
@@ -233,16 +233,16 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_logging;
             pm_logging.id = "PARAMETERS/LOG";
             pm_logging.name = QString::fromLocal8Bit("Логирование");
-            pm_logging.value = "";
-            pm_logging.valueType = "none";
+            pm_logging.value = QVariant();
+            //pm_logging.valueType = "none";
             pm_logging.editorSettings.type = CubesUnitTypes::EditorType::None;
             properties_group.editorSettings.is_expanded = true;
 
             CubesUnitTypes::ParameterModel pm_logging_level;
             pm_logging_level.id = "PARAMETERS/LOG/LOGGING_LEVEL";
             pm_logging_level.name = QString::fromLocal8Bit("Уровень");
-            pm_logging_level.value = "TRACE";
-            pm_logging_level.valueType = "string";
+            pm_logging_level.value = QString("TRACE");
+            //pm_logging_level.valueType = "string";
             pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
             pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
             pm_logging.parameters.push_back(std::move(pm_logging_level));
@@ -250,8 +250,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_log_limit;
             pm_log_limit.id = "PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB";
             pm_log_limit.name = QString::fromLocal8Bit("Размер");
-            pm_log_limit.value = 500;
-            pm_log_limit.valueType = "int";
+            pm_log_limit.value = int{ 500 };
+            //pm_log_limit.valueType = "int";
             pm_log_limit.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_log_limit.editorSettings.SpinIntergerMin = 0;
             pm_log_limit.editorSettings.SpinIntergerMax = 1024 * 1024;
@@ -260,8 +260,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_log_dir;
             pm_log_dir.id = "PARAMETERS/LOG/LOG_DIR";
             pm_log_dir.name = QString::fromLocal8Bit("Директория");
-            pm_log_dir.value = "";
-            pm_log_dir.valueType = "string";
+            pm_log_dir.value = QString();
+            //pm_log_dir.valueType = "string";
             pm_log_dir.editorSettings.type = CubesUnitTypes::EditorType::String;
             pm_logging.parameters.push_back(std::move(pm_log_dir));
 
@@ -275,8 +275,8 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel editor_group;
         editor_group.id = "EDITOR";
         editor_group.name = QString::fromLocal8Bit("Редактор");
-        editor_group.value = "";
-        editor_group.valueType = "none";
+        editor_group.value = QVariant();
+        //editor_group.valueType = "none";
         //editor_group.parameterInfoId = "";
         editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         editor_group.editorSettings.is_expanded = true;
@@ -285,8 +285,8 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm;
             pm.id = "EDITOR/COLOR";
             pm.name = QString::fromLocal8Bit("Цвет");
-            pm.value = QColor("Red").rgba();
-            pm.valueType = "string";
+            pm.value = QColor("Red").rgba(); // !!!
+            //pm.valueType = "string";
             //pm.parameterInfoId = "";
             pm.editorSettings.type = CubesUnitTypes::EditorType::Color;
             editor_group.parameters.push_back(std::move(pm));
@@ -596,10 +596,10 @@ void FileItem::SetName(QString name, bool setOldName, QString oldName)
 void FileItem::SetPlatform(QString platform)
 {
     auto pm = GetParameterModel("BASE/PLATFORM");
-    pm->value = platform;
+    pm->value = QString(platform);
 
     auto pr = GetProperty(pm->id);
-    editor_->SetEnumValue(pr, "string", platform);
+    editor_->SetEnumValue(pr, pm->value);
 }
 
 void FileItem::SetPath(QString name, bool setOldName, QString oldName)
@@ -892,8 +892,8 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
-            name.value = includeName;
-            name.valueType = "string";
+            name.value = QString(includeName);
+            //name.valueType = "string";
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
@@ -902,7 +902,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
             file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
             file_path.name = QString::fromLocal8Bit("Имя файла");
             file_path.value = QString::fromLocal8Bit("include.xml");
-            file_path.valueType = "string";
+            //file_path.valueType = "string";
             file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
             file_path.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(file_path));
@@ -910,8 +910,8 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
             CubesUnitTypes::ParameterModel variables;
             variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
             variables.name = QString::fromLocal8Bit("Переменные");
-            variables.value = 0;
-            variables.valueType = "int";
+            variables.value = int{ 0 };
+            //variables.valueType = "int";
             variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             variables.editorSettings.is_expanded = true;
             variables.editorSettings.SpinIntergerMin = 0;
@@ -1018,7 +1018,7 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, 
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
             name.value = QString::fromLocal8Bit("variable_%1").arg(i);
-            name.valueType = "string";
+            //name.valueType = "string";
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
@@ -1026,8 +1026,8 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, 
             variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.id = QString("%1/%2").arg(group_model.id, "VALUE");
             variable.name = QString::fromLocal8Bit("Значение");
-            variable.value = "";
-            variable.valueType = "string";
+            variable.value = QString();
+            //variable.valueType = "string";
             variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(variable));
@@ -1086,8 +1086,8 @@ void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, in
             port.editorSettings.type = CubesUnitTypes::EditorType::String;
             port.id = QString("%1/%2").arg(group_model.id, "PORT");
             port.name = QString::fromLocal8Bit("Порт");
-            port.value = 50000;
-            port.valueType = "int";
+            port.value = int{ 50000 };
+            //port.valueType = "int";
             port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             port.editorSettings.SpinIntergerMin = 1000;
             port.editorSettings.SpinIntergerMax = 65535;
@@ -1098,7 +1098,7 @@ void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, in
             ip.id = QString("%1/%2").arg(group_model.id, "IP");
             ip.name = QString::fromLocal8Bit("Хост");
             ip.value = QString::fromLocal8Bit("127.0.0.1");
-            ip.valueType = "string";
+            //ip.valueType = "string";
             ip.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(ip));
 
