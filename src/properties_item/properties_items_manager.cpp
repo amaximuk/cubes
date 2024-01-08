@@ -113,11 +113,11 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& pro
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, propertiesId));
 
-	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	//pi->SetName(propertiesName);
 
-	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
-	selector_->addItem(propertiesName, propertiesId);
+	selector_->addItem(pi->GetInstanceName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 

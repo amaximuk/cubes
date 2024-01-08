@@ -117,7 +117,10 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
         CubesUnitTypes::ParameterModel instance_name;
         instance_name.id = baseGroupName + "/NAME";
         instance_name.name = QString::fromLocal8Bit("Имя");
-        instance_name.value = QString::fromStdString(parameters::helper::file::get_display_name(unitParameters_.fileInfo));
+        if (xmlUnit == nullptr)
+            instance_name.value = QString::fromStdString(parameters::helper::file::get_display_name(unitParameters_.fileInfo));
+        else
+            instance_name.value = xmlUnit->name;
         instance_name.valueType = "string";
         //instance_name.parameterInfoId = "";
         instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -239,7 +242,8 @@ void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId&
     // Модель включает все вложенные параметры и массивы
     // Каждому параметру назначается model ID (путь к параметру в модели, разделенный /)
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
     CubesUnitTypes::ParameterModel pm;
     pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
