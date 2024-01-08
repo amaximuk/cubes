@@ -56,78 +56,13 @@ namespace CubesFile
 	public:
 		void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override;
 		void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) override;
-
-		//void BeforeFileAdd(const QString& fileName, bool& cancel) override
-		//{
-		//	// Ничего не делаем
-		//	cancel = false;
-		//}
-
-		//void BeforeFileRemove(const QString& fileName, bool& cancel) override
-		//{
-		//	QStringList unitNames;
-		//	top_manager_->GetUnitsInFileList(fileName, unitNames);
-		//	if (unitNames.count() > 0)
-		//	{
-		//		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-		//		text.append(unitNames.join('\n'));
-		//		QMessageBox::critical(widget_, "Error", text);
-		//		cancel = true;
-		//	}
-		//	else
-		//		cancel = false;
-		//}
-
-		//void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) override
-		//{
-		//	emit FilesListChanged(fileName, fileNames);
-		//}
-
 		void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel) override;
 		void AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName) override;
 		void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
 		void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
 		void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) override;
-		//void AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
 		void AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName) override;
 		void AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
-
-		//void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
-		//{
-		//	int count = 0;
-		//	for (const auto& i : items_)
-		//	{
-		//		if (i->GetName() == fileName)
-		//			count++;
-		//	}
-		//	if (count > 1)
-		//	{
-		//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-		//		fileItem->SetName(oldFileName, true, oldFileName);
-		//	}
-		//	else
-		//	{
-		//		for (int i = 0; i < selector_->count(); ++i)
-		//		{
-		//		    if (selector_->itemText(i) == oldFileName)
-		//				selector_->setItemText(i, fileName);
-		//		}
-		//		emit NameChanged(fileName, oldFileName);
-		//	}
-		//}
-
-		//void InformIncludeChanged(QString fileName, QStringList includeNames) override
-		//{
-		//	QStringList fileIncludeNames;
-		//	fileIncludeNames.push_back("<not selected>");
-		//	fileIncludeNames.append(includeNames);
-		//	emit IncludeChanged(fileName, fileIncludeNames);
-		//}
-
-		//void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
-		//{
-		//	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-		//}
 
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);

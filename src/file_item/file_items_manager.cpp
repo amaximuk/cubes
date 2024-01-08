@@ -88,13 +88,6 @@ void FileItemsManager::Select(const QString& fileName)
 			selected_ = fileName;
 		}
 	}
-	//if (selected_ != "" && selected_ != fileName)
-	//	GetItem(selected_)->UnSelect();
-	//if (fileName != "" && selected_ != fileName)
-	//{
-	//	GetItem(fileName)->Select();
-	//	selected_ = fileName;
-	//}
 }
 
 QSharedPointer<FileItem> FileItemsManager::GetItem(const QString& fileName)
@@ -257,32 +250,6 @@ void FileItemsManager::AfterFileNameChanged(const QString& fileName, const QStri
 	emit FileNameChanged(fileName, oldFileName);
 }
 
-//void BeforeFileAdd(const QString& fileName, bool& cancel) override
-//{
-//	// Ничего не делаем
-//	cancel = false;
-//}
-
-//void BeforeFileRemove(const QString& fileName, bool& cancel) override
-//{
-//	QStringList unitNames;
-//	top_manager_->GetUnitsInFileList(fileName, unitNames);
-//	if (unitNames.count() > 0)
-//	{
-//		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-//		text.append(unitNames.join('\n'));
-//		QMessageBox::critical(widget_, "Error", text);
-//		cancel = true;
-//	}
-//	else
-//		cancel = false;
-//}
-
-//void AfterFilesListChanged(const QString& fileName, const QStringList& fileNames) override
-//{
-//	emit FilesListChanged(fileName, fileNames);
-//}
-
 void FileItemsManager::BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel)
 {
 	// Ничего не делаем
@@ -337,48 +304,6 @@ void FileItemsManager::AfterVariablesListChanged(const QString& fileName, const 
 {
 	emit VariablesListChanged(fileName, includeName, variables);
 }
-
-//void FileItemsManager::AfterVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
-//{
-//	emit VariableChanged(fileName, includeName, variables);
-//}
-
-//void InformNameChanged(file_item* fileItem, QString fileName, QString oldFileName) override
-//{
-//	int count = 0;
-//	for (const auto& i : items_)
-//	{
-//		if (i->GetName() == fileName)
-//			count++;
-//	}
-//	if (count > 1)
-//	{
-//		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-//		fileItem->SetName(oldFileName, true, oldFileName);
-//	}
-//	else
-//	{
-//		for (int i = 0; i < selector_->count(); ++i)
-//		{
-//		    if (selector_->itemText(i) == oldFileName)
-//				selector_->setItemText(i, fileName);
-//		}
-//		emit NameChanged(fileName, oldFileName);
-//	}
-//}
-
-//void InformIncludeChanged(QString fileName, QStringList includeNames) override
-//{
-//	QStringList fileIncludeNames;
-//	fileIncludeNames.push_back("<not selected>");
-//	fileIncludeNames.append(includeNames);
-//	emit IncludeChanged(fileName, fileIncludeNames);
-//}
-
-//void InformIncludeNameChanged(QString fileName, QString includeName, QString oldIncludeName) override
-//{
-//	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-//}
 
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
@@ -447,20 +372,6 @@ void FileItemsManager::OnAddFileClicked()
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 	Create(QString::fromLocal8Bit("config.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]));
-	//Select(fileName);
-
-	//for (auto& item : panes_[0].first->items())
-	//{
-	//	diagram_item* di = reinterpret_cast<diagram_item*>(item);
-	//	QStringList fileNames = file_items_manager_->GetFileNames();
-	//	di->getProperties()->SetFileNames(fileNames);
-	//}
-
-	//if (panes_[0].first->selectedItems().size() > 0)
-	//	reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-	//panes_[0].first->invalidate();
-
 }
 
 void FileItemsManager::OnRemoveFileClicked()

@@ -636,16 +636,11 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     auto prin = GetProperty(pmin->id);
     editor_->SetStringValue(prin, pmin->value.toString());
 
-
-
-
     auto pmifn = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(ci - 1));
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
     editor_->SetStringValue(prifn, includeName);
-
-
 
     auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(ci - 1));
 
@@ -669,45 +664,6 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
         auto privv = GetProperty(pmivv->id);
         editor_->SetStringValue(privv, v.second);
     }
-
-
-
-
-
-    //auto pmi = GetParameterModel("INCLUDES");
-    //int countIncludes = pmi->value.toInt() + 1;
-
-    //UpdateIncludesArrayModel(*pmi, countIncludes);
-    //pmi->value = countIncludes;
-
-    //auto pri = GetProperty(pmi->id);
-    //editor_->SetIntValue(pri, countIncludes);
-
-    //QMap<QString, const QtProperty*> idToPropertyIncludes;
-    //for (int i = pri->subProperties().size(); i < countIncludes; ++i)
-    //    pri->addSubProperty(editor_->GetPropertyForModel(pmi->parameters[i], idToPropertyIncludes));
-    //for (const auto& kvp : idToPropertyIncludes.toStdMap())
-    //    RegisterProperty(kvp.second, kvp.first);
-
-
-
-    //auto pmv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(countIncludes - 1));
-    //int countVariables = pmv->value.toInt() + 1;
-
-    //UpdateVariablesArrayModel(*pmv, countVariables);
-    //pmv->value = countVariables;
-
-    //auto prv = GetProperty(pmv->id);
-    //editor_->SetIntValue(prv, countVariables);
-
-    //QMap<QString, const QtProperty*> idToPropertyVariables;
-    //for (int i = prv->subProperties().size(); i < countVariables; ++i)
-    //    prv->addSubProperty(editor_->GetPropertyForModel(pmv->parameters[i], idToPropertyVariables));
-    //for (const auto& kvp : idToPropertyVariables.toStdMap())
-    //    RegisterProperty(kvp.second, kvp.first);
-
-
-
 }
 
 QStringList FileItem::GetIncludeNames()
@@ -872,11 +828,6 @@ CubesXml::File FileItem::GetXmlFile()
         CubesXml::Include include{};
         include.name = includeName;
         include.fileName = GetIncludePath(includeName);
-        //for (const auto& variable : GetIncludeVariables(includeName))
-        //{
-        //    if ()
-        //    include.variables.insert(variable.first, variable.second);
-        //}
         include.variables = GetIncludeVariables(includeName);
         result.includes.push_back(include);
     }
@@ -1163,116 +1114,6 @@ void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, in
     }
 }
 
-//void file_item::AddArrayModelItem(unit_types::ParameterModel& pm)
-//{
-//    if (pm.id == "INCLUDES")
-//    {
-//        // Получаем уникальное имя
-//        QStringList namesList;
-//        for (const auto& i : pm.parameters)
-//        {
-//            for (const auto& si : pm.parameters)
-//            {
-//                if (si.id.endsWith("/NAME"))
-//                {
-//                    namesList.push_back(si.value.toString());
-//                    break;
-//                }
-//            }
-//        }
-//        QString includeName = unit_types::GetUniqueName("Файл", " ", namesList);
-//
-//        // Проверяем, что можно создавать
-//        bool cancel = false;
-//        file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Add, cancel);
-//        if (cancel) return;
-//
-//        // Добавляем 1 элемент
-//        int i = pm.parameters.size();
-//
-//        unit_types::ParameterModel group_model;
-//        group_model.editorSettings.type = unit_types::EditorType::None;
-//        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-//        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
-//
-//        unit_types::ParameterModel name;
-//        name.editorSettings.type = unit_types::EditorType::String;
-//        name.id = QString("%1/%2").arg(group_model.id, "NAME");
-//        name.name = QString::fromLocal8Bit("Имя");
-//        name.value = QString::fromLocal8Bit("Файл %1").arg(i);
-//        name.valueType = "string";
-//        name.editorSettings.type = unit_types::EditorType::String;
-//        group_model.parameters.push_back(name);
-//
-//        unit_types::ParameterModel file_path;
-//        file_path.editorSettings.type = unit_types::EditorType::String;
-//        file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
-//        file_path.name = QString::fromLocal8Bit("Имя файла");
-//        file_path.value = QString::fromLocal8Bit("include_%1.xml").arg(i);
-//        file_path.valueType = "string";
-//        file_path.editorSettings.type = unit_types::EditorType::String;
-//        file_path.editorSettings.is_expanded = false;
-//        group_model.parameters.push_back(file_path);
-//
-//        unit_types::ParameterModel variables;
-//        variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
-//        variables.name = QString::fromLocal8Bit("Переменные");
-//        variables.value = 0;
-//        variables.valueType = "int";
-//        variables.editorSettings.type = unit_types::EditorType::SpinInterger;
-//        variables.editorSettings.is_expanded = true;
-//        variables.editorSettings.SpinIntergerMin = 0;
-//        variables.editorSettings.SpinIntergerMax = 100;
-//        group_model.parameters.push_back(std::move(variables));
-//
-//        pm.parameters.push_back(group_model);
-//    }
-//    else // VARIABLES
-//    {
-//        // Получаем уникальное имя
-//        QStringList namesList;
-//        for (const auto& i : pm.parameters)
-//        {
-//            for (const auto& si : pm.parameters)
-//            {
-//                if (si.id.endsWith("/NAME"))
-//                {
-//                    namesList.push_back(si.value.toString());
-//                    break;
-//                }
-//            }
-//        }
-//        QString includeName = unit_types::GetUniqueName("Файл", " ", namesList);
-//
-//        //// Проверяем, что можно создавать
-//        //bool cancel = false;
-//        //file_items_manager_->BeforeIncludesListChanged(GetName(), includeName, Operation::Add, cancel);
-//        //if (cancel) return;
-//
-//        // Добавляем 1 элемент
-//        int i = pm.parameters.size();
-//
-//        unit_types::ParameterModel group_model;
-//        group_model.editorSettings.type = unit_types::EditorType::None;
-//        group_model.id = QString("%1/%2_%3").arg(pm.id, "ITEM").arg(i);
-//        group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
-//
-//        unit_types::ParameterModel name;
-//        name.editorSettings.type = unit_types::EditorType::String;
-//        name.id = QString("%1/%2").arg(group_model.id, "NAME");
-//        name.name = QString::fromLocal8Bit("Имя");
-//        group_model.parameters.push_back(name);
-//
-//        unit_types::ParameterModel value;
-//        value.editorSettings.type = unit_types::EditorType::String;
-//        value.id = QString("%1/%2").arg(group_model.id, "VALUE");
-//        value.name = QString::fromLocal8Bit("Значение");
-//        group_model.parameters.push_back(value);
-//
-//        pm.parameters.push_back(group_model);
-//    }
-//}
-
 void FileItem::RegisterProperty(const QtProperty* property, const QString& id)
 {
     propertyToId_[property] = id;
@@ -1348,38 +1189,6 @@ CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const QtProperty* pr
 
     return GetParameterModel(id);
 }
-
-//void file_item::SaveExpandState(QtBrowserItem* index)
-//{
-//    if (propertyEditor_ == nullptr)
-//        return;
-//
-//    QList<QtBrowserItem*> children = index->children();
-//    QListIterator<QtBrowserItem*> itChild(children);
-//    while (itChild.hasNext())
-//        SaveExpandState(itChild.next());
-//    QtProperty* prop = index->property();
-//
-//    auto pm = GetParameterModel(prop);
-//    if (pm != nullptr)
-//        pm->editorSettings.is_expanded = propertyEditor_->isExpanded(index);
-//
-//
-//
-//    //if (pm != nullptr)
-//    //    qDebug() << propertyEditor_->isExpanded(index);
-//}
-//
-//void file_item::SaveExpandState()
-//{
-//    if (propertyEditor_ == nullptr)
-//        return;
-//
-//    QList<QtBrowserItem*> indexes = propertyEditor_->topLevelItems();
-//    QListIterator<QtBrowserItem*> itItem(indexes);
-//    while (itItem.hasNext())
-//        SaveExpandState(itItem.next());
-//}
 
 void FileItem::ApplyExpandState(QtBrowserItem* index)
 {
