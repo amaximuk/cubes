@@ -68,14 +68,8 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	//pi->SetName(propertiesName);
 
 	items_[propertiesId] = pi;
-	//selector_->addItem(propertiesName, propertiesId);
 	selector_->addItem(pi->GetInstanceName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
-	//selector_->addItem(propertiesName);
-	//selector_->setCurrentIndex(selector_->count() - 1);
-	//selector_->setItemData(selector_->count() - 1, propertiesId);
-
-	//emit FilesListChanged(GetFileNames());
 }
 
 void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, uint32_t& propertiesId)
@@ -89,18 +83,12 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, pm));
 
-	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 	QString propertiesName = pm.parameters[0].parameters[0].value.toString();
 
 	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
 	selector_->addItem(propertiesName, propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
-	//selector_->addItem(propertiesName);
-	//selector_->setCurrentIndex(selector_->count() - 1);
-	//selector_->setItemData(selector_->count() - 1, propertiesId);
-
-	//emit FilesListChanged(GetFileNames());
 }
 
 void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId)
@@ -124,7 +112,6 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& pro
 
 void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 {
-	//QString currentFileName = GetCurrentFileName();
 	if (selected_ != propertiesId)
 	{
 		if (selected_ != 0)
@@ -153,24 +140,10 @@ void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
 		selector_->removeItem(index);
 
 	items_.remove(propertiesId);
-	//for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
-	//{
-	//    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-	//    if (propertiesItemsManager_->GetSelector()->itemText(i) == pi->GetName())
-	//    {
-	//        propertiesItemsManager_->GetSelector()->removeItem(i);
-	//        break;
-	//    }
-	//}
 }
 
 QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
 {
-	//for (auto& properties : items_)
-	//{
-	//	if (properties->GetName() == propertiesName)
-	//		return properties;
-	//}
 	if (items_.contains(propertiesId))
 		return items_[propertiesId];
 	return nullptr;
@@ -227,53 +200,6 @@ bool PropertiesItemsManager::InformVariableChanged()
 	}
 	return true;
 }
-
-//QStringList GetFileNames()
-//{
-//	QStringList fileNames;
-//	for (auto& file : items_)
-//		fileNames.push_back(file->GetName());
-//	return fileNames;
-//}
-//
-//QColor PropertiesItemsManager::GetFileColor(const QString& fileName)
-//{
-//	for (auto& fi : items_)
-//	{
-//		//if (fi->GetName() == fileName)
-//		//	return fi->GetColor();
-//	}
-//	return QColor("Black");
-//}
-//
-//QStringList PropertiesItemsManager::GetFileIncludeNames(const QString& fileName)
-//{
-//	QStringList fileIncludeNames;
-//	fileIncludeNames.push_back("<not selected>");
-//	for (auto& fi : items_)
-//	{
-//		//if (fi->GetName() == fileName)
-//		//	fileIncludeNames.append(fi->GetIncludeNames());
-//	}
-//	return fileIncludeNames;
-//}
-//
-//QList<QPair<QString, QString>> PropertiesItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
-//{
-//	QList<QPair<QString, QString>> result;
-//
-//	QStringList fileIncludeNames;
-//	for (auto& fi : items_)
-//	{
-//		if (fi->GetName() == fileName)
-//		{
-//			//result = fi->GetIncludeVariables(includeName);
-//			//break;
-//		}
-//	}
-//
-//	return result;
-//}
 
 void PropertiesItemsManager::Clear()
 {
@@ -367,10 +293,6 @@ void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item)
 	if (index != -1)
 		selector_->setItemText(index, name);
 
-	// Заполняем переменные
-	//QList<QPair<QString, QString>>& variables
-	//topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetGroupName(), variables);
-
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetIncludeName();
 
@@ -407,8 +329,6 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	if (pe->currentItem()->parent() == nullptr)
 		return;
 
-
-
 	auto propertiesId = GetCurrentPropertiesId();
 	auto item = GetItem(propertiesId);
 	if (item != nullptr)
@@ -416,26 +336,17 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		auto pm = item->GetParameterModel(pe->currentItem()->property());
 		auto ui = item->GetUnitParameters();
 
-
 		parameters::file_info afi{};
 		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
-
-
-
-
 
 		auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
 			for (auto& parameter : parameters)
 			{
 				parameter.id = parameter.id.mid(to_remove.length() + 1);
-				//parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
 				rename(parameter.parameters, to_remove, rename);
 			}
 		};
-
-
-
 
 		item->RemoveSubProperties(pe->currentItem()->property());
 
@@ -490,10 +401,6 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		{
 			qDebug() << pm->id;
 
-
-
-
-
 			ArrayWindow* mv = new ArrayWindow();
 			mv->setWindowModality(Qt::ApplicationModal);
 			//mv->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -501,18 +408,10 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			mv->SetItemModel(afi, pm);
 			mv->show();
 			//mv->deleteLater();
-
 		}
 		else
 			return;
 	}
-
-
-
-
-
-
-	
 
 	//QString name = pe->currentItem()->property()->propertyName();
 	//QString parentName = pe->currentItem()->parent()->property()->propertyName();
