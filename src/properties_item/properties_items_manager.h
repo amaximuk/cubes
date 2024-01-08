@@ -25,7 +25,6 @@ namespace CubesProperties
 		QPointer<QComboBox> selector_;
 		QPointer<QPlainTextEdit> hint_;
 		QMap<uint32_t, QSharedPointer<PropertiesItem>> items_;
-		//QList<QSharedPointer<properties_item>> items_;
 		uint32_t selected_;
 		uint32_t unique_number_;
 
@@ -88,6 +87,5 @@ namespace CubesProperties
 		QString GetName(PropertiesItem* item);
 
 		void OnArrayWindowBeforeClose(const bool result);
-
 	};
 }

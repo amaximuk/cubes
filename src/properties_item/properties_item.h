@@ -55,17 +55,13 @@ namespace CubesProperties
         void ExpandedChanged(const QtProperty* property, bool is_expanded);
 
     public:
-        //void ApplyToBrowser(QtTreePropertyBrowser* propertyEditor);
-        //void UnApplyToBrowser();
         QPixmap GetPixmap();
         void PositionChanged(QPointF point);
         void ZOrderChanged(double value);
         QString GetPropertyDescription(QtProperty* property);
-        //void ExpandedChanged(QtProperty* property, bool is_expanded);
         QList<QString> GetConnectedNames();
         QList<QString> GetDependentNames();
         QString GetInstanceName();
-        //void ApplyXmlProperties(CubesXml::Unit xu);
         void SetFileNames(QStringList fileNames);
         void SetFileName(QString fileName);
         void SetFileNameReadOnly(bool readOnly);
@@ -77,8 +73,6 @@ namespace CubesProperties
         void SetName(QString name);
         QString GetName();
         QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
-        //QString GetUnitName() { return parameters_compiler::helper::get_instance_name_initial(unitParameters_.fileInfo); };
-        //QList<QPair<QString, QString>> GetVariables();
         uint32_t GetPropertiesId() { return propertiesId_; };
         CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };
         QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
@@ -91,9 +85,6 @@ namespace CubesProperties
         bool GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array);
 
         void GetXml(CubesXml::Unit& xmlUnit);
-
-
-
         void RemoveSubProperties(QtProperty* property);
 
     private slots:
@@ -110,8 +101,6 @@ namespace CubesProperties
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
-        //void ApplyXmlPropertiesInternal(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
-        //void ApplyXmlArrayModel(CubesUnitTypes::ParameterModel& model, CubesXml::Unit& xu);
 
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);
@@ -122,8 +111,6 @@ namespace CubesProperties
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
         CubesUnitTypes::UnitParameters* GetPropertyUnitParameters(const QtProperty* property);
 
-        //void SaveExpandState();
-        //void SaveExpandState(QtBrowserItem* index);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);
     };
