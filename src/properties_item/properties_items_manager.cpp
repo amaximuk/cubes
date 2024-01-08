@@ -184,7 +184,7 @@ bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId,
 	pfd.pixmap = pi->GetPixmap();
 	pfd.name = GetName(pi.get());
 	pfd.fileName = pi->GetFileName();
-	pfd.groupName = pi->GetIncludeName();
+	pfd.includeName = pi->GetIncludeName();
 	pfd.color = {};
 	return true;
 }

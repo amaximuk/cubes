@@ -24,7 +24,6 @@ DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
-    //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
             event->accept();
@@ -39,7 +38,6 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
 void DiagramView::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
-    //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
             event->accept();
@@ -55,22 +53,8 @@ void DiagramView::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-dnditemdata"))
     {
-    //if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
         QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
         QDataStream dataStream(&itemData, QIODevice::ReadOnly);
-
-//        QPixmap pixmap;
-//        QPoint offset;
-//        QString name;
-//        dataStream >> pixmap >> offset >> name;
-//        qDebug() << "offset: " << offset;
-
-//        diagram_item *newIcon = new diagram_item(pixmap);
-//        QPoint position = mapToScene(event->pos() - offset).toPoint();
-//        this->scene()->addItem(newIcon);
-//        newIcon->setPos(position);
-
-
 
         QPixmap pixmap;
         QPoint offset;
@@ -78,18 +62,9 @@ void DiagramView::dropEvent(QDropEvent *event)
         dataStream >> unitId >> offset;
         qDebug() << "unitId: " << unitId << offset;
 
-
-        //if (name == "group_mock" && main_->GetCurrentGroup() != "Main")
-        //{
-        //    event->ignore();
-        //    QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Группы допускается создавать только в главном окне"));
-        //    return;
-        //}
-
         if (scene() != nullptr)
         {
             DiagramScene* ds = qobject_cast<DiagramScene*>(this->scene());
-            //auto up = *main_->GetUnitParameters(name);
 
             uint32_t propertiesId{ 0 };
             if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
@@ -103,18 +78,9 @@ void DiagramView::dropEvent(QDropEvent *event)
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            // !!!!!!!!!!!!!! pfd.groupName всегда пуст
-            DiagramItem *di = new DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+            DiagramItem *di = new DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
 
-            //di->GetProperties()->SetFileNames(main_->GetFileNames());
-            //di->GetProperties()->SetFileName(main_->GetCurrentFileName());
-            //di->GetProperties()->SetGroupNames(main_->GetCurrentFileIncludeNames());
-            //di->GetProperties()->SetGroupName("<not selected>");
-            //di->GetProperties()->SetName(main_->GetNewUnitName(di->GetProperties()->GetName()));
-            
-            //di->SetGroupName(main_->GetCurrentGroup());
             ds->InformItemCreated(di);
-
 
             QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 
@@ -130,7 +96,6 @@ void DiagramView::dropEvent(QDropEvent *event)
 
             di->setSelected(true);
         }
-
 
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
@@ -149,10 +114,9 @@ void DiagramView::dropEvent(QDropEvent *event)
 
 void DiagramView::wheelEvent(QWheelEvent* event)
 {
-    //https://bugreports.qt.io/browse/QTBUG-73033
-    //lastMouseMoveScenePoint = mouseEvent.scenePos();
+    // https://bugreports.qt.io/browse/QTBUG-73033
+    // lastMouseMoveScenePoint = mouseEvent.scenePos();
     // Решение - setMouseTracking(true);
-
 
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     if (ctrl)
@@ -191,21 +155,10 @@ void DiagramView::mouseDoubleClickEvent(QMouseEvent* event)
 
 void DiagramView::mousePressEvent(QMouseEvent* event)
 {
-    //bool ctrl = (event->modifiers() == Qt::ControlModifier);
-    //if (ctrl)
-    //{
-    //    setDragMode(QGraphicsView::ScrollHandDrag);
-    //}
-    //else
-    //    setDragMode(QGraphicsView::RubberBandDrag);
-
-
     QGraphicsView::mousePressEvent(event);
 }
 void DiagramView::mouseReleaseEvent(QMouseEvent* event)
 {
-    //setDragMode(QGraphicsView::RubberBandDrag);
-
     QGraphicsView::mouseReleaseEvent(event);
 }
 

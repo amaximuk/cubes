@@ -7,19 +7,20 @@ namespace CubeDiagram
     class DiagramItem : public QGraphicsItem
     {
     public:
+        // TODO: Убрать обратно в private
         uint32_t propertiesId_;
         QPixmap pixmap_;
         QString name_;
         QString fileName_;
-        QString groupName_;
+        QString includeName_;
         QColor color_;
-        //QSharedPointer<properties_item> properties_;
+
     private:
         QFont font_;
         QFont groupFont_;
         QRect iconRect_;
         QRectF textRect_;
-        QRectF groupTextRect_;
+        QRectF includeTextRect_;
         QRectF boundingRect_;
         bool borderOnly_;
 
@@ -36,17 +37,9 @@ namespace CubeDiagram
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
     public:
-        //QSharedPointer<properties_item> GetProperties() { return properties_; };
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
-        //void InformPositionXChanged(double x);
-        //void InformPositionYChanged(double y);
-        //void InformPositionZChanged(double z);
-        //void InformFileChanged();
-        void InformGroupChanged();
+        void InformIncludeChanged();
         void InformNameChanged(QString name, QString oldName);
-        //void InformDependencyChanged();
         void SetBorderOnly(bool borderOnly);
-        //void SetGroupName(QString name) { groupName_ = name; }
-        //QString GetGroupName() { return groupName_; }
     };
 }

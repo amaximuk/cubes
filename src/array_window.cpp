@@ -319,7 +319,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             qDebug() << "ERROR GetPropeties: " << propertiesId;
         }
 
-        di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+        di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
         di->setX(0);
         di->setY(0);
         di->setZValue(0);
@@ -1318,11 +1318,11 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
         {
             di->name_ = name;
             di->fileName_ = fileName;
-            di->groupName_ = groupName;
+            di->includeName_ = groupName;
             di->color_ = QColor("Red");
             di->color_.setAlpha(0x20);
             di->InformNameChanged(name, "");
-            di->InformGroupChanged();
+            di->InformIncludeChanged();
         }
     }
 

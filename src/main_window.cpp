@@ -811,7 +811,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.groupName, pfd.color);
+            di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
             di->setX(all_units[i].x);
             di->setY(all_units[i].y);
             di->setZValue(all_units[i].z);
@@ -1249,10 +1249,10 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
         {
             di->name_ = name;
             di->fileName_ = fileName;
-            di->groupName_ = groupName;
+            di->includeName_ = groupName;
             di->color_ = fileItemsManager_->GetFileColor(fileName);
             di->InformNameChanged(name, "");
-            di->InformGroupChanged();
+            di->InformIncludeChanged();
         }
     }
 

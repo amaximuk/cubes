@@ -34,10 +34,6 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    //QGraphicsScene::mousePressEvent(event);
-    //return;
-    //event->ignore();
-
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     //if (!ctrl)
     {
@@ -99,16 +95,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-    //QGraphicsScene::mouseMoveEvent(event);
-    //return;
-
-    //event->ignore();
-  //  bool ctrl = (event->modifiers() == Qt::ControlModifier);
-  //  if (ctrl)
-  //      QGuiApplication::setOverrideCursor(Qt::DragCopyCursor);
-  //  else
-  //      QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-
     QGraphicsScene::mouseMoveEvent(event);
 
     selectedWithCtrl_ = false;
@@ -119,29 +105,10 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    //QGraphicsScene::mouseReleaseEvent(event);
-    //return;
-
-    //event->ignore();
     isItemMoving_ = false;
 
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
     bool shift = (event->modifiers() == Qt::ShiftModifier);
-
-    //  QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-
-
-    //  QPainterPath tmpPath = selectionArea();
-    //  if(tmpPath.isEmpty())
-    //  {
-    //    // if ctrl pressed, then toggle selection
-    //    //emit select(event->scenePos(), ctrl);
-    //  }
-    //  else
-    //  {
-    //    // if ctrl pressed, then add selection
-    //    //emit select(tmpPath, ctrl);
-    //  }
 
     if (movingItem_ != nullptr)
     {
@@ -196,21 +163,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
                 addItem(pair.first);
                 pair.first->setPos(position);
                 pair.first->setSelected(true);
-                //addItem(di);
-                //di->setPos(position);
-      //          di->setSelected(true);
             }
-            //clearSelection();
-            //for (auto& item : selectedItems())
-            //{
-            //    item->setPos(item->pos() + delta);
-            //}
-            //clearSelection();
-            //for (auto& item : drag_items_)
-            //    item->setSelected(true);
             dragItems_.clear();
 
-            //emit xxx(ppp_);
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
         }
         else
@@ -223,10 +178,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             }
             dragItems_.clear();
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-
-            //for (auto& pair : dragItems_)
-            //    delete pair.first;
-            //dragItems_.clear();
         }
 
         //if (event->modifiers() == Qt::ControlModifier)
@@ -240,16 +191,13 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!
     //if (event->modifiers() != Qt::ControlModifier)
-        QGraphicsScene::mouseReleaseEvent(event);
+    QGraphicsScene::mouseReleaseEvent(event);
 
     QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
 }
 
 void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 {
-    //QGraphicsScene::keyPressEvent(keyEvent);
-    //return;
-
     if (isItemMoving_)
     {
         //bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
@@ -296,9 +244,6 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 
 void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    //QGraphicsScene::keyReleaseEvent(keyEvent);
-    //return;
-
     if (isItemMoving_)
     {
         //bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
@@ -343,7 +288,6 @@ DiagramItem* DiagramScene::GetDiagramItem(QString name)
         {
             return di;
         }
-        //qDebug() << name << " - " << di->getInstanceName();
     }
     return nullptr;
 }
@@ -391,15 +335,3 @@ void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
         //    main_->ActivateGroup(di->getProperties()->GetName());
     }
 }
-
-//void DiagramScene::wheelEvent(QGraphicsSceneWheelEvent* wheelEvent)
-//{
-//    qreal scaleFactor = pow((double)2, -event->delta() / 240.0);
-//
-//    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
-//    if (factor < 0.0002 || factor>0.1950)
-//        return;
-//
-//    scale(scaleFactor, scaleFactor);
-//    resetCachedContent();
-//}

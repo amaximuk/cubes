@@ -8,7 +8,7 @@ struct PropertiesForDrawing
     QPixmap pixmap;
     QString name;
     QString fileName;
-    QString groupName;
+    QString includeName;
     QColor color;
 };
 

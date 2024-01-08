@@ -23,22 +23,17 @@ namespace CubeDiagram
         explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
 
     public:
+        // TODO: Это заготовка для функций интерфейса, чтобы напрямую не управлять diagram_item
         void InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 
         void InformItemPositionChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);
-        //void InformItemNameChanged(DiagramItem* item, QString oldName);
-        //void InformItemFileChanged(DiagramItem* item);
-        //void InformItemGroupChanged(DiagramItem* item);
         bool IsItemMoving() { return isItemMoving_; };
 
     signals:
         void ItemPositionChanged(DiagramItem* item);
         void AfterItemCreated(DiagramItem* item);
         void BeforeItemDeleted(DiagramItem* item);
-        //void ItemNameChanged(DiagramItem* item, QString oldName);
-        //void ItemFileChanged(DiagramItem* item);
-        //void ItemGroupChanged(DiagramItem* item);
 
     protected:
         void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
