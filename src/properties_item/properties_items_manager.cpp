@@ -64,11 +64,12 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	propertiesId = ++unique_number_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
 
-	QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
+	//pi->SetName(propertiesName);
 
-	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
-	selector_->addItem(propertiesName, propertiesId);
+	//selector_->addItem(propertiesName, propertiesId);
+	selector_->addItem(pi->GetInstanceName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 	//selector_->addItem(propertiesName);
 	//selector_->setCurrentIndex(selector_->count() - 1);
