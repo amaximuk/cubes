@@ -36,20 +36,26 @@ namespace CubesXml
 		bool notifyReadyClients;
 		bool notifyReadyServers;
 		QList<Connect> connects;
+
+		static const Networking& Defaults()
+		{
+			static const Networking networking{ 1000, 60000, 10, false, 4, 1, 1, true, false };
+			return networking;
+		}
 	};
 
-	struct NetworkingDefaults
-	{
-		static const int id = 1000;
-		static const int acceptPort = 60000;
-		static const int keepAliveSec = 10;
-		static const bool timeClient = false;
-		static const int networkThreads = 4;
-		static const int broadcastThreads = 1;
-		static const int clientsThreads = 1;
-		static const bool notifyReadyClients = true;
-		static const bool notifyReadyServers = false;
-	};
+	//struct NetworkingDefaults
+	//{
+	//	static const int id = 1000;
+	//	static const int acceptPort = 60000;
+	//	static const int keepAliveSec = 10;
+	//	static const bool timeClient = false;
+	//	static const int networkThreads = 4;
+	//	static const int broadcastThreads = 1;
+	//	static const int clientsThreads = 1;
+	//	static const bool notifyReadyClients = true;
+	//	static const bool notifyReadyServers = false;
+	//};
 
 	/*<Log>
 		<!-- 
@@ -68,7 +74,20 @@ namespace CubesXml
 		int loggingLevel;
 		int totalLogLimit;
 		QString logDir;
+
+		static const Log& Defaults()
+		{
+			static const Log log{ 0, 500, QString() };
+			return log;
+		}
 	};
+
+	//struct LogDefaults
+	//{
+	//	static const int loggingLevel = 0;
+	//	static const int totalLogLimit = 500;
+	//	static const QString logDir;
+	//};
 
 	/*<Units>
 		<!--Modules-->

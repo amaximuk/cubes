@@ -10,6 +10,15 @@
 
 using namespace CubesFile;
 
+const QString CubesFile::baseGroupName = QString::fromLocal8Bit("$BASE");
+const QString CubesFile::parametersGroupName = QString::fromLocal8Bit("$PARAMETERS");
+const QString CubesFile::editorGroupName = QString::fromLocal8Bit("$EDITOR");
+const QString CubesFile::itemGroupName = QString::fromLocal8Bit("$ITEM");
+const QString CubesFile::dependsParameterName = QString::fromLocal8Bit("$DEPENDS");
+const QString CubesFile::optionalParameterName = QString::fromLocal8Bit("$OPTIONAL");
+const QString CubesFile::includesGroupName = QString::fromLocal8Bit("$INCLUDES");
+const QString CubesFile::variablesGroupName = QString::fromLocal8Bit("$VARIABLES");
+
 FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
 {
     fileItemsManager_ = fileItemsManager;
@@ -18,11 +27,23 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel();
+    CreateParametersModel(nullptr);
     CreateProperties();
 }
 
-void FileItem::CreateParametersModel()
+FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId)
+{
+    fileItemsManager_ = fileItemsManager;
+    editor_ = editor;
+    fileId_ = fileId;
+    model_ = {};
+    ignoreEvents_ = false;
+
+    CreateParametersModel(&xmlFile);
+    CreateProperties();
+}
+
+void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
 {
     // BASE
     // BASE/NAME
@@ -68,7 +89,11 @@ void FileItem::CreateParametersModel()
         CubesUnitTypes::ParameterModel name;
         name.id = "BASE/NAME";
         name.name = QString::fromLocal8Bit("Имя");
-        name.value = QString::fromLocal8Bit("АРМ");
+        //name.value = QString::fromLocal8Bit("АРМ");
+        if (xmlFile == nullptr || xmlFile->name.isEmpty())
+            name.value = QString::fromLocal8Bit("АРМ");
+        else
+            name.value = QString(xmlFile->name);
         //name.valueType = "string";
         //name.parameterInfoId = "";
         name.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -86,13 +111,23 @@ void FileItem::CreateParametersModel()
         for (const auto& pl : CubesUnitTypes::platform_names_)
             platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
         if (CubesUnitTypes::platform_names_.size() > 0)
-            platform.value = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
+        {
+            
+            if (xmlFile == nullptr || xmlFile->name.isEmpty())
+                platform.value = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
+            else
+                platform.value = QString(xmlFile->platform);
+        }
         base_group.parameters.push_back(std::move(platform));
 
         CubesUnitTypes::ParameterModel file_path;
         file_path.id = "BASE/PATH";
         file_path.name = QString::fromLocal8Bit("Имя файла");
-        file_path.value = QString::fromLocal8Bit("config.xml");
+        //file_path.value = QString::fromLocal8Bit("config.xml");
+        if (xmlFile == nullptr || xmlFile->fileName.isEmpty())
+            platform.value = QString::fromLocal8Bit("config.xml");
+        else
+            platform.value = QString(xmlFile->fileName);
         //file_path.valueType = "string";
         //file_path.parameterInfoId = "";
         file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -103,14 +138,26 @@ void FileItem::CreateParametersModel()
 
     {
         CubesUnitTypes::ParameterModel includes;
-        includes.id = "INCLUDES";
+        includes.id = includesGroupName;
         includes.name = QString::fromLocal8Bit("Включаемые файлы");
         includes.value = int{ 0 };
-        //includes.valueType = "int";
         includes.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
         includes.editorSettings.is_expanded = true;
         includes.editorSettings.SpinIntergerMin = 0;
-        includes.editorSettings.SpinIntergerMax = 100;
+        includes.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+
+        if (xmlFile != nullptr)
+        {
+            auto xmlCount = xmlFile->includes.size();
+            includes.value = QString("%1").arg(xmlCount);
+
+            UpdateIncludesArrayModel(xmlFile, includes, xmlCount);
+        }
+
+        //CubesUnitTypes::ParameterModel pm;
+        //CreateParameterModel(ArrayType::Includes, includesGroupName, xmlFile, pm);
+        //includes.parameters.push_back(std::move(pm));
+
         model_.parameters.push_back(std::move(includes));
     }
 
@@ -135,8 +182,12 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_id;
             pm_id.id = "PARAMETERS/NETWORKING/ID";
             pm_id.name = QString::fromLocal8Bit("Идентифиикатор");
-            pm_id.value = int{ CubesXml::NetworkingDefaults::id };
+            //pm_id.value = int{ CubesXml::Networking::Defaults().id };
             //pm_id.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().id};
+            else
+                pm_id.value = QString(xmlFile->config.networking.id);
             pm_id.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_id.editorSettings.SpinIntergerMin = 0;
             pm_id.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -145,8 +196,12 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_accept_port;
             pm_accept_port.id = "PARAMETERS/NETWORKING/ACCEPT_PORT";
             pm_accept_port.name = QString::fromLocal8Bit("Порт");
-            pm_accept_port.value = int{ CubesXml::NetworkingDefaults::acceptPort };
+            //pm_accept_port.value = int{ CubesXml::Networking::Defaults().acceptPort };
             //pm_accept_port.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().acceptPort };
+            else
+                pm_id.value = QString(xmlFile->config.networking.acceptPort);
             pm_accept_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_accept_port.editorSettings.SpinIntergerMin = 1000;
             pm_accept_port.editorSettings.SpinIntergerMax = 65535;
@@ -155,8 +210,12 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_keep_alive_sec;
             pm_keep_alive_sec.id = "PARAMETERS/NETWORKING/KEEP_ALIVE_SEC";
             pm_keep_alive_sec.name = QString::fromLocal8Bit("Таймаут");
-            pm_keep_alive_sec.value = int{ CubesXml::NetworkingDefaults::keepAliveSec };
+            //pm_keep_alive_sec.value = int{ CubesXml::Networking::Defaults().keepAliveSec };
             //pm_keep_alive_sec.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().keepAliveSec };
+            else
+                pm_id.value = QString(xmlFile->config.networking.keepAliveSec);
             pm_keep_alive_sec.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_keep_alive_sec.editorSettings.SpinIntergerMin = 0;
             pm_keep_alive_sec.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -165,16 +224,24 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_time_client;
             pm_time_client.id = "PARAMETERS/NETWORKING/TIME_CLIENT";
             pm_time_client.name = QString::fromLocal8Bit("Получать время");
-            pm_time_client.value = bool{ false };
+            //pm_time_client.value = bool{ false };
             //pm_time_client.valueType = "bool";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().timeClient };
+            else
+                pm_id.value = QString(xmlFile->config.networking.timeClient);
             pm_time_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_time_client));
 
             CubesUnitTypes::ParameterModel pm_network_threads;
             pm_network_threads.id = "PARAMETERS/NETWORKING/NETWORK_THREADS";
             pm_network_threads.name = QString::fromLocal8Bit("Сетевых потоков");
-            pm_network_threads.value = int{ CubesXml::NetworkingDefaults::networkThreads };
+            //pm_network_threads.value = int{ CubesXml::Networking::Defaults().networkThreads };
             //pm_network_threads.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().networkThreads };
+            else
+                pm_id.value = QString(xmlFile->config.networking.networkThreads);
             pm_network_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_network_threads.editorSettings.SpinIntergerMin = 1;
             pm_network_threads.editorSettings.SpinIntergerMax = 1024;
@@ -183,7 +250,7 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_broadcast_threads;
             pm_broadcast_threads.id = "PARAMETERS/NETWORKING/BROADCAST_THREADS";
             pm_broadcast_threads.name = QString::fromLocal8Bit("Широковещательных потоков");
-            pm_broadcast_threads.value = int{ CubesXml::NetworkingDefaults::broadcastThreads };
+            pm_broadcast_threads.value = int{ CubesXml::Networking::Defaults().broadcastThreads };
             //pm_broadcast_threads.valueType = "int";
             pm_broadcast_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_broadcast_threads.editorSettings.SpinIntergerMin = 1;
@@ -193,8 +260,12 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_client_threads;
             pm_client_threads.id = "PARAMETERS/NETWORKING/CLIENTS_THREADS";
             pm_client_threads.name = QString::fromLocal8Bit("Клиентских потоков");
-            pm_client_threads.value = int{ CubesXml::NetworkingDefaults::clientsThreads };
+            //pm_client_threads.value = int{ CubesXml::Networking::Defaults().clientsThreads };
             //pm_client_threads.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().clientsThreads };
+            else
+                pm_id.value = QString(xmlFile->config.networking.clientsThreads);
             pm_client_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_client_threads.editorSettings.SpinIntergerMin = 1;
             pm_client_threads.editorSettings.SpinIntergerMax = 1024;
@@ -203,29 +274,63 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_notify_ready_client;
             pm_notify_ready_client.id = "PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS";
             pm_notify_ready_client.name = QString::fromLocal8Bit("Информировать клиента");
-            pm_notify_ready_client.value = bool{ CubesXml::NetworkingDefaults::notifyReadyClients };
+            //pm_notify_ready_client.value = bool{ CubesXml::Networking::Defaults().notifyReadyClients };
             //pm_notify_ready_client.valueType = "bool";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().notifyReadyClients };
+            else
+                pm_id.value = QString(xmlFile->config.networking.notifyReadyClients);
             pm_notify_ready_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_client));
 
             CubesUnitTypes::ParameterModel pm_notify_ready_server;
             pm_notify_ready_server.id = "PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS";
             pm_notify_ready_server.name = QString::fromLocal8Bit("Информировать сервер");
-            pm_notify_ready_server.value = bool{ CubesXml::NetworkingDefaults::notifyReadyServers };
+            //pm_notify_ready_server.value = bool{ CubesXml::Networking::Defaults().notifyReadyServers };
             //pm_notify_ready_server.valueType = "bool";
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_id.value = int{ CubesXml::Networking::Defaults().notifyReadyServers };
+            else
+                pm_id.value = QString(xmlFile->config.networking.notifyReadyServers);
             pm_notify_ready_server.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
 
-            CubesUnitTypes::ParameterModel connect;
-            connect.id = "PARAMETERS/NETWORKING/CONNECT";
-            connect.name = QString::fromLocal8Bit("Подключения");
-            connect.value = int{ 0 };
-            //connect.valueType = "int";
-            connect.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
-            connect.editorSettings.is_expanded = true;
-            connect.editorSettings.SpinIntergerMin = 0;
-            connect.editorSettings.SpinIntergerMax = 1024;
-            pm_networking.parameters.push_back(std::move(connect));
+            //{
+            //    CubesUnitTypes::ParameterModel connect;
+            //    connect.id = "PARAMETERS/NETWORKING/CONNECT";
+            //    connect.name = QString::fromLocal8Bit("Подключения");
+            //    connect.value = int{ 0 };
+            //    //connect.valueType = "int";
+            //    connect.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+            //    connect.editorSettings.is_expanded = true;
+            //    connect.editorSettings.SpinIntergerMin = 0;
+            //    connect.editorSettings.SpinIntergerMax = 1024;
+            //    pm_networking.parameters.push_back(std::move(connect));
+            //}
+            {
+                CubesUnitTypes::ParameterModel connect;
+                connect.id = "PARAMETERS/NETWORKING/CONNECT";
+                connect.name = QString::fromLocal8Bit("Подключения");
+                connect.value = int{ 0 };
+                connect.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+                connect.editorSettings.is_expanded = true;
+                connect.editorSettings.SpinIntergerMin = 0;
+                connect.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+
+                int xmlCount = 0;
+                if (xmlFile != nullptr && xmlFile->config.networkingIsSet)
+                    xmlCount = xmlFile->config.networking.connects.size();
+                connect.value = QString("%1").arg(xmlCount);
+
+                UpdateConnectArrayModel(xmlFile, connect, xmlCount);
+
+
+                //CubesUnitTypes::ParameterModel pm;
+                //CreateParameterModel(ArrayType::Includes, includesGroupName, xmlFile, pm);
+                //includes.parameters.push_back(std::move(pm));
+
+                model_.parameters.push_back(std::move(connect));
+            }
 
             properties_group.parameters.push_back(std::move(pm_networking));
         }
@@ -242,17 +347,27 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_logging_level;
             pm_logging_level.id = "PARAMETERS/LOG/LOGGING_LEVEL";
             pm_logging_level.name = QString::fromLocal8Bit("Уровень");
-            pm_logging_level.value = QString("TRACE");
+            //pm_logging_level.value = QString("TRACE");
             //pm_logging_level.valueType = "string";
             pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
             pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
+            if (xmlFile == nullptr || !xmlFile->config.logIsSet)
+                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[CubesXml::Log::Defaults().loggingLevel];
+            else if (xmlFile->config.log.loggingLevel < pm_logging_level.editorSettings.ComboBoxValues.size())
+                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[xmlFile->config.log.loggingLevel];
+            else
+                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[0];
             pm_logging.parameters.push_back(std::move(pm_logging_level));
 
             CubesUnitTypes::ParameterModel pm_log_limit;
             pm_log_limit.id = "PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB";
             pm_log_limit.name = QString::fromLocal8Bit("Размер");
-            pm_log_limit.value = int{ 500 };
+            //pm_log_limit.value = int{ 500 };
             //pm_log_limit.valueType = "int";
+            if (xmlFile == nullptr || !xmlFile->config.logIsSet)
+                pm_logging.value = int{ CubesXml::Log::Defaults().totalLogLimit };
+            else
+                pm_logging.value = int{ xmlFile->config.log.totalLogLimit };
             pm_log_limit.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_log_limit.editorSettings.SpinIntergerMin = 0;
             pm_log_limit.editorSettings.SpinIntergerMax = 1024 * 1024;
@@ -261,8 +376,12 @@ void FileItem::CreateParametersModel()
             CubesUnitTypes::ParameterModel pm_log_dir;
             pm_log_dir.id = "PARAMETERS/LOG/LOG_DIR";
             pm_log_dir.name = QString::fromLocal8Bit("Директория");
-            pm_log_dir.value = QString();
+            //pm_log_dir.value = QString();
             //pm_log_dir.valueType = "string";
+            if (xmlFile == nullptr || !xmlFile->config.logIsSet)
+                pm_logging.value = CubesXml::Log::Defaults().logDir;
+            else
+                pm_logging.value = xmlFile->config.log.logDir;
             pm_log_dir.editorSettings.type = CubesUnitTypes::EditorType::String;
             pm_logging.parameters.push_back(std::move(pm_log_dir));
 
@@ -305,6 +424,65 @@ void FileItem::CreateProperties()
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
 }
+
+//void FileItem::CreateParameterModel(const ArrayType arrayType, const QString& parentModelId,
+//    const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model)
+//{
+//    // Создание модели для массива
+//    // Каждому параметру назначается model ID (путь к параметру в модели, разделенный /)
+//
+//    //auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+//    //    parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
+//
+//    CubesUnitTypes::ParameterModel pm;
+//    pm.id = QString("%1/%2").arg(parentModelId, QString::fromStdString(pi.name));
+//    pm.name = QString::fromStdString(parameters::helper::parameter::get_display_name(pi));
+//    //pm.parameterInfoId = parameterInfoId;
+//
+//    FillArrayModel(xmlFile, pm);
+//    UpdateArrayModel(xmlFile, pm);
+//
+//    //bool is_array = parameters::helper::common::get_is_array_type(pi.type);
+//    //if (is_array)
+//    //{
+//    //    FillArrayModel(xmlFile, pm);
+//    //    UpdateArrayModel(xmlFile, pm);
+//    //}
+//    //else
+//    //{
+//    //    FillParameterModel(xmlFile, pm, false);
+//    //}
+//
+//    model = pm;
+//
+//}
+//
+//void FileItem::FillParameterModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, bool isItem)
+//{
+//
+//}
+//
+//void FileItem::FillArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model)
+//{
+//    // Созадем модель для параметра, хранящего количество элементов массива
+//    // Поля id, name, parameterInfoId должны быть предварительно заполнены
+//    // Если xmlUnit != nullptr, значит создаем юнит из файла xml
+//    // Если xmlUnit не задан - количество элементов равно нулю
+//
+//    int xmlCount = 0;
+//    if (xmlFile != nullptr)
+//        xmlCount = xmlFile->includes.size();
+//
+//    model.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+//    model.editorSettings.SpinIntergerMin = 0;
+//    model.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+//    model.value = QString("%1").arg(xmlCount);
+//}
+//
+//void FileItem::UpdateArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model)
+//{
+//
+//}
 
 void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 {
@@ -373,9 +551,9 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
             int count = value.toInt();
 
             if (pm->id == "INCLUDES")
-                UpdateIncludesArrayModel(*pm, count);
+                UpdateIncludesArrayModel(nullptr, *pm, count);
             else
-                UpdateVariablesArrayModel(*pm, count);
+                UpdateVariablesArrayModel(nullptr, *pm, count);
             pm->value = count;
             editor_->SetIntValue(property, count);
 
@@ -417,7 +595,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
         {
             int count = value.toInt();
 
-            UpdateConnectArrayModel(*pm, count);
+            UpdateConnectArrayModel(nullptr, *pm, count);
             pm->value = count;
             editor_->SetIntValue(property, count);
 
@@ -836,7 +1014,7 @@ CubesXml::File FileItem::GetXmlFile()
     return result;
 }
 
-void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Сначала добавляем
     if (model.parameters.size() < count)
@@ -908,16 +1086,52 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
             file_path.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(file_path));
 
-            CubesUnitTypes::ParameterModel variables;
-            variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
-            variables.name = QString::fromLocal8Bit("Переменные");
-            variables.value = int{ 0 };
-            //variables.valueType = "int";
-            variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
-            variables.editorSettings.is_expanded = true;
-            variables.editorSettings.SpinIntergerMin = 0;
-            variables.editorSettings.SpinIntergerMax = 100;
-            group_model.parameters.push_back(std::move(variables));
+            {
+                CubesUnitTypes::ParameterModel variables;
+                variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
+                variables.name = QString::fromLocal8Bit("Переменные");
+                variables.value = int{ 0 };
+                //variables.valueType = "int";
+                variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+                variables.editorSettings.is_expanded = true;
+                variables.editorSettings.SpinIntergerMin = 0;
+                variables.editorSettings.SpinIntergerMax = 100;
+                group_model.parameters.push_back(std::move(variables));
+            }
+            {
+                CubesUnitTypes::ParameterModel variables;
+                variables.id = QString("%1/%2").arg(group_model.id, variablesGroupName);
+                variables.name = QString::fromLocal8Bit("Переменные");
+                variables.value = int{ 0 };
+                variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
+                variables.editorSettings.is_expanded = true;
+                variables.editorSettings.SpinIntergerMin = 0;
+                variables.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+
+                int xmlCount = 0;
+                if (xmlFile != nullptr)
+                {
+                    for (const auto& i : xmlFile->includes)
+                    {
+                        if (i.name == includeName)
+                        {
+                            xmlCount = i.variables.size();
+                            break;
+                        }
+                    }
+                    xmlCount = xmlFile->includes.size();
+                }
+                variables.value = QString("%1").arg(xmlCount);
+
+                UpdateVariablesArrayModel(xmlFile, variables, xmlCount);
+
+
+                //CubesUnitTypes::ParameterModel pm;
+                //CreateParameterModel(ArrayType::Includes, includesGroupName, xmlFile, pm);
+                //includes.parameters.push_back(std::move(pm));
+
+                model_.parameters.push_back(std::move(variables));
+            }
 
             model.parameters.push_back(std::move(group_model));
         }
@@ -979,7 +1193,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
     }
 }
 
-void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Разделяем путь на части
     QStringList path = model.id.split("/");
@@ -1069,7 +1283,7 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, 
     fileItemsManager_->AfterVariablesListChanged(fileId_, includeName, variables);
 }
 
-void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateConnectArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Сначала добавляем
     if (model.parameters.size() < count)

@@ -116,17 +116,17 @@ bool Writer::SetNetworking(const Networking& networking, QXmlStreamWriter& xmlWr
 	xmlWriter.writeAttribute("id", QString("%1").arg(networking.id));
 	xmlWriter.writeAttribute("accept_port", QString("%1").arg(networking.acceptPort));
 	xmlWriter.writeAttribute("keep_alive_sec", QString("%1").arg(networking.keepAliveSec));
-	if (networking.timeClient != NetworkingDefaults::timeClient)
+	if (networking.timeClient != Networking::Defaults().timeClient)
 		xmlWriter.writeAttribute("time_client", QString("%1").arg(networking.timeClient));
-	if (networking.networkThreads != NetworkingDefaults::networkThreads)
+	if (networking.networkThreads != Networking::Defaults().networkThreads)
 		xmlWriter.writeAttribute("network_threads", QString("%1").arg(networking.networkThreads));
-	if (networking.broadcastThreads != NetworkingDefaults::broadcastThreads)
+	if (networking.broadcastThreads != Networking::Defaults().broadcastThreads)
 		xmlWriter.writeAttribute("broadcast_threads", QString("%1").arg(networking.broadcastThreads));
-	if (networking.clientsThreads != NetworkingDefaults::clientsThreads)
+	if (networking.clientsThreads != Networking::Defaults().clientsThreads)
 		xmlWriter.writeAttribute("clients_threads", QString("%1").arg(networking.clientsThreads));
-	if (networking.notifyReadyClients != NetworkingDefaults::notifyReadyClients)
+	if (networking.notifyReadyClients != Networking::Defaults().notifyReadyClients)
 		xmlWriter.writeAttribute("notify_ready_clients", QString("%1").arg(networking.notifyReadyClients));
-	if (networking.notifyReadyServers != NetworkingDefaults::notifyReadyServers)
+	if (networking.notifyReadyServers != Networking::Defaults().notifyReadyServers)
 		xmlWriter.writeAttribute("notify_ready_servers", QString("%1").arg(networking.notifyReadyServers));
 
 	for (const auto& connect : networking.connects)

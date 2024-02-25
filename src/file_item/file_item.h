@@ -7,11 +7,28 @@
 
 namespace CubesFile
 {
+    extern const QString baseGroupName;
+    extern const QString parametersGroupName;
+    extern const QString editorGroupName;
+    extern const QString itemGroupName;
+    extern const QString dependsParameterName;
+    extern const QString optionalParameterName;
+    extern const QString includesGroupName;
+    extern const QString variablesGroupName;
+
     class FileItem : public QObject
     {
         Q_OBJECT
 
     private:
+        // enum
+        enum class ArrayType
+        {
+            Includes,
+            Variables,
+            Connect
+        };
+
         // Params
         IFileItemsManagerBoss* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
@@ -32,6 +49,7 @@ namespace CubesFile
 
     public:
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
+        FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);
 
     public:
         void Select();
@@ -61,11 +79,24 @@ namespace CubesFile
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
     private:
-        void CreateParametersModel();
+        void CreateParametersModel(const CubesXml::File* xmlFile);
         void CreateProperties();
-        void UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
-        void UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
-        void UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, int& count);
+
+
+        //void CreateParameterModel(const ArrayType arrayType, const QString& parentModelId,
+        //    const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
+        //void FillParameterModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, bool isItem);
+        //void FillArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
+        //void UpdateArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
+
+
+
+        void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
+        void UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
+        void UpdateConnectArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
+
+
+
         void RegisterProperty(const QtProperty* property, const QString& id);
         void UnregisterProperty(const QString& id);
         void UnregisterProperty(const QtProperty* property);
