@@ -8,12 +8,12 @@ namespace CubesProperties
 	{
 	public:
 		virtual ~IPropertiesItemsManagerBoss() = default;
-		virtual void AfterNameChanged(PropertiesItem* item) = 0;
-		virtual void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) = 0;
-		virtual void AfterIncludeNameChanged(PropertiesItem* item) = 0;
-		//virtual void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) = 0;
-		virtual void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) = 0;
-		virtual void AfterError(PropertiesItem* item, const QString& message) = 0;
+		virtual void AfterNameChanged(const uint32_t propertiesId) = 0;
+		virtual void AfterFileNameChanged(const uint32_t propertiesId, QStringList& includeNames) = 0;
+		virtual void AfterIncludeNameChanged(const uint32_t propertiesId) = 0;
+		//virtual void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) = 0;
+		virtual void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) = 0;
+		virtual void AfterError(const uint32_t propertiesId, const QString& message) = 0;
 	};
 
 	class IPropertiesItemsManagerWorker

@@ -156,7 +156,7 @@ bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId,
 		return false;
 
 	pfd.pixmap = pi->GetPixmap();
-	pfd.name = GetName(pi.get());
+	pfd.name = GetName(propertiesId);
 	pfd.fileName = pi->GetFileName();
 	pfd.includeName = pi->GetIncludeName();
 	pfd.color = {};
@@ -188,7 +188,7 @@ bool PropertiesItemsManager::InformVariableChanged()
 {
 	for (auto& p : items_)
 	{
-		auto name = GetName(p.get());
+		auto name = GetName(p->GetPropertiesId());
 		int index = selector_->findData(p->GetPropertiesId());
 		if (index != -1)
 			selector_->setItemText(index, name);
@@ -210,11 +210,7 @@ void PropertiesItemsManager::Clear()
 
 bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)
 {
-	auto pi = GetItem(propertiesId);
-	if (pi == nullptr)
-		return false;
-
-	name = GetName(pi.get());
+	name = GetName(propertiesId);
 	return true;
 }
 
@@ -257,25 +253,28 @@ QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileN
 	return result;
 }
 
-void PropertiesItemsManager::AfterNameChanged(PropertiesItem* item)
+void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
 {
-	auto name = GetName(item);
-	int index = selector_->findData(item->GetPropertiesId());
+	auto name = GetName(propertiesId);
+	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
 
+	auto item = GetItem(propertiesId);
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, QStringList& includeNames)
 {
-	auto name = GetName(item);
-	int index = selector_->findData(item->GetPropertiesId());
+	auto name = GetName(propertiesId);
+	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
+
+	auto item = GetItem(propertiesId);
 
 	// Заполняем группы
 	topManager_->GetFileIncludeList(item->GetFileName(), includeNames);
@@ -283,30 +282,31 @@ void PropertiesItemsManager::AfterFileNameChanged(PropertiesItem* item, QStringL
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterIncludeNameChanged(PropertiesItem* item)
+void PropertiesItemsManager::AfterIncludeNameChanged(const uint32_t propertiesId)
 {
-	auto name = GetName(item);
-	int index = selector_->findData(item->GetPropertiesId());
+	auto name = GetName(propertiesId);
+	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
 
+	auto item = GetItem(propertiesId);
 	auto fileName = item->GetFileName();
 	auto groupName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ)
+void PropertiesItemsManager::AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
 {
-	emit PositionChanged(item->GetPropertiesId(), posX, posY, posZ);
+	emit PositionChanged(propertiesId, posX, posY, posZ);
 }
 
-void PropertiesItemsManager::AfterError(PropertiesItem* item, const QString& message)
+void PropertiesItemsManager::AfterError(const uint32_t propertiesId, const QString& message)
 {
-	emit OnError(item->GetPropertiesId(), message);
+	emit OnError(propertiesId, message);
 }
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
@@ -629,8 +629,10 @@ void PropertiesItemsManager::SetFilePropertyExpanded(const uint32_t propertiesId
 	}
 }
 
-QString PropertiesItemsManager::GetName(PropertiesItem* item)
+QString PropertiesItemsManager::GetName(const uint32_t propertiesId)
 {
+	auto item = GetItem(propertiesId);
+
 	QList<QPair<QString, QString>> variables;
 	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetIncludeName(), variables);
 

@@ -61,12 +61,12 @@ namespace CubesProperties
 
 	public:
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
-		void AfterNameChanged(PropertiesItem* item) override;
-		void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) override;
-		void AfterIncludeNameChanged(PropertiesItem* item) override;
-		//void AfterIncludeNameChanged(PropertiesItem* item, QList<QPair<QString, QString>>& variables) override;
-		void AfterPositionChanged(PropertiesItem* item, double posX, double posY, double posZ) override;
-		void AfterError(PropertiesItem* item, const QString& message) override;
+		void AfterNameChanged(const uint32_t propertiesId) override;
+		void AfterFileNameChanged(const uint32_t propertiesId, QStringList& includeNames) override;
+		void AfterIncludeNameChanged(const uint32_t propertiesId) override;
+		//void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) override;
+		void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) override;
+		void AfterError(const uint32_t propertiesId, const QString& message) override;
 
 		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:
@@ -84,7 +84,7 @@ namespace CubesProperties
 		QWidget* CreateSelectorWidget();
 		QWidget* CreateHintWidget();
 		void SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
-		QString GetName(PropertiesItem* item);
+		QString GetName(const uint32_t propertiesId);
 
 		void OnArrayWindowBeforeClose(const bool result);
 	};
