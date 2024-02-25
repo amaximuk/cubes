@@ -676,6 +676,8 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     fileItemsManager_->Create(file.fileName, name, file.platform);
     fileItemsManager_->Select(name);
 
+    SetXmlParameters();
+
     for (const auto& include : file.includes)
         fileItemsManager_->AddFileInclude(name, include.fileName, include.variables);
     //for (int i = 0; i < file.includes.size(); i++)

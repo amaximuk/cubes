@@ -48,55 +48,75 @@ QString FileItemsManager::GetCurrentFileName()
 		return "";
 }
 
-void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform)
+void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	auto item = GetItem(fileName);
-	if (fileName == "" || item != nullptr)
-		fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(++unique_number_);
+	fileId = ++unique_number_;
+
+	//auto item = GetItem(fileName);
+	if (fileName == ""/* || item != nullptr*/)
+		fileName = QString::fromLocal8Bit("Τΰιλ %1").arg(fileId);
 
 	auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
 	if (platform == "" || it == CubesUnitTypes::platform_names_.cend())
 		platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
 
-	QSharedPointer<FileItem> fi(new FileItem(this, editor_));
+
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId));
 	fi->SetName(fileName, true, fileName);
 	fi->SetPath(filePath);
 	fi->SetColor(color);
-	items_.push_back(fi);
-	selector_->addItem(fileName);
+
+	items_[fileId] = fi;
+	selector_->addItem(fileName, fileId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
 	emit FilesListChanged(GetFileNames());
 }
 
-void FileItemsManager::Select(const QString& fileName)
+void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 {
-	QString currentFileName = GetCurrentFileName();
-	if (selected_ != fileName)
+
+}
+
+void FileItemsManager::Select(const uint32_t& fileId)
+{
+	if (selected_ != fileId)
 	{
-		if (!selected_.isEmpty())
+		if (selected_ != 0)
 		{
 			GetItem(selected_)->UnSelect();
-			selected_ = "";
+			selected_ = 0;
+			auto pe = editor_->GetPropertyEditor();
+			pe->clear();
 		}
-		if (!fileName.isEmpty())
+		if (fileId != 0)
 		{
-			GetItem(fileName)->Select();
-			selected_ = fileName;
+			GetItem(fileId)->Select();
+			selected_ = fileId;
 		}
+
+		int index = selector_->findData(fileId);
+		if (index != -1)
+			selector_->setCurrentIndex(index);
 	}
 }
 
-QSharedPointer<FileItem> FileItemsManager::GetItem(const QString& fileName)
+void FileItemsManager::Remove(const uint32_t& fileId)
 {
-	for (auto& file : items_)
-	{
-		if (file->GetName() == fileName)
-			return file;
-	}
+	int index = selector_->findData(fileId);
+	if (index != -1)
+		selector_->removeItem(index);
+
+	items_.remove(fileId);
+}
+
+QSharedPointer<FileItem> FileItemsManager::GetItem(const uint32_t& fileId)
+{
+	if (items_.contains(fileId))
+		return items_[fileId];
 	return nullptr;
 }
 
@@ -178,6 +198,16 @@ void FileItemsManager::Clear()
 	editor_->GetPropertyEditor()->clear();
 	selector_->clear();
 	items_.clear();
+}
+
+bool FileItemsManager::GetName(const uint32_t fileId, QString& name)
+{
+	auto pi = GetItem(fileId);
+	if (pi == nullptr)
+		return false;
+
+	name = GetName(pi.get());
+	return true;
 }
 
 File FileItemsManager::GetFile(const QString& fileName)
@@ -371,7 +401,8 @@ void FileItemsManager::OnAddFileClicked()
 
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-	Create(QString::fromLocal8Bit("config.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]));
+	uint32_t fileId{ 0 };
+	Create(QString::fromLocal8Bit("config.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 
 void FileItemsManager::OnRemoveFileClicked()
@@ -494,4 +525,21 @@ void FileItemsManager::SetFilePropertyExpanded(const QString& fileName, const Qt
 		if (fi->GetName() == fileName)
 			fi->ExpandedChanged(property, is_expanded);
 	}
+}
+
+QString FileItemsManager::GetName(FileItem* item)
+{
+	return{};
+
+	//QList<QPair<QString, QString>> variables;
+	//topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetIncludeName(), variables);
+
+	//QString name = item->GetName();
+	//for (const auto& v : variables)
+	//{
+	//	QString replace = QString("@%1@").arg(v.first);
+	//	name.replace(replace, v.second);
+	//}
+
+	//return name;
 }

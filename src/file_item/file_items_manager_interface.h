@@ -56,9 +56,11 @@ namespace CubesFile
 		QList<Include> includes;
 	};
 
-	class IFileItemsManager
+	class IFileItemsManagerBoss
 	{
 	public:
+		virtual ~IFileItemsManagerBoss() = default;
+
 		// “ут значени€ мен€ютс€ по одному
 		virtual void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) = 0;
 		virtual void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) = 0;
@@ -73,5 +75,11 @@ namespace CubesFile
 		
 		virtual void AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName) = 0;
 		virtual void AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
+	};
+
+	class IFileItemsManagerWorker
+	{
+	public:
+		virtual ~IFileItemsManagerWorker() = default;
 	};
 }

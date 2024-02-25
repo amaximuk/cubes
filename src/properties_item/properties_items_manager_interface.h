@@ -7,6 +7,7 @@ namespace CubesProperties
 	class IPropertiesItemsManagerBoss
 	{
 	public:
+		virtual ~IPropertiesItemsManagerBoss() = default;
 		virtual void AfterNameChanged(PropertiesItem* item) = 0;
 		virtual void AfterFileNameChanged(PropertiesItem* item, QStringList& includeNames) = 0;
 		virtual void AfterIncludeNameChanged(PropertiesItem* item) = 0;
@@ -18,5 +19,6 @@ namespace CubesProperties
 	class IPropertiesItemsManagerWorker
 	{
 	public:
+		virtual ~IPropertiesItemsManagerWorker() = default;
 	};
 }

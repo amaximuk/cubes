@@ -10,10 +10,11 @@
 
 using namespace CubesFile;
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor)
+FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
+    fileId_ = fileId;
     model_ = {};
     ignoreEvents_ = false;
 

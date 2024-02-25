@@ -13,8 +13,9 @@ namespace CubesFile
 
     private:
         // Params
-        IFileItemsManager* fileItemsManager_;
+        IFileItemsManagerBoss* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
+        uint32_t fileId_;
 
         // Модель параметров
         CubesUnitTypes::ParametersModel model_;
@@ -30,7 +31,7 @@ namespace CubesFile
         bool ignoreEvents_;
 
     public:
-        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor);
+        FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
 
     public:
         void Select();
@@ -49,6 +50,7 @@ namespace CubesFile
         QStringList GetIncludeNames();
         QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
         QString GetIncludeName(const QString& includePath);
+        uint32_t GetFileId() { return fileId_; };
 
         QString GetIncludePath(const QString& includeName);
         File GetFile();
