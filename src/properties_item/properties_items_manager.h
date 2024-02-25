@@ -83,7 +83,7 @@ namespace CubesProperties
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
 		QWidget* CreateHintWidget();
-		void SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
+		void SetPropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(const uint32_t propertiesId);
 
 		void OnArrayWindowBeforeClose(const bool result);

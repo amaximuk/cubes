@@ -68,7 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("ÀÐÌ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]));
+    uint32_t fileId{ 0 };
+    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("ÀÐÌ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 
 MainWindow::~MainWindow()
@@ -673,10 +674,9 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     //QString fileName = QFileInfo(file.fileName).fileName();
 
     QString name = file.name;
-    fileItemsManager_->Create(file.fileName, name, file.platform);
-    fileItemsManager_->Select(name);
-
-    SetXmlParameters();
+    uint32_t fileId{ 0 };
+    fileItemsManager_->Create(file.fileName, name, file.platform, fileId);
+    fileItemsManager_->Select(fileId);
 
     for (const auto& include : file.includes)
         fileItemsManager_->AddFileInclude(name, include.fileName, include.variables);

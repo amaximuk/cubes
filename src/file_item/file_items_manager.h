@@ -31,6 +31,7 @@ namespace CubesFile
 		PropertiesEditor* GetEditor();
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
+		uint32_t GetCurrentFileId();
 		QString GetCurrentFileName();
 		void Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId);
 		void Create(const CubesXml::File& xmlFile, uint32_t& fileId);
@@ -60,15 +61,15 @@ namespace CubesFile
 
 	public:
 		// IFileItemsManagerBoss (для общения с FileItem)
-		void BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel) override;
-		void AfterFileNameChanged(const QString& fileName, const QString& oldFileName) override;
-		void BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel) override;
-		void AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName) override;
-		void BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
-		void BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel) override;
-		void AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames) override;
-		void AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName) override;
-		void AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
+		void BeforeFileNameChanged(const uint32_t fileId, const QString& oldFileName, bool& cancel) override;
+		void AfterFileNameChanged(const uint32_t fileId, const QString& oldFileName) override;
+		void BeforeIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName, bool& cancel) override;
+		void AfterIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName) override;
+		void BeforeIncludesAdd(const uint32_t fileId, const QStringList& includeNames, bool& cancel) override;
+		void BeforeIncludesRemoved(const uint32_t fileId, const QStringList& includeNames, bool& cancel) override;
+		void AfterIncludesListChanged(const uint32_t fileId, const QStringList& includeNames) override;
+		void AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName) override;
+		void AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
 		
 		// IFileItemsManagerWorker (для общения с TopManager)
 
@@ -84,7 +85,6 @@ namespace CubesFile
 	private:
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
-		void SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded);
-		QString GetName(FileItem* item);
+		void SetPropertyExpanded(const uint32_t fileId, const QtProperty* property, bool is_expanded);
 	};
 }

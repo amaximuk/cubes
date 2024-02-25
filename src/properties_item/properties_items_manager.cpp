@@ -144,9 +144,11 @@ void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
 
 QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
 {
-	if (items_.contains(propertiesId))
-		return items_[propertiesId];
-	return nullptr;
+	auto it = items_.find(propertiesId);
+	if (it != items_.end())
+		return *it;
+	else
+		return nullptr;
 }
 
 bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
@@ -312,13 +314,13 @@ void PropertiesItemsManager::AfterError(const uint32_t propertiesId, const QStri
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	uint32_t propertiesId = GetCurrentPropertiesId();
-	SetFilePropertyExpanded(propertiesId, item->property(), false);
+	SetPropertyExpanded(propertiesId, item->property(), false);
 }
 
 void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
 	uint32_t propertiesId = GetCurrentPropertiesId();
-	SetFilePropertyExpanded(propertiesId, item->property(), true);
+	SetPropertyExpanded(propertiesId, item->property(), true);
 }
 
 void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
@@ -621,12 +623,11 @@ QWidget* PropertiesItemsManager::CreateHintWidget()
 	return hintWidget;
 }
 
-void PropertiesItemsManager::SetFilePropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded)
+void PropertiesItemsManager::SetPropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded)
 {
-	if (items_.contains(propertiesId))
-	{
-		items_[propertiesId]->ExpandedChanged(property, is_expanded);
-	}
+	auto it = items_.find(propertiesId);
+	if (it != items_.end())
+		(*it)->ExpandedChanged(property, is_expanded);
 }
 
 QString PropertiesItemsManager::GetName(const uint32_t propertiesId)

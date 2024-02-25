@@ -475,13 +475,13 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
     if (pm->id == "BASE/NAME")
     {
         bool cancel = false;
-        fileItemsManager_->BeforeFileNameChanged(value, oldValue, cancel);
+        fileItemsManager_->BeforeFileNameChanged(fileId_, oldValue, cancel);
 
         if (!cancel)
         {
             QString oldName = pm->value.toString();
             pm->value = value;
-            fileItemsManager_->AfterFileNameChanged(value, oldName);
+            fileItemsManager_->AfterFileNameChanged(fileId_, oldName);
         }
         else
         {
@@ -492,13 +492,13 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
     else if (pm->id.startsWith("INCLUDES/ITEM") && !pm->id.contains("VARIABLES") && pm->id.endsWith("NAME"))
     {
         bool cancel = false;
-        fileItemsManager_->BeforeIncludeNameChanged(GetName(), value, oldValue, cancel);
+        fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
 
         if (!cancel)
         {
             QString oldName = pm->value.toString();
             pm->value = value;
-            fileItemsManager_->AfterIncludeNameChanged(GetName(), value, oldName);
+            fileItemsManager_->AfterIncludeNameChanged(fileId_, value, oldName);
         }
         else
         {
@@ -518,7 +518,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         QString includesName = pmIncludesName->value.toString();
         QString oldName = pm->value.toString();
         pm->value = value;
-        fileItemsManager_->AfterVariableNameChanged(GetName(), includesName, value, oldName);
+        fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
     }
     else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.contains("VARIABLES") && pm->id.endsWith("VALUE"))
     {
@@ -526,7 +526,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         const auto pmIncludesName = GetParameterModel(parameterName);
         QString includesName = pmIncludesName->value.toString();
         QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
-        fileItemsManager_->AfterVariablesListChanged(GetName(), includesName, variables);
+        fileItemsManager_->AfterVariablesListChanged(fileId_, includesName, variables);
     }
 }
 
@@ -869,7 +869,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
 
         // Проверяем, что можно создавать
         bool cancel = false;
-        fileItemsManager_->BeforeIncludesAdd(GetName(), addingIncludeNames, cancel);
+        fileItemsManager_->BeforeIncludesAdd(fileId_, addingIncludeNames, cancel);
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
@@ -923,7 +923,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
         }
 
         // Информируем, что создали
-        fileItemsManager_->AfterIncludesListChanged(GetName(), includeNames);
+        fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 
     // Теперь удаляем
@@ -945,7 +945,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
 
         // Проверяем, что можно удалять
         bool cancel = false;
-        fileItemsManager_->BeforeIncludesRemoved(GetName(), removingIncludeNames, cancel);
+        fileItemsManager_->BeforeIncludesRemoved(fileId_, removingIncludeNames, cancel);
         if (cancel)
         {
             // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
@@ -975,7 +975,7 @@ void FileItem::UpdateIncludesArrayModel(CubesUnitTypes::ParameterModel& model, i
         }
 
         // Информируем, что удалили
-        fileItemsManager_->AfterIncludesListChanged(GetName(), includeNames);
+        fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 }
 
@@ -1066,7 +1066,7 @@ void FileItem::UpdateVariablesArrayModel(CubesUnitTypes::ParameterModel& model, 
     }
 
     // Информируем, что создали
-    fileItemsManager_->AfterVariablesListChanged(GetName(), includeName, variables);
+    fileItemsManager_->AfterVariablesListChanged(fileId_, includeName, variables);
 }
 
 void FileItem::UpdateConnectArrayModel(CubesUnitTypes::ParameterModel& model, int& count)

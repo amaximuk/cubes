@@ -17,6 +17,7 @@ FileItemsManager::FileItemsManager(ITopManager* topManager)
 {
 	topManager_ = topManager;
 	unique_number_ = 0;
+	selected_ = 0;
 
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
@@ -38,6 +39,14 @@ QComboBox* FileItemsManager::GetSelector()
 QWidget* FileItemsManager::GetWidget()
 {
 	return widget_;
+}
+
+uint32_t FileItemsManager::GetCurrentFileId()
+{
+	if (selector_->count() > 0)
+		return selector_->itemData(selector_->currentIndex()).toUInt();
+	else
+		return 0;
 }
 
 QString FileItemsManager::GetCurrentFileName()
@@ -115,9 +124,11 @@ void FileItemsManager::Remove(const uint32_t& fileId)
 
 QSharedPointer<FileItem> FileItemsManager::GetItem(const uint32_t& fileId)
 {
-	if (items_.contains(fileId))
-		return items_[fileId];
-	return nullptr;
+	auto it = items_.find(fileId);
+	if (it != items_.end())
+		return *it;
+	else
+		return nullptr;
 }
 
 QStringList FileItemsManager::GetFileNames()
@@ -202,11 +213,11 @@ void FileItemsManager::Clear()
 
 bool FileItemsManager::GetName(const uint32_t fileId, QString& name)
 {
-	auto pi = GetItem(fileId);
-	if (pi == nullptr)
+	auto fi = GetItem(fileId);
+	if (fi == nullptr)
 		return false;
 
-	name = GetName(pi.get());
+	name = fi->GetName();
 	return true;
 }
 
@@ -242,8 +253,11 @@ CubesXml::File FileItemsManager::GetXmlFile(const QString& fileName)
 	return result;
 }
 
-void FileItemsManager::BeforeFileNameChanged(const QString& fileName, const QString& oldFileName, bool& cancel)
+void FileItemsManager::BeforeFileNameChanged(const uint32_t fileId, const QString& oldFileName, bool& cancel)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	int count = 0;
 	for (const auto& i : items_)
 	{
@@ -259,46 +273,62 @@ void FileItemsManager::BeforeFileNameChanged(const QString& fileName, const QStr
 		cancel = false;
 }
 
-void FileItemsManager::AfterFileNameChanged(const QString& fileName, const QString& oldFileName)
+void FileItemsManager::AfterFileNameChanged(const uint32_t fileId, const QString& oldFileName)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	// Переименовываем в comboBox
-	for (int i = 0; i < selector_->count(); ++i)
-	{
-		if (selector_->itemText(i) == oldFileName)
-		{
-			selector_->setItemText(i, fileName);
-			break;
-		}
-	}
+	int index = selector_->findData(fileId);
+	selector_->setItemText(index, fileName);
 
 	// Переименовываем имя выбранного файла
-	// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
-	if (selected_ == oldFileName)
-		selected_ = fileName;
+	selected_ = fileId;
+
+	//// Переименовываем в comboBox
+	//for (int i = 0; i < selector_->count(); ++i)
+	//{
+	//	if (selector_->itemText(i) == oldFileName)
+	//	{
+	//		selector_->setItemText(i, fileName);
+	//		break;
+	//	}
+	//}
+
+	//// Переименовываем имя выбранного файла
+	//// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
+	//if (selected_ == oldFileName)
+	//	selected_ = fileName;
 
 	// Уведомляем о переименовании
 	emit FileNameChanged(fileName, oldFileName);
 }
 
-void FileItemsManager::BeforeIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName, bool& cancel)
+void FileItemsManager::BeforeIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void FileItemsManager::AfterIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
+void FileItemsManager::AfterIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 }
 
-void FileItemsManager::BeforeIncludesAdd(const QString& fileName, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesAdd(const uint32_t fileId, const QStringList& includeNames, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void FileItemsManager::BeforeIncludesRemoved(const QString& fileName, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const QStringList& includeNames, bool& cancel)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	QSet<QString> allUnitNames;
 	for (const auto& includeName : includeNames)
 	{
@@ -317,34 +347,43 @@ void FileItemsManager::BeforeIncludesRemoved(const QString& fileName, const QStr
 		cancel = false;
 }
 
-void FileItemsManager::AfterIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const QStringList& includeNames)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	QStringList fileIncludeNames;
 	fileIncludeNames.push_back("<not selected>");
 	fileIncludeNames.append(includeNames);
 	emit IncludesListChanged(fileName, fileIncludeNames);
 }
 
-void FileItemsManager::AfterVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName)
+void FileItemsManager::AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	emit VariableNameChanged(fileName, includeName, variableName, oldVariableName);
 }
 
-void FileItemsManager::AfterVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+void FileItemsManager::AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	emit VariablesListChanged(fileName, includeName, variables);
 }
 
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
-	QString currentFileName = GetCurrentFileName();
-	SetFilePropertyExpanded(currentFileName, item->property(), false);
+	uint32_t propertiesId = GetCurrentFileId();
+	SetPropertyExpanded(propertiesId, item->property(), false);
 }
 
 void FileItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
-	QString currentFileName = GetCurrentFileName();
-	SetFilePropertyExpanded(currentFileName, item->property(), true);
+	uint32_t propertiesId = GetCurrentFileId();
+	SetPropertyExpanded(propertiesId, item->property(), true);
 }
 
 void FileItemsManager::OnContextMenuRequested(const QPoint& pos)
@@ -376,8 +415,8 @@ void FileItemsManager::OnDeleteInclude(bool checked)
 
 void FileItemsManager::OnSelectorIndexChanged(int index)
 {
-	QString currentFileName = GetCurrentFileName();
-	Select(currentFileName);
+	uint32_t currentId = GetCurrentFileId();
+	Select(currentId);
 }
 
 void FileItemsManager::OnAddFileClicked()
@@ -407,15 +446,19 @@ void FileItemsManager::OnAddFileClicked()
 
 void FileItemsManager::OnRemoveFileClicked()
 {
-	if (selected_.isEmpty())
+	if (selected_ == 0)
 	{
 		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
 		return;
 	}
 
+	auto fileId = GetCurrentFileId();
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	// Проверяем возможность удаления
 	QStringList unitNames;
-	topManager_->GetUnitsInFileList(selected_, unitNames);
+	topManager_->GetUnitsInFileList(fileName, unitNames);
 	if (unitNames.count() > 0)
 	{
 		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
@@ -428,22 +471,22 @@ void FileItemsManager::OnRemoveFileClicked()
 	QString selected = selected_;
 
 	// Удаляем из селектора, автоматически происходит UnSelect
-	selector_->removeItem(selector_->findText(selected_));
+	selector_->removeItem(selector_->findData(selected_));
 
 	// Получаем все имена, заодно запоминаем элемент для удаления
 	QStringList fileNames;
-	QSharedPointer<FileItem> toRemove;
+	uint32_t toRemove;
 	for (const auto& item : items_)
 	{
 		QString name = item->GetName();
 		if (name == selected)
-			toRemove = item;
+			toRemove = item->GetFileId();
 		else
 			fileNames.push_back(item->GetName());
 	}
 
 	// Удаляем из списка
-	items_.removeAll(toRemove);
+	items_.remove(toRemove);
 
 	// Если это был последний
 	if (items_.count() == 0)
@@ -517,29 +560,9 @@ QWidget* FileItemsManager::CreateSelectorWidget()
 	return mainWidget;
 }
 
-void FileItemsManager::SetFilePropertyExpanded(const QString& fileName, const QtProperty* property, bool is_expanded)
+void FileItemsManager::SetPropertyExpanded(const uint32_t fileId, const QtProperty* property, bool is_expanded)
 {
-	QStringList fileIncludeNames;
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-			fi->ExpandedChanged(property, is_expanded);
-	}
-}
-
-QString FileItemsManager::GetName(FileItem* item)
-{
-	return{};
-
-	//QList<QPair<QString, QString>> variables;
-	//topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetIncludeName(), variables);
-
-	//QString name = item->GetName();
-	//for (const auto& v : variables)
-	//{
-	//	QString replace = QString("@%1@").arg(v.first);
-	//	name.replace(replace, v.second);
-	//}
-
-	//return name;
+	auto it = items_.find(fileId);
+	if (it != items_.end())
+		(*it)->ExpandedChanged(property, is_expanded);
 }

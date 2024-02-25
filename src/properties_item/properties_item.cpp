@@ -348,7 +348,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(xmlParam->type.toStdString());
         if (xmlBaseType != baseItemType)
         {
-            propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
+            propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
             // Ошибка! Тип данных в xml не совместим с типом параметра
             // TODO: вернуть ошибку
         }
@@ -369,7 +369,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             // Проверяем ограничения на список элементов
             if (!model.editorSettings.ComboBoxValues.contains(xmlValue.toString()))
             {
-                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
+                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                 // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                 // TODO: вернуть ошибку
             }
@@ -463,7 +463,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             {
                 if (!model.editorSettings.ComboBoxValues.contains(xmlValue.toString()))
                 {
-                    propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
+                    propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                     // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                     // TODO: вернуть ошибку
                 }
@@ -1013,7 +1013,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (!model.editorSettings.ComboBoxValues.contains(QString("%1").arg(xmlCount)))
             {
-                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
+                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }
@@ -1039,7 +1039,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (xmlCount < model.editorSettings.SpinIntergerMin || xmlCount > model.editorSettings.SpinIntergerMax)
             {
-                propertiesItemsManager_->AfterError(this, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
+                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
                 // Ошибка! Количество элементов в xml не соответствует ограничениям
                 // TODO: вернуть ошибку
             }
@@ -1308,7 +1308,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             pm->value = property->valueText();
 
             QStringList includeNames;
-            propertiesItemsManager_->AfterFileNameChanged(this, includeNames);
+            propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
             SetIncludeNames(includeNames);
             SetIncludeName("<not selected>"); // TODO: убрать <not selected> в константы
@@ -1317,7 +1317,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         {
             pm->value = property->valueText();
 
-            propertiesItemsManager_->AfterIncludeNameChanged(this);
+            propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
         }
     }
     else if (pm->id.startsWith(parametersGroupName))
@@ -1460,7 +1460,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             auto pmZ = GetParameterModel(editorGroupName + "/POSITION_Z");
             double posZ = pmZ->value.toDouble();
 
-            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+            propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
         else if (pm->id == editorGroupName + "/POSITION_Y")
         {
@@ -1473,7 +1473,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             auto pmZ = GetParameterModel(editorGroupName + "/POSITION_Z");
             double posZ = pmZ->value.toDouble();
 
-            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+            propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
         else if (pm->id == editorGroupName + "/POSITION_Z")
         {
@@ -1486,7 +1486,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             pm->value = property->valueText().toDouble();
             double posZ = property->valueText().toDouble();
 
-            propertiesItemsManager_->AfterPositionChanged(this, posX, posY, posZ);
+            propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
     }
 }
@@ -1502,7 +1502,7 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
     if (pm->id == baseGroupName + "/NAME")
     {
         pm->value = value;
-        propertiesItemsManager_->AfterNameChanged(this);
+        propertiesItemsManager_->AfterNameChanged(propertiesId_);
 
         //bool cancel = false;
         //properties_items_manager_->BeforeNameChanged(propertiesId_, value, oldValue, cancel);
