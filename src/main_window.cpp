@@ -115,12 +115,14 @@ void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
 
 void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
 {
-    includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    auto fileId = fileItemsManager_->GetFileId(fileName);
+    includeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
 }
 
 void MainWindow::GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables)
 {
-    variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
+    auto fileId = fileItemsManager_->GetFileId(fileName);
+    variables = fileItemsManager_->GetFileIncludeVariables(fileId, includeName);
 }
 
 bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
@@ -148,7 +150,8 @@ bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesF
     //pfd.color = GetFileColor(pi->GetFileName());
     if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
         return false;
-    pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
+    auto fileId = fileItemsManager_->GetFileId(pfd.fileName);
+    pfd.color = fileItemsManager_->GetFileColor(fileId);
     return true;
 }
 
@@ -205,7 +208,8 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             if (pi->GetIncludeName() != "<not selected>")
             {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                auto fileId = fileItemsManager_->GetFileId(pi->GetName());
+                variables = fileItemsManager_->GetFileIncludeVariables(fileId,
                     pi->GetIncludeName());
             }
         }
@@ -228,7 +232,8 @@ QString MainWindow::GetNewUnitName(const QString& baseName)
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
             if (pi->GetIncludeName() != "<not selected>")
             {
-                variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+                auto fileId = fileItemsManager_->GetFileId(pi->GetName());
+                variables = fileItemsManager_->GetFileIncludeVariables(fileId,
                     pi->GetIncludeName());
             }
         }
@@ -679,7 +684,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     fileItemsManager_->Select(fileId);
 
     for (const auto& include : file.includes)
-        fileItemsManager_->AddFileInclude(name, include.fileName, include.variables);
+        fileItemsManager_->AddFileInclude(fileId, include.fileName, include.variables);
     //for (int i = 0; i < file.includes.size(); i++)
     //{
     //    QList<QPair<QString, QString>> variables;
@@ -800,9 +805,10 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             pi->SetFileName(fileName);
             if (includedFileName != "")
             {
-                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+                auto fileId = fileItemsManager_->GetFileId(fileName);
+                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
-                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileName, includedFileName);
+                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includedFileName);
                 pi->SetIncludeNames(fileIncludeNames);
                 pi->SetIncludeName(fileIncludeName);
             }
@@ -1040,7 +1046,8 @@ QString MainWindow::GetCurrentFileName()
 
 QStringList MainWindow::GetCurrentFileIncludeNames()
 {
-    return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
+    auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
+    return fileItemsManager_->GetFileIncludeNames(fileId, true);
 }
 
 //QColor MainWindow::GetFileColor(const QString& fileName)
@@ -1057,7 +1064,8 @@ QString MainWindow::GetDisplayName(const QString& baseName)
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetIncludeName() != "<not selected>")
         {
-            variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+            auto fileId = fileItemsManager_->GetFileId(pi->GetName());
+            variables = fileItemsManager_->GetFileIncludeVariables(fileId,
                 pi->GetIncludeName());
         }
     }
@@ -1143,7 +1151,8 @@ void MainWindow::selectionChanged()
 void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
 {
     QStringList fileNames = fileItemsManager_->GetFileNames();
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    auto fileId = fileItemsManager_->GetFileId(fileName);
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1186,7 +1195,8 @@ void MainWindow::FileListChanged(const QStringList& fileNames)
 
 void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
+    auto fileId = fileItemsManager_->GetFileId(fileName);
+    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1252,7 +1262,8 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
             di->name_ = name;
             di->fileName_ = fileName;
             di->includeName_ = groupName;
-            di->color_ = fileItemsManager_->GetFileColor(fileName);
+            auto fileId = fileItemsManager_->GetFileId(fileName);
+            di->color_ = fileItemsManager_->GetFileColor(fileId);
             di->InformNameChanged(name, "");
             di->InformIncludeChanged();
         }

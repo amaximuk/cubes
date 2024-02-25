@@ -33,22 +33,23 @@ namespace CubesFile
 		QWidget* GetWidget();
 		uint32_t GetCurrentFileId();
 		QString GetCurrentFileName();
+		uint32_t GetFileId(const QString& fileName);
 		void Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId);
 		void Create(const CubesXml::File& xmlFile, uint32_t& fileId);
 		void Select(const uint32_t& fileId);
 		void Remove(const uint32_t& fileId);
 		QSharedPointer<FileItem> GetItem(const uint32_t& fileId);
 		QStringList GetFileNames();
-		QColor GetFileColor(const QString& fileName);
-		void AddFileInclude(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>> includeVariables);
-		QStringList GetFileIncludeNames(const QString& fileName, bool addEmptyValue);
-		QString GetFileIncludeName(const QString& fileName, const QString& filePath);
-		QList<QPair<QString, QString>> GetFileIncludeVariables(const QString& fileName, const QString& includeName);
+		QColor GetFileColor(const uint32_t& fileId);
+		void AddFileInclude(const uint32_t& fileId, const QString& includeName, QList<QPair<QString, QString>> includeVariables);
+		QStringList GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue);
+		QString GetFileIncludeName(const uint32_t& fileId, const QString& filePath);
+		QList<QPair<QString, QString>> GetFileIncludeVariables(const uint32_t& fileId, const QString& includeName);
 
 		void Clear();
 		bool GetName(const uint32_t fileId, QString& name);
 
-		File GetFile(const QString& fileName);
+		File GetFile(const uint32_t& fileId);
 		CubesXml::File GetXmlFile(const QString& fileName);
 
 	signals:

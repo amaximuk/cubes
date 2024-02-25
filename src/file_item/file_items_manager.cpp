@@ -57,6 +57,16 @@ QString FileItemsManager::GetCurrentFileName()
 		return "";
 }
 
+uint32_t FileItemsManager::GetFileId(const QString& fileName)
+{
+	for (auto& fi : items_)
+	{
+		if (fi->GetName() == fileName)
+			return fi->GetFileId();
+	}
+	return 0;
+}
+
 void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
@@ -139,8 +149,11 @@ QStringList FileItemsManager::GetFileNames()
 	return fileNames;
 }
 
-QColor FileItemsManager::GetFileColor(const QString& fileName)
+QColor FileItemsManager::GetFileColor(const uint32_t& fileId)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
@@ -149,8 +162,11 @@ QColor FileItemsManager::GetFileColor(const QString& fileName)
 	return QColor("Black");
 }
 
-void FileItemsManager::AddFileInclude(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>> includeVariables)
+void FileItemsManager::AddFileInclude(const uint32_t& fileId, const QString& includeName, QList<QPair<QString, QString>> includeVariables)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
@@ -161,8 +177,11 @@ void FileItemsManager::AddFileInclude(const QString& fileName, const QString& in
 	}
 }
 
-QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName, bool addEmptyValue)
+QStringList FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	QStringList fileIncludeNames;
 	if (addEmptyValue)
 		fileIncludeNames.push_back("<not selected>");
@@ -177,8 +196,11 @@ QStringList FileItemsManager::GetFileIncludeNames(const QString& fileName, bool 
 	return fileIncludeNames;
 }
 
-QString FileItemsManager::GetFileIncludeName(const QString& fileName, const QString& filePath)
+QString FileItemsManager::GetFileIncludeName(const uint32_t& fileId, const QString& filePath)
 {
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
@@ -187,9 +209,12 @@ QString FileItemsManager::GetFileIncludeName(const QString& fileName, const QStr
 	return "";
 }
 
-QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const QString& fileName, const QString& includeName)
+QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const uint32_t& fileId, const QString& includeName)
 {
 	QList<QPair<QString, QString>> result;
+
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
 
 	QStringList fileIncludeNames;
 	for (auto& fi : items_)
@@ -221,9 +246,12 @@ bool FileItemsManager::GetName(const uint32_t fileId, QString& name)
 	return true;
 }
 
-File FileItemsManager::GetFile(const QString& fileName)
+File FileItemsManager::GetFile(const uint32_t& fileId)
 {
 	File result{};
+
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
 
 	for (auto& fi : items_)
 	{
