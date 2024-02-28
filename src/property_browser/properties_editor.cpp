@@ -229,7 +229,10 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
 
 void PropertiesEditor::SetIntValue(QtProperty* property, int value)
 {
+    //!!!!!!!!!!!!
+    intManager_->blockSignals(true);
     intManager_->setValue(property, value);
+    intManager_->blockSignals(false);
 }
 
 void PropertiesEditor::SetDoubleValue(QtProperty* property, double value)

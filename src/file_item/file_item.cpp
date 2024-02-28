@@ -91,7 +91,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         name.name = QString::fromLocal8Bit("Имя");
         //name.value = QString::fromLocal8Bit("АРМ");
         if (xmlFile == nullptr || xmlFile->name.isEmpty())
-            name.value = QString::fromLocal8Bit("АРМ");
+            name.value = QString::fromLocal8Bit("АРМ_%1").arg(fileId_);
         else
             name.value = QString(xmlFile->name);
         //name.valueType = "string";
@@ -145,6 +145,8 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         includes.editorSettings.is_expanded = true;
         includes.editorSettings.SpinIntergerMin = 0;
         includes.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+
+        //model_.parameters.push_back(std::move(includes));
 
         if (xmlFile != nullptr)
         {
@@ -317,19 +319,26 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
                 connect.editorSettings.SpinIntergerMin = 0;
                 connect.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
 
-                int xmlCount = 0;
                 if (xmlFile != nullptr && xmlFile->config.networkingIsSet)
-                    xmlCount = xmlFile->config.networking.connects.size();
-                connect.value = QString("%1").arg(xmlCount);
+                {
+                    int xmlCount = xmlFile->config.networking.connects.size();
+                    connect.value = xmlCount;
+                    UpdateConnectArrayModel(&xmlFile->config.networking, connect, xmlCount);
+                }
 
-                UpdateConnectArrayModel(xmlFile, connect, xmlCount);
+                //int xmlCount = 0;
+                //if (xmlFile != nullptr && xmlFile->config.networkingIsSet)
+                //    xmlCount = xmlFile->config.networking.connects.size();
+                //connect.value = QString("%1").arg(xmlCount);
+
+                //UpdateConnectArrayModel(xmlFile, connect, xmlCount);
 
 
                 //CubesUnitTypes::ParameterModel pm;
                 //CreateParameterModel(ArrayType::Includes, includesGroupName, xmlFile, pm);
                 //includes.parameters.push_back(std::move(pm));
 
-                model_.parameters.push_back(std::move(connect));
+                pm_networking.parameters.push_back(std::move(connect));
             }
 
             properties_group.parameters.push_back(std::move(pm_networking));
@@ -538,19 +547,20 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
         else
             pm->value = value.toString();
     }
-    else if (pm->id.startsWith("INCLUDES"))
+    else if (pm->id.startsWith(includesGroupName))
     {
-        if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("NAME"))
+        if (pm->id.startsWith(QString("%1/ITEM").arg(includesGroupName)) && pm->id.endsWith("NAME"))
         {
             //QString oldName = pm->value.toString();
             //pm->value = value;
             //file_items_manager_->InformIncludeNameChanged(GetName(), value.toString(), oldName);
         }
-        else if ((pm->id == "INCLUDES") || (pm->id.startsWith("INCLUDES/ITEM") && pm->id.endsWith("VARIABLES")))
+        else if ((pm->id == includesGroupName) || (pm->id.startsWith(QString("%1/ITEM").arg(includesGroupName))
+            && pm->id.endsWith(variablesGroupName)))
         {
             int count = value.toInt();
 
-            if (pm->id == "INCLUDES")
+            if (pm->id == includesGroupName)
                 UpdateIncludesArrayModel(nullptr, *pm, count);
             else
                 UpdateVariablesArrayModel(nullptr, *pm, count);
@@ -667,7 +677,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith("INCLUDES/ITEM") && !pm->id.contains("VARIABLES") && pm->id.endsWith("NAME"))
+    else if (pm->id.startsWith(QString("%1/ITEM").arg(includesGroupName)) &&
+        !pm->id.contains(variablesGroupName) && pm->id.endsWith("NAME"))
     {
         bool cancel = false;
         fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
@@ -684,23 +695,25 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.contains("VARIABLES") && pm->id.endsWith("NAME"))
+    else if (pm->id.startsWith(QString("%1/ITEM").arg(includesGroupName)) &&
+        pm->id.contains(variablesGroupName) && pm->id.endsWith("NAME"))
     {
         // INCLUDES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
 
-        QString parameterName = pm->id.left(pm->id.indexOf("VARIABLES")) + "NAME";
+        QString parameterName = pm->id.left(pm->id.indexOf(variablesGroupName)) + "NAME";
         const auto pmIncludesName = GetParameterModel(parameterName);
         QString includesName = pmIncludesName->value.toString();
         QString oldName = pm->value.toString();
         pm->value = value;
         fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
     }
-    else if (pm->id.startsWith("INCLUDES/ITEM") && pm->id.contains("VARIABLES") && pm->id.endsWith("VALUE"))
+    else if (pm->id.startsWith(QString("%1/ITEM").arg(includesGroupName)) &&
+        pm->id.contains(variablesGroupName) && pm->id.endsWith("VALUE"))
     {
-        QString parameterName = pm->id.left(pm->id.indexOf("VARIABLES")) + "NAME";
+        QString parameterName = pm->id.left(pm->id.indexOf(variablesGroupName)) + "NAME";
         const auto pmIncludesName = GetParameterModel(parameterName);
         QString includesName = pmIncludesName->value.toString();
         QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
@@ -801,7 +814,7 @@ void FileItem::SetColor(QColor color)
 
 void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables)
 {
-    auto pmi = GetParameterModel("INCLUDES");
+    auto pmi = GetParameterModel(includesGroupName);
     int ci = pmi->value.toInt() + 1;
 
     auto pri = GetProperty(pmi->id);
@@ -809,19 +822,19 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     // Установка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
-    auto pmin = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(ci - 1));
+    auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(includesGroupName).arg(ci - 1));
     pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
 
     auto prin = GetProperty(pmin->id);
     editor_->SetStringValue(prin, pmin->value.toString());
 
-    auto pmifn = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(ci - 1));
+    auto pmifn = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(includesGroupName).arg(ci - 1));
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
     editor_->SetStringValue(prifn, includeName);
 
-    auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(ci - 1));
+    auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(includesGroupName).arg(ci - 1).arg(variablesGroupName));
 
     auto priv = GetProperty(pmiv->id);
     editor_->SetIntValue(priv, includeVariables.size());
@@ -831,13 +844,13 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     for (int i = 0; i < includeVariables.size(); i++)
     {
         auto& v = includeVariables.at(i);
-        auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(ci - 1).arg(i));
+        auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(includesGroupName).arg(ci - 1).arg(variablesGroupName).arg(i));
         pmivn->value = v.first;
 
         auto privn = GetProperty(pmivn->id);
         editor_->SetStringValue(privn, v.first);
 
-        auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(ci - 1).arg(i));
+        auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(includesGroupName).arg(ci - 1).arg(variablesGroupName).arg(i));
         pmivv->value = v.second;
 
         auto privv = GetProperty(pmivv->id);
@@ -849,13 +862,13 @@ QStringList FileItem::GetIncludeNames()
 {
     QStringList result;
 
-    const auto pm = GetParameterModel("INCLUDES");
+    const auto pm = GetParameterModel(includesGroupName);
     if (pm == nullptr)
         return result;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(includesGroupName).arg(i));
         result.push_back(pmi->value.toString());
     }
 
@@ -866,20 +879,20 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
 {
     QList<QPair<QString, QString>> result;
 
-    const auto pm = GetParameterModel("INCLUDES");
+    const auto pm = GetParameterModel(includesGroupName);
     if (pm == nullptr)
         return result;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(includesGroupName).arg(i));
         if (pmi->value == includeName)
         {
-            const auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES").arg(i));
+            const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(includesGroupName).arg(i).arg(variablesGroupName));
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
-                const auto pmivn = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/NAME").arg(i).arg(j));
-                const auto pmivv = GetParameterModel(QString("INCLUDES/ITEM_%1/VARIABLES/ITEM_%2/VALUE").arg(i).arg(j));
+                const auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(includesGroupName).arg(i).arg(variablesGroupName).arg(j));
+                const auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(includesGroupName).arg(i).arg(variablesGroupName).arg(j));
                 result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
             }
             break;
@@ -891,16 +904,16 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
 
 QString FileItem::GetIncludeName(const QString& includePath)
 {
-    const auto pm = GetParameterModel("INCLUDES");
+    const auto pm = GetParameterModel(includesGroupName);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmif = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(i));
+        const auto pmif = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(includesGroupName).arg(i));
         if (pmif->value == includePath)
         {
-            const auto pmin = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+            const auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(includesGroupName).arg(i));
             return pmin->value.toString();
         }
     }
@@ -909,16 +922,16 @@ QString FileItem::GetIncludeName(const QString& includePath)
 
 QString FileItem::GetIncludePath(const QString& includeName)
 {
-    const auto pm = GetParameterModel("INCLUDES");
+    const auto pm = GetParameterModel(includesGroupName);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(QString("INCLUDES/ITEM_%1/NAME").arg(i));
+        const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(includesGroupName).arg(i));
         if (pmi->value == includeName)
         {
-            const auto pmiv = GetParameterModel(QString("INCLUDES/ITEM_%1/FILE_PATH").arg(i));
+            const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(includesGroupName).arg(i));
             return pmiv->value.toString();
         }
     }
@@ -1038,7 +1051,11 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         for (int i = model.parameters.size(); i < count; ++i)
         {
             // Получаем уникальное имя
-            QString includeName = CubesUnitTypes::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
+            QString includeName;
+            if (xmlFile != nullptr && i < xmlFile->includes.size() && !xmlFile->includes[i].name.isEmpty())
+                includeName = xmlFile->includes[i].name;
+            else
+                includeName = CubesUnitTypes::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
 
             // Добавляем в списки
             addingIncludeNames.push_back(includeName);
@@ -1046,14 +1063,14 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         }
 
         // Проверяем, что можно создавать
-        bool cancel = false;
-        fileItemsManager_->BeforeIncludesAdd(fileId_, addingIncludeNames, cancel);
-        if (cancel)
-        {
-            // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
-            count = model.parameters.count();
-            return;
-        }
+        //bool cancel = false;
+        //fileItemsManager_->BeforeIncludesAdd(fileId_, addingIncludeNames, cancel);
+        //if (cancel)
+        //{
+        //    // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
+        //    count = model.parameters.count();
+        //    return;
+        //}
 
         // Добавляем
         for (int i = model.parameters.size(); i < count; ++i)
@@ -1071,8 +1088,12 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
-            name.value = QString(includeName);
+            name.value = includeName;
             //name.valueType = "string";
+            //if (xmlFile != nullptr && i < xmlFile->includes.size())
+            //    name.value = xmlFile->includes[i].name;
+            //else
+            //    name.value = includeName;
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
@@ -1080,64 +1101,67 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
             file_path.id = QString("%1/%2").arg(group_model.id, "FILE_PATH");
             file_path.name = QString::fromLocal8Bit("Имя файла");
-            file_path.value = QString::fromLocal8Bit("include.xml");
+            //file_path.value = QString::fromLocal8Bit("include.xml");
             //file_path.valueType = "string";
+            if (xmlFile != nullptr && i < xmlFile->includes.size())
+                file_path.value = xmlFile->includes[i].fileName;
+            else
+                file_path.value = QString::fromLocal8Bit("include.xml");;
             file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
             file_path.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(file_path));
 
-            {
-                CubesUnitTypes::ParameterModel variables;
-                variables.id = QString("%1/%2").arg(group_model.id, "VARIABLES");
-                variables.name = QString::fromLocal8Bit("Переменные");
-                variables.value = int{ 0 };
-                //variables.valueType = "int";
-                variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
-                variables.editorSettings.is_expanded = true;
-                variables.editorSettings.SpinIntergerMin = 0;
-                variables.editorSettings.SpinIntergerMax = 100;
-                group_model.parameters.push_back(std::move(variables));
-            }
+            //model.parameters.push_back(std::move(group_model));
+
             {
                 CubesUnitTypes::ParameterModel variables;
                 variables.id = QString("%1/%2").arg(group_model.id, variablesGroupName);
                 variables.name = QString::fromLocal8Bit("Переменные");
-                variables.value = int{ 0 };
+                //variables.value = int{ 0 };
                 variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
                 variables.editorSettings.is_expanded = true;
                 variables.editorSettings.SpinIntergerMin = 0;
                 variables.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
 
-                int xmlCount = 0;
-                if (xmlFile != nullptr)
-                {
-                    for (const auto& i : xmlFile->includes)
-                    {
-                        if (i.name == includeName)
-                        {
-                            xmlCount = i.variables.size();
-                            break;
-                        }
-                    }
-                    xmlCount = xmlFile->includes.size();
-                }
-                variables.value = QString("%1").arg(xmlCount);
+                //group_model.parameters.push_back(std::move(variables));
 
-                UpdateVariablesArrayModel(xmlFile, variables, xmlCount);
+                if (xmlFile != nullptr && i < xmlFile->includes.size())
+                {
+                    int xmlCount = xmlFile->includes[i].variables.size();
+                    variables.value = xmlCount; // MUST be 0 - NONONONON
+                    UpdateVariablesArrayModel(&xmlFile->includes[i], variables, xmlCount);
+                }
+
+                //int xmlCount = 0;
+                //if (xmlFile != nullptr)
+                //{
+                //    for (const auto& i : xmlFile->includes)
+                //    {
+                //        if (i.name == includeName)
+                //        {
+                //            xmlCount = i.variables.size();
+                //            break;
+                //        }
+                //    }
+                //    xmlCount = xmlFile->includes.size();
+                //}
+                //variables.value = xmlCount;
+
+                //UpdateVariablesArrayModel(xmlFile, variables, xmlCount);
 
 
                 //CubesUnitTypes::ParameterModel pm;
                 //CreateParameterModel(ArrayType::Includes, includesGroupName, xmlFile, pm);
                 //includes.parameters.push_back(std::move(pm));
 
-                model_.parameters.push_back(std::move(variables));
+                group_model.parameters.push_back(std::move(variables));
             }
 
             model.parameters.push_back(std::move(group_model));
         }
 
         // Информируем, что создали
-        fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+        //fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 
     // Теперь удаляем
@@ -1158,14 +1182,14 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         }
 
         // Проверяем, что можно удалять
-        bool cancel = false;
-        fileItemsManager_->BeforeIncludesRemoved(fileId_, removingIncludeNames, cancel);
-        if (cancel)
-        {
-            // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
-            count = model.parameters.size();
-            return;
-        }
+        //bool cancel = false;
+        //fileItemsManager_->BeforeIncludesRemoved(fileId_, removingIncludeNames, cancel);
+        //if (cancel)
+        //{
+        //    // Не сделали все, что просили. Возвращаем count, равный фактическому количеству элементов
+        //    count = model.parameters.size();
+        //    return;
+        //}
 
         // Удаляем
         while (model.parameters.size() > count)
@@ -1189,32 +1213,32 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         }
 
         // Информируем, что удалили
-        fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+        //fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 }
 
-void FileItem::UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::ParameterModel& model, int& count)
 {
-    // Разделяем путь на части
-    QStringList path = model.id.split("/");
-    if (path.size() != 3 || path[0] != "INCLUDES")
-        return;
+    //// Разделяем путь на части
+    //QStringList path = model.id.split("/");
+    //if (path.size() != 3 || path[0] != includesGroupName)
+    //    return;
 
-    // Получаем модель (INCLUDES/ITEM_X)
-    const auto pmi = GetParameterModel(QString("%1/%2").arg(path[0], path[1]));
-    if (pmi == nullptr)
-        return;
+    //// Получаем модель (INCLUDES/ITEM_X)
+    //const auto pmi = GetParameterModel(QString("%1/%2").arg(path[0], path[1]));
+    //if (pmi == nullptr)
+    //    return;
 
-    // Получаем имя
-    QString includeName;
-    for (const auto& si : pmi->parameters)
-    {
-        if (si.id.endsWith("/NAME"))
-        {
-            includeName = si.value.toString();
-            break;
-        }
-    }
+    //// Получаем имя
+    //QString includeName;
+    //for (const auto& si : pmi->parameters)
+    //{
+    //    if (si.id.endsWith("/NAME"))
+    //    {
+    //        includeName = si.value.toString();
+    //        break;
+    //    }
+    //}
 
     // Сначала добавляем
     if (model.parameters.size() < count)
@@ -1232,8 +1256,12 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUni
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             name.id = QString("%1/%2").arg(group_model.id, "NAME");
             name.name = QString::fromLocal8Bit("Имя");
-            name.value = QString::fromLocal8Bit("variable_%1").arg(i);
+            //name.value = QString::fromLocal8Bit("variable_%1").arg(i);
             //name.valueType = "string";
+            if (xmlInclude != nullptr && i < xmlInclude->variables.size())
+                name.value = xmlInclude->variables[i].first;
+            else
+                name.value = QString::fromLocal8Bit("variable_%1").arg(i);
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
@@ -1241,8 +1269,12 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUni
             variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.id = QString("%1/%2").arg(group_model.id, "VALUE");
             variable.name = QString::fromLocal8Bit("Значение");
-            variable.value = QString();
+            //variable.value = QString();
             //variable.valueType = "string";
+            if (xmlInclude != nullptr && i < xmlInclude->variables.size())
+                variable.value = xmlInclude->variables[i].second;
+            else
+                variable.value = QString::fromLocal8Bit("").arg(i);
             variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(variable));
@@ -1280,10 +1312,10 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::File* xmlFile, CubesUni
     }
 
     // Информируем, что создали
-    fileItemsManager_->AfterVariablesListChanged(fileId_, includeName, variables);
+    //fileItemsManager_->AfterVariablesListChanged(fileId_, includeName, variables);
 }
 
-void FileItem::UpdateConnectArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Сначала добавляем
     if (model.parameters.size() < count)
@@ -1301,8 +1333,12 @@ void FileItem::UpdateConnectArrayModel(const CubesXml::File* xmlFile, CubesUnitT
             port.editorSettings.type = CubesUnitTypes::EditorType::String;
             port.id = QString("%1/%2").arg(group_model.id, "PORT");
             port.name = QString::fromLocal8Bit("Порт");
-            port.value = int{ 50000 };
+            //port.value = int{ 50000 };
             //port.valueType = "int";
+            if (xmlNetworking != nullptr && i < xmlNetworking->connects.size())
+                port.value = xmlNetworking->connects[i].port;
+            else
+                port.value = CubesXml::Connect::Defaults().port;
             port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             port.editorSettings.SpinIntergerMin = 1000;
             port.editorSettings.SpinIntergerMax = 65535;
@@ -1312,8 +1348,12 @@ void FileItem::UpdateConnectArrayModel(const CubesXml::File* xmlFile, CubesUnitT
             ip.editorSettings.type = CubesUnitTypes::EditorType::String;
             ip.id = QString("%1/%2").arg(group_model.id, "IP");
             ip.name = QString::fromLocal8Bit("Хост");
-            ip.value = QString::fromLocal8Bit("127.0.0.1");
+            //ip.value = QString::fromLocal8Bit("127.0.0.1");
             //ip.valueType = "string";
+            if (xmlNetworking != nullptr && i < xmlNetworking->connects.size())
+                port.value = xmlNetworking->connects[i].ip;
+            else
+                port.value = CubesXml::Connect::Defaults().ip;
             ip.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(ip));
 

@@ -678,13 +678,16 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
 
     //QString fileName = QFileInfo(file.fileName).fileName();
 
-    QString name = file.name;
+    //QString name = file.name;
     uint32_t fileId{ 0 };
-    fileItemsManager_->Create(file.fileName, name, file.platform, fileId);
+    fileItemsManager_->Create(file, fileId);
     fileItemsManager_->Select(fileId);
+    QString name;
+    auto res = fileItemsManager_->GetName(fileId, name);
 
-    for (const auto& include : file.includes)
-        fileItemsManager_->AddFileInclude(fileId, include.fileName, include.variables);
+    //for (const auto& include : file.includes)
+    //    fileItemsManager_->AddFileInclude(fileId, include.fileName, include.variables);
+
     //for (int i = 0; i < file.includes.size(); i++)
     //{
     //    QList<QPair<QString, QString>> variables;

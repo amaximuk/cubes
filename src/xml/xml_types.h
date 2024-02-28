@@ -22,6 +22,12 @@ namespace CubesXml
 	{
 		QString ip;
 		int port;
+
+		static const Connect& Defaults()
+		{
+			static const Connect connect{ "127.0.0.1", 50000 };
+			return connect;
+		}
 	};
 
 	struct Networking

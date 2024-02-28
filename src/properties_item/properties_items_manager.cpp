@@ -146,7 +146,7 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t pr
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
-		return *it;
+		return it.value();
 	else
 		return nullptr;
 }
@@ -627,7 +627,7 @@ void PropertiesItemsManager::SetPropertyExpanded(const uint32_t propertiesId, co
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
-		(*it)->ExpandedChanged(property, is_expanded);
+		it.value()->ExpandedChanged(property, is_expanded);
 }
 
 QString PropertiesItemsManager::GetName(const uint32_t propertiesId)
