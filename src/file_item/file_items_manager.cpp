@@ -121,8 +121,10 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	//fi->SetPath(filePath);
 	fi->SetColor(color);
 
+	auto name = fi->GetName();
+
 	items_[fileId] = fi;
-	selector_->addItem(fileName, fileId);
+	selector_->addItem(name, fileId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
 	emit FilesListChanged(GetFileNames());
