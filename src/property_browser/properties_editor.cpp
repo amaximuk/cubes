@@ -58,7 +58,8 @@ QtTreePropertyBrowser* PropertiesEditor::GetPropertyEditor()
     return propertyEditor_;
 }
 
-QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model, QMap<QString, const QtProperty*>& idToProperty)
+QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model,
+    QMap<CubesUnitTypes::ParameterModelId, const QtProperty*>& idToProperty)
 {
     // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 

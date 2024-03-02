@@ -27,8 +27,8 @@ namespace CubesProperties
         QList<QtProperty*> topLevelProperties_;
 
         // Соответствие между свойствами и id модели
-        QMap<const QtProperty*, QString> propertyToId_;
-        QMap<QString, const QtProperty*> idToProperty_;
+        QMap<const QtProperty*, CubesUnitTypes::ParameterModelId> propertyToId_;
+        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty_;
 
         // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
         bool ignoreEvents_;
@@ -87,7 +87,10 @@ namespace CubesProperties
         void CreateParametersModel(const CubesXml::Unit* xmlUnit);
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
-            const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
+            const CubesUnitTypes::ParameterModelId& parentModelId, const CubesXml::Unit* xmlUnit,
+            CubesUnitTypes::ParameterModel& model);
+        //void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
+        //    const QString& parentModelId, const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model, bool isItem);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTypes::ParameterModel& model);
@@ -95,12 +98,13 @@ namespace CubesProperties
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
 
-        void RegisterProperty(const QtProperty* property, const QString& id);
-        void UnregisterProperty(const QString& id);
+        void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
+        void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const QtProperty* property);
-        QtProperty* GetProperty(const QString& id);
-        QString GetPropertyId(const QtProperty* property);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const QString& id);
+        QtProperty* GetProperty(const CubesUnitTypes::ParameterModelId& id);
+        CubesUnitTypes::ParameterModelId GetPropertyId(const QtProperty* property);
+        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
+        //CubesUnitTypes::ParameterModel* GetParameterModel(const QString& id);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
         CubesUnitTypes::UnitParameters* GetPropertyUnitParameters(const QtProperty* property);
 

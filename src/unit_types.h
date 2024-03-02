@@ -7,6 +7,7 @@
 #include <regex>
 #include <QVariant>
 #include <QSet>
+#include <QString>
 #include "parameters/types.h"
 
 namespace CubesUnitTypes
@@ -131,10 +132,10 @@ namespace CubesUnitTypes
 			return *this;
 		}
 
-		operator QString() const
-		{
-			return value_.join("/");
-		}
+		//operator QString() const
+		//{
+		//	return value_.join("/");
+		//}
 
 		//operator const char* () const
 		//{
@@ -177,6 +178,42 @@ namespace CubesUnitTypes
 			return lhs;
 		}
 
+		bool operator==(const ParameterModelId& rhs) const
+		{
+			if (this == &rhs)
+				return true;
+
+			return value_ == rhs.value_;
+		}
+
+		//bool operator==(const QString& rhs)
+		//{
+		//	return *this == ParameterModelId(rhs);
+		//}
+
+		bool operator!=(const ParameterModelId& rhs) const
+		{
+			return !(*this == rhs);
+		}
+
+		//bool operator!=(const QString& rhs)
+		//{
+		//	return !(*this == rhs);
+		//}
+
+		//bool operator<(const ParameterModelId& rhs)
+		//{
+		//	if (this == &rhs)
+		//		return true;
+
+		//	return value_ < rhs.value_;
+		//}
+
+		friend bool operator<(const ParameterModelId& lhs, const ParameterModelId& rhs)
+		{
+			return lhs.value_ < rhs.value_;
+		}
+
 	public:
 		int size() const
 		{
@@ -188,9 +225,22 @@ namespace CubesUnitTypes
 			return value_.empty();
 		}
 
-		QStringList split()
+		QList<ParameterModelId> split() const
+		{
+			QList<ParameterModelId> list;
+			for (const auto& item : value_)
+				list.push_back(item);
+			return list;
+		}
+
+		QStringList splitToString() const
 		{
 			return value_;
+		}
+
+		QString toString() const
+		{
+			return value_.join("/");
 		}
 
 		bool startsWith(const ParameterModelId& rhs) const
@@ -374,6 +424,53 @@ namespace CubesUnitTypes
 		//    lhs += rhs;
 		//    return lhs;
 		//}
+	};
+
+	struct ParameterModelIds
+	{
+		CubesUnitTypes::ParameterModelId baseGroupName;
+		CubesUnitTypes::ParameterModelId parametersGroupName;
+		CubesUnitTypes::ParameterModelId editorGroupName;
+		CubesUnitTypes::ParameterModelId itemGroupName;
+		CubesUnitTypes::ParameterModelId dependsParameterName;
+		CubesUnitTypes::ParameterModelId optionalParameterName;
+		CubesUnitTypes::ParameterModelId includesGroupName;
+		CubesUnitTypes::ParameterModelId variablesGroupName;
+
+		static const ParameterModelIds& Defaults()
+		{
+			static const ParameterModelIds ids{
+				QString::fromLocal8Bit("$BASE"),
+				QString::fromLocal8Bit("$PARAMETERS"),
+				QString::fromLocal8Bit("$EDITOR"),
+				QString::fromLocal8Bit("$ITEM"),
+				QString::fromLocal8Bit("$DEPENDS"),
+				QString::fromLocal8Bit("$OPTIONAL"),
+				QString::fromLocal8Bit("$INCLUDES"),
+				QString::fromLocal8Bit("$VARIABLES")
+			};
+			return ids;
+		}
+
+		static const CubesUnitTypes::ParameterModelId GetDefaultItemId(int n)
+		{
+			auto itemGroupName = ParameterModelIds::Defaults().itemGroupName;
+			return QString("%1_%2").arg(itemGroupName.toString()).arg(n);
+		}
+
+		static const int GetDefaultItemIndex(CubesUnitTypes::ParameterModelId id)
+		{
+			if (id.empty())
+				return -1;
+
+			auto idString = id.mid(1, 1).toString();
+			if (idString.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString())
+				&& idString.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString().size() + 1)
+			{
+				return idString.mid(5).toInt();
+			}
+			return -1;
+		}
 	};
 
 	struct ParameterModel

@@ -9,9 +9,9 @@ namespace CubesXml
 	{
 	public:
 		static bool Parse(const QString& filename, File& fi);
-		static int GetItemsCount(Unit& unit, const QString& id);
-		static Param* GetParam(Unit& unit, const QString& id);
-		static Item* GetItem(Unit& unit, const QString& id, QString& type);
+		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
+		static Param* GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
+		static Item* GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type);
 
 	private:
 		static bool GetFile(const QDomElement& node, File& file);

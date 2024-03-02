@@ -88,12 +88,12 @@ namespace CubesFile
 
 
 
-        void RegisterProperty(const QtProperty* property, const QString& id);
-        void UnregisterProperty(const QString& id);
+        void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
+        void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const QtProperty* property);
-        QtProperty* GetProperty(const QString& id);
-        QString GetPropertyId(const QtProperty* property);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const QString& id);
+        QtProperty* GetProperty(const CubesUnitTypes::ParameterModelId& id);
+        CubesUnitTypes::ParameterModelId GetPropertyId(const QtProperty* property);
+        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);

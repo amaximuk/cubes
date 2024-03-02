@@ -6,6 +6,7 @@
 #include <QTextStream>
 #include "../properties_item/properties_item_types.h"
 #include "../properties_item/properties_item.h"
+#include "../unit_types.h"
 #include "xml_parser.h"
 
 using namespace CubesXml;
@@ -509,12 +510,12 @@ QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QStr
 	return list;
 }
 
-int Parser::GetItemsCount(Unit& unit, const QString& id)
+int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 {
-	QList<QString> ss = id.split("/");
+	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesProperties::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -527,19 +528,28 @@ int Parser::GetItemsCount(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith(CubesProperties::ParameterModelIds::Defaults().itemGroupName) && s.size() > 4)
+			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			if (index != -1 && array->items.size() > index)
 			{
-				int index = s.mid(5).toInt();
-				if (array->items.size() > index)
-				{
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
-				}
-				else
-					return -1;
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
 			}
 			else
 				return -1;
+
+			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) && s.size() > 4)
+			//{
+			//	int index = s.mid(5).toInt();
+			//	if (array->items.size() > index)
+			//	{
+			//		params = &array->items[index].params;
+			//		arrays = &array->items[index].arrays;
+			//	}
+			//	else
+			//		return -1;
+			//}
+			//else
+			//	return -1;
 
 			array = nullptr;
 			inside_array = false;
@@ -573,12 +583,12 @@ int Parser::GetItemsCount(Unit& unit, const QString& id)
 	return -1;
 }
 
-Param* Parser::GetParam(Unit& unit, const QString& id)
+Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 {
-	QList<QString> ss = id.split("/");
+	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesProperties::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -591,20 +601,29 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith(CubesProperties::ParameterModelIds::Defaults().itemGroupName) &&
-				s.size() > CubesProperties::ParameterModelIds::Defaults().itemGroupName.size() + 1)
+			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			if (index != -1 && array->items.size() > index)
 			{
-				int index = s.mid(CubesProperties::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
-				if (array->items.size() > index)
-				{
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
-				}
-				else
-					return nullptr;
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
 			}
 			else
 				return nullptr;
+
+			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) &&
+			//	s.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1)
+			//{
+			//	int index = s.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
+			//	if (array->items.size() > index)
+			//	{
+			//		params = &array->items[index].params;
+			//		arrays = &array->items[index].arrays;
+			//	}
+			//	else
+			//		return nullptr;
+			//}
+			//else
+			//	return nullptr;
 
 			array = nullptr;
 			inside_array = false;
@@ -636,12 +655,12 @@ Param* Parser::GetParam(Unit& unit, const QString& id)
 	return nullptr;
 }
 
-Item* Parser::GetItem(Unit& unit, const QString& id, QString& type)
+Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type)
 {
-	QList<QString> ss = id.split("/");
+	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesProperties::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
 		return false;
 	ss.pop_front();
 
@@ -655,25 +674,40 @@ Item* Parser::GetItem(Unit& unit, const QString& id, QString& type)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			if (s.startsWith(CubesProperties::ParameterModelIds::Defaults().itemGroupName) &&
-				s.size() > CubesProperties::ParameterModelIds::Defaults().itemGroupName.size() + 1)
+			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			if (index != -1 && array->items.size() > index)
 			{
-				int index = s.mid(CubesProperties::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
-				if (array->items.size() > index)
+				if (ss.size() == 1)
 				{
-					if (ss.size() == 1)
-					{
-						type = array_type;
-						return &array->items[index];
-					}
-					params = &array->items[index].params;
-					arrays = &array->items[index].arrays;
+					type = array_type;
+					return &array->items[index];
 				}
-				else
-					return nullptr;
+
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
 			}
 			else
 				return nullptr;
+
+			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) &&
+			//	s.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1)
+			//{
+			//	int index = s.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
+			//	if (array->items.size() > index)
+			//	{
+			//		if (ss.size() == 1)
+			//		{
+			//			type = array_type;
+			//			return &array->items[index];
+			//		}
+			//		params = &array->items[index].params;
+			//		arrays = &array->items[index].arrays;
+			//	}
+			//	else
+			//		return nullptr;
+			//}
+			//else
+			//	return nullptr;
 
 			array = nullptr;
 			inside_array = false;
