@@ -9,14 +9,6 @@
 
 namespace CubesProperties
 {
-    extern const QString baseGroupName;
-    extern const QString parametersGroupName;
-    extern const QString editorGroupName;
-    extern const QString itemGroupName;
-    extern const QString dependsParameterName;
-    extern const QString optionalParameterName;
-
-
     class PropertiesItem : public QObject
     {
         Q_OBJECT

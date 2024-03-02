@@ -7,15 +7,6 @@
 
 namespace CubesFile
 {
-    extern const QString baseGroupName;
-    extern const QString parametersGroupName;
-    extern const QString editorGroupName;
-    extern const QString itemGroupName;
-    extern const QString dependsParameterName;
-    extern const QString optionalParameterName;
-    extern const QString includesGroupName;
-    extern const QString variablesGroupName;
-
     class FileItem : public QObject
     {
         Q_OBJECT

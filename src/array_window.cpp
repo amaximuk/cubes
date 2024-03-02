@@ -31,6 +31,7 @@
 #include "log_table/log_table_model.h"
 #include "log_table/sort_filter_model.h"
 #include "parameters_compiler/base64.h"
+#include "properties_item/properties_item_types.h"
 #include "properties_item/properties_item.h"
 #include "properties_item/properties_items_manager.h"
 #include "qttreepropertybrowser.h" // потом убрать
@@ -301,7 +302,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
 
         for (auto& group : item.parameters)
         {
-            if (group.id == CubesProperties::parametersGroupName)
+            if (group.id == CubesProperties::ParameterModelIds::Defaults().parametersGroupName)
             for (auto& parameter : group.parameters)
                 parameter.parameterInfoId.type = "Main";
         }
