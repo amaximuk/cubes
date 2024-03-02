@@ -125,9 +125,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         file_path.name = QString::fromLocal8Bit("ָלÿ פאיכא");
         //file_path.value = QString::fromLocal8Bit("config.xml");
         if (xmlFile == nullptr || xmlFile->fileName.isEmpty())
-            platform.value = QString::fromLocal8Bit("config.xml");
+            file_path.value = QString::fromLocal8Bit("config.xml");
         else
-            platform.value = QString(xmlFile->fileName);
+            file_path.value = QString(xmlFile->fileName);
         //file_path.valueType = "string";
         //file_path.parameterInfoId = "";
         file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -1128,7 +1128,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
                 if (xmlFile != nullptr && i < xmlFile->includes.size())
                 {
                     int xmlCount = xmlFile->includes[i].variables.size();
-                    variables.value = xmlCount; // MUST be 0 - NONONONON
+                    variables.value = xmlCount;
                     UpdateVariablesArrayModel(&xmlFile->includes[i], variables, xmlCount);
                 }
 
@@ -1351,9 +1351,9 @@ void FileItem::UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking
             //ip.value = QString::fromLocal8Bit("127.0.0.1");
             //ip.valueType = "string";
             if (xmlNetworking != nullptr && i < xmlNetworking->connects.size())
-                port.value = xmlNetworking->connects[i].ip;
+                ip.value = xmlNetworking->connects[i].ip;
             else
-                port.value = CubesXml::Connect::Defaults().ip;
+                ip.value = CubesXml::Connect::Defaults().ip;
             ip.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(ip));
 

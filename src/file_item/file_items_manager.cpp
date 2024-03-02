@@ -103,6 +103,11 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	fileId = ++unique_number_;
 
 	auto fileName = xmlFile.name;
+	if (fileName.isEmpty())
+	{
+		QFileInfo fi(xmlFile.fileName);
+		fileName = fi.fileName();
+	}
 	auto platform = xmlFile.platform;
 	auto filePath = xmlFile.fileName;
 
