@@ -189,7 +189,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
                 pm_id.value = int{ CubesXml::Networking::Defaults().id};
             else
-                pm_id.value = QString(xmlFile->config.networking.id);
+                pm_id.value = int{ xmlFile->config.networking.id };
             pm_id.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_id.editorSettings.SpinIntergerMin = 0;
             pm_id.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -201,9 +201,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_accept_port.value = int{ CubesXml::Networking::Defaults().acceptPort };
             //pm_accept_port.valueType = "int";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().acceptPort };
+                pm_accept_port.value = int{ CubesXml::Networking::Defaults().acceptPort };
             else
-                pm_id.value = QString(xmlFile->config.networking.acceptPort);
+                pm_accept_port.value = int{ xmlFile->config.networking.acceptPort };
             pm_accept_port.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_accept_port.editorSettings.SpinIntergerMin = 1000;
             pm_accept_port.editorSettings.SpinIntergerMax = 65535;
@@ -215,9 +215,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_keep_alive_sec.value = int{ CubesXml::Networking::Defaults().keepAliveSec };
             //pm_keep_alive_sec.valueType = "int";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().keepAliveSec };
+                pm_keep_alive_sec.value = int{ CubesXml::Networking::Defaults().keepAliveSec };
             else
-                pm_id.value = QString(xmlFile->config.networking.keepAliveSec);
+                pm_keep_alive_sec.value = int{ xmlFile->config.networking.keepAliveSec };
             pm_keep_alive_sec.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_keep_alive_sec.editorSettings.SpinIntergerMin = 0;
             pm_keep_alive_sec.editorSettings.SpinIntergerMax = std::numeric_limits<int>::max();
@@ -229,9 +229,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_time_client.value = bool{ false };
             //pm_time_client.valueType = "bool";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().timeClient };
+                pm_time_client.value = bool{ CubesXml::Networking::Defaults().timeClient };
             else
-                pm_id.value = QString(xmlFile->config.networking.timeClient);
+                pm_time_client.value = bool{ xmlFile->config.networking.timeClient };
             pm_time_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_time_client));
 
@@ -241,9 +241,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_network_threads.value = int{ CubesXml::Networking::Defaults().networkThreads };
             //pm_network_threads.valueType = "int";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().networkThreads };
+                pm_network_threads.value = int{ CubesXml::Networking::Defaults().networkThreads };
             else
-                pm_id.value = QString(xmlFile->config.networking.networkThreads);
+                pm_network_threads.value = int{ xmlFile->config.networking.networkThreads };
             pm_network_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_network_threads.editorSettings.SpinIntergerMin = 1;
             pm_network_threads.editorSettings.SpinIntergerMax = 1024;
@@ -253,6 +253,10 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             pm_broadcast_threads.id = "PARAMETERS/NETWORKING/BROADCAST_THREADS";
             pm_broadcast_threads.name = QString::fromLocal8Bit("Ўироковещательных потоков");
             pm_broadcast_threads.value = int{ CubesXml::Networking::Defaults().broadcastThreads };
+            if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
+                pm_broadcast_threads.value = int{ CubesXml::Networking::Defaults().broadcastThreads };
+            else
+                pm_broadcast_threads.value = int{ xmlFile->config.networking.broadcastThreads };
             //pm_broadcast_threads.valueType = "int";
             pm_broadcast_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_broadcast_threads.editorSettings.SpinIntergerMin = 1;
@@ -265,9 +269,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_client_threads.value = int{ CubesXml::Networking::Defaults().clientsThreads };
             //pm_client_threads.valueType = "int";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().clientsThreads };
+                pm_client_threads.value = int{ CubesXml::Networking::Defaults().clientsThreads };
             else
-                pm_id.value = QString(xmlFile->config.networking.clientsThreads);
+                pm_client_threads.value = int{ xmlFile->config.networking.clientsThreads };
             pm_client_threads.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_client_threads.editorSettings.SpinIntergerMin = 1;
             pm_client_threads.editorSettings.SpinIntergerMax = 1024;
@@ -279,9 +283,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_notify_ready_client.value = bool{ CubesXml::Networking::Defaults().notifyReadyClients };
             //pm_notify_ready_client.valueType = "bool";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().notifyReadyClients };
+                pm_notify_ready_client.value = bool{ CubesXml::Networking::Defaults().notifyReadyClients };
             else
-                pm_id.value = QString(xmlFile->config.networking.notifyReadyClients);
+                pm_notify_ready_client.value = bool{ xmlFile->config.networking.notifyReadyClients };
             pm_notify_ready_client.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_client));
 
@@ -291,9 +295,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_notify_ready_server.value = bool{ CubesXml::Networking::Defaults().notifyReadyServers };
             //pm_notify_ready_server.valueType = "bool";
             if (xmlFile == nullptr || !xmlFile->config.networkingIsSet)
-                pm_id.value = int{ CubesXml::Networking::Defaults().notifyReadyServers };
+                pm_notify_ready_server.value = bool{ CubesXml::Networking::Defaults().notifyReadyServers };
             else
-                pm_id.value = QString(xmlFile->config.networking.notifyReadyServers);
+                pm_notify_ready_server.value = bool{ xmlFile->config.networking.notifyReadyServers };
             pm_notify_ready_server.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
             pm_networking.parameters.push_back(std::move(pm_notify_ready_server));
 
@@ -361,11 +365,11 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
             pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
             if (xmlFile == nullptr || !xmlFile->config.logIsSet)
-                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[CubesXml::Log::Defaults().loggingLevel];
+                pm_logging_level.value = pm_logging_level.editorSettings.ComboBoxValues[CubesXml::Log::Defaults().loggingLevel];
             else if (xmlFile->config.log.loggingLevel < pm_logging_level.editorSettings.ComboBoxValues.size())
-                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[xmlFile->config.log.loggingLevel];
+                pm_logging_level.value = pm_logging_level.editorSettings.ComboBoxValues[xmlFile->config.log.loggingLevel];
             else
-                pm_logging.value = pm_logging_level.editorSettings.ComboBoxValues[0];
+                pm_logging_level.value = pm_logging_level.editorSettings.ComboBoxValues[0];
             pm_logging.parameters.push_back(std::move(pm_logging_level));
 
             CubesUnitTypes::ParameterModel pm_log_limit;
@@ -374,9 +378,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_log_limit.value = int{ 500 };
             //pm_log_limit.valueType = "int";
             if (xmlFile == nullptr || !xmlFile->config.logIsSet)
-                pm_logging.value = int{ CubesXml::Log::Defaults().totalLogLimit };
+                pm_log_limit.value = int{ CubesXml::Log::Defaults().totalLogLimit };
             else
-                pm_logging.value = int{ xmlFile->config.log.totalLogLimit };
+                pm_log_limit.value = int{ xmlFile->config.log.totalLogLimit };
             pm_log_limit.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
             pm_log_limit.editorSettings.SpinIntergerMin = 0;
             pm_log_limit.editorSettings.SpinIntergerMax = 1024 * 1024;
@@ -388,9 +392,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_log_dir.value = QString();
             //pm_log_dir.valueType = "string";
             if (xmlFile == nullptr || !xmlFile->config.logIsSet)
-                pm_logging.value = CubesXml::Log::Defaults().logDir;
+                pm_log_dir.value = CubesXml::Log::Defaults().logDir;
             else
-                pm_logging.value = xmlFile->config.log.logDir;
+                pm_log_dir.value = xmlFile->config.log.logDir;
             pm_log_dir.editorSettings.type = CubesUnitTypes::EditorType::String;
             pm_logging.parameters.push_back(std::move(pm_log_dir));
 
@@ -1274,7 +1278,7 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
             if (xmlInclude != nullptr && i < xmlInclude->variables.size())
                 variable.value = xmlInclude->variables[i].second;
             else
-                variable.value = QString::fromLocal8Bit("").arg(i);
+                variable.value = QString::fromLocal8Bit("");
             variable.editorSettings.type = CubesUnitTypes::EditorType::String;
             variable.editorSettings.is_expanded = false;
             group_model.parameters.push_back(std::move(variable));

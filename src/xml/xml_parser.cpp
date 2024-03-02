@@ -182,12 +182,12 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 	QString id = node.attribute("id", "");
 	QString accept_port = node.attribute("accept_port", "");
 	QString keep_alive_sec = node.attribute("keep_alive_sec", "");
-	QString time_client = node.attribute("time_client", "");
-	QString network_threads = node.attribute("network_threads", "");
-	QString broadcast_threads = node.attribute("broadcast_threads", "");
-	QString clients_threads = node.attribute("clients_threads", "");
-	QString notify_ready_clients = node.attribute("notify_ready_clients", "");
-	QString notify_ready_servers = node.attribute("notify_ready_servers", "");
+	QString time_client = node.attribute("time_client", QString("%1").arg(CubesXml::Networking::Defaults().timeClient));
+	QString network_threads = node.attribute("network_threads", QString("%1").arg(CubesXml::Networking::Defaults().networkThreads));
+	QString broadcast_threads = node.attribute("broadcast_threads", QString("%1").arg(CubesXml::Networking::Defaults().broadcastThreads));
+	QString clients_threads = node.attribute("clients_threads", QString("%1").arg(CubesXml::Networking::Defaults().clientsThreads));
+	QString notify_ready_clients = node.attribute("notify_ready_clients", QString("%1").arg(CubesXml::Networking::Defaults().notifyReadyClients));
+	QString notify_ready_servers = node.attribute("notify_ready_servers", QString("%1").arg(CubesXml::Networking::Defaults().notifyReadyServers));
 
 	if (id == "")
 		ELRF("Networking id is empty");
@@ -248,14 +248,22 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 
 			QString name = ei.attribute("name", "");
 			QString type = ei.attribute("type", "");
-			QString val = ei.attribute("val", "");
 
 			if (name == "LoggingLevel" && type == "int")
+			{
+				QString val = ei.attribute("val", QString("%1").arg(CubesXml::Log::Defaults().loggingLevel));
 				log.loggingLevel = val.toInt();
+			}
 			else if (name == "TOTAL_LOG_LIMIT_MB" && type == "int")
+			{
+				QString val = ei.attribute("val", QString("%1").arg(CubesXml::Log::Defaults().totalLogLimit));
 				log.totalLogLimit = val.toInt();
+			}
 			else if (name == "LogDir" && type == "str")
+			{
+				QString val = ei.attribute("val", QString("%1").arg(CubesXml::Log::Defaults().logDir));
 				log.logDir = val;
+			}
 			else
 				ELRF("Log/Param is unknown");
 		}
