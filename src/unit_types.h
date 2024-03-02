@@ -76,10 +76,310 @@ namespace CubesUnitTypes
 		}
 	};
 
+	struct ParameterModelId
+	{
+	private:
+		QStringList value_;
+
+	public:
+		ParameterModelId() = default;
+
+		ParameterModelId(const ParameterModelId& rhs)
+		{
+			value_ = rhs.value_;
+		};
+
+		ParameterModelId(ParameterModelId&& rhs) noexcept
+		{
+			value_ = std::move(rhs.value_);
+		};
+
+		ParameterModelId(const QString& value)
+		{
+			QString local(value);
+			local.remove(QRegExp("^([\\s|/]+)"));
+			local.remove(QRegExp("([\\s|/]+)$"));
+			value_ = local.split("/", Qt::SkipEmptyParts);
+		}
+
+		ParameterModelId(const char* value):
+			ParameterModelId(QString(value))
+		{}
+
+	public:
+		ParameterModelId& operator=(const ParameterModelId& rhs)
+		{
+			if (this == &rhs)
+				return *this;
+
+			value_ = rhs.value_;
+			return *this;
+		}
+
+		ParameterModelId& operator=(const QString& rhs)
+		{
+			value_ = ParameterModelId(rhs).value_;
+			return *this;
+		}
+
+		ParameterModelId& operator=(ParameterModelId&& rhs) noexcept
+		{
+			if (this == &rhs)
+				return *this;
+
+			value_ = std::move(rhs.value_);
+			return *this;
+		}
+
+		operator QString() const
+		{
+			return value_.join("/");
+		}
+
+		//operator const char* () const
+		//{
+		//	return value_.join("/").toStdString().c_str();
+		//}
+
+		ParameterModelId& operator+=(const ParameterModelId& rhs)
+		{
+			value_.append(rhs.value_);
+			return *this;
+		}
+
+		ParameterModelId& operator+=(const QString& rhs)
+		{
+			value_.append(ParameterModelId(rhs).value_);
+			return *this;
+		}
+
+		ParameterModelId& operator+=(const char* rhs)
+		{
+			value_.append(ParameterModelId(rhs).value_);
+			return *this;
+		}
+
+		friend ParameterModelId operator+(ParameterModelId lhs, const ParameterModelId& rhs)
+		{
+			lhs += rhs;
+			return lhs;
+		}
+
+		friend ParameterModelId operator+(ParameterModelId lhs, const QString& rhs)
+		{
+			lhs += rhs;
+			return lhs;
+		}
+
+		friend ParameterModelId operator+(ParameterModelId lhs, const char* rhs)
+		{
+			lhs += rhs;
+			return lhs;
+		}
+
+	public:
+		int size() const
+		{
+			return value_.size();
+		}
+
+		bool empty() const
+		{
+			return value_.empty();
+		}
+
+		QStringList split()
+		{
+			return value_;
+		}
+
+		bool startsWith(const ParameterModelId& rhs) const
+		{
+			if (value_.size() < rhs.value_.size())
+				return false;
+
+			for (size_t i = 0; i < rhs.value_.size(); i++)
+			{
+				if (value_.at(i) != rhs.value_.at(i))
+					return false;
+			}
+			return true;
+		}
+
+		bool startsWith(const QString& value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		bool startsWith(const char* value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		bool endsWith(const ParameterModelId& rhs) const
+		{
+			if (value_.size() < rhs.value_.size())
+				return false;
+
+			for (size_t i = 0; i < rhs.value_.size(); ++i)
+			{
+				if (value_.at(i + value_.size() - rhs.value_.size()) != rhs.value_.at(i))
+					return false;
+			}
+			return true;
+		}
+
+		bool endsWith(const QString& value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		bool endsWith(const char* value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		bool contains(const ParameterModelId& rhs) const
+		{
+			return (indexOf(rhs) != -1);
+
+			/*if (rhs.value_.empty())
+				return true;
+
+			if (value_.size() < rhs.value_.size())
+				return false;
+
+			int pos = 0;
+			while (pos <= value_.size() - rhs.value_.size())
+			{
+				pos = value_.indexOf(rhs.value_.at(0), pos);
+				if (pos == -1 || pos > value_.size() - rhs.value_.size())
+					return false;
+
+				bool found = true;
+				for (size_t i = pos; i < pos + rhs.value_.size(); i++)
+				{
+					if (value_.at(i) != rhs.value_.at(i))
+					{
+						found = false;
+						break;
+					}
+				}
+
+				if (found)
+					return true;
+
+				++pos;
+			}
+			return false;*/
+		}
+
+		bool contains(const QString& value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		bool contains(const char* value) const
+		{
+			return startsWith(ParameterModelId(value));
+		}
+
+		int indexOf(const ParameterModelId& rhs) const
+		{
+			if (rhs.value_.empty())
+				return 0;
+
+			if (value_.size() < rhs.value_.size())
+				return -1;
+
+			int pos = 0;
+			while (pos <= value_.size() - rhs.value_.size())
+			{
+				pos = value_.indexOf(rhs.value_.at(0), pos);
+				if (pos == -1 || pos > value_.size() - rhs.value_.size())
+					return -1;
+
+				bool found = true;
+				for (size_t i = 0; i < rhs.value_.size(); ++i)
+				{
+					if (value_.at(pos + i) != rhs.value_.at(i))
+					{
+						found = false;
+						break;
+					}
+				}
+
+				if (found)
+					return pos;
+
+				++pos;
+			}
+			return -1;
+		}
+
+		int indexOf(const QString& value) const
+		{
+			return indexOf(ParameterModelId(value));
+		}
+
+		int indexOf(const char* value) const
+		{
+			return indexOf(ParameterModelId(value));
+		}
+
+		ParameterModelId left(int n) const
+		{
+			auto sub = value_.mid(0, n);
+			return sub.join("/");
+		}
+
+		ParameterModelId right(int n) const
+		{
+			auto cnt = std::min(value_.size(), n);
+			auto sub = value_.mid(value_.size() - cnt, cnt);
+			return sub.join("/");
+		}
+
+		ParameterModelId mid(int pos, int n = -1) const
+		{
+			auto sub = value_.mid(pos, n);
+			return sub.join("/");
+		}
+
+		//operator QString() const
+		//{
+		//    return this->value_;
+		//}
+
+		//ParameterModelId& operator+=(const ParameterModelId& rhs)
+		//{
+		//    this->value_ = QString("%1/%2").arg(this->value_, rhs.value_);
+		//    return *this;
+		//}
+
+		//ParameterModelId& operator+=(const QString& rhs)
+		//{
+		//    this->value_ = QString("%1/%2").arg(this->value_, ParameterModelId(rhs));
+		//    return *this;
+		//}
+
+		//friend ParameterModelId operator+(ParameterModelId lhs, const ParameterModelId& rhs)
+		//{
+		//    lhs += rhs;
+		//    return lhs;
+		//}
+
+		//friend ParameterModelId operator+(ParameterModelId lhs, const QString& rhs)
+		//{
+		//    lhs += rhs;
+		//    return lhs;
+		//}
+	};
+
 	struct ParameterModel
 	{
 	public:
-		QString id; // id path, separated by /
+		ParameterModelId id; // id path, separated by /
 		QString name;
 		QVariant value;
 		ParameterInfoId parameterInfoId;
@@ -90,6 +390,35 @@ namespace CubesUnitTypes
 	public:
 		ParameterModel()
 		{
+
+			QString ss1 = "asdfghjkl";
+			auto ii1 = ss1.indexOf("");
+			auto ii2 = ss1.indexOf("-");
+			QString ss2 = "";
+			auto ii3 = ss2.indexOf("");
+			auto ii4 = ss2.indexOf("-");
+
+			ParameterModelId a("a/b/c/d/e");
+			ParameterModelId b("c/d/e");
+			ParameterModelId c("a/b");
+
+
+			auto x = a.left(2);
+			auto z = a.right(2);
+			auto sss = a.endsWith("");
+
+
+
+
+
+
+
+
+
+
+
+
+
 			readOnly = false;
 		}
 	};

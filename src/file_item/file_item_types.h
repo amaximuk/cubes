@@ -1,19 +1,20 @@
 #pragma once
 
 #include <QString>
+#include "../unit_types.h"
 
 namespace CubesFile
 {
     struct ParameterModelIds
     {
-        QString baseGroupName;
-        QString parametersGroupName;
-        QString editorGroupName;
-        QString itemGroupName;
-        QString dependsParameterName;
-        QString optionalParameterName;
-        QString includesGroupName;
-        QString variablesGroupName;
+        CubesUnitTypes::ParameterModelId baseGroupName;
+        CubesUnitTypes::ParameterModelId parametersGroupName;
+        CubesUnitTypes::ParameterModelId editorGroupName;
+        CubesUnitTypes::ParameterModelId itemGroupName;
+        CubesUnitTypes::ParameterModelId dependsParameterName;
+        CubesUnitTypes::ParameterModelId optionalParameterName;
+        CubesUnitTypes::ParameterModelId includesGroupName;
+        CubesUnitTypes::ParameterModelId variablesGroupName;
 
         static const ParameterModelIds& Defaults()
         {

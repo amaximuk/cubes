@@ -1317,7 +1317,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith(ParameterModelIds::Defaults().parametersGroupName))
     {
-        QStringList path = pm->id.split("/");
+        QStringList path = pm->id.split();
         if (path.size() < 2)
             return;
 
