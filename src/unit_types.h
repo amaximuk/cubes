@@ -80,19 +80,31 @@ namespace CubesUnitTypes
 	struct ParameterModelId
 	{
 	private:
+#ifdef _DEBUG
+		QString debug_;
+#endif
 		QStringList value_;
 
 	public:
 		ParameterModelId() = default;
+		~ParameterModelId() {
+			int a = 0;
+		};
 
 		ParameterModelId(const ParameterModelId& rhs)
 		{
 			value_ = rhs.value_;
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 		};
 
 		ParameterModelId(ParameterModelId&& rhs) noexcept
 		{
 			value_ = std::move(rhs.value_);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 		};
 
 		ParameterModelId(const QString& value)
@@ -101,6 +113,9 @@ namespace CubesUnitTypes
 			local.remove(QRegExp("^([\\s|/]+)"));
 			local.remove(QRegExp("([\\s|/]+)$"));
 			value_ = local.split("/", Qt::SkipEmptyParts);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 		}
 
 		ParameterModelId(const char* value):
@@ -114,12 +129,18 @@ namespace CubesUnitTypes
 				return *this;
 
 			value_ = rhs.value_;
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
 		ParameterModelId& operator=(const QString& rhs)
 		{
 			value_ = ParameterModelId(rhs).value_;
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
@@ -129,6 +150,9 @@ namespace CubesUnitTypes
 				return *this;
 
 			value_ = std::move(rhs.value_);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
@@ -145,18 +169,27 @@ namespace CubesUnitTypes
 		ParameterModelId& operator+=(const ParameterModelId& rhs)
 		{
 			value_.append(rhs.value_);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
 		ParameterModelId& operator+=(const QString& rhs)
 		{
 			value_.append(ParameterModelId(rhs).value_);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
 		ParameterModelId& operator+=(const char* rhs)
 		{
 			value_.append(ParameterModelId(rhs).value_);
+#ifdef _DEBUG
+			debug_ = value_.join("/");
+#endif
 			return *this;
 		}
 
@@ -463,11 +496,11 @@ namespace CubesUnitTypes
 			if (id.empty())
 				return -1;
 
-			auto idString = id.mid(1, 1).toString();
+			auto idString = id.mid(0, 1).toString();
 			if (idString.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString())
 				&& idString.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString().size() + 1)
 			{
-				return idString.mid(5).toInt();
+				return idString.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString().size() + 1).toInt();
 			}
 			return -1;
 		}
@@ -487,36 +520,60 @@ namespace CubesUnitTypes
 	public:
 		ParameterModel()
 		{
-
-			QString ss1 = "asdfghjkl";
-			auto ii1 = ss1.indexOf("");
-			auto ii2 = ss1.indexOf("-");
-			QString ss2 = "";
-			auto ii3 = ss2.indexOf("");
-			auto ii4 = ss2.indexOf("-");
-
-			ParameterModelId a("a/b/c/d/e");
-			ParameterModelId b("c/d/e");
-			ParameterModelId c("a/b");
-
-
-			auto x = a.left(2);
-			auto z = a.right(2);
-			auto sss = a.endsWith("");
-
-
-
-
-
-
-
-
-
-
-
-
-
 			readOnly = false;
+
+			//struct XXX
+			//{
+			//public:
+			//	QStringList value_;
+
+			//public:
+			//	XXX() = default;
+
+			//	//XXX()
+			//	//{
+			//	//};
+
+			//	XXX(const XXX& rhs)
+			//	{
+			//		value_ = rhs.value_;
+			//	};
+
+			//	XXX(XXX&& rhs) noexcept
+			//	{
+			//		value_ = std::move(rhs.value_);
+			//	};
+
+			//	XXX(const QString& value)
+			//	{
+			//		value_.push_back(value);
+			//	}
+
+			//	XXX(const char* value) :
+			//		XXX(QString(value))
+			//	{}
+			//};
+
+			//XXX x("123456");
+
+			//QList<XXX> list1;
+			//{
+			//	list1.push_back(x);
+			//}
+
+			//int z1 = list1.size();
+			//auto zs = list1.at(0).value_;
+
+			//ParameterModelId v("aaaa");
+
+			//QList<ParameterModelId> list;
+			//{
+			//	list.push_back(v);
+			//}
+
+			//int z = list.size();
+			//auto zs1 = list.at(0).value_;
+
 		}
 	};
 

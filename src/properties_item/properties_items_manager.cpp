@@ -401,7 +401,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 
 		if (b)
 		{
-			qDebug() << pm->id;
+			qDebug() << pm->id.toString();
 
 			ArrayWindow* mv = new ArrayWindow();
 			mv->setWindowModality(Qt::ApplicationModal);

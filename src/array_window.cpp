@@ -276,14 +276,23 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
         up.fileInfo = afi;
 
-        auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+        auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, const CubesUnitTypes::ParameterModelId to_remove, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
-                parameter.id = parameter.id.mid(to_remove.length() + 1);
+                parameter.id = parameter.id.mid(to_remove.size());
                 //parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
                 rename(parameter.parameters, to_remove, rename);
             }
         };
+
+        //auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+        //    for (auto& parameter : parameters)
+        //    {
+        //        parameter.id = parameter.id.mid(to_remove.length() + 1);
+        //        //parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
+        //        rename(parameter.parameters, to_remove, rename);
+        //    }
+        //};
 
         //auto id_renamer = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove)->void {
         //    auto id_renamer_impl = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
@@ -302,7 +311,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
 
         for (auto& group : item.parameters)
         {
-            if (group.id == CubesProperties::ParameterModelIds::Defaults().parametersGroupName)
+            if (group.id == CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
             for (auto& parameter : group.parameters)
                 parameter.parameterInfoId.type = "Main";
         }

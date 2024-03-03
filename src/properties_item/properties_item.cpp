@@ -762,13 +762,13 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
             CubesXml::Item item{};
             for (const auto& pmGroup : pmItem.parameters)
             {
-                auto id = pmGroup.id.mid(1);
+                auto id = pmGroup.id.mid(pmItem.id.size());
                 //id.replace(pmItem.id, "");
                 if (id == CubesUnitTypes::ParameterModelIds::Defaults().baseGroupName)
                 {
                     for (auto& pmBase : pmGroup.parameters)
                     {
-                        auto idBase = pmBase.id.mid(1);
+                        auto idBase = pmBase.id.mid(pmItem.id.size());
                         //idBase.replace(pmItem.id, "");
                         if (idBase == CubesUnitTypes::ParameterModelIds::Defaults().baseGroupName + "NAME")
                             item.name = pmBase.value.toString();
@@ -799,7 +799,7 @@ bool PropertiesItem::GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, Cube
                 {
                     for (auto& pmEditor : pmGroup.parameters)
                     {
-                        auto idEditor = pmEditor.id.mid(1);
+                        auto idEditor = pmEditor.id.mid(pmItem.id.size());
                         //idEditor.replace(pmItem.id, "");
 
                         if (idEditor == CubesUnitTypes::ParameterModelIds::Defaults().editorGroupName + "POSITION_X")

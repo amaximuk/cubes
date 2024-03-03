@@ -32,8 +32,8 @@ namespace CubesFile
         QList<QtProperty*> topLevelProperties_;
 
         // Соответствие между свойствами и id модели
-        QMap<const QtProperty*, QString> propertyToId_;
-        QMap<QString, const QtProperty*> idToProperty_;
+        QMap<const QtProperty*, CubesUnitTypes::ParameterModelId> propertyToId_;
+        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty_;
 
         // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
         bool ignoreEvents_;
