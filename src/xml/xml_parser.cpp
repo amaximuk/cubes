@@ -530,7 +530,7 @@ int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = ids_.ItemGroupIndex(s);
+			auto index = ids_.ItemIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				params = &array->items[index].params;
@@ -603,7 +603,7 @@ Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = ids_.ItemGroupIndex(s);
+			auto index = ids_.ItemIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				params = &array->items[index].params;
@@ -676,7 +676,7 @@ Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QS
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = ids_.ItemGroupIndex(s);
+			auto index = ids_.ItemIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				if (ss.size() == 1)

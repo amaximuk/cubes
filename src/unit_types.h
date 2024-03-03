@@ -543,6 +543,7 @@ namespace CubesUnitTypes
 
 		const CubesUnitTypes::ParameterModelId includes;
 		const CubesUnitTypes::ParameterModelId item;
+		const CubesUnitTypes::ParameterModelId filePath;
 		const CubesUnitTypes::ParameterModelId variables;
 		// const CubesUnitTypes::ParameterModelId name; // duplicate
 		const CubesUnitTypes::ParameterModelId value;
@@ -580,6 +581,7 @@ namespace CubesUnitTypes
 
 			includes("$INCLUDES"),
 			item("$ITEM"),
+			filePath("$FILE_PATH"),
 			variables("$VARIABLES"),
 			value("$VALUE"),
 
@@ -645,12 +647,12 @@ namespace CubesUnitTypes
 		//	return -1;
 		//}
 
-		const CubesUnitTypes::ParameterModelId ItemGroup(int n) const
+		const CubesUnitTypes::ParameterModelId Item(int n) const
 		{
 			return QString("%1_%2").arg(item.toString()).arg(n);
 		}
 
-		const int ItemGroupIndex(CubesUnitTypes::ParameterModelId id) const
+		const int ItemIndex(CubesUnitTypes::ParameterModelId id) const
 		{
 			if (id.empty())
 				return -1;

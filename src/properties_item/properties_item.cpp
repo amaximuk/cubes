@@ -1125,7 +1125,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
         for (int i = model.parameters.size(); i < itemsCount; ++i)
         {
             CubesUnitTypes::ParameterModel itemModel;
-            itemModel.id = model.id + ids_.ItemGroup(i);
+            itemModel.id = model.id + ids_.Item(i);
             //itemModel.id = QString("%1/%2_%3").arg(model.id, ids_.itemGroupName).arg(i);
             itemModel.name = QString::fromLocal8Bit("Ёлемент %1").arg(i);
             itemModel.parameterInfoId = model.parameterInfoId;
@@ -1139,7 +1139,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
         for (int i = model.parameters.size(); i < itemsCount; ++i)
         {
             CubesUnitTypes::ParameterModel group_model;
-            group_model.id = model.id + ids_.ItemGroup(i);
+            group_model.id = model.id + ids_.Item(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, ids_.itemGroupName).arg(i);
             group_model.name = QString::fromLocal8Bit("Ёлемент %1").arg(i);
             group_model.value = QVariant();
