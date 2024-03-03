@@ -512,10 +512,12 @@ QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QStr
 
 int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 {
+	CubesUnitTypes::ParameterModelIds ids;
+
 	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != ids.parametersGroup)
 		return false;
 	ss.pop_front();
 
@@ -528,7 +530,7 @@ int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			auto index = ids.ItemGroupIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				params = &array->items[index].params;
@@ -585,10 +587,12 @@ int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id
 
 Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 {
+	CubesUnitTypes::ParameterModelIds ids;
+
 	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != ids.parametersGroup)
 		return false;
 	ss.pop_front();
 
@@ -601,7 +605,7 @@ Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			auto index = ids.ItemGroupIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				params = &array->items[index].params;
@@ -657,10 +661,12 @@ Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
 
 Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type)
 {
+	CubesUnitTypes::ParameterModelIds ids;
+
 	auto ss = id.split();
 	if (ss.size() < 2)
 		return false;
-	if (ss.front() != CubesUnitTypes::ParameterModelIds::Defaults().parametersGroupName)
+	if (ss.front() != ids.parametersGroup)
 		return false;
 	ss.pop_front();
 
@@ -674,7 +680,7 @@ Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QS
 		const auto& s = ss.front();
 		if (inside_array)
 		{
-			auto index = CubesUnitTypes::ParameterModelIds::GetDefaultItemIndex(s);
+			auto index = ids.ItemGroupIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				if (ss.size() == 1)

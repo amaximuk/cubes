@@ -33,6 +33,9 @@ namespace CubesProperties
         // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
         bool ignoreEvents_;
 
+        // Значения имен параметров
+        CubesUnitTypes::ParameterModelIds ids_;
+
     public:
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);

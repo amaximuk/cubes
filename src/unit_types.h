@@ -459,48 +459,117 @@ namespace CubesUnitTypes
 		//}
 	};
 
-	struct ParameterModelIds
+	//namespace ParameterModelIds
+	//{
+	//	constexpr auto& baseGroup = "$BASE";
+	//	constexpr auto& parametersGroup = "$PARAMETERS";
+	//	constexpr auto& editorGroup = "$EDITOR";
+	//	constexpr auto& itemGroup = "$ITEM";
+	//	constexpr auto& includesGroup = "$INCLUDES";
+	//	constexpr auto& variablesGroup = "$VARIABLES";
+	//	constexpr auto& dependsParameter = "$DEPENDS";
+	//	constexpr auto& optionalParameter = "$OPTIONAL";
+	//	constexpr auto& nameParameter = "$NAME";
+
+	//	const CubesUnitTypes::ParameterModelId Item(int n)
+	//	{
+	//		return QString("%1_%2").arg(itemGroup).arg(n);
+	//	}
+
+	//	const int ItemIndex(CubesUnitTypes::ParameterModelId id)
+	//	{
+	//		if (id.empty())
+	//			return -1;
+
+	//		auto idString = id.mid(0, 1).toString();
+	//		if (idString.startsWith(itemGroup)
+	//			&& idString.size() > std::strlen(itemGroup) + 1)
+	//		{
+	//			return idString.mid(std::strlen(itemGroup) + 1).toInt();
+	//		}
+	//		return -1;
+	//	}
+	//}
+
+	class ParameterModelIds
 	{
-		CubesUnitTypes::ParameterModelId baseGroupName;
-		CubesUnitTypes::ParameterModelId parametersGroupName;
-		CubesUnitTypes::ParameterModelId editorGroupName;
-		CubesUnitTypes::ParameterModelId itemGroupName;
-		CubesUnitTypes::ParameterModelId dependsParameterName;
-		CubesUnitTypes::ParameterModelId optionalParameterName;
-		CubesUnitTypes::ParameterModelId includesGroupName;
-		CubesUnitTypes::ParameterModelId variablesGroupName;
+	public:
+		const CubesUnitTypes::ParameterModelId baseGroup;
+		const CubesUnitTypes::ParameterModelId parametersGroup;
+		const CubesUnitTypes::ParameterModelId editorGroup;
+		const CubesUnitTypes::ParameterModelId itemGroup;
+		const CubesUnitTypes::ParameterModelId includesGroup;
+		const CubesUnitTypes::ParameterModelId variablesGroup;
+		const CubesUnitTypes::ParameterModelId dependsParameter;
+		const CubesUnitTypes::ParameterModelId optionalParameter;
+		const CubesUnitTypes::ParameterModelId nameParameter;
 
-		static const ParameterModelIds& Defaults()
+	public:
+		ParameterModelIds():
+			baseGroup("$BASE"),
+			parametersGroup("$PARAMETERS"),
+			editorGroup("$EDITOR"),
+			itemGroup("$ITEM"),
+			includesGroup("$INCLUDES"),
+			variablesGroup("$VARIABLES"),
+			dependsParameter("$DEPENDS"),
+			optionalParameter("$OPTIONAL"),
+			nameParameter("$NAME")
+		{}
+
+	//private:
+	//	static const ParameterModelIds& Defaults()
+	//	{
+	//		static const ParameterModelIds ids{
+	//			QString::fromLocal8Bit("$BASE"),
+	//			QString::fromLocal8Bit("$PARAMETERS"),
+	//			QString::fromLocal8Bit("$EDITOR"),
+	//			QString::fromLocal8Bit("$ITEM"),
+	//			QString::fromLocal8Bit("$INCLUDES"),
+	//			QString::fromLocal8Bit("$VARIABLES"),
+	//			QString::fromLocal8Bit("$DEPENDS"),
+	//			QString::fromLocal8Bit("$OPTIONAL")
+	//		};
+	//		return ids;
+	//	}
+
+	public:
+		//static const CubesUnitTypes::ParameterModelId DefaultItemGroup(int n)
+		//{
+		//	return QString("%1_%2").arg(Defaults().itemGroup.toString()).arg(n);
+		//}
+
+		//static const int DefaultItemGroupIndex(CubesUnitTypes::ParameterModelId id)
+		//{
+		//	if (id.empty())
+		//		return -1;
+
+		//	auto idString = id.mid(0, 1).toString();
+		//	auto itemGroupString = Defaults().itemGroup.toString();
+		//	if (idString.startsWith(itemGroupString)
+		//		&& idString.size() > itemGroupString.size() + 1)
+		//	{
+		//		return idString.mid(itemGroupString.size() + 1).toInt();
+		//	}
+		//	return -1;
+		//}
+
+		const CubesUnitTypes::ParameterModelId ItemGroup(int n) const
 		{
-			static const ParameterModelIds ids{
-				QString::fromLocal8Bit("$BASE"),
-				QString::fromLocal8Bit("$PARAMETERS"),
-				QString::fromLocal8Bit("$EDITOR"),
-				QString::fromLocal8Bit("$ITEM"),
-				QString::fromLocal8Bit("$DEPENDS"),
-				QString::fromLocal8Bit("$OPTIONAL"),
-				QString::fromLocal8Bit("$INCLUDES"),
-				QString::fromLocal8Bit("$VARIABLES")
-			};
-			return ids;
+			return QString("%1_%2").arg(itemGroup.toString()).arg(n);
 		}
 
-		static const CubesUnitTypes::ParameterModelId GetDefaultItemId(int n)
-		{
-			auto itemGroupName = ParameterModelIds::Defaults().itemGroupName;
-			return QString("%1_%2").arg(itemGroupName.toString()).arg(n);
-		}
-
-		static const int GetDefaultItemIndex(CubesUnitTypes::ParameterModelId id)
+		const int ItemGroupIndex(CubesUnitTypes::ParameterModelId id) const
 		{
 			if (id.empty())
 				return -1;
 
 			auto idString = id.mid(0, 1).toString();
-			if (idString.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString())
-				&& idString.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString().size() + 1)
+			auto itemGroupString = itemGroup.toString();
+			if (idString.startsWith(itemGroupString)
+				&& idString.size() > itemGroupString.size() + 1)
 			{
-				return idString.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.toString().size() + 1).toInt();
+				return idString.mid(itemGroupString.size() + 1).toInt();
 			}
 			return -1;
 		}

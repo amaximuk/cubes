@@ -10,6 +10,8 @@
 #include "file_item.h"
 
 using namespace CubesFile;
+//namespace ids = CubesUnitTypes::ParameterModelIds;
+
 
 FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
 {
@@ -130,7 +132,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
 
     {
         CubesUnitTypes::ParameterModel includes;
-        includes.id = CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName;
+        includes.id = ids_.includesGroup;
         includes.name = QString::fromLocal8Bit("Включаемые файлы");
         includes.value = int{ 0 };
         includes.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
@@ -149,7 +151,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         }
 
         //CubesUnitTypes::ParameterModel pm;
-        //CreateParameterModel(ArrayType::Includes, CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName, xmlFile, pm);
+        //CreateParameterModel(ArrayType::Includes, ids_.includesGroupName, xmlFile, pm);
         //includes.parameters.push_back(std::move(pm));
 
         model_.parameters.push_back(std::move(includes));
@@ -331,7 +333,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
 
 
                 //CubesUnitTypes::ParameterModel pm;
-                //CreateParameterModel(ArrayType::Includes, CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName, xmlFile, pm);
+                //CreateParameterModel(ArrayType::Includes, ids_.includesGroupName, xmlFile, pm);
                 //includes.parameters.push_back(std::move(pm));
 
                 pm_networking.parameters.push_back(std::move(connect));
@@ -543,21 +545,21 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
         else
             pm->value = value.toString();
     }
-    else if (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName))
+    else if (pm->id.startsWith(ids_.includesGroup))
     {
-        if (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName + "ITEM") && pm->id.endsWith("NAME"))
+        if (pm->id.startsWith(ids_.includesGroup + ids_.itemGroup) && pm->id.endsWith("NAME"))
         {
             //QString oldName = pm->value.toString();
             //pm->value = value;
             //file_items_manager_->InformIncludeNameChanged(GetName(), value.toString(), oldName);
         }
-        else if ((pm->id == CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName) ||
-            (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName + "ITEM")
-            && pm->id.endsWith(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName)))
+        else if ((pm->id == ids_.includesGroup) ||
+            (pm->id.startsWith(ids_.includesGroup + "ITEM")
+            && pm->id.endsWith(ids_.variablesGroup)))
         {
             int count = value.toInt();
 
-            if (pm->id == CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName)
+            if (pm->id == ids_.includesGroup)
                 UpdateIncludesArrayModel(nullptr, *pm, count);
             else
                 UpdateVariablesArrayModel(nullptr, *pm, count);
@@ -674,8 +676,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName + "ITEM") &&
-        !pm->id.contains(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName) && pm->id.endsWith("NAME"))
+    else if (pm->id.startsWith(ids_.includesGroup + "ITEM") &&
+        !pm->id.contains(ids_.variablesGroup) && pm->id.endsWith("NAME"))
     {
         bool cancel = false;
         fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
@@ -692,25 +694,25 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName + "ITEM") &&
-        pm->id.contains(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName) && pm->id.endsWith("NAME"))
+    else if (pm->id.startsWith(ids_.includesGroup + "ITEM") &&
+        pm->id.contains(ids_.variablesGroup) && pm->id.endsWith("NAME"))
     {
         // INCLUDES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
 
-        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName)) + "NAME";
+        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variablesGroup)) + "NAME";
         const auto pmIncludesName = GetParameterModel(parameterName);
         QString includesName = pmIncludesName->value.toString();
         QString oldName = pm->value.toString();
         pm->value = value;
         fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
     }
-    else if (pm->id.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName + "ITEM") &&
-        pm->id.contains(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName) && pm->id.endsWith("VALUE"))
+    else if (pm->id.startsWith(ids_.includesGroup + "ITEM") &&
+        pm->id.contains(ids_.variablesGroup) && pm->id.endsWith("VALUE"))
     {
-        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName)) + "NAME";
+        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variablesGroup)) + "NAME";
         const auto pmIncludesName = GetParameterModel(parameterName);
         QString includesName = pmIncludesName->value.toString();
         QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
@@ -811,7 +813,7 @@ void FileItem::SetColor(QColor color)
 
 void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables)
 {
-    auto pmi = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName);
+    auto pmi = GetParameterModel(ids_.includesGroup);
     int ci = pmi->value.toInt() + 1;
 
     auto pri = GetProperty(pmi->id);
@@ -819,26 +821,26 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     // Установка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
-    auto pmin = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-        CubesUnitTypes::ParameterModelIds::GetDefaultItemId(ci - 1) + "NAME");
-    //auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(ci - 1));
+    auto pmin = GetParameterModel(ids_.includesGroup +
+        ids_.ItemGroup(ci - 1) + "NAME");
+    //auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(ci - 1));
     pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
 
     auto prin = GetProperty(pmin->id);
     editor_->SetStringValue(prin, pmin->value.toString());
 
-    auto pmifn = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-        CubesUnitTypes::ParameterModelIds::GetDefaultItemId(ci - 1) + "FILE_PATH");
-    //auto pmifn = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(ci - 1));
+    auto pmifn = GetParameterModel(ids_.includesGroup +
+        ids_.ItemGroup(ci - 1) + "FILE_PATH");
+    //auto pmifn = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(ci - 1));
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
     editor_->SetStringValue(prifn, includeName);
 
-    auto pmiv = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-        CubesUnitTypes::ParameterModelIds::GetDefaultItemId(ci - 1) +
-        CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName);
-    //auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(ci - 1).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName));
+    auto pmiv = GetParameterModel(ids_.includesGroup +
+        ids_.ItemGroup(ci - 1) +
+        ids_.variablesGroup);
+    //auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName));
 
     auto priv = GetProperty(pmiv->id);
     editor_->SetIntValue(priv, includeVariables.size());
@@ -848,21 +850,21 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     for (int i = 0; i < includeVariables.size(); i++)
     {
         auto& v = includeVariables.at(i);
-        auto pmivn = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(ci - 1) +
-            CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "NAME");
-        //auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(ci - 1).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName).arg(i));
+        auto pmivn = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(ci - 1) +
+            ids_.variablesGroup +
+            ids_.ItemGroup(i) + "NAME");
+        //auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName).arg(i));
         pmivn->value = v.first;
 
         auto privn = GetProperty(pmivn->id);
         editor_->SetStringValue(privn, v.first);
 
-        auto pmivv = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(ci - 1) +
-            CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "VALUE");
-        //auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(ci - 1).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName).arg(i));
+        auto pmivv = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(ci - 1) +
+            ids_.variablesGroup +
+            ids_.ItemGroup(i) + "VALUE");
+        //auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName).arg(i));
         pmivv->value = v.second;
 
         auto privv = GetProperty(pmivv->id);
@@ -874,15 +876,15 @@ QStringList FileItem::GetIncludeNames()
 {
     QStringList result;
 
-    const auto pm = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName);
+    const auto pm = GetParameterModel(ids_.includesGroup);
     if (pm == nullptr)
         return result;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "NAME");
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+        const auto pmi = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(i) + "NAME");
+        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
         result.push_back(pmi->value.toString());
     }
 
@@ -893,33 +895,33 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
 {
     QList<QPair<QString, QString>> result;
 
-    const auto pm = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName);
+    const auto pm = GetParameterModel(ids_.includesGroup);
     if (pm == nullptr)
         return result;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "NAME");
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+        const auto pmi = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(i) + "NAME");
+        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
         if (pmi->value == includeName)
         {
-            const auto pmiv = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-                CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) +
-                CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName);
-            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName));
+            const auto pmiv = GetParameterModel(ids_.includesGroup +
+                ids_.ItemGroup(i) +
+                ids_.variablesGroup);
+            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName));
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
-                auto pmivn = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-                    CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) +
-                    CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName +
-                    CubesUnitTypes::ParameterModelIds::GetDefaultItemId(j) + "NAME");
-                //const auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName).arg(j));
-                auto pmivv = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-                    CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) +
-                    CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName +
-                    CubesUnitTypes::ParameterModelIds::GetDefaultItemId(j) + "VALUE");
-                //const auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i).arg(CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName).arg(j));
+                auto pmivn = GetParameterModel(ids_.includesGroup +
+                    ids_.ItemGroup(i) +
+                    ids_.variablesGroup +
+                    ids_.ItemGroup(j) + "NAME");
+                //const auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName).arg(j));
+                auto pmivv = GetParameterModel(ids_.includesGroup +
+                    ids_.ItemGroup(i) +
+                    ids_.variablesGroup +
+                    ids_.ItemGroup(j) + "VALUE");
+                //const auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName).arg(j));
                 result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
             }
             break;
@@ -931,20 +933,20 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
 
 QString FileItem::GetIncludeName(const QString& includePath)
 {
-    const auto pm = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName);
+    const auto pm = GetParameterModel(ids_.includesGroup);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmif = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "FILE_PATH");
-        //const auto pmif = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+        const auto pmif = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(i) + "FILE_PATH");
+        //const auto pmif = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(i));
         if (pmif->value == includePath)
         {
-            const auto pmin = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-                CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "NAME");
-            //const auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+            const auto pmin = GetParameterModel(ids_.includesGroup +
+                ids_.ItemGroup(i) + "NAME");
+            //const auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
             return pmin->value.toString();
         }
     }
@@ -953,20 +955,20 @@ QString FileItem::GetIncludeName(const QString& includePath)
 
 QString FileItem::GetIncludePath(const QString& includeName)
 {
-    const auto pm = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName);
+    const auto pm = GetParameterModel(ids_.includesGroup);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmin = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-            CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "NAME");
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+        const auto pmin = GetParameterModel(ids_.includesGroup +
+            ids_.ItemGroup(i) + "NAME");
+        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
         if (pmin->value == includeName)
         {
-            const auto pmif = GetParameterModel(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName +
-                CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i) + "FILE_PATH");
-            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName).arg(i));
+            const auto pmif = GetParameterModel(ids_.includesGroup +
+                ids_.ItemGroup(i) + "FILE_PATH");
+            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(i));
             return pmif->value.toString();
         }
     }
@@ -1116,7 +1118,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             // Создаем
             CubesUnitTypes::ParameterModel group_model;
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            group_model.id = model.id + CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i);
+            group_model.id = model.id + ids_.ItemGroup(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
@@ -1153,8 +1155,8 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
 
             {
                 CubesUnitTypes::ParameterModel variables;
-                variables.id = group_model.id + CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName;
-                //variables.id = QString("%1/%2").arg(group_model.id, CubesUnitTypes::ParameterModelIds::Defaults().variablesGroupName);
+                variables.id = group_model.id + ids_.variablesGroup;
+                //variables.id = QString("%1/%2").arg(group_model.id, ids_.variablesGroupName);
                 variables.name = QString::fromLocal8Bit("Переменные");
                 //variables.value = int{ 0 };
                 variables.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
@@ -1190,7 +1192,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
 
 
                 //CubesUnitTypes::ParameterModel pm;
-                //CreateParameterModel(ArrayType::Includes, CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName, xmlFile, pm);
+                //CreateParameterModel(ArrayType::Includes, ids_.includesGroupName, xmlFile, pm);
                 //includes.parameters.push_back(std::move(pm));
 
                 group_model.parameters.push_back(std::move(variables));
@@ -1260,7 +1262,7 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
 {
     //// Разделяем путь на части
     //QStringList path = model.id.split("/");
-    //if (path.size() != 3 || path[0] != CubesUnitTypes::ParameterModelIds::Defaults().includesGroupName)
+    //if (path.size() != 3 || path[0] != ids_.includesGroupName)
     //    return;
 
     //// Получаем модель (INCLUDES/ITEM_X)
@@ -1288,7 +1290,7 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
             // Создаем
             CubesUnitTypes::ParameterModel group_model;
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            group_model.id = model.id + CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i);
+            group_model.id = model.id + ids_.ItemGroup(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
@@ -1368,7 +1370,7 @@ void FileItem::UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking
             // Создаем
             CubesUnitTypes::ParameterModel group_model;
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-            group_model.id = model.id + CubesUnitTypes::ParameterModelIds::GetDefaultItemId(i);
+            group_model.id = model.id + ids_.ItemGroup(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
 
@@ -1475,7 +1477,10 @@ CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const CubesUnitTypes
                 }
             }
             if (!found)
+            {
+                pm = nullptr;
                 break;
+            }
         }
     }
 

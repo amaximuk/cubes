@@ -38,6 +38,9 @@ namespace CubesFile
         // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
         bool ignoreEvents_;
 
+        // Значения имен параметров
+        CubesUnitTypes::ParameterModelIds ids_;
+
     public:
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);
