@@ -1,12 +1,16 @@
 #pragma once
 
 #include <QtXml>
+#include "../unit_types.h"
 #include "xml_types.h"
 
 namespace CubesXml
 {
 	class Parser
 	{
+	private:
+		static const CubesUnitTypes::ParameterModelIds ids_;
+
 	public:
 		static bool Parse(const QString& filename, File& fi);
 		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id);

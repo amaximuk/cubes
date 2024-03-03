@@ -493,28 +493,119 @@ namespace CubesUnitTypes
 
 	class ParameterModelIds
 	{
-	public:
-		const CubesUnitTypes::ParameterModelId baseGroup;
-		const CubesUnitTypes::ParameterModelId parametersGroup;
-		const CubesUnitTypes::ParameterModelId editorGroup;
-		const CubesUnitTypes::ParameterModelId itemGroup;
-		const CubesUnitTypes::ParameterModelId includesGroup;
-		const CubesUnitTypes::ParameterModelId variablesGroup;
-		const CubesUnitTypes::ParameterModelId dependsParameter;
-		const CubesUnitTypes::ParameterModelId optionalParameter;
-		const CubesUnitTypes::ParameterModelId nameParameter;
+		// BASE
+		// BASE/NAME
+		// BASE/PLATFORM
+		// BASE/PATH
+		// INCLUDES
+		// INCLUDES/ITEM_0
+		// INCLUDES/ITEM_0/NAME
+		// INCLUDES/ITEM_0/VARIABLES
+		// INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
+		// INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
+		// PARAMETERS
+		// PARAMETERS/NETWORKING
+		// PARAMETERS/NETWORKING/ID
+		// PARAMETERS/NETWORKING/ACCEPT_PORT
+		// PARAMETERS/NETWORKING/KEEP_ALIVE_SEC
+		// PARAMETERS/NETWORKING/TIME_CLIENT
+		// PARAMETERS/NETWORKING/NETWORK_THREADS
+		// PARAMETERS/NETWORKING/BROADCAST_THREADS
+		// PARAMETERS/NETWORKING/CLIENTS_THREADS
+		// PARAMETERS/NETWORKING/NOTIFY_READY_CLIENTS
+		// PARAMETERS/NETWORKING/NOTIFY_READY_SERVERS
+		// PARAMETERS/NETWORKING/CONNECT
+		// PARAMETERS/NETWORKING/CONNECT/PORT
+		// PARAMETERS/NETWORKING/CONNECT/IP
+		// PARAMETERS/LOG
+		// PARAMETERS/LOG/LOGGING_LEVEL
+		// PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB
+		// PARAMETERS/LOG/LOG_DIR
+		// EDITOR
+		// EDITOR/COLOR
+
+		// BASE
+		// BASE/NAME
+		// BASE/FILE
+		// BASE/INCLUDE_NAME
+		// PARAMETERS
+		// PARAMETERS/...
+		// EDITOR
+		// EDITOR/POSITION_X
+		// EDITOR/POSITION_Y
+		// EDITOR/POSITION_Z
 
 	public:
+		const CubesUnitTypes::ParameterModelId base;
+		const CubesUnitTypes::ParameterModelId name;
+		const CubesUnitTypes::ParameterModelId platform;
+		const CubesUnitTypes::ParameterModelId path;
+
+		const CubesUnitTypes::ParameterModelId includes;
+		const CubesUnitTypes::ParameterModelId item;
+		const CubesUnitTypes::ParameterModelId variables;
+		// const CubesUnitTypes::ParameterModelId name; // duplicate
+		const CubesUnitTypes::ParameterModelId value;
+
+		const CubesUnitTypes::ParameterModelId parameters;
+		const CubesUnitTypes::ParameterModelId networking;
+		const CubesUnitTypes::ParameterModelId id;
+		const CubesUnitTypes::ParameterModelId acceptPort;
+		const CubesUnitTypes::ParameterModelId keepAliveSec;
+		const CubesUnitTypes::ParameterModelId timeClient;
+		const CubesUnitTypes::ParameterModelId networkThreads;
+		const CubesUnitTypes::ParameterModelId broadcastThreads;
+		const CubesUnitTypes::ParameterModelId clientsThreads;
+		const CubesUnitTypes::ParameterModelId notifyReadyClients;
+		const CubesUnitTypes::ParameterModelId notifyReadyServers;
+		const CubesUnitTypes::ParameterModelId connect;
+		const CubesUnitTypes::ParameterModelId port;
+		const CubesUnitTypes::ParameterModelId ip;
+		const CubesUnitTypes::ParameterModelId log;
+		const CubesUnitTypes::ParameterModelId loggingLevel;
+		const CubesUnitTypes::ParameterModelId totalLogLimitMb;
+		const CubesUnitTypes::ParameterModelId logDir;
+
+		const CubesUnitTypes::ParameterModelId editor;
+		const CubesUnitTypes::ParameterModelId color;
+		const CubesUnitTypes::ParameterModelId depends;
+		const CubesUnitTypes::ParameterModelId optional;
+		
+	public:
 		ParameterModelIds():
-			baseGroup("$BASE"),
-			parametersGroup("$PARAMETERS"),
-			editorGroup("$EDITOR"),
-			itemGroup("$ITEM"),
-			includesGroup("$INCLUDES"),
-			variablesGroup("$VARIABLES"),
-			dependsParameter("$DEPENDS"),
-			optionalParameter("$OPTIONAL"),
-			nameParameter("$NAME")
+			base("$BASE"),
+			name("$NAME"),
+			platform("$PLATFORM"),
+			path("$PATH"),
+
+			includes("$INCLUDES"),
+			item("$ITEM"),
+			variables("$VARIABLES"),
+			value("$VALUE"),
+
+			parameters("$PARAMETERS"),
+			networking("$NETWORKING"),
+			id("$ID"),
+			acceptPort("$ACCEPT_PORT"),
+			keepAliveSec("$KEEP_ALIVE_SEC"),
+			timeClient("$TIME_CLIENT"),
+			networkThreads("$NETWORK_THREADS"),
+			broadcastThreads("$BROADCAST_THREADS"),
+			clientsThreads("$CLIENTS_THREADS"),
+			notifyReadyClients("$NOTIFY_READY_CLIENTS"),
+			notifyReadyServers("$NOTIFY_READY_SERVERS"),
+			connect("$CONNECT"),
+			port("$PORT"),
+			ip("$IP"),
+			log("$LOG"),
+			loggingLevel("$LOGGING_LEVEL"),
+			totalLogLimitMb("$TOTAL_LOG_LIMIT_MB"),
+			logDir("$LOG_DIR"),
+
+			editor("$EDITOR"),
+			color("$COLOR"),
+			depends("$DEPENDS"),
+			optional("$OPTIONAL")
 		{}
 
 	//private:
@@ -556,7 +647,7 @@ namespace CubesUnitTypes
 
 		const CubesUnitTypes::ParameterModelId ItemGroup(int n) const
 		{
-			return QString("%1_%2").arg(itemGroup.toString()).arg(n);
+			return QString("%1_%2").arg(item.toString()).arg(n);
 		}
 
 		const int ItemGroupIndex(CubesUnitTypes::ParameterModelId id) const
@@ -565,7 +656,7 @@ namespace CubesUnitTypes
 				return -1;
 
 			auto idString = id.mid(0, 1).toString();
-			auto itemGroupString = itemGroup.toString();
+			auto itemGroupString = item.toString();
 			if (idString.startsWith(itemGroupString)
 				&& idString.size() > itemGroupString.size() + 1)
 			{
