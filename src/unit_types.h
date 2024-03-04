@@ -526,7 +526,7 @@ namespace CubesUnitTypes
 
 		// BASE
 		// BASE/NAME
-		// BASE/FILE
+		// BASE/FILE_NAME
 		// BASE/INCLUDE_NAME
 		// PARAMETERS
 		// PARAMETERS/...
@@ -540,12 +540,14 @@ namespace CubesUnitTypes
 		const CubesUnitTypes::ParameterModelId name;
 		const CubesUnitTypes::ParameterModelId platform;
 		const CubesUnitTypes::ParameterModelId path;
+		const CubesUnitTypes::ParameterModelId fileName;
+		const CubesUnitTypes::ParameterModelId includeName;
+
 
 		const CubesUnitTypes::ParameterModelId includes;
 		const CubesUnitTypes::ParameterModelId item;
 		const CubesUnitTypes::ParameterModelId filePath;
 		const CubesUnitTypes::ParameterModelId variables;
-		// const CubesUnitTypes::ParameterModelId name; // duplicate
 		const CubesUnitTypes::ParameterModelId value;
 
 		const CubesUnitTypes::ParameterModelId parameters;
@@ -571,13 +573,18 @@ namespace CubesUnitTypes
 		const CubesUnitTypes::ParameterModelId color;
 		const CubesUnitTypes::ParameterModelId depends;
 		const CubesUnitTypes::ParameterModelId optional;
-		
+		const CubesUnitTypes::ParameterModelId positionX;
+		const CubesUnitTypes::ParameterModelId positionY;
+		const CubesUnitTypes::ParameterModelId positionZ;
+
 	public:
 		ParameterModelIds():
 			base("$BASE"),
 			name("$NAME"),
 			platform("$PLATFORM"),
 			path("$PATH"),
+			fileName("$FILE_NAME"),
+			includeName("$INCLUDE_NAME"),
 
 			includes("$INCLUDES"),
 			item("$ITEM"),
@@ -607,7 +614,10 @@ namespace CubesUnitTypes
 			editor("$EDITOR"),
 			color("$COLOR"),
 			depends("$DEPENDS"),
-			optional("$OPTIONAL")
+			optional("$OPTIONAL"),
+			positionX("$POSITION_X"),
+			positionY("$POSITION_Y"),
+			positionZ("$POSITION_Z")
 		{}
 
 	//private:
