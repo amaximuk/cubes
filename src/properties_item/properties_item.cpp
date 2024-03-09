@@ -940,7 +940,7 @@ void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterMo
     auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
-    if (pi != nullptr && pi->type == "unit")
+    if (pi != nullptr && pi->type == parameters::helper::common::get_system_type_as_string(parameters::system_types::unit))
     {
         QString name = model.value.toString();
         if (name != "")
@@ -964,7 +964,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
         }
     }
 
-    if (pi != nullptr && pi->type == "unit")
+    if (pi != nullptr && pi->type == parameters::helper::common::get_system_type_as_string(parameters::system_types::unit))
     {
         for (const auto& sub : model.parameters)
         {
