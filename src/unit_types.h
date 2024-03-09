@@ -676,6 +676,11 @@ namespace CubesUnitTypes
 			}
 			return -1;
 		}
+		
+		const bool IsItem(CubesUnitTypes::ParameterModelId id) const
+		{
+			return id.toString().startsWith(item.toString());
+		}
 	};
 
 	struct ParameterModel

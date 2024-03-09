@@ -1410,7 +1410,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             // ѕри редактировании элемента типизированного массива (например, типа array<int>)
             // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
-            if (path.size() > 2 && path.back().startsWith(ids_.item))
+            if (path.size() > 2 && ids_.IsItem(path.back())) //path.back().startsWith(ids_.item))
                 isArray = false;
 
             if (isArray)
