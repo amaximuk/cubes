@@ -50,6 +50,7 @@ namespace CubesProperties
 		void Clear();
 		bool GetName(const uint32_t propertiesId, QString& name);
 
+		QList<uint32_t> GetPropertyIds();
 		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName = "<not selected>");
 		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeFileName = "<not selected>");
 
@@ -86,6 +87,7 @@ namespace CubesProperties
 		void SetPropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(const uint32_t propertiesId);
 
-		void OnArrayWindowBeforeClose(const bool result);
+		void OnArrayWindowBeforeClose(const bool result, CubesUnitTypes::ParameterModel pm,
+			QSharedPointer<CubesProperties::PropertiesItem> pi);
 	};
 }

@@ -884,9 +884,46 @@ void PropertiesItem::RemoveSubProperties(QtProperty* property)
 
     for (auto& p : toUnregister)
     {
-        if (p != property)
+        if (p != property) //~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             UnregisterProperty(p);
     }
+}
+
+void PropertiesItem::RemoveItems(const CubesUnitTypes::ParameterModelId& id)
+{
+    auto pm = GetParameterModel(id);
+    for (auto& item : pm->parameters)
+    {
+        auto pi = GetProperty(item.id);
+        UnregisterProperty(pi);
+
+        //RemoveSubProperties(pi);
+    }
+    pm->value = int{ 0 }; // !!!!!!!!!!!!!!! restrictions
+    pm->parameters.clear();
+}
+
+void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
+{
+    QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
+    auto pi = GetProperty(model.id);
+    for (auto& pm : model.parameters)
+        pi->addSubProperty(editor_->CreatePropertyForModel(pm, idToProperty));
+    for (const auto& kvp : idToProperty.toStdMap())
+        RegisterProperty(kvp.second, kvp.first);
+
+    auto pm = GetParameterModel(model.id);
+    pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
+    pm->parameters = model.parameters;
+}
+
+void PropertiesItem::AddSubProperties(const CubesUnitTypes::ParameterModel& model)
+{
+    //QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
+    //for (auto& pm : model_.parameters)
+    //    topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
+    //for (const auto& kvp : idToProperty.toStdMap())
+    //    RegisterProperty(kvp.second, kvp.first);
 }
 
 QPixmap PropertiesItem::GetPixmap()
@@ -1573,6 +1610,7 @@ void PropertiesItem::UnregisterProperty(const QtProperty* property)
 
     idToProperty_.remove(propertyToId_[property]);
     propertyToId_.remove(property);
+    delete property;
 }
 
 QtProperty* PropertiesItem::GetProperty(const CubesUnitTypes::ParameterModelId& id)

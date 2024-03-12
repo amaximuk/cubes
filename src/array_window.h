@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include "properties_item/properties_item.h" // !!!!!!!!!!!!!!! used directly not top_manager_interface
 #include "top_manager_interface.h"
 
 namespace CubeDiagram
@@ -89,13 +90,13 @@ public:
     QString GetNewUnitName(const QString& baseName) override;
 
 
-    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel* pm);
+    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 public:
     void closeEvent(QCloseEvent* event) override;
 
 signals:
-    void BeforeClose(const bool result);
+    void BeforeClose(const bool result, CubesUnitTypes::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 protected:
     // UI

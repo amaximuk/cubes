@@ -216,6 +216,11 @@ bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)
 	return true;
 }
 
+QList<uint32_t> PropertiesItemsManager::GetPropertyIds()
+{
+	return items_.keys();
+}
+
 QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName)
 {
 	QList<uint32_t> result;
@@ -338,20 +343,34 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		auto pm = item->GetParameterModel(pe->currentItem()->property());
 		auto ui = item->GetUnitParameters();
 
+		// ѕровер€ем,что параметр массив пользовательского типа данных, не перечислений
+		auto pi = parameters::helper::parameter::get_parameter_info(ui.fileInfo,
+			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+		if (pi == nullptr)
+			return;
+		bool is_array = parameters::helper::common::get_is_array_type(pi->type);
+		bool is_inner_type = parameters::helper::common::get_is_inner_type(pi->type);
+		if (!is_array || is_inner_type)
+			return;
+
+
+		auto pmCopy = *pm;
+
 		parameters::file_info afi{};
 		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
 
-		auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
-			for (auto& parameter : parameters)
-			{
-				parameter.id = parameter.id.mid(to_remove.length() + 1);
-				rename(parameter.parameters, to_remove, rename);
-			}
-		};
+		//auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+		//	for (auto& parameter : parameters)
+		//	{
+		//		parameter.id = parameter.id.mid(to_remove.length() + 1);
+		//		rename(parameter.parameters, to_remove, rename);
+		//	}
+		//};
 
-		item->RemoveSubProperties(pe->currentItem()->property());
-
+		// ”дал€ем все элементы массива из панели параметров
+		//item->RemoveSubProperties(pe->currentItem()->property());
+		item->RemoveItems(pm->id);
 
 		//{
 		//	auto property = pe->currentItem()->property();
@@ -407,7 +426,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			mv->setWindowModality(Qt::ApplicationModal);
 			//mv->setAttribute(Qt::WA_DeleteOnClose, true);
 			qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
-			mv->SetItemModel(afi, pm);
+			mv->SetItemModel(afi, pmCopy, item);
 			mv->show();
 			//mv->deleteLater();
 		}
@@ -647,7 +666,8 @@ QString PropertiesItemsManager::GetName(const uint32_t propertiesId)
 	return name;
 }
 
-void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result)
+void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result, CubesUnitTypes::ParameterModel pm,
+	QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
-	int a = 0;
+	pi->AddItems(pm);
 }
