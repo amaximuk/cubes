@@ -340,10 +340,14 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             qDebug() << "ERROR GetPropeties: " << propertiesId;
         }
 
+        auto posX = pi->GetParameterModel(ids_.editor + ids_.positionX)->value.toDouble();
+        auto posY = pi->GetParameterModel(ids_.editor + ids_.positionY)->value.toDouble();
+        auto posZ = pi->GetParameterModel(ids_.editor + ids_.positionZ)->value.toDouble();
+
         di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
-        di->setX(0);
-        di->setY(0);
-        di->setZValue(0);
+        di->setX(posX);
+        di->setY(posY);
+        di->setZValue(posZ);
         scene_->addItem(di);
     }
 
@@ -353,6 +357,8 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         propertiesItemsManager_->Select(0);
         DiagramAfterItemCreated(di);
     }
+
+    SortUnitsRectangular();
 }
 
 QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
@@ -1066,25 +1072,67 @@ bool ArrayWindow::SortUnitsRectangular()
     if (scene_->items().size() == 0)
         return true;
 
-    int size = scene_->items().size();
-    int rows = std::sqrt(scene_->items().size());
-    int columns = (scene_->items().size() + rows - 1) / rows;
-
-    int c = 0;
-    int r = 0;
+    int count = 0;
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        QPoint position(c * 200, r * 80);
-        di->setPos(position);
-        if (++c == columns) { ++r; c = 0; };
+        QPointF p = di->pos();
+        if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+            ++count;
     }
-    QPointF center = scene_->itemsBoundingRect().center();
-    view_->centerOn(center);
 
-    scene_->invalidate();
+    if (count == scene_->items().size())
+    {
+        // Все нулевые, распределяем по сетке
+        int size = scene_->items().size();
+        int rows = std::sqrt(scene_->items().size());
+        int columns = (scene_->items().size() + rows - 1) / rows;
+
+        int c = 0;
+        int r = 0;
+        for (auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            QPoint position(c * 200, r * 80);
+            di->setPos(position);
+
+            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+            pi->PositionChanged(di->pos());
+
+            if (++c == columns) { ++r; c = 0; };
+        }
+        QPointF center = scene_->itemsBoundingRect().center();
+        view_->centerOn(center);
+
+        scene_->invalidate();
+    }
+
     return true;
 }
+
+//{
+//    if (scene_->items().size() == 0)
+//        return true;
+//
+//    int size = scene_->items().size();
+//    int rows = std::sqrt(scene_->items().size());
+//    int columns = (scene_->items().size() + rows - 1) / rows;
+//
+//    int c = 0;
+//    int r = 0;
+//    for (auto& item : scene_->items())
+//    {
+//        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+//        QPoint position(c * 200, r * 80);
+//        di->setPos(position);
+//        if (++c == columns) { ++r; c = 0; };
+//    }
+//    QPointF center = scene_->itemsBoundingRect().center();
+//    view_->centerOn(center);
+//
+//    scene_->invalidate();
+//    return true;
+//}
 
 QMap<QString, QStringList> ArrayWindow::GetConnectionsInternal(bool depends)
 {
