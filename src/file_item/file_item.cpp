@@ -579,7 +579,10 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
                 property->removeSubProperty(p);
 
             for (auto& p : toUnregister)
+            {
                 UnregisterProperty(p);
+                delete p;
+            }
 
             ApplyExpandState();
         }
@@ -621,7 +624,10 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
                 property->removeSubProperty(p);
 
             for (auto& p : toUnregister)
+            {
                 UnregisterProperty(p);
+                delete p;
+            }
 
             ApplyExpandState();
         }

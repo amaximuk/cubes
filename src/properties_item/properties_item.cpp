@@ -868,26 +868,26 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
     }
 }
 
-void PropertiesItem::RemoveSubProperties(QtProperty* property)
-{
-    auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
-        list.push_back(property);
-        for (const auto& p : property->subProperties())
-        {
-            collect(p, list, collect);
-            property->removeSubProperty(p);
-        }
-    };
-
-    QList<QtProperty*> toUnregister;
-    collect(property, toUnregister, collect);
-
-    for (auto& p : toUnregister)
-    {
-        if (p != property) //~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            UnregisterProperty(p);
-    }
-}
+//void PropertiesItem::RemoveSubProperties(QtProperty* property)
+//{
+//    auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
+//        list.push_back(property);
+//        for (const auto& p : property->subProperties())
+//        {
+//            collect(p, list, collect);
+//            property->removeSubProperty(p);
+//        }
+//    };
+//
+//    QList<QtProperty*> toUnregister;
+//    collect(property, toUnregister, collect);
+//
+//    for (auto& p : toUnregister)
+//    {
+//        if (p != property) //~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//            UnregisterProperty(p);
+//    }
+//}
 
 void PropertiesItem::RemoveItems(const CubesUnitTypes::ParameterModelId& id)
 {
@@ -896,6 +896,7 @@ void PropertiesItem::RemoveItems(const CubesUnitTypes::ParameterModelId& id)
     {
         auto pi = GetProperty(item.id);
         UnregisterProperty(pi);
+        delete pi;
 
         //RemoveSubProperties(pi);
     }
@@ -1481,7 +1482,10 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
                     property->removeSubProperty(p);
 
                 for (auto& p : toUnregister)
+                {
                     UnregisterProperty(p);
+                    delete p;
+                }
 
                 ApplyExpandState();
             }
@@ -1610,7 +1614,6 @@ void PropertiesItem::UnregisterProperty(const QtProperty* property)
 
     idToProperty_.remove(propertyToId_[property]);
     propertyToId_.remove(property);
-    delete property;
 }
 
 QtProperty* PropertiesItem::GetProperty(const CubesUnitTypes::ParameterModelId& id)

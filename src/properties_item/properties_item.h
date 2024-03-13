@@ -81,7 +81,7 @@ namespace CubesProperties
         bool GetXmlArrray(const CubesUnitTypes::ParameterModel& pm, CubesXml::Array& array);
 
         void GetXml(CubesXml::Unit& xmlUnit);
-        void RemoveSubProperties(QtProperty* property);
+        //void RemoveSubProperties(QtProperty* property);
         void RemoveItems(const CubesUnitTypes::ParameterModelId& id);
         void AddItems(const CubesUnitTypes::ParameterModel& model);
         void AddSubProperties(const CubesUnitTypes::ParameterModel& model);
