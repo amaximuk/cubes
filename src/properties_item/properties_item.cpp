@@ -916,6 +916,8 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
     auto pm = GetParameterModel(model.id);
     pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
     pm->parameters = model.parameters;
+
+    ApplyExpandState();
 }
 
 void PropertiesItem::AddSubProperties(const CubesUnitTypes::ParameterModel& model)
