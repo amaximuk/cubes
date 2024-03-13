@@ -266,11 +266,13 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
 
 CubesUnitTypes::ParameterModel pm_{};
 QSharedPointer<CubesProperties::PropertiesItem> pi_ = nullptr;
+parameters::restrictions_info ri_{};
 void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-    QSharedPointer<CubesProperties::PropertiesItem> pi)
+    parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
     pm_ = pm;
     pi_ = pi;
+    ri_ = ri;
 
     unitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
 
@@ -373,11 +375,66 @@ QMap<QString, QStringList> ArrayWindow::GetDependsConnections()
 
 void ArrayWindow::closeEvent(QCloseEvent* event)
 {
+    //std::string min_count;
+    //std::string max_count;
+    //std::vector<std::string> set_count;
+
+    const auto ids = propertiesItemsManager_->GetPropertyIds();
+
+
+    if (!ri_.set_count.empty())
+    {
+        bool found = false;
+        for (const auto& s : ri_.set_count)
+        {
+            const auto i = atoi(s.c_str());
+            if (i == 0 && std::to_string(i) != "0") // check atoi is valid
+                continue;
+            if (i == ids.size())
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            event->ignore();
+            return;
+        }
+    }
+    
+    if (!ri_.min_count.empty())
+    {
+        const auto i = atoi(ri_.min_count.c_str());
+        if (!(i == 0 && std::to_string(i) != "0")) // check atoi is valid
+        {
+            if (i > ids.size())
+            {
+                event->ignore();
+                return;
+            }
+        }
+    }
+
+    if (!ri_.max_count.empty())
+    {
+        const auto i = atoi(ri_.max_count.c_str());
+        if (!(i == 0 && std::to_string(i) != "0")) // check atoi is valid
+        {
+            if (i < ids.size())
+            {
+                event->ignore();
+                return;
+            }
+        }
+    }
+
     pm_.parameters.clear();
 
     int item_index = 0;
 
-    const auto ids = propertiesItemsManager_->GetPropertyIds();
+    //const auto ids = propertiesItemsManager_->GetPropertyIds();
     for (auto& id : ids)
     {
         auto item = propertiesItemsManager_->GetItem(id);

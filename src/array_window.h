@@ -90,7 +90,8 @@ public:
     QString GetNewUnitName(const QString& baseName) override;
 
 
-    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
+    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
+        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 public:
     void closeEvent(QCloseEvent* event) override;
