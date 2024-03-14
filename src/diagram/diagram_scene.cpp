@@ -37,7 +37,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     bool ctrl = (event->modifiers() == Qt::ControlModifier);
     //if (!ctrl)
     {
+        // TODO: Ошибка: Если выделять за границу прямоугольника itemAt возвращает 0, но item выделен!!!
         movingItem_ = itemAt(event->scenePos(), QTransform());
+        qDebug() << "moving item: " << movingItem_ << ", pos: " << event->scenePos();
         if (movingItem_ != nullptr)
         {
             isItemMoving_ = true;
@@ -146,6 +148,15 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
                 pair.second->name_ = pair.first->name_;
                 pair.second->InformNameChanged(pair.first->name_, "");
 
+
+
+
+                pair.second->setPos(pair.first->pos());
+                InformItemPositionChanged(pair.second);
+
+
+
+
                 pair.first->name_ = pfd.name;
                 pair.first->InformNameChanged(pfd.name, "");
                 pair.first->propertiesId_ = propertiesId;
@@ -162,6 +173,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
                 addItem(pair.first);
                 pair.first->setPos(position);
+                InformItemPositionChanged(pair.first);
+
                 pair.first->setSelected(true);
             }
             dragItems_.clear();

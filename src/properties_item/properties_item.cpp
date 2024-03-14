@@ -13,7 +13,7 @@
 using namespace CubesProperties;
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId)
+    CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
@@ -22,7 +22,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel(nullptr);
+    CreateParametersModel(nullptr, isArrayUnit);
     CreateProperties();
 }
 
@@ -41,7 +41,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, uint32_t propertiesId)
+    CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
@@ -50,7 +50,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     model_ = {};
     ignoreEvents_ = false;
 
-    CreateParametersModel(&xmlUnit);
+    CreateParametersModel(&xmlUnit, isArrayUnit);
     CreateProperties();
 }
 
@@ -85,7 +85,7 @@ void PropertiesItem::ExpandedChanged(const QtProperty* property, bool is_expande
     }
 }
 
-void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
+void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool isArrayUnit)
 {
     // BASE
     // BASE/NAME
@@ -121,25 +121,28 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit)
         instance_name.editorSettings.is_expanded = false;
         base_group.parameters.push_back(std::move(instance_name));
 
-        CubesUnitTypes::ParameterModel file;
-        file.id = ids_.base + ids_.fileName;
-        file.name = QString::fromLocal8Bit("Ôאיכ");
-        file.value = QString();
-        //file.valueType = "string";
-        //file.parameterInfoId = "";
-        file.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-        file.editorSettings.is_expanded = false;
-        base_group.parameters.push_back(std::move(file));
+        if (!isArrayUnit)
+        {
+            CubesUnitTypes::ParameterModel file;
+            file.id = ids_.base + ids_.fileName;
+            file.name = QString::fromLocal8Bit("Ôאיכ");
+            file.value = QString();
+            //file.valueType = "string";
+            //file.parameterInfoId = "";
+            file.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
+            file.editorSettings.is_expanded = false;
+            base_group.parameters.push_back(std::move(file));
 
-        CubesUnitTypes::ParameterModel group;
-        group.id = ids_.base + ids_.includeName;
-        group.name = QString::fromLocal8Bit("Âךכ‏קאולûי פאיכ");
-        group.value = QString();
-        //group.valueType = "string";
-        //group.parameterInfoId = "";
-        group.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-        group.editorSettings.is_expanded = false;
-        base_group.parameters.push_back(std::move(group));
+            CubesUnitTypes::ParameterModel group;
+            group.id = ids_.base + ids_.includeName;
+            group.name = QString::fromLocal8Bit("Âךכ‏קאולûי פאיכ");
+            group.value = QString();
+            //group.valueType = "string";
+            //group.parameterInfoId = "";
+            group.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
+            group.editorSettings.is_expanded = false;
+            base_group.parameters.push_back(std::move(group));
+        }
 
         model_.parameters.push_back(std::move(base_group));
     }
@@ -916,6 +919,11 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
     auto pm = GetParameterModel(model.id);
     pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
     pm->parameters = model.parameters;
+
+    if (pm->editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
+        editor_->SetIntValue(pi, model.parameters.size());
+    else
+        editor_->SetEnumValue(pi, QString("%1").arg(model.parameters.size()));
 
     ApplyExpandState();
 }

@@ -127,12 +127,12 @@ bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertie
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
     //uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(unitId, propertiesId);
+    propertiesItemsManager_->Create(unitId, true, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
-    pi->SetFileNames(GetFileNames());
-    pi->SetFileName(GetCurrentFileName());
-    pi->SetIncludeNames(GetCurrentFileIncludeNames());
-    pi->SetIncludeName("<not selected>");
+    //pi->SetFileNames(GetFileNames());
+    //pi->SetFileName(GetCurrentFileName());
+    //pi->SetIncludeNames(GetCurrentFileIncludeNames());
+    //pi->SetIncludeName("<not selected>");
     //pi->SetName(GetNewUnitName(pi->GetName()));
     //properties_items_manager_->Select(propertiesId);
     return true;

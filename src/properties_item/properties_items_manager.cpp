@@ -53,7 +53,7 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, bool isArrayUnit, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -62,7 +62,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, isArrayUnit, propertiesId));
 
 	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 	//pi->SetName(propertiesName);
@@ -91,7 +91,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
-void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -100,7 +100,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& pro
 	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
 
 	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, isArrayUnit, propertiesId));
 
 	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 	//pi->SetName(propertiesName);
@@ -495,7 +495,7 @@ void PropertiesItemsManager::OnAddFileClicked()
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
 	uint32_t propertiesId{ 0 };
-	Create(fileName, propertiesId);
+	//Create(fileName, propertiesId);
 	//Select(fileName);
 
 	//for (auto& item : panes_[0].first->items())

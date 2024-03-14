@@ -141,6 +141,8 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
         if (scene() != nullptr)
         {
             DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+            qDebug() << "selected: " << this->isSelected();
+            qDebug() << "moving: " << sc->IsItemMoving();
             if (this->isSelected() && sc->IsItemMoving())
             {
                 QPointF newPos = value.toPointF();

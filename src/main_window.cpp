@@ -129,7 +129,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
     //uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(unitId, propertiesId);
+    propertiesItemsManager_->Create(unitId, false, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     pi->SetFileNames(GetFileNames());
     pi->SetFileName(GetCurrentFileName());
@@ -800,7 +800,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
         if (up != nullptr)
         {
             uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i], propertiesId);
+            propertiesItemsManager_->Create(all_units[i], false, propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
             //pi->ApplyXmlProperties(all_units[i]);

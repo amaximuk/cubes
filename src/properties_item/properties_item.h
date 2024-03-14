@@ -38,11 +38,11 @@ namespace CubesProperties
 
     public:
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-            CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId);
+            CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, uint32_t propertiesId);
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm);
         PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
-            CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, uint32_t propertiesId);
+            CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t propertiesId);
 
     public:
         void Select();
@@ -91,7 +91,7 @@ namespace CubesProperties
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
     public:
-        void CreateParametersModel(const CubesXml::Unit* xmlUnit);
+        void CreateParametersModel(const CubesXml::Unit* xmlUnit, bool isArrayUnit);
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
             const CubesUnitTypes::ParameterModelId& parentModelId, const CubesXml::Unit* xmlUnit,
