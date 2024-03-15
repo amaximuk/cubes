@@ -1147,7 +1147,7 @@ bool ArrayWindow::SortUnitsRectangular()
 
         int c = 0;
         int r = 0;
-        for (auto& item : scene_->items())
+        for (auto& item : scene_->items(Qt::AscendingOrder))
         {
             CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
             QPoint position(c * 200, r * 80);
@@ -1158,11 +1158,12 @@ bool ArrayWindow::SortUnitsRectangular()
 
             if (++c == columns) { ++r; c = 0; };
         }
-        QPointF center = scene_->itemsBoundingRect().center();
-        view_->centerOn(center);
-
-        scene_->invalidate();
     }
+
+    QPointF center = scene_->itemsBoundingRect().center();
+    view_->centerOn(center);
+
+    scene_->invalidate();
 
     return true;
 }
