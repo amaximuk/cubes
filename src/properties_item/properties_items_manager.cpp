@@ -17,10 +17,11 @@
 
 using namespace CubesProperties;
 
-PropertiesItemsManager::PropertiesItemsManager(ITopManager* topManager)
+PropertiesItemsManager::PropertiesItemsManager(ITopManager* topManager, bool isArray):
+	isArray_(isArray)
 {
 	topManager_ = topManager;
-	unique_number_ = 0;
+	uniqueNumber_ = 0;
 	selected_ = 0;
 
 	defaultColorFileIndex_ = 0;
@@ -53,7 +54,7 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, bool isArrayUnit, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -61,8 +62,8 @@ void PropertiesItemsManager::Create(const QString& unitId, bool isArrayUnit, uin
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
-	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, isArrayUnit, propertiesId));
+	propertiesId = ++uniqueNumber_;
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, isArray_, propertiesId));
 
 	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 	//pi->SetName(propertiesName);
@@ -80,7 +81,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
-	propertiesId = ++unique_number_;
+	propertiesId = ++uniqueNumber_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, pm));
 
 	QString propertiesName = pm.parameters[0].parameters[0].value.toString();
@@ -91,7 +92,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
-void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -99,8 +100,8 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, bool isArrayU
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
 
-	propertiesId = ++unique_number_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, isArrayUnit, propertiesId));
+	propertiesId = ++uniqueNumber_;
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, isArray_, propertiesId));
 
 	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
 	//pi->SetName(propertiesName);
@@ -467,34 +468,77 @@ void PropertiesItemsManager::OnDeleteInclude(bool checked)
 
 void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 {
-	uint32_t currentId = GetCurrentPropertiesId();
-	Select(currentId);
-	emit SelectedItemChanged(currentId);
+	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+	Select(currentPropertiesId);
+	emit SelectedItemChanged(currentPropertiesId);
 }
 
-void PropertiesItemsManager::OnAddFileClicked()
+void PropertiesItemsManager::OnAddUnitClicked()
 {
-	bool ok;
-	QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
-	if (!ok || fileName.isEmpty())
-		return;
-
-	int count = 0;
-	for (const auto& i : items_)
+	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+	
+	if (currentPropertiesId != 0)
 	{
-		if (i->GetName() == fileName)
-			count++;
+		QString unitId;
+		if (!GetUnitId(currentPropertiesId, unitId))
+			return;
+
+		uint32_t propertiesId{ 0 };
+		Create(unitId, propertiesId);
+
+		PropertiesForDrawing pfd{};
+		if (!GetPropetiesForDrawing(propertiesId, pfd))
+			return;
+
+		const auto item = GetItem(currentPropertiesId);
+		
+
+		QPointF pos = item->GetPosition();
+		pos += { 40, 20 };
+		topManager_->CreateDiagramItem(propertiesId, pfd, pos);
 	}
-	if (count > 0)
+	else
 	{
-		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-		return;
+		CubesUnitTypes::UnitParameters unitParameters;
+		topManager_->GetUnitParameters("", unitParameters);
+
+		const auto unitId = QString::fromStdString(unitParameters.fileInfo.info.id);
+
+		uint32_t propertiesId{ 0 };
+		Create(unitId, propertiesId);
+
+		PropertiesForDrawing pfd{};
+		if (!GetPropetiesForDrawing(propertiesId, pfd))
+			return;
+
+		QPointF pos{ 0, 0 };
+		topManager_->CreateDiagramItem(propertiesId, pfd, pos);
 	}
 
-	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+	//topManager_->CreateDiagramItem();
+	//Create(const QString & unitId, bool isArrayUnit, uint32_t & propertiesId);
 
-	uint32_t propertiesId{ 0 };
+	//bool ok;
+	//QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
+	//if (!ok || fileName.isEmpty())
+	//	return;
+
+	//int count = 0;
+	//for (const auto& i : items_)
+	//{
+	//	if (i->GetName() == fileName)
+	//		count++;
+	//}
+	//if (count > 0)
+	//{
+	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+	//	return;
+	//}
+
+	//QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+	//	defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+
+	//uint32_t propertiesId{ 0 };
 	//Create(fileName, propertiesId);
 	//Select(fileName);
 
@@ -512,8 +556,15 @@ void PropertiesItemsManager::OnAddFileClicked()
 
 }
 
-void PropertiesItemsManager::OnRemoveFileClicked()
+void PropertiesItemsManager::OnAimUnitClicked()
 {
+	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+
+	if (currentPropertiesId != 0)
+	{
+		topManager_->EnshureVisible(currentPropertiesId);
+	}
+
 	//if (selected_ == 0)
 	//{
 	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
@@ -594,21 +645,32 @@ QWidget* PropertiesItemsManager::CreateSelectorWidget()
 	hBoxLayoutPropertyListButtons->setMargin(0);
 	hBoxLayoutPropertyListButtons->setContentsMargins(0, 0, 0, 0);
 
-	QToolButton* toolButtonPropertyListAdd = new QToolButton;
-	toolButtonPropertyListAdd->setFixedSize(24, 24);
-	toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
-	toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
-	toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить хост"));
-	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
-	connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &PropertiesItemsManager::OnAddFileClicked);
+	if (isArray_)
+	{
+		QToolButton* toolButtonPropertyListAdd = new QToolButton;
+		toolButtonPropertyListAdd->setFixedSize(24, 24);
+		toolButtonPropertyListAdd->setIconSize(QSize(24, 24));
+		toolButtonPropertyListAdd->setIcon(QIcon(":/images/plus.png"));
+		toolButtonPropertyListAdd->setToolTip(QString::fromLocal8Bit("Добавить юнит"));
+		hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListAdd);
+		connect(toolButtonPropertyListAdd, &QToolButton::clicked, this, &PropertiesItemsManager::OnAddUnitClicked);
+	}
 
 	QToolButton* toolButtonPropertyListRemove = new QToolButton;
 	toolButtonPropertyListRemove->setFixedSize(24, 24);
 	toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
-	toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
-	toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить хост"));
+	toolButtonPropertyListRemove->setIcon(QIcon(":/images/aim.png"));
+	toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Показать юнит"));
 	hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
-	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnRemoveFileClicked);
+	connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnAimUnitClicked);
+
+	//QToolButton* toolButtonPropertyListRemove = new QToolButton;
+	//toolButtonPropertyListRemove->setFixedSize(24, 24);
+	//toolButtonPropertyListRemove->setIconSize(QSize(24, 24));
+	//toolButtonPropertyListRemove->setIcon(QIcon(":/images/minus.png"));
+	//toolButtonPropertyListRemove->setToolTip(QString::fromLocal8Bit("Удалить юнит"));
+	//hBoxLayoutPropertyListButtons->addWidget(toolButtonPropertyListRemove);
+	//connect(toolButtonPropertyListRemove, &QToolButton::clicked, this, &PropertiesItemsManager::OnRemoveUnitClicked);
 
 	QWidget* buttonsWidget = new QWidget;
 	buttonsWidget->setLayout(hBoxLayoutPropertyListButtons);

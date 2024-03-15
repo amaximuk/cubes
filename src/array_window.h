@@ -51,7 +51,7 @@ class ArrayWindow : public QMainWindow, ITopManager
 
 private:
     bool modified_;
-    uint32_t unique_number_;
+    uint32_t uniqueNumber_;
 
     QPointer<CubeDiagram::DiagramScene> scene_;
     QPointer<CubeDiagram::DiagramView> view_;
@@ -89,6 +89,8 @@ public:
     bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) override;
     QString GetNewUnitName(const QString& baseName) override;
 
+    bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
+    void EnshureVisible(uint32_t propertiesId) override;
 
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);

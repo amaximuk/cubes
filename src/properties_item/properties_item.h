@@ -67,6 +67,7 @@ namespace CubesProperties
         QString GetIncludeName();
         void SetName(QString name);
         QString GetName();
+        QPointF GetPosition();
         QString GetId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
         uint32_t GetPropertiesId() { return propertiesId_; };
         CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };

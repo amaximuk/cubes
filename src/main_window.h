@@ -50,7 +50,7 @@ class MainWindow : public QMainWindow, ITopManager
 
 private:
     bool modified_;
-    uint32_t unique_number_;
+    uint32_t uniqueNumber_;
 
     QPointer<CubeDiagram::DiagramScene> scene_;
     QPointer<CubeDiagram::DiagramView> view_;
@@ -83,6 +83,8 @@ public:
     QString GetNewUnitName(const QString& baseName) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
+    bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
+    void EnshureVisible(uint32_t propertiesId) override;
 
 protected:
     // UI

@@ -45,7 +45,7 @@ ArrayWindow::ArrayWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     modified_ = false;
-    unique_number_ = 0;
+    uniqueNumber_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
@@ -57,7 +57,7 @@ ArrayWindow::ArrayWindow(QWidget *parent)
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &ArrayWindow::FileVariableNameChanged);
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &ArrayWindow::FileVariablesListChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, true);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &ArrayWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &ArrayWindow::PropertiesPositionChanged);
@@ -110,7 +110,10 @@ void ArrayWindow::GetUnitsInFileIncludeList(const QString& fileName, const QStri
 
 void ArrayWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
 {
-    unitParameters = unitParameters_[unitId];
+    if (unitId.isEmpty() && !unitParameters_.empty())
+        unitParameters = *unitParameters_.begin();
+    else
+        unitParameters = unitParameters_[unitId];
 }
 
 void ArrayWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
@@ -127,7 +130,7 @@ bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertie
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
     //uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(unitId, true, propertiesId);
+    propertiesItemsManager_->Create(unitId, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     //pi->SetFileNames(GetFileNames());
     //pi->SetFileName(GetCurrentFileName());
@@ -149,8 +152,8 @@ bool ArrayWindow::GetPropetiesForDrawing(const uint32_t propertiesId, Properties
     if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
         return false;
     //pfd.color = fileItemsManager_->GetFileColor(pfd.fileName);
-    pfd.color = QColor("Red");
-    pfd.color.setAlpha(0x20);
+    //pfd.color = QColor("Red");
+    //pfd.color.setAlpha(0x20);
     return true;
 }
 
@@ -262,6 +265,46 @@ QString ArrayWindow::GetNewUnitName(const QString& baseName)
         return name;
     else
         return QString("%1#%2").arg(name).arg(counter);
+}
+
+bool ArrayWindow::CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+{
+    CubeDiagram::DiagramItem* di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+
+    scene_->InformItemCreated(di);
+
+    //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+
+    //int gridSize = 20;
+    //qreal xV = round(position.x() / gridSize) * gridSize;
+    //qreal yV = round(position.y() / gridSize) * gridSize;
+    //position = QPoint(xV, yV);
+
+    scene_->addItem(di);
+    scene_->clearSelection();
+    di->setPos(pos);
+    scene_->InformItemPositionChanged(di);
+
+    di->setSelected(true);
+
+    return true;
+}
+
+void ArrayWindow::EnshureVisible(uint32_t propertiesId)
+{
+    for (const auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        if (di->GetPropertiesId() == propertiesId)
+        {
+            QPointF center = di->GetLineAncorPosition();
+            //QPointF center = scene_->selectionArea().boundingRect().center();
+            view_->centerOn(center);
+
+            scene_->invalidate();
+
+        }
+    }
 }
 
 CubesUnitTypes::ParameterModel pm_{};

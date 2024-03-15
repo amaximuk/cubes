@@ -11,5 +11,6 @@
         <file>images/information.png</file>
         <file>images/error.png</file>
         <file>images/warning.png</file>
+        <file>images/aim.png</file>
     </qresource>
 </RCC>

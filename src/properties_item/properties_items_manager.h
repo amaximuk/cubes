@@ -20,25 +20,26 @@ namespace CubesProperties
 
 	private:
 		ITopManager* topManager_;
+		const bool isArray_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
 		QPointer<QPlainTextEdit> hint_;
 		QMap<uint32_t, QSharedPointer<PropertiesItem>> items_;
 		uint32_t selected_;
-		uint32_t unique_number_;
+		uint32_t uniqueNumber_;
 
 	public:
-		PropertiesItemsManager(ITopManager* topManager);
+		PropertiesItemsManager(ITopManager* topManager, bool isArray);
 
 	public:
 		PropertiesEditor* GetEditor();
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		uint32_t GetCurrentPropertiesId();
-		void Create(const QString& unitId, bool isArrayUnit, uint32_t& propertiesId);
+		void Create(const QString& unitId, uint32_t& propertiesId);
 		void Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, uint32_t& propertiesId);
-		void Create(const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t& propertiesId);
+		void Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId);
 		void Select(const uint32_t& propertiesId);
 		void Remove(const uint32_t& propertiesId);
 		QSharedPointer<PropertiesItem> GetItem(const uint32_t propertiesId);
@@ -77,8 +78,8 @@ namespace CubesProperties
 		void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
-		void OnAddFileClicked();
-		void OnRemoveFileClicked();
+		void OnAddUnitClicked();
+		void OnAimUnitClicked();
 
 	private:
 		QWidget* CreateEditorWidget();

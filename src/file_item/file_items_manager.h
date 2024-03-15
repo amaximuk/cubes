@@ -22,7 +22,7 @@ namespace CubesFile
 		QPointer<QComboBox> selector_;
 		QMap<uint32_t, QSharedPointer<FileItem>> items_;
 		uint32_t selected_;
-		uint32_t unique_number_;
+		uint32_t uniqueNumber_;
 
 	public:
 		FileItemsManager(ITopManager* topManager);

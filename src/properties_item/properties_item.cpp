@@ -650,6 +650,16 @@ QString PropertiesItem::GetName()
         return "";
 }
 
+QPointF PropertiesItem::GetPosition()
+{
+    const auto pmX = GetParameterModel(ids_.editor + ids_.positionX);
+    const auto pmY = GetParameterModel(ids_.editor + ids_.positionY);
+    if (pmX != nullptr && pmY != nullptr)
+        return { pmX->value.toDouble(), pmY->value.toDouble() };
+    else
+        return { 0, 0 };
+}
+
 void PropertiesItem::GetXmlProperties(const CubesUnitTypes::ParameterModel& pm,
     QList<CubesXml::Param>& params, QList<CubesXml::Array>& arrays)
 {

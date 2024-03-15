@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     modified_ = false;
-    unique_number_ = 0;
+    uniqueNumber_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
 
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &MainWindow::FileVariableNameChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &MainWindow::FileVariablesListChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, false);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
@@ -129,7 +129,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
 {
     //instanceName = name + QString("_#%1").arg(unique_number_++);
     //uint32_t propertiesId{ 0 };
-    propertiesItemsManager_->Create(unitId, false, propertiesId);
+    propertiesItemsManager_->Create(unitId, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     pi->SetFileNames(GetFileNames());
     pi->SetFileName(GetCurrentFileName());
@@ -275,6 +275,23 @@ QMap<QString, QStringList> MainWindow::GetUnitsConnections()
 QMap<QString, QStringList> MainWindow::GetDependsConnections()
 {
     return GetConnectionsInternal(true);
+}
+
+void MainWindow::EnshureVisible(uint32_t propertiesId)
+{
+    for (const auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        if (di->GetPropertiesId() == propertiesId)
+        {
+            QPointF center = di->GetLineAncorPosition();
+            //QPointF center = scene_->selectionArea().boundingRect().center();
+            view_->centerOn(center);
+
+            scene_->invalidate();
+
+        }
+    }
 }
 
 // UI
@@ -800,7 +817,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
         if (up != nullptr)
         {
             uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i], false, propertiesId);
+            propertiesItemsManager_->Create(all_units[i], propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
             //pi->ApplyXmlProperties(all_units[i]);

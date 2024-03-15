@@ -41,5 +41,6 @@ namespace CubeDiagram
         void InformIncludeChanged();
         void InformNameChanged(QString name, QString oldName);
         void SetBorderOnly(bool borderOnly);
+        uint32_t GetPropertiesId() { return propertiesId_; };
     };
 }

@@ -16,7 +16,7 @@ using namespace CubesFile;
 FileItemsManager::FileItemsManager(ITopManager* topManager)
 {
 	topManager_ = topManager;
-	unique_number_ = 0;
+	uniqueNumber_ = 0;
 	selected_ = 0;
 
 	defaultColorFileIndex_ = 0;
@@ -72,7 +72,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	fileId = ++unique_number_;
+	fileId = ++uniqueNumber_;
 
 	//auto item = GetItem(fileName);
 	if (fileName == ""/* || item != nullptr*/)
@@ -100,7 +100,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
-	fileId = ++unique_number_;
+	fileId = ++uniqueNumber_;
 
 	auto fileName = xmlFile.name;
 	if (fileName.isEmpty())

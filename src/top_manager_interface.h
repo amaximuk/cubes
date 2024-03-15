@@ -27,6 +27,9 @@ public:
     virtual bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
     virtual bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) = 0;
 
+    virtual bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) = 0;
+    virtual void EnshureVisible(uint32_t propertiesId) = 0;
+
     virtual QString GetNewUnitName(const QString& baseName) = 0;
     virtual QMap<QString, QStringList> GetUnitsConnections() = 0;
     virtual QMap<QString, QStringList> GetDependsConnections() = 0;
