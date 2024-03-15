@@ -1435,6 +1435,42 @@ void MainWindow::OnImportXmlFileAction()
     }
 }
 
+#include <QFile>
+#include <minizip/unzip.h>
+#include <minizip/zip.h>
+int CreateZipFile(QString srcFilePath, QString dstFilePath, bool append)
+{
+    zipFile zf = zipOpen(dstFilePath.toStdString().c_str(), append ? APPEND_STATUS_ADDINZIP : APPEND_STATUS_CREATE);
+    if (zf == NULL)
+        return -1;
+
+    QFile xmlFile(srcFilePath);
+    if (xmlFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray ba = xmlFile.readAll();
+        xmlFile.close();
+
+        zip_fileinfo zfi = { 0 };
+
+        QFileInfo fi(srcFilePath);
+        std::string fileName = fi.fileName().toStdString();
+
+        if (S_OK == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+        {
+            if (zipWriteInFileInZip(zf, ba.data(), ba.size()))
+                return -1;
+
+            if (zipCloseFileInZip(zf))
+                return -1;
+        }
+    }
+
+    if (zipClose(zf, NULL))
+        return -1;
+
+    return 0;
+}
+
 void MainWindow::OnSaveFileAction()
 {
     //if (!modified_)
@@ -1442,6 +1478,8 @@ void MainWindow::OnSaveFileAction()
 
     QDir dir;
     dir.mkdir("tmp");
+
+    
 
     // Получаем список главных файлов
     QStringList fileNames = fileItemsManager_->GetFileNames();
@@ -1458,18 +1496,39 @@ void MainWindow::OnSaveFileAction()
         //xmlFile.config.logIsSet = true;
 
         //xmlFile.config.networking = file.network;
+
         auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
-        auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
-        xmlFile.config.groups = std::move(xmlGroups);
+        QFileInfo xmlFileInfo(xmlFile.fileName);
+        const auto xmlFileName = QString("tmp/%1").arg(xmlFileInfo.fileName());
+        const auto xmlZipFileName = QString("tmp/%1.xmlx").arg(xmlFileInfo.fileName());
 
-        QFileInfo fi(xmlFile.fileName);
-        CubesXml::Writer::Write(QString("tmp/%1").arg(fi.fileName()), xmlFile);
+        {
+            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
+            xmlFile.config.groups = std::move(xmlGroups);
 
+            CubesXml::Writer::Write(xmlFileName, xmlFile);
 
+            CreateZipFile(xmlFileName, xmlZipFileName, false);
+        }
 
         for (const auto& include : xmlFile.includes)
         {
             auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
+            CubesXml::File includeXmlFile{};
+            includeXmlFile.name = include.name;
+            //includeXmlFile.platform = xmlFile.platform;
+            includeXmlFile.fileName = include.fileName;
+
+            includeXmlFile.config.logIsSet = false;
+            includeXmlFile.config.networkingIsSet = false;
+            includeXmlFile.config.groups = includeGroups;
+
+
+            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
+            const auto includeXmlFileName = QString("tmp/%1").arg(includeXmlFileInfo.fileName());
+            CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
+
+            CreateZipFile(includeXmlFileName, xmlZipFileName, true);
         }
     }
 

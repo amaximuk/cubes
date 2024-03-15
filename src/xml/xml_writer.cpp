@@ -19,18 +19,19 @@ bool Writer::Write(const QString& filename, const File& fi)
 		ELRF("File " << filename.toStdString() << " create failed");
 	}
 
-	QXmlStreamWriter xmlWriter;
-	xmlWriter.setDevice(&xmlFile);
-	xmlWriter.setAutoFormatting(true);
-	xmlWriter.setAutoFormattingIndent(4);
-	xmlWriter.setCodec("windows-1251");
-	xmlWriter.writeStartDocument();
-	
-	if (!SetFile(fi, xmlWriter))
-		ELRF("File info set failed");
+	{
+		QXmlStreamWriter xmlWriter;
+		xmlWriter.setDevice(&xmlFile);
+		xmlWriter.setAutoFormatting(true);
+		xmlWriter.setAutoFormattingIndent(4);
+		xmlWriter.setCodec("windows-1251");
+		xmlWriter.writeStartDocument();
 
-	xmlWriter.writeEndDocument();
+		if (!SetFile(fi, xmlWriter))
+			ELRF("File info set failed");
 
+		xmlWriter.writeEndDocument();
+	}
 	//QTextStream xmlContent(&xmlFile);
 	//xmlContent << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>\n";
 	//xmlContent << document.toString(4);

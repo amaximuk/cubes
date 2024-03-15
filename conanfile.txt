@@ -5,6 +5,7 @@ jsoncpp/1.8.3
 qt/5.15.2
 gtest/1.8.1
 zlib/1.2.13
+minizip/1.2.13
 
 [options]
 qt:shared=True
