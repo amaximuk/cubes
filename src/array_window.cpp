@@ -440,8 +440,18 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
             }
         }
 
+        QString ss;
+        for (int i = 0; i < ri_.set_count.size(); ++i)
+        {
+            ss += QString::fromStdString(ri_.set_count[i]);
+            if (i < ri_.set_count.size() - 1)
+                ss += ", ";
+        }
+
         if (!found)
         {
+            QMessageBox::critical(this, "Validate error",
+                QString::fromLocal8Bit("Количество элементов недопустимо\nДопустимо: %1").arg(ss));
             event->ignore();
             return;
         }
@@ -454,6 +464,9 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
         {
             if (i > ids.size())
             {
+                const auto ss = QString::fromStdString(ri_.min_count);
+                QMessageBox::critical(this, "Validate error",
+                    QString::fromLocal8Bit("Количество элементов недопустимо\nДопустимо не менее: %1").arg(ss));
                 event->ignore();
                 return;
             }
@@ -467,6 +480,9 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
         {
             if (i < ids.size())
             {
+                const auto ss = QString::fromStdString(ri_.max_count);
+                QMessageBox::critical(this, "Validate error",
+                    QString::fromLocal8Bit("Количество элементов недопустимо\nДопустимо не более: %1").arg(ss));
                 event->ignore();
                 return;
             }
@@ -1155,6 +1171,9 @@ bool ArrayWindow::SortUnits()
         QPoint position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
         //QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
         di->setPos(position);
+
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->PositionChanged(di->pos());
 
 
         //di->setSelected(true);

@@ -928,6 +928,8 @@ bool MainWindow::SortUnits()
         //QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
         di->setPos(position);
 
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        pi->PositionChanged(di->pos());
 
         //di->setSelected(true);
     }
