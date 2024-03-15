@@ -38,6 +38,7 @@
 #include "xml/xml_parser.h"
 #include "xml/xml_writer.h"
 #include "graph.h"
+#include "zip.h"
 #include "main_window.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -1435,42 +1436,6 @@ void MainWindow::OnImportXmlFileAction()
     }
 }
 
-#include <QFile>
-#include <minizip/unzip.h>
-#include <minizip/zip.h>
-int CreateZipFile(QString srcFilePath, QString dstFilePath, bool append)
-{
-    zipFile zf = zipOpen(dstFilePath.toStdString().c_str(), append ? APPEND_STATUS_ADDINZIP : APPEND_STATUS_CREATE);
-    if (zf == NULL)
-        return -1;
-
-    QFile xmlFile(srcFilePath);
-    if (xmlFile.open(QIODevice::ReadOnly))
-    {
-        QByteArray ba = xmlFile.readAll();
-        xmlFile.close();
-
-        zip_fileinfo zfi = { 0 };
-
-        QFileInfo fi(srcFilePath);
-        std::string fileName = fi.fileName().toStdString();
-
-        if (S_OK == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
-        {
-            if (zipWriteInFileInZip(zf, ba.data(), ba.size()))
-                return -1;
-
-            if (zipCloseFileInZip(zf))
-                return -1;
-        }
-    }
-
-    if (zipClose(zf, NULL))
-        return -1;
-
-    return 0;
-}
-
 void MainWindow::OnSaveFileAction()
 {
     //if (!modified_)
@@ -1508,7 +1473,7 @@ void MainWindow::OnSaveFileAction()
 
             CubesXml::Writer::Write(xmlFileName, xmlFile);
 
-            CreateZipFile(xmlFileName, xmlZipFileName, false);
+            CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
 
         for (const auto& include : xmlFile.includes)
@@ -1528,7 +1493,7 @@ void MainWindow::OnSaveFileAction()
             const auto includeXmlFileName = QString("tmp/%1").arg(includeXmlFileInfo.fileName());
             CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
 
-            CreateZipFile(includeXmlFileName, xmlZipFileName, true);
+            CubesZip::ZipFile(includeXmlFileName, xmlZipFileName, CubesZip::ZipMethod::Append);
         }
     }
 
