@@ -548,7 +548,7 @@ void ArrayWindow::CreateUi()
 }
 
 void ArrayWindow::CreateMenu()
-{
+{/*
     QAction* newAct = new QAction(QString::fromLocal8Bit("Создать"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(QString::fromLocal8Bit("Создать новый файл"));
@@ -590,7 +590,7 @@ void ArrayWindow::CreateMenu()
     //recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
     //fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
-
+    */
     QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
     sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
     connect(sortAct, &QAction::triggered, this, &ArrayWindow::OnSortAction);
@@ -1552,7 +1552,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
             di->name_ = name;
             di->fileName_ = fileName;
             di->includeName_ = groupName;
-            di->color_ = QColor("Red");
+            //di->color_ = QColor("Red");
             di->color_.setAlpha(0x20);
             di->InformNameChanged(name, "");
             di->InformIncludeChanged();
