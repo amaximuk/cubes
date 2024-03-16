@@ -1441,10 +1441,28 @@ void MainWindow::OnSaveFileAction()
     //if (!modified_)
     //    return;
 
-    QDir dir;
-    dir.mkdir("tmp");
 
-    
+    QFileDialog dialog(this);
+    dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDefaultSuffix("xmlx");
+
+    QStringList selectedFileNames;
+    if (dialog.exec())
+        selectedFileNames = dialog.selectedFiles();
+    if (selectedFileNames.size() <= 0)
+        return;
+
+    //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
+    QString selectedFileName = selectedFileNames[0];
+    //SaveAsInternal(fileName, is_json, false);
+
+
+
+    //QDir dir;
+    //dir.mkdir("tmp");
+
+    bool is_first = true;
 
     // Получаем список главных файлов
     QStringList fileNames = fileItemsManager_->GetFileNames();
@@ -1465,7 +1483,7 @@ void MainWindow::OnSaveFileAction()
         auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
         QFileInfo xmlFileInfo(xmlFile.fileName);
         const auto xmlFileName = xmlFileInfo.fileName();
-        const auto xmlZipFilePath = QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
+        const auto xmlZipFilePath = selectedFileName; // QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
 
         {
             auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
@@ -1475,9 +1493,17 @@ void MainWindow::OnSaveFileAction()
             if (!CubesXml::Writer::Write(byteArray, xmlFile))
                 return;
 
-            if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
-                return;
-            
+            if (is_first)
+            {
+                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
+                    return;
+                is_first = false;
+            }
+            else
+            {
+                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+                    return;
+            }
             //CubesXml::Writer::Write(xmlFileName, xmlFile);
             //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
