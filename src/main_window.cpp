@@ -1464,16 +1464,22 @@ void MainWindow::OnSaveFileAction()
 
         auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
         QFileInfo xmlFileInfo(xmlFile.fileName);
-        const auto xmlFileName = QString("tmp/%1").arg(xmlFileInfo.fileName());
-        const auto xmlZipFileName = QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
+        const auto xmlFileName = xmlFileInfo.fileName();
+        const auto xmlZipFilePath = QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
 
         {
             auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
             xmlFile.config.groups = std::move(xmlGroups);
 
-            CubesXml::Writer::Write(xmlFileName, xmlFile);
+            QByteArray byteArray;
+            if (!CubesXml::Writer::Write(byteArray, xmlFile))
+                return;
 
-            CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
+            if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
+                return;
+            
+            //CubesXml::Writer::Write(xmlFileName, xmlFile);
+            //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
 
         for (const auto& include : xmlFile.includes)
@@ -1490,10 +1496,18 @@ void MainWindow::OnSaveFileAction()
 
 
             QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
-            const auto includeXmlFileName = QString("tmp/%1").arg(includeXmlFileInfo.fileName());
-            CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
+            const auto includeXmlFileName = includeXmlFileInfo.fileName();
 
-            CubesZip::ZipFile(includeXmlFileName, xmlZipFileName, CubesZip::ZipMethod::Append);
+
+            QByteArray byteArray;
+            if (!CubesXml::Writer::Write(byteArray, includeXmlFile))
+                return;
+
+            if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+                return;
+
+            //CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
+            //CubesZip::ZipFile(includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append);
         }
     }
 

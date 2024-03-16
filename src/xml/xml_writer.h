@@ -8,6 +8,7 @@ namespace CubesXml
 	class Writer
 	{
 	public:
+		static bool Write(QByteArray& buffer, const File& fi);
 		static bool Write(const QString& filename, const File& fi);
 
 	private:

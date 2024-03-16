@@ -11,30 +11,39 @@ using namespace CubesXml;
 // !!! remove -> last error???
 #define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)
 
+bool Writer::Write(QByteArray& byteArray, const File & fi)
+{
+	QBuffer buffer(&byteArray);
+	buffer.open(QIODevice::WriteOnly);
+
+	QXmlStreamWriter xmlWriter;
+	xmlWriter.setDevice(&buffer);
+	xmlWriter.setAutoFormatting(true);
+	xmlWriter.setAutoFormattingIndent(4);
+	xmlWriter.setCodec("windows-1251");
+	xmlWriter.writeStartDocument();
+
+	if (!SetFile(fi, xmlWriter))
+		ELRF("File info set failed");
+
+	xmlWriter.writeEndDocument();
+
+	buffer.close();
+
+	return true;
+}
+
 bool Writer::Write(const QString& filename, const File& fi)
 {
+	QByteArray byteArray;
+	if (!Write(byteArray, fi))
+		ELRF("File " << fi.fileName.toStdString() << " save failed");
+
 	QFile xmlFile(filename);
 	if (!xmlFile.open(QIODevice::WriteOnly | QFile::Text))
-	{
 		ELRF("File " << filename.toStdString() << " create failed");
-	}
 
-	{
-		QXmlStreamWriter xmlWriter;
-		xmlWriter.setDevice(&xmlFile);
-		xmlWriter.setAutoFormatting(true);
-		xmlWriter.setAutoFormattingIndent(4);
-		xmlWriter.setCodec("windows-1251");
-		xmlWriter.writeStartDocument();
-
-		if (!SetFile(fi, xmlWriter))
-			ELRF("File info set failed");
-
-		xmlWriter.writeEndDocument();
-	}
-	//QTextStream xmlContent(&xmlFile);
-	//xmlContent << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>\n";
-	//xmlContent << document.toString(4);
+	xmlFile.write(byteArray);
 	xmlFile.close();
 
 	return true;
