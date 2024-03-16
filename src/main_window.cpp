@@ -1465,7 +1465,7 @@ void MainWindow::OnSaveFileAction()
         auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
         QFileInfo xmlFileInfo(xmlFile.fileName);
         const auto xmlFileName = QString("tmp/%1").arg(xmlFileInfo.fileName());
-        const auto xmlZipFileName = QString("tmp/%1.xmlx").arg(xmlFileInfo.fileName());
+        const auto xmlZipFileName = QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
 
         {
             auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
