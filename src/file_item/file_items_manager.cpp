@@ -97,8 +97,6 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 {
-	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
 	fileId = ++uniqueNumber_;
 
@@ -119,7 +117,16 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
 	//fi->SetName(fileName, true, fileName);
 	//fi->SetPath(filePath);
-	fi->SetColor(color);
+	//if (/*xmlFile == nullptr || */ xmlFile.color.isEmpty())
+	//{
+	//	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
+	//		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
+	//	fi->SetColor(color);
+	//}
+	//else
+	//{
+	//	fi->SetColor();
+	//}
 
 	auto name = fi->GetName();
 

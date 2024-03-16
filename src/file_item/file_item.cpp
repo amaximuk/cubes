@@ -400,7 +400,18 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             CubesUnitTypes::ParameterModel pm;
             pm.id = ids_.editor + ids_.color;
             pm.name = QString::fromLocal8Bit("Цвет");
-            pm.value = QColor("Red").rgba(); // !!!
+
+            // Можно запросить у менеджера, пока забил красный defaultColorsFile_[defaultColorFileIndex_++]
+            QRgb color = QColor("Red").rgba();
+            if (xmlFile != nullptr && !xmlFile->color.isEmpty() && xmlFile->color.size() == 9)
+            {
+                bool ok = false;
+                const QString rgba = xmlFile->color.mid(1);
+                const unsigned int parsedValue = rgba.toUInt(&ok, 16);
+                if (ok)
+                    color = parsedValue;
+            }
+            pm.value = color;
             //pm.valueType = "string";
             //pm.parameterInfoId = "";
             pm.editorSettings.type = CubesUnitTypes::EditorType::Color;
@@ -994,6 +1005,9 @@ CubesXml::File FileItem::GetXmlFile()
     result.name = GetParameterModel(ids_.base + ids_.name)->value.toString();
     result.platform = GetParameterModel(ids_.base + ids_.platform)->value.toString();
     result.fileName = GetParameterModel(ids_.base + ids_.path)->value.toString();
+    QColor color = QColor::fromRgba(GetParameterModel(ids_.editor + ids_.color)->value.toUInt());
+    result.color = QString("#%1").arg(color.rgba(), 8, 16, QLatin1Char('0'));
+    //result.color = QString("#%1%2%3%4").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
 
     result.config.networkingIsSet = true;
     result.config.networking.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();

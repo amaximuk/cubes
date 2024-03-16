@@ -13,7 +13,8 @@ namespace CubesXml
 	private:
 		static bool SetFile(const File& file, QXmlStreamWriter& xmlWriter);
 		static bool SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWriter);
-		static bool SetConfig(const Config& config, const QString& name, const QString& platform, QXmlStreamWriter& xmlWriter);
+		static bool SetConfig(const Config& config, const QString& name, const QString& platform,
+			const QString& color, QXmlStreamWriter& xmlWriter);
 		static bool SetNetworking(const Networking& networking, QXmlStreamWriter& xmlWriter);
 		static bool SetLog(const Log& log, QXmlStreamWriter& xmlWriter);
 		static bool SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter);

@@ -174,6 +174,7 @@ namespace CubesXml
 	{
 		QString name; // TODO: Add to xml format - short name of file
 		QString platform; // TODO: Add to xml format - target patform
+		QString color; // TODO: Add to xml format - color
 		QString fileName;
 		QList<Include> includes;
 		Config config;

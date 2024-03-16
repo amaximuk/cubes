@@ -79,10 +79,12 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 			{
 				QString name;
 				QString platform;
-				if (!GetConfig(ne, name, platform, fi.config))
+				QString color;
+				if (!GetConfig(ne, name, platform, color, fi.config))
 					ELRF("Get Config failed");
 				fi.name = name;
 				fi.platform = platform;
+				fi.color = color;
 			}
 		}
 		n = n.nextSibling();
@@ -144,10 +146,11 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 	return true;
 }
 
-bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform, Config& config)
+bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform, QString& color, Config& config)
 {
 	name = node.attribute("_name", "");
 	platform = node.attribute("_platform", "");
+	color = node.attribute("_color", "");
 
 	QDomNode i = node.firstChild();
 	while (!i.isNull())
