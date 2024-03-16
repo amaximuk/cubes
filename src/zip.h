@@ -8,7 +8,11 @@ namespace CubesZip
         Append
     };
 
-    bool ZipFile(QByteArray byteArray, QString srcFileName, QString dstFilePath, ZipMethod method);
+    bool ZipFile(const QByteArray& byteArray, const QString& srcFileName, const QString& dstFilePath, ZipMethod method);
 
-    bool ZipFile(QString srcFilePath, QString dstFilePath, ZipMethod method);
+    bool ZipFile(const QString& srcFilePath, const QString& dstFilePath, ZipMethod method);
+
+    bool GetZippedFileNames(const QString& zipFilePath, QList<QString>& fileNames);
+
+    bool UnZipFile(const QString& zipFilePath, const QString& srcFileName, QByteArray& byteArray);
 }

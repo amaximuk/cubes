@@ -101,7 +101,7 @@ protected:
     void FillParametersInfo();
 
     // Units
-    bool AddMainFile(CubesXml::File& file);
+    bool AddMainFile(CubesXml::File& file, const QString& zipFileName);
     bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);
     bool SortUnits();
     bool SortUnitsRectangular();

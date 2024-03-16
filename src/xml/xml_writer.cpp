@@ -11,7 +11,7 @@ using namespace CubesXml;
 // !!! remove -> last error???
 #define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)
 
-bool Writer::Write(QByteArray& byteArray, const File & fi)
+bool Writer::Write(QByteArray& byteArray, const File& fi)
 {
 	QBuffer buffer(&byteArray);
 	buffer.open(QIODevice::WriteOnly);

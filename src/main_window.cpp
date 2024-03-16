@@ -688,7 +688,7 @@ void MainWindow::FillParametersInfo()
 }
 
 // Units
-bool MainWindow::AddMainFile(CubesXml::File& file)
+bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
 {
     // Ќе очищаем, вдруг там уже что-то помен€но
     //if (scene_->items().size() == 0)
@@ -761,17 +761,38 @@ bool MainWindow::AddMainFile(CubesXml::File& file)
     if (!AddUnits(name, "", file))
         return false;
 
-    QDir dir = QFileInfo(file.fileName).absoluteDir();
-    for (int i = 0; i < file.includes.size(); i++)
+    if (zipFileName.isEmpty())
     {
-        QString includedFileName = dir.filePath(file.includes[i].fileName);
-        CubesXml::File includedFile{};
-        if (!CubesXml::Parser::Parse(includedFileName, includedFile))
-            return false;
+        QDir dir = QFileInfo(file.fileName).absoluteDir();
+        for (int i = 0; i < file.includes.size(); i++)
+        {
+            QString includedFileName = dir.filePath(file.includes[i].fileName);
+            CubesXml::File includedFile{};
+            if (!CubesXml::Parser::Parse(includedFileName, includedFile))
+                return false;
 
-        if (!AddUnits(name, file.includes[i].fileName, includedFile))
-            return false;
+            if (!AddUnits(name, file.includes[i].fileName, includedFile))
+                return false;
+        }
     }
+    else
+    {
+        for (int i = 0; i < file.includes.size(); i++)
+        {
+            QByteArray byteArray;
+            if (!CubesZip::UnZipFile(zipFileName, file.includes[i].fileName, byteArray))
+                return false;
+
+            CubesXml::File includedFile{};
+            CubesXml::Parser::Parse(byteArray, file.includes[i].fileName, includedFile);
+
+            if (!AddUnits(name, file.includes[i].fileName, includedFile))
+                return false;
+        }
+
+    }
+
+
 
     if (!SortUnitsRectangular())
         return false;
@@ -1379,7 +1400,53 @@ void MainWindow::OnOpenFileAction()
             return;
     }
 
-    auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+    QFileDialog dialog(this);
+    dialog.setNameFilter("Parameters Archive Files (*.xlmx)");
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QStringList selectedFileNames;
+    if (dialog.exec())
+        selectedFileNames = dialog.selectedFiles();
+
+    if (selectedFileNames.size() == 0)
+        return;
+
+    QList<QString> fileNames;
+    if (!CubesZip::GetZippedFileNames(selectedFileNames[0], fileNames))
+        return;
+
+    for (const auto& fileName : fileNames)
+    {
+        QByteArray byteArray;
+        if (!CubesZip::UnZipFile(selectedFileNames[0], fileName, byteArray))
+            return;
+
+        CubesXml::File f{};
+        CubesXml::Parser::Parse(byteArray, fileName, f);
+
+        if (f.config.networkingIsSet)
+        {
+            log_table_model_->Clear();
+
+            if (!AddMainFile(f, selectedFileNames[0]))
+                return;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        const auto position = pi->GetPosition();
+        di->setPos(position);
+    }
+
+    //auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
 
     //QFileDialog dialog(this);
     //dialog.setNameFilters({ "Parameters Compiler YAML Files (*.yml *.yaml)", "Parameters Compiler JSON Files (*.json)" });
@@ -1427,7 +1494,7 @@ void MainWindow::OnImportXmlFileAction()
     {
         log_table_model_->Clear();
 
-        if (!AddMainFile(f))
+        if (!AddMainFile(f, ""))
             return;
     }
     else

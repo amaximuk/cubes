@@ -16,9 +16,50 @@ using namespace CubesXml;
 
 const CubesUnitTypes::ParameterModelIds Parser::ids_;
 
-bool Parser::Parse(const QString& filename, File& fi)
+bool Parser::Parse(QByteArray& byteArray, const QString& fileName, File& fi)
 {
-	fi.fileName = filename;
+	fi.fileName = fileName;
+
+	QTextStream in(&byteArray);
+	QString xmlText = in.readAll();
+
+	int pos = xmlText.indexOf("<Includes");
+	if (pos == -1)
+		pos = xmlText.indexOf("<Config");
+	if (pos != -1)
+	{
+		xmlText.insert(pos, "<FakeRoot>\n");
+		xmlText.append("\n</FakeRoot>");
+	}
+
+	QDomDocument doc;
+	//doc.setContent(&xmlFile);
+	doc.setContent(xmlText);
+
+	QDomElement root = doc.documentElement();
+
+	//if (root.tagName() != "Config")
+	//	ELRF("File have no Config or doc malformed");
+
+	if (!GetFile(root, fi))
+		ELRF("File info parse failed");
+
+	return true;
+}
+
+bool Parser::Parse(const QString& fileName, File& fi)
+{
+	QFile xmlFile(fileName);
+	if (!xmlFile.open(QIODevice::ReadOnly))
+	{
+		ELRF("File " << fileName.toStdString() << " load failed");
+	}
+
+	QByteArray byteArray = xmlFile.readAll();
+
+	return Parse(byteArray, fileName, fi);
+
+/*	fi.fileName = filename;
 	//fi.fileName = QFileInfo(filename).fileName();
 
 	//QFile xmlFile(filename);
@@ -57,7 +98,7 @@ bool Parser::Parse(const QString& filename, File& fi)
 	if (!GetFile(root, fi))
 		ELRF("File info parse failed");
 
-	return true;
+	return true;*/
 }
 
 bool Parser::GetFile(const QDomElement& node, File& fi)

@@ -12,7 +12,8 @@ namespace CubesXml
 		static const CubesUnitTypes::ParameterModelIds ids_;
 
 	public:
-		static bool Parse(const QString& filename, File& fi);
+		static bool Parse(QByteArray& byteArray, const QString& fileName, File& fi);
+		static bool Parse(const QString& fileName, File& fi);
 		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
 		static Param* GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
 		static Item* GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type);
