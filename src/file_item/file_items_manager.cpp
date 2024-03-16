@@ -533,29 +533,22 @@ void FileItemsManager::OnRemoveFileClicked()
 	}
 
 	// Сохраняем копию, после удаления selected_ изменится
-	QString selected = selected_;
+	uint32_t selected = selected_;
 
 	// Удаляем из селектора, автоматически происходит UnSelect
 	selector_->removeItem(selector_->findData(selected_));
 
-	// Получаем все имена, заодно запоминаем элемент для удаления
-	QStringList fileNames;
-	uint32_t toRemove;
-	for (const auto& item : items_)
-	{
-		QString name = item->GetName();
-		if (name == selected)
-			toRemove = item->GetFileId();
-		else
-			fileNames.push_back(item->GetName());
-	}
-
 	// Удаляем из списка
-	items_.remove(toRemove);
+	items_.remove(selected);
 
 	// Если это был последний
 	if (items_.count() == 0)
 		editor_->GetPropertyEditor()->clear();
+
+	// Получаем все имена, заодно запоминаем элемент для удаления
+	QStringList fileNames;
+	for (const auto& item : items_)
+		fileNames.push_back(item->GetName());
 
 	// Сообщаяем об удалении
 	emit FilesListChanged(fileNames);

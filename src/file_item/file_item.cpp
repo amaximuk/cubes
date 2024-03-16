@@ -402,7 +402,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             pm.name = QString::fromLocal8Bit("Цвет");
 
             // Можно запросить у менеджера, пока забил красный defaultColorsFile_[defaultColorFileIndex_++]
-            QRgb color = QColor("Red").rgba();
+            QColor redColor = QColor("Red");
+            redColor.setAlpha(32);
+            QRgb color = redColor.rgba();
             if (xmlFile != nullptr && !xmlFile->color.isEmpty() && xmlFile->color.size() == 9)
             {
                 bool ok = false;
