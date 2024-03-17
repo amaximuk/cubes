@@ -56,7 +56,7 @@ namespace CubesProperties
 		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeFileName = "<not selected>");
 
 	signals:
-		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& includeFileName);
 		void PositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const uint32_t propertiesId);
 		void OnError(const uint32_t propertiesId, const QString& message);

@@ -1202,10 +1202,13 @@ void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFile
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString currentName = pi->GetFileName();
+        QString currentIncludeName = pi->GetIncludeName();
         pi->SetFileNames(fileNames);
         if (currentName == oldFileName)
+        {
             pi->SetFileName(fileName);
-
+            pi->SetIncludeName(currentIncludeName);
+        }
         //if (fileName == di->getProperties()->GetFileName())
         //    di->getProperties()->SetGroupNames(fileIncludeNames);
     }

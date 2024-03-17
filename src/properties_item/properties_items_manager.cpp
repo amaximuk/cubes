@@ -107,6 +107,8 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& pro
 	//pi->SetName(propertiesName);
 
 	items_[propertiesId] = pi;
+//	auto name = GetName(propertiesId);
+
 	selector_->addItem(pi->GetInstanceName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
@@ -263,7 +265,9 @@ QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileN
 
 void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
 {
-	auto name = GetName(propertiesId);
+	QString name;
+	GetName(propertiesId, name);
+	//	auto name = GetName(propertiesId);
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
@@ -277,7 +281,9 @@ void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
 
 void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, QStringList& includeNames)
 {
-	auto name = GetName(propertiesId);
+	QString name;
+	GetName(propertiesId, name);
+	//auto name = GetName(propertiesId);
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
@@ -288,23 +294,25 @@ void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, Q
 	topManager_->GetFileIncludeList(item->GetFileName(), includeNames);
 
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetIncludeName();
+	auto includeFileName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
 }
 
 void PropertiesItemsManager::AfterIncludeNameChanged(const uint32_t propertiesId)
 {
-	auto name = GetName(propertiesId);
+	QString name;
+	GetName(propertiesId, name);
+	//	auto name = GetName(propertiesId);
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
 
 	auto item = GetItem(propertiesId);
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetIncludeName();
+	auto includeFileName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
 }
 
 void PropertiesItemsManager::AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)

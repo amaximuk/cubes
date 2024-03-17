@@ -320,22 +320,22 @@ CubesXml::File FileItemsManager::GetXmlFile(const QString& fileName)
 
 void FileItemsManager::BeforeFileNameChanged(const uint32_t fileId, const QString& oldFileName, bool& cancel)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
+	//auto item = GetItem(fileId);
+	//QString fileName = item->GetName();
 
-	int count = 0;
-	for (const auto& i : items_)
-	{
-		if (i->GetName() == fileName)
-			count++;
-	}
-	if (count > 0)
-	{
-		QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-		cancel = true;
-	}
-	else
-		cancel = false;
+	//int count = 0;
+	//for (const auto& i : items_)
+	//{
+	//	if (i->GetName() == fileName)
+	//		count++;
+	//}
+	//if (count > 0)
+	//{
+	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+	//	cancel = true;
+	//}
+	//else
+	//	cancel = false;
 }
 
 void FileItemsManager::AfterFileNameChanged(const uint32_t fileId, const QString& oldFileName)
