@@ -210,7 +210,13 @@ void PropertiesItemsManager::Clear()
 {
 	editor_->GetPropertyEditor()->clear();
 	selector_->clear();
+	selector_->addItem("<not selected>", 0);
 	items_.clear();
+
+	uniqueNumber_ = 0;
+	selected_ = 0;
+
+	defaultColorFileIndex_ = 0;
 }
 
 bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)

@@ -69,6 +69,7 @@ uint32_t FileItemsManager::GetFileId(const QString& fileName)
 
 void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId)
 {
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! filePath unused!!!
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 
@@ -85,7 +86,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId));
 	fi->SetName(fileName, true, fileName);
-	fi->SetPath(filePath);
+	fi->SetPath(QString("config_%1.xml").arg(fileId));
 	fi->SetColor(color);
 
 	items_[fileId] = fi;
@@ -506,7 +507,7 @@ void FileItemsManager::OnAddFileClicked()
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
 	uint32_t fileId{ 0 };
-	Create(QString::fromLocal8Bit("config.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
+	Create(QString::fromLocal8Bit("config_%1.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 
 void FileItemsManager::OnRemoveFileClicked()

@@ -1403,6 +1403,15 @@ void MainWindow::OnOpenFileAction()
             return;
     }
 
+
+
+    scene_->clear();
+    propertiesItemsManager_->Clear();
+    fileItemsManager_->Clear();
+
+
+
+
     QFileDialog dialog(this);
     dialog.setNameFilter("Parameters Archive Files (*.xlmx)");
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
