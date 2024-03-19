@@ -600,13 +600,14 @@ void PropertiesItem::SetIncludeNames(QStringList includeNames)
     SetIncludeName(oldName);
 }
 
-void PropertiesItem::SetIncludeName(QString groupName)
+void PropertiesItem::SetIncludeName(QString includeName)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
-        pm->value = QString(groupName);
+        pm->value = QString(includeName);
         editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
     }
 }
 
