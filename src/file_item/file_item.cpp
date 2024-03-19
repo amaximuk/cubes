@@ -548,15 +548,14 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith(ids_.includes))
     {
-        if (pm->id.startsWith(ids_.includes + ids_.item) && pm->id.endsWith(ids_.name))
+        if (pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
         {
             //QString oldName = pm->value.toString();
             //pm->value = value;
             //file_items_manager_->InformIncludeNameChanged(GetName(), value.toString(), oldName);
         }
         else if ((pm->id == ids_.includes) ||
-            (pm->id.startsWith(ids_.includes + ids_.item)
-            && pm->id.endsWith(ids_.variables)))
+            (pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.variables)))
         {
             int count = value.toInt();
 
@@ -683,8 +682,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith(ids_.includes + ids_.item) &&
-        !pm->id.contains(ids_.variables) && pm->id.endsWith(ids_.name))
+    else if (pm->id.startsWith(ids_.includes) && !pm->id.contains(ids_.variables) &&
+        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
     {
         bool cancel = false;
         fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
@@ -701,8 +700,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
             editor_->SetStringValue(property, oldValue);
         }
     }
-    else if (pm->id.startsWith(ids_.includes + ids_.item) &&
-        pm->id.contains(ids_.variables) && pm->id.endsWith(ids_.name))
+    else if (pm->id.startsWith(ids_.includes) && pm->id.contains(ids_.variables) &&
+        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
     {
         // INCLUDES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES
@@ -716,8 +715,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         pm->value = value;
         fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
     }
-    else if (pm->id.startsWith(ids_.includes + ids_.item) &&
-        pm->id.contains(ids_.variables) && pm->id.endsWith(ids_.value))
+    else if (pm->id.startsWith(ids_.includes) && pm->id.contains(ids_.variables) &&
+        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.value))
     {
         CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variables)) + ids_.name;
         const auto pmIncludesName = GetParameterModel(parameterName);
@@ -1289,7 +1288,7 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
             if (xmlInclude != nullptr && i < xmlInclude->variables.size())
                 name.value = xmlInclude->variables[i].first;
             else
-                name.value = QString::fromLocal8Bit("variable_%1").arg(i);
+                name.value = QString::fromLocal8Bit("BoxId").arg(i);
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
             group_model.parameters.push_back(std::move(name));
 
