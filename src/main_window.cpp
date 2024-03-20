@@ -672,11 +672,11 @@ void MainWindow::FillParametersInfo()
 
                 // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
                 // Принцип обработки такой же как и у остальных параметров
-                if (fi.info.id != "group" && fi.info.id != "group_mock")
+                //if (fi.info.id != "group" && fi.info.id != "group_mock")
                 {
                     parameters::parameter_info pi{};
                     pi.type = QString::fromLocal8Bit("array<string>").toStdString();
-                    pi.name = QString::fromLocal8Bit("DEPENDS").toStdString();
+                    pi.name = ids_.dependencies.toString().toStdString();
                     pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
                     pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
                     pi.required = QString::fromLocal8Bit("false").toStdString();
@@ -850,12 +850,14 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             //pi->ApplyXmlProperties(all_units[i]);
             pi->SetFileNames(fileNames);
             pi->SetFileName(fileName);
-            if (includedFileName != "")
+            //if (includedFileName != "")
             {
                 auto fileId = fileItemsManager_->GetFileId(fileName);
                 QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
                 QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includedFileName);
+                if (fileIncludeName.isEmpty())
+                    fileIncludeName = "<not selected>";
                 pi->SetIncludeNames(fileIncludeNames);
                 pi->SetIncludeName(fileIncludeName);
             }

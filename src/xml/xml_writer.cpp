@@ -4,12 +4,15 @@
 #include <chrono>
 #include <regex>
 #include <QTextStream>
+#include "../unit_types.h"
 #include "xml_writer.h"
 
 using namespace CubesXml;
 
 // !!! remove -> last error???
 #define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)
+
+const CubesUnitTypes::ParameterModelIds Writer::ids_;
 
 bool Writer::Write(QByteArray& byteArray, const File& fi)
 {
@@ -74,8 +77,8 @@ bool Writer::SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWr
 		for (const auto& include : includes)
 		{
 			xmlWriter.writeStartElement("Include");
-			xmlWriter.writeAttribute("name", include.name);
 			xmlWriter.writeAttribute("val", include.fileName);
+			xmlWriter.writeAttribute("_name", include.name);
 			for (const auto& variable : include.variables)
 			{
 				xmlWriter.writeStartElement("Variable");
@@ -260,7 +263,7 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 
 	for (const auto& array : unit.arrays)
 	{
-		if (array.name != "DEPENDS")
+		if (array.name != ids_.dependencies.toString())
 		{
 			if (!SetArray(array, xmlWriter))
 				ELRF("Set Param failed");
@@ -269,7 +272,7 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 
 	for (const auto& array : unit.arrays)
 	{
-		if (array.name == "DEPENDS")
+		if (array.name == ids_.dependencies.toString())
 		{
 			QList<QString> depends;
 			for (const auto& depend : array.items)

@@ -530,6 +530,7 @@ namespace CubesUnitTypes
 		// BASE/INCLUDE_NAME
 		// PARAMETERS
 		// PARAMETERS/...
+		// PARAMETERS/DEPENDENCIES
 		// EDITOR
 		// EDITOR/POSITION_X
 		// EDITOR/POSITION_Y
@@ -568,6 +569,7 @@ namespace CubesUnitTypes
 		const CubesUnitTypes::ParameterModelId loggingLevel;
 		const CubesUnitTypes::ParameterModelId totalLogLimitMb;
 		const CubesUnitTypes::ParameterModelId logDir;
+		const CubesUnitTypes::ParameterModelId dependencies;
 
 		const CubesUnitTypes::ParameterModelId editor;
 		const CubesUnitTypes::ParameterModelId color;
@@ -610,6 +612,7 @@ namespace CubesUnitTypes
 			loggingLevel("$LOGGING_LEVEL"),
 			totalLogLimitMb("$TOTAL_LOG_LIMIT_MB"),
 			logDir("$LOG_DIR"),
+			dependencies("$DEPENDENCIES"),
 
 			editor("$EDITOR"),
 			color("$COLOR"),

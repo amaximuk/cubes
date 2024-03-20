@@ -1014,7 +1014,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
     auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
-    if (model.id == ids_.parameters + ids_.depends)
+    if (model.id == ids_.parameters + ids_.dependencies)
     {
         for (const auto& sub : model.parameters)
         {

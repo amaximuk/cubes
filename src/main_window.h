@@ -65,6 +65,9 @@ private:
     QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
 
+    // Значения имен параметров
+    CubesUnitTypes::ParameterModelIds ids_;
+
 public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;

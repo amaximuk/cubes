@@ -152,6 +152,9 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 				ELRF("Includes/Include val is empty");
 			include.fileName = i_val;
 
+			QString i_name = ei.attribute("_name", "");
+			include.name = i_name;
+
 			QMap<QString, QString> variables;
 			QDomNode v = i.firstChild();
 			while (!v.isNull())
@@ -411,7 +414,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	}
 
 	// »нтерпретируем зависимости юнита как массив строк
-	// ѕри загрузке параметров автоматически добавл€етс€ массив строк с именем DEPENDS
+	// ѕри загрузке параметров автоматически добавл€етс€ массив строк с именем $DEPENEDCIES
 	// «начени€ дл€ зависимостей хран€тс€ в поле name вместо val, учитываем это при загрузке
 
 	auto dependsNodes = ElementsByTagName(node, "Depends");
@@ -422,7 +425,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 			ELRF("Get Depends failed");
 
 		Array array{};
-		array.name = "DEPENDS";
+		array.name = ids_.dependencies.toString();
 		array.type = "str";
 		QList<Item> items;
 		for (const auto& d : depends)
