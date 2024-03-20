@@ -350,12 +350,17 @@ void MainWindow::CreateMenu()
     //fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
 
-    QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
-    sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
-    connect(sortAct, &QAction::triggered, this, &MainWindow::OnSortAction);
+    QAction* sortBoostAct = new QAction(QString::fromLocal8Bit("Сортировать (boost)"), this);
+    sortBoostAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortBoostAct, &QAction::triggered, this, &MainWindow::OnSortBoostAction);
+
+    QAction* sortRectAct = new QAction(QString::fromLocal8Bit("Расставить по сетке"), this);
+    sortRectAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortRectAct, &QAction::triggered, this, &MainWindow::OnSortRectAction);
 
     QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
-    editMenu->addAction(sortAct);
+    editMenu->addAction(sortBoostAct);
+    editMenu->addAction(sortRectAct);
 }
 
 QWidget* MainWindow::CreateMainWidget()
@@ -794,7 +799,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
 
 
 
-    if (!SortUnitsRectangular())
+    if (!SortUnitsRectangular(true))
         return false;
 
     return true;
@@ -963,23 +968,31 @@ bool MainWindow::SortUnits()
     return true;
 }
 
-bool MainWindow::SortUnitsRectangular()
+bool MainWindow::SortUnitsRectangular(bool check)
 {
     if (scene_->items().size() == 0)
         return true;
 
-    int count = 0;
-    for (auto& item : scene_->items())
+    bool sort = true;
+    if (check)
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        QPointF p = di->pos();
-        if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
-            ++count;
+        int count = 0;
+        for (auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            QPointF p = di->pos();
+            if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+                ++count;
+        }
+
+        // Все нулевые, распределяем по сетке
+        if (count != scene_->items().size())
+            sort = false;
     }
 
-    if (count == scene_->items().size())
+
+    if (sort)
     {
-        // Все нулевые, распределяем по сетке
         int size = scene_->items().size();
         int rows = std::sqrt(scene_->items().size());
         int columns = (scene_->items().size() + rows - 1) / rows;
@@ -1774,9 +1787,14 @@ void MainWindow::OnQuitAction()
     }
 }
 
-void MainWindow::OnSortAction()
+void MainWindow::OnSortBoostAction()
 {
     SortUnits();
+}
+
+void MainWindow::OnSortRectAction()
+{
+    SortUnitsRectangular(false);
 }
 
 // TODO: Перенести подсказку в менеджер

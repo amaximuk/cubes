@@ -119,7 +119,7 @@ protected:
     bool AddMainFile(CubesXml::File& file);
     bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);
     bool SortUnits();
-    bool SortUnitsRectangular();
+    bool SortUnitsRectangular(bool check);
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
 
@@ -163,7 +163,8 @@ private slots:
     void OnSaveFileAction();
     void OnSaveAsFileAction();
     void OnQuitAction();
-    void OnSortAction();
+    void OnSortBoostAction();
+    void OnSortRectAction();
 
     // TODO: Перенести подсказку в менеджер
     //void currentItemChanged(QtBrowserItem* item);

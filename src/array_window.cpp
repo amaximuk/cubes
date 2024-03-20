@@ -403,7 +403,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         DiagramAfterItemCreated(di);
     }
 
-    SortUnitsRectangular();
+    SortUnitsRectangular(true);
 }
 
 QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
@@ -591,12 +591,17 @@ void ArrayWindow::CreateMenu()
     //fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
     */
-    QAction* sortAct = new QAction(QString::fromLocal8Bit("Сортировать"), this);
-    sortAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
-    connect(sortAct, &QAction::triggered, this, &ArrayWindow::OnSortAction);
+    QAction* sortBoostAct = new QAction(QString::fromLocal8Bit("Сортировать (boost)"), this);
+    sortBoostAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortBoostAct, &QAction::triggered, this, &ArrayWindow::OnSortBoostAction);
+
+    QAction* sortRectAct = new QAction(QString::fromLocal8Bit("Расставить по сетке"), this);
+    sortRectAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
+    connect(sortRectAct, &QAction::triggered, this, &ArrayWindow::OnSortRectAction);
 
     QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
-    editMenu->addAction(sortAct);
+    editMenu->addAction(sortBoostAct);
+    editMenu->addAction(sortRectAct);
 }
 
 QWidget* ArrayWindow::CreateMainWidget()
@@ -1186,21 +1191,30 @@ bool ArrayWindow::SortUnits()
     return true;
 }
 
-bool ArrayWindow::SortUnitsRectangular()
+bool ArrayWindow::SortUnitsRectangular(bool check)
 {
     if (scene_->items().size() == 0)
         return true;
 
-    int count = 0;
-    for (auto& item : scene_->items())
+    bool sort = true;
+    if (check)
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        QPointF p = di->pos();
-        if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
-            ++count;
+        int count = 0;
+        for (auto& item : scene_->items())
+        {
+            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            QPointF p = di->pos();
+            if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+                ++count;
+        }
+
+        // Все нулевые, распределяем по сетке
+        if (count != scene_->items().size())
+            sort = false;
     }
 
-    if (count == scene_->items().size())
+
+    if (sort)
     {
         // Все нулевые, распределяем по сетке
         int size = scene_->items().size();
@@ -1896,10 +1910,16 @@ void ArrayWindow::OnQuitAction()
     }
 }
 
-void ArrayWindow::OnSortAction()
+void ArrayWindow::OnSortBoostAction()
 {
     SortUnits();
 }
+
+void ArrayWindow::OnSortRectAction()
+{
+    SortUnitsRectangular(false);
+}
+
 
 // TODO: Перенести подсказку в менеджер
 //void ArrayWindow::currentItemChanged(QtBrowserItem* item)
