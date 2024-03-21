@@ -552,6 +552,11 @@ void PropertiesItem::SetFileNames(QStringList fileNames)
         // даже если фактически файл остается тем же
         editor_->blockSignals(true);
         editor_->SetEnumValues(GetProperty(pm->id), fileNames);
+
+        // При добавлении файлов необходимо восстановить выбранное значение
+        if (fileNames.contains(pm->value.toString()))
+            editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        
         editor_->blockSignals(false);
     }
 }
