@@ -20,9 +20,11 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     fileId_ = fileId;
     model_ = {};
     ignoreEvents_ = false;
+    notifyManager_ = false;
 
     CreateParametersModel(nullptr);
     CreateProperties();
+    notifyManager_ = true;
 }
 
 FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId)
@@ -32,9 +34,11 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     fileId_ = fileId;
     model_ = {};
     ignoreEvents_ = false;
+    notifyManager_ = false;
 
     CreateParametersModel(&xmlFile);
     CreateProperties();
+    notifyManager_ = true;
 }
 
 void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
@@ -659,6 +663,9 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 
 void FileItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
 {
+    // Нет необходимости использовать if (notifyManager_) для BeforeFileNameChanged и
+    // AfterFileNameChanged, так как в эту функцию можно попасть только с GUI
+
     qDebug() << "StringEditingFinished value = " << value << ", oldValue = " << oldValue;
 
     auto pm = GetParameterModel(property);
@@ -1186,7 +1193,8 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         }
 
         // Информируем, что создали
-        //fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+        if (notifyManager_)
+            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 
     // Теперь удаляем
@@ -1238,7 +1246,8 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         }
 
         // Информируем, что удалили
-        //fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+        if (notifyManager_)
+            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
     }
 }
 

@@ -41,6 +41,9 @@ namespace CubesFile
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
 
+        //
+        bool notifyManager_;
+
     public:
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);
