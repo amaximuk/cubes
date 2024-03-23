@@ -59,6 +59,7 @@ namespace CubesFile
 		void IncludesListChanged(const QString& fileName, const QStringList& includeNames);
 		void VariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName);
 		void VariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
+		void ColorChanged(const QString& fileName, const QColor& color);
 
 	public:
 		// IFileItemsManagerBoss (для общения с FileItem)
@@ -71,7 +72,8 @@ namespace CubesFile
 		void AfterIncludesListChanged(const uint32_t fileId, const QStringList& includeNames) override;
 		void AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName) override;
 		void AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) override;
-		
+		void AfterColorChanged(const uint32_t fileId, const QColor& color) override;
+
 		// IFileItemsManagerWorker (для общения с TopManager)
 
 	private:

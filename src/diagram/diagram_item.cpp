@@ -195,6 +195,15 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     }
 }
 
+void DiagramItem::InformColorChanged(QColor color)
+{
+    color_ = color;
+    if (scene() != nullptr)
+    {
+        scene()->invalidate();
+    }
+}
+
 void DiagramItem::SetBorderOnly(bool borderOnly)
 {
     qDebug() << "set border " << borderOnly << " " << name_;

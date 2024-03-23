@@ -40,6 +40,7 @@ namespace CubeDiagram
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
         void InformIncludeChanged();
         void InformNameChanged(QString name, QString oldName);
+        void InformColorChanged(QColor color);
         void SetBorderOnly(bool borderOnly);
         uint32_t GetPropertiesId() { return propertiesId_; };
     };

@@ -75,6 +75,8 @@ namespace CubesFile
 		
 		virtual void AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName) = 0;
 		virtual void AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
+	
+		virtual void AfterColorChanged(const uint32_t fileId, const QColor& color) = 0;
 	};
 
 	class IFileItemsManagerWorker

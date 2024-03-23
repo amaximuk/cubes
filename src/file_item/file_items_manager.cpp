@@ -440,6 +440,14 @@ void FileItemsManager::AfterVariablesListChanged(const uint32_t fileId, const QS
 	emit VariablesListChanged(fileName, includeName, variables);
 }
 
+void FileItemsManager::AfterColorChanged(const uint32_t fileId, const QColor& color)
+{
+	auto item = GetItem(fileId);
+	QString fileName = item->GetName();
+
+	emit ColorChanged(fileName, color);
+}
+
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	uint32_t propertiesId = GetCurrentFileId();

@@ -653,6 +653,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
         if (pm->id == ids_.editor + ids_.color)
         {
             pm->value = value.toInt();
+            fileItemsManager_->AfterColorChanged(fileId_, QColor::fromRgba(value.toInt()));
         }
         else
             pm->value = value.toString();

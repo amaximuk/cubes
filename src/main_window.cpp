@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &MainWindow::FileIncludesListChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &MainWindow::FileVariableNameChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &MainWindow::FileVariablesListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &MainWindow::FileColorChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, false);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
@@ -1307,6 +1308,20 @@ void MainWindow::FileVariableNameChanged(const QString& fileName, const QString&
 void MainWindow::FileVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
 {
     propertiesItemsManager_->InformVariableChanged();
+}
+
+void MainWindow::FileColorChanged(const QString& fileName, const QColor& color)
+{
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+
+        auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
+        if (fileName == pi->GetFileName())
+            di->color_ = color;
+    }
+
+    scene_->invalidate();
 }
 
 //void MainWindow::FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
