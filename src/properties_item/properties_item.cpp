@@ -1462,6 +1462,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             bool isArray = parameters::helper::common::get_is_array_type(pi.type);
             auto itemType = parameters::helper::common::get_item_type(pi.type);
+            auto unitType = parameters::helper::common::get_is_unit_type(pi.type);
 
             // isArray нужен для определения, что именно поменялось - количество элементов массива или
             // значение параметра. В модели параметра есть привязка к описанию параметра - parameterInfoId.
@@ -1474,7 +1475,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             // При редактировании элемента типизированного массива (например, типа array<int>)
             // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
-            if (path.size() > 2 && ids_.IsItem(path.back())) //path.back().startsWith(ids_.item))
+            if (path.size() > 2 && ids_.IsItem(path.back()))
                 isArray = false;
 
             if (isArray)
@@ -1545,6 +1546,11 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
                     break;
                 }
             }
+        }
+
+        if (pm->id.endsWith(ids_.depends) || pm->id.endsWith(ids_.dependencies))
+        {
+            propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
         }
     }
     else if (pm->id.startsWith(ids_.editor))
@@ -1618,6 +1624,26 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
         //    // Отмена
         //    editor_->SetStringValue(property, oldValue);
         //}
+    }
+    else if (pm->id.startsWith(ids_.parameters))
+    {
+        // Получаем описание параметра из его yml файла
+        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+            pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+
+        bool isArray = parameters::helper::common::get_is_array_type(pi.type);
+        auto itemType = parameters::helper::common::get_item_type(pi.type);
+        auto isUnitType = parameters::helper::common::get_is_unit_type(pi.type);
+
+        if (isUnitType)
+        {
+            propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
+        }
+
+        if (pm->id.startsWith(ids_.parameters + ids_.dependencies))
+        {
+            propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
+        }
     }
 
 }

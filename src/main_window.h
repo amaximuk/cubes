@@ -142,6 +142,7 @@ public slots:
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
     void PropertiesOnError(const uint32_t propertiesId, const QString& message);
+    void PropertiesConnectionChanged(const uint32_t propertiesId);
 
 private slots:
     // Кнопки

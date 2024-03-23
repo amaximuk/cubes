@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnError, this, &MainWindow::PropertiesOnError);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnConnectionChanged, this, &MainWindow::PropertiesConnectionChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -1382,6 +1383,11 @@ void MainWindow::PropertiesOnError(const uint32_t propertiesId, const QString& m
     log_table_model_->submit();
     table_view_log_->resizeColumnsToContents();
     table_view_log_->update();
+}
+
+void MainWindow::PropertiesConnectionChanged(const uint32_t propertiesId)
+{
+    scene_->invalidate();
 }
 
 // Кнопки

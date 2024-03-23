@@ -539,9 +539,8 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     {
         if (pm->id == ids_.base + ids_.name)
         {
-            //QString oldName = pm->value.toString();
-            //pm->value = value;
-            //file_items_manager_->InformNameChanged(value.toString(), oldName);
+            // Используется модифицированная версия редактора строк qtexpropertymanager
+            // Обработка завершения редактирования строки происходит в StringEditingFinished
         }
         else if (pm->id == ids_.base + ids_.platform)
         {
@@ -554,9 +553,8 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
     {
         if (pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
         {
-            //QString oldName = pm->value.toString();
-            //pm->value = value;
-            //file_items_manager_->InformIncludeNameChanged(GetName(), value.toString(), oldName);
+            // Используется модифицированная версия редактора строк qtexpropertymanager
+            // Обработка завершения редактирования строки происходит в StringEditingFinished
         }
         else if ((pm->id == ids_.includes) ||
             (pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.variables)))

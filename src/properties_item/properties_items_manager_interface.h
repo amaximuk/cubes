@@ -14,6 +14,7 @@ namespace CubesProperties
 		//virtual void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) = 0;
 		virtual void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) = 0;
 		virtual void AfterError(const uint32_t propertiesId, const QString& message) = 0;
+		virtual void AfterConnectionChanged(const uint32_t propertiesId) = 0;
 	};
 
 	class IPropertiesItemsManagerWorker

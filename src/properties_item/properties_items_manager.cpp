@@ -331,6 +331,11 @@ void PropertiesItemsManager::AfterError(const uint32_t propertiesId, const QStri
 	emit OnError(propertiesId, message);
 }
 
+void CubesProperties::PropertiesItemsManager::AfterConnectionChanged(const uint32_t propertiesId)
+{
+	emit OnConnectionChanged(propertiesId);
+}
+
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	uint32_t propertiesId = GetCurrentPropertiesId();

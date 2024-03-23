@@ -56,10 +56,12 @@ namespace CubesProperties
 		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeFileName = "<not selected>");
 
 	signals:
-		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& includeFileName);
+		void BasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName,
+			const QString& includeFileName);
 		void PositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const uint32_t propertiesId);
 		void OnError(const uint32_t propertiesId, const QString& message);
+		void OnConnectionChanged(const uint32_t propertiesId);
 
 	public:
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
@@ -69,6 +71,7 @@ namespace CubesProperties
 		//void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) override;
 		void AfterError(const uint32_t propertiesId, const QString& message) override;
+		void AfterConnectionChanged(const uint32_t propertiesId) override;
 
 		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:
