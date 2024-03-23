@@ -546,7 +546,7 @@ void MainWindow::FillTreeView()
     QMap<QString, QSet<QString>> categoriesMap;
     for (const auto& up : unitParameters_)
     {
-        QString category = "Default";
+        QString category = "default";
         if (up.fileInfo.info.category != "")
             category = QString::fromStdString(up.fileInfo.info.category).toLower();
         categoriesMap[category].insert(QString::fromStdString(up.fileInfo.info.id));
@@ -560,7 +560,9 @@ void MainWindow::FillTreeView()
         item->setDragEnabled(false);
         model->setItem(row, 0, item);
         int col = 0;
-        for (const auto& id : cat.second)
+        auto list = cat.second.values();
+        std::sort(list.begin(), list.end());
+        for (const auto& id : list)
         {
             QStandardItem* child = new QStandardItem(id);
             child->setEditable(false);
