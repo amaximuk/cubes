@@ -14,6 +14,11 @@ namespace CubesUnitTypes
 {
 	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
 
+	using FileId = uint32_t;
+	using IncludeFileId = uint32_t;
+	using FileIdNames = QMap<FileId, QString>;
+	using IncludeFileIdNames = QMap<IncludeFileId, QString>;
+
 	const std::vector<std::string> platform_names_ = {
 		"Windows x32",
 		"Windows x64",

@@ -57,11 +57,11 @@ namespace CubesProperties
         QList<QString> GetConnectedNames();
         QList<QString> GetDependentNames();
         QString GetInstanceName();
-        void SetFileNames(QMap<int, QString> fileNames);
+        void SetFileNames(CubesUnitTypes::FileIdNames fileNames);
         void SetFileName(QString fileName);
         void SetFileNameReadOnly(bool readOnly);
         QString GetFileName();
-        void SetIncludeNames(QMap<int, QString> includeNames);
+        void SetIncludeNames(CubesUnitTypes::IncludeFileIdNames includeNames);
         void SetIncludeName(QString includeName);
         void SetIncludeNameReadOnly(bool readOnly);
         QString GetIncludeName();

@@ -542,12 +542,14 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     }
 }
 
-void PropertiesItem::SetFileNames(QMap<int, QString> fileNames)
+void PropertiesItem::SetFileNames(CubesUnitTypes::FileIdNames fileNames)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
     {
-        pm->editorSettings.ComboBoxValues = fileNames;
+        pm->editorSettings.ComboBoxValues.clear();
+        for(const auto& fn : fileNames.toStdMap())
+            pm->editorSettings.ComboBoxValues[fn.first] = fn.second;
 
         // Блокируем сигналы, чтобы не сбрасывался выбранный включаемыый файл, т.к. по сигналу
         // изменения файла автоматически устанавливается значение <не установлено>,
@@ -593,7 +595,7 @@ void PropertiesItem::SetIncludeNameReadOnly(bool readOnly)
     }
 }
 
-void PropertiesItem::SetIncludeNames(QMap<int, QString> includeNames)
+void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeFileIdNames includeNames)
 {
     QString oldName = GetIncludeName();
     if (!includeNames.values().contains(oldName))
@@ -601,7 +603,10 @@ void PropertiesItem::SetIncludeNames(QMap<int, QString> includeNames)
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
-        pm->editorSettings.ComboBoxValues = includeNames;
+        pm->editorSettings.ComboBoxValues.clear();
+        for (const auto& in : includeNames.toStdMap())
+            pm->editorSettings.ComboBoxValues[in.first] = in.second;
+
         editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
     SetIncludeName(oldName);
@@ -1405,7 +1410,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             const auto s = editor_->GetEnumValue(property);
             pm->value = property->valueText();
 
-            QMap<int, QString> includeNames;
+            CubesUnitTypes::IncludeFileIdNames includeNames;
             propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
             SetIncludeNames(includeNames);

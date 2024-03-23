@@ -878,22 +878,22 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     }
 }
 
-QMap<int, QString> FileItem::GetIncludeNames()
+CubesUnitTypes::IncludeFileIdNames FileItem::GetIncludeNames()
 {
-    QMap<int, QString> result;
+    CubesUnitTypes::IncludeFileIdNames includeNamesMap;
 
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
-        return result;
+        return includeNamesMap;
 
     int index = 1;
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmi = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-        result[index++] = pmi->value.toString();
+        includeNamesMap[index++] = pmi->value.toString();
     }
 
-    return result;
+    return includeNamesMap;
 }
 
 QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& includeName)
@@ -1195,7 +1195,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             model.parameters.push_back(std::move(group_model));
         }
 
-        QMap<int, QString> includeNamesMap;
+        CubesUnitTypes::IncludeFileIdNames includeNamesMap;
         int index = 1;
         for (const auto& in : includeNames)
             includeNamesMap[index++] = in;
@@ -1253,7 +1253,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             }
         }
 
-        QMap<int, QString> includeNamesMap;
+        CubesUnitTypes::IncludeFileIdNames includeNamesMap;
         int index = 1;
         for (const auto& in : includeNames)
             includeNamesMap[index++] = in;

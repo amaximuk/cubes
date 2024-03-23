@@ -68,9 +68,9 @@ namespace CubesFile
 		virtual void AfterIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName) = 0;
 
 		// Тут могут меняться значения не по одному, а сразу список, поэтому передаем сразу все имена
-		virtual void BeforeIncludesAdd(const uint32_t fileId, const QStringList& includeNames, bool& cancel) = 0;
-		virtual void BeforeIncludesRemoved(const uint32_t fileId, const QStringList& includeNames, bool& cancel) = 0;
-		virtual void AfterIncludesListChanged(const uint32_t fileId, const QMap<int, QString>& includeNames) = 0;
+		virtual void BeforeIncludesAdd(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+		virtual void BeforeIncludesRemoved(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+		virtual void AfterIncludesListChanged(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
 		//virtual void AfterVariableChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
 		
 		virtual void AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName) = 0;

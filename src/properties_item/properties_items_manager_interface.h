@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../unit_types.h"
+
 namespace CubesProperties
 {
 	class PropertiesItem;
@@ -9,7 +11,7 @@ namespace CubesProperties
 	public:
 		virtual ~IPropertiesItemsManagerBoss() = default;
 		virtual void AfterNameChanged(const uint32_t propertiesId) = 0;
-		virtual void AfterFileNameChanged(const uint32_t propertiesId, QMap<int, QString>& includeNames) = 0;
+		virtual void AfterFileNameChanged(const uint32_t propertiesId, CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
 		virtual void AfterIncludeNameChanged(const uint32_t propertiesId) = 0;
 		//virtual void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) = 0;
 		virtual void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) = 0;

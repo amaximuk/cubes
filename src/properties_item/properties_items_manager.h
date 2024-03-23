@@ -66,7 +66,7 @@ namespace CubesProperties
 	public:
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
 		void AfterNameChanged(const uint32_t propertiesId) override;
-		void AfterFileNameChanged(const uint32_t propertiesId, QMap<int, QString>& includeNames) override;
+		void AfterFileNameChanged(const uint32_t propertiesId, CubesUnitTypes::IncludeFileIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const uint32_t propertiesId) override;
 		//void AfterIncludeNameChanged(const uint32_t propertiesId, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ) override;

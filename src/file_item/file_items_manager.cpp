@@ -179,9 +179,9 @@ QSharedPointer<FileItem> FileItemsManager::GetItem(const uint32_t& fileId)
 		return nullptr;
 }
 
-QMap<int, QString> FileItemsManager::GetFileNames()
+CubesUnitTypes::FileIdNames FileItemsManager::GetFileNames()
 {
-	QMap<int, QString> fileNames;
+	CubesUnitTypes::FileIdNames fileNames;
 	for (auto& file : items_)
 		fileNames[file->GetFileId()] = file->GetName();
 	return fileNames;
@@ -215,12 +215,12 @@ void FileItemsManager::AddFileInclude(const uint32_t& fileId, const QString& inc
 	}
 }
 
-QMap<int, QString> FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
+CubesUnitTypes::IncludeFileIdNames FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	QMap<int, QString> fileIncludeNames;
+	CubesUnitTypes::IncludeFileIdNames fileIncludeNames;
 	if (addEmptyValue)
 		fileIncludeNames[0] = "<not selected>";
 	for (auto& fi : items_)
@@ -386,13 +386,13 @@ void FileItemsManager::AfterIncludeNameChanged(const uint32_t fileId, const QStr
 	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
 }
 
-void FileItemsManager::BeforeIncludesAdd(const uint32_t fileId, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesAdd(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const QStringList& includeNames, bool& cancel)
+void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -415,12 +415,12 @@ void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const QStrin
 		cancel = false;
 }
 
-void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const QMap<int, QString>& includeNames)
+void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	QMap<int, QString> fileIncludeNames;
+	CubesUnitTypes::IncludeFileIdNames fileIncludeNames;
 	fileIncludeNames[0] = "<not selected>";
 	int index = 1;
 	for(const auto& in : includeNames.values())
@@ -559,7 +559,7 @@ void FileItemsManager::OnRemoveFileClicked()
 		editor_->GetPropertyEditor()->clear();
 
 	// Получаем все имена, заодно запоминаем элемент для удаления
-	QMap<int, QString> fileNames;
+	CubesUnitTypes::FileIdNames fileNames;
 	for (const auto& item : items_)
 		fileNames[item->GetFileId()] = item->GetName();
 
