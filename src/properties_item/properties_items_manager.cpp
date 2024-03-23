@@ -285,7 +285,7 @@ void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
 	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, QStringList& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, QMap<int, QString>& includeNames)
 {
 	QString name;
 	GetName(propertiesId, name);

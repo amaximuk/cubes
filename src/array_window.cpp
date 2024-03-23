@@ -116,7 +116,7 @@ void ArrayWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitP
         unitParameters = unitParameters_[unitId];
 }
 
-void ArrayWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
+void ArrayWindow::GetFileIncludeList(const QString& fileName, QMap<int, QString>& includeNames)
 {
     //includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
 }
@@ -1483,7 +1483,7 @@ void ArrayWindow::FileNameChanged(const QString& fileName, const QString& oldFil
     scene_->invalidate();
 }
 
-void ArrayWindow::FileListChanged(const QStringList& fileNames)
+void ArrayWindow::FileListChanged(const QMap<int, QString>& fileNames)
 {
     for (auto& item : scene_->items())
     {
@@ -1524,7 +1524,7 @@ void ArrayWindow::FileIncludeNameChanged(const QString& fileName, const QString&
     scene_->invalidate();
 }
 
-void ArrayWindow::FileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+void ArrayWindow::FileIncludesListChanged(const QString& fileName, const QMap<int, QString>& includeNames)
 {
     for (auto& item : scene_->items())
     {

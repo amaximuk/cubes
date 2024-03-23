@@ -116,7 +116,7 @@ void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
     unitParameters = unitParameters_[unitId];
 }
 
-void MainWindow::GetFileIncludeList(const QString& fileName, QStringList& includeNames)
+void MainWindow::GetFileIncludeList(const QString& fileName, QMap<int, QString>& includeNames)
 {
     auto fileId = fileItemsManager_->GetFileId(fileName);
     includeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
@@ -836,7 +836,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
     table_view_log_->update();
 
     // Get fileNames list
-    QStringList fileNames = fileItemsManager_->GetFileNames();
+    QMap<int, QString> fileNames = fileItemsManager_->GetFileNames();
 
     // Transform
     CubeDiagram::DiagramItem* di = nullptr;
@@ -857,7 +857,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
             //if (includedFileName != "")
             {
                 auto fileId = fileItemsManager_->GetFileId(fileName);
-                QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+                QMap<int, QString> fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
                 QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includedFileName);
                 if (fileIncludeName.isEmpty())
@@ -1097,7 +1097,7 @@ CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
 }
 
 // Files
-QStringList MainWindow::GetFileNames()
+QMap<int, QString> MainWindow::GetFileNames()
 {
     return fileItemsManager_->GetFileNames();
 }
@@ -1107,7 +1107,7 @@ QString MainWindow::GetCurrentFileName()
     return fileItemsManager_->GetCurrentFileName();
 }
 
-QStringList MainWindow::GetCurrentFileIncludeNames()
+QMap<int, QString> MainWindow::GetCurrentFileIncludeNames()
 {
     auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
     return fileItemsManager_->GetFileIncludeNames(fileId, true);
@@ -1213,9 +1213,9 @@ void MainWindow::selectionChanged()
 // FileItemsManager
 void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFileName)
 {
-    QStringList fileNames = fileItemsManager_->GetFileNames();
+    QMap<int, QString> fileNames = fileItemsManager_->GetFileNames();
     auto fileId = fileItemsManager_->GetFileId(fileName);
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+    QMap<int, QString> fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1244,7 +1244,7 @@ void MainWindow::FileNameChanged(const QString& fileName, const QString& oldFile
     scene_->invalidate();
 }
 
-void MainWindow::FileListChanged(const QStringList& fileNames)
+void MainWindow::FileListChanged(const QMap<int, QString>& fileNames)
 {
     for (auto& item : scene_->items())
     {
@@ -1262,7 +1262,7 @@ void MainWindow::FileListChanged(const QStringList& fileNames)
 void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName)
 {
     auto fileId = fileItemsManager_->GetFileId(fileName);
-    QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+    QMap<int, QString> fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1286,7 +1286,7 @@ void MainWindow::FileIncludeNameChanged(const QString& fileName, const QString& 
     scene_->invalidate();
 }
 
-void MainWindow::FileIncludesListChanged(const QString& fileName, const QStringList& includeNames)
+void MainWindow::FileIncludesListChanged(const QString& fileName, const QMap<int, QString>& includeNames)
 {
     for (auto& item : scene_->items())
     {
@@ -1582,7 +1582,7 @@ void MainWindow::OnSaveFileAction()
     bool is_first = true;
 
     // Получаем список главных файлов
-    QStringList fileNames = fileItemsManager_->GetFileNames();
+    QMap<int, QString> fileNames = fileItemsManager_->GetFileNames();
     for (const auto& fileName : fileNames)
     {
         //// Соберем всю информацию о файле

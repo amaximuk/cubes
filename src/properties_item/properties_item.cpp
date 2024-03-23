@@ -389,16 +389,17 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
 
         // Заполняем допустимые значения из ограничений в yml файле
-        for (const auto& s : pi.restrictions.set_)
-            model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
+        for (int i = 0; i < pi.restrictions.set_.size(); ++i)
+            model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pi.restrictions.set_[i]);
 
         // Проверяем допустимость значений из xml файла (параметра или элемента массива)
         if (haveXmlValue)
         {
             // Проверяем ограничения на список элементов
-            if (!model.editorSettings.ComboBoxValues.contains(xmlValue.toString()))
+            if (!model.editorSettings.ComboBoxValues.values().contains(xmlValue.toString()))
             {
-                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
+                propertiesItemsManager_->AfterError(propertiesId_,
+                    QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                 // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                 // TODO: вернуть ошибку
             }
@@ -483,16 +484,17 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             // TODO: могут быть еще ограничения на список значений, это не учтено
             if (pti->values.size() > 0)
             {
-                for (const auto v : pti->values)
-                    model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(v.first));
+                for (int i = 0; i < pti->values.size(); ++i)
+                    model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pti->values[i].first);
             }
 
             // Проверяем допустимость значений из xml файла
             if (haveXmlValue)
             {
-                if (!model.editorSettings.ComboBoxValues.contains(xmlValue.toString()))
+                if (!model.editorSettings.ComboBoxValues.values().contains(xmlValue.toString()))
                 {
-                    propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
+                    propertiesItemsManager_->AfterError(propertiesId_,
+                        QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
                     // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
                     // TODO: вернуть ошибку
                 }
@@ -540,7 +542,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     }
 }
 
-void PropertiesItem::SetFileNames(QStringList fileNames)
+void PropertiesItem::SetFileNames(QMap<int, QString> fileNames)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
@@ -551,10 +553,10 @@ void PropertiesItem::SetFileNames(QStringList fileNames)
         // изменения файла автоматически устанавливается значение <не установлено>,
         // даже если фактически файл остается тем же
         editor_->blockSignals(true);
-        editor_->SetEnumValues(GetProperty(pm->id), fileNames);
+        editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
 
         // При добавлении файлов необходимо восстановить выбранное значение
-        if (fileNames.contains(pm->value.toString()))
+        if (fileNames.values().contains(pm->value.toString()))
             editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         
         editor_->blockSignals(false);
@@ -591,16 +593,16 @@ void PropertiesItem::SetIncludeNameReadOnly(bool readOnly)
     }
 }
 
-void PropertiesItem::SetIncludeNames(QStringList includeNames)
+void PropertiesItem::SetIncludeNames(QMap<int, QString> includeNames)
 {
     QString oldName = GetIncludeName();
-    if (!includeNames.contains(oldName))
+    if (!includeNames.values().contains(oldName))
         oldName = includeNames[0]; // <not selected>
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
         pm->editorSettings.ComboBoxValues = includeNames;
-        editor_->SetEnumValues(GetProperty(pm->id), includeNames);
+        editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
     SetIncludeName(oldName);
 }
@@ -1097,12 +1099,12 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     if (pi.restrictions.set_count.size() > 0)
     {
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-        for (const auto& s : pi.restrictions.set_count)
-            model.editorSettings.ComboBoxValues.push_back(QString::fromStdString(s));
+        for (int i = 0; i < pi.restrictions.set_count.size(); ++i)
+            model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pi.restrictions.set_count[i]);
     
         if (xmlUnit != nullptr && xmlCount != -1)
         {
-            if (!model.editorSettings.ComboBoxValues.contains(QString("%1").arg(xmlCount)))
+            if (!model.editorSettings.ComboBoxValues.values().contains(QString("%1").arg(xmlCount)))
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
@@ -1400,9 +1402,10 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else if (pm->id == ids_.base + ids_.fileName)
         {
+            const auto s = editor_->GetEnumValue(property);
             pm->value = property->valueText();
 
-            QStringList includeNames;
+            QMap<int, QString> includeNames;
             propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
             SetIncludeNames(includeNames);

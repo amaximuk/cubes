@@ -99,7 +99,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
     {
         pr = enumManager_->addProperty(model.name);
         enumManager_->blockSignals(true);
-        enumManager_->setEnumNames(pr, model.editorSettings.ComboBoxValues);
+        enumManager_->setEnumNames(pr, model.editorSettings.ComboBoxValues.values());
 
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
@@ -185,7 +185,7 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
     {
         enumManager_->blockSignals(true);
-        enumManager_->setEnumNames(property, model.editorSettings.ComboBoxValues);
+        enumManager_->setEnumNames(property, model.editorSettings.ComboBoxValues.values());
 
         int pos = 0;
         for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
@@ -293,6 +293,11 @@ void PropertiesEditor::SetColorValue(QtProperty* property, QColor value)
 void PropertiesEditor::SetReadOnly(QtProperty* property, bool readOnly)
 {
     property->setEnabled(!readOnly);
+}
+
+int PropertiesEditor::GetEnumValue(QtProperty* property)
+{
+    return enumManager_->value(property);
 }
 
 void PropertiesEditor::CollapsedInternal(QtBrowserItem* item)

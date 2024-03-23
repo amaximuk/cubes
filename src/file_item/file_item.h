@@ -62,7 +62,7 @@ namespace CubesFile
         QString GetName();
         QColor GetColor();
         QString GetPropertyDescription(const QtProperty* property);
-        QStringList GetIncludeNames();
+        QMap<int, QString> GetIncludeNames();
         QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
         QString GetIncludeName(const QString& includePath);
         uint32_t GetFileId() { return fileId_; };

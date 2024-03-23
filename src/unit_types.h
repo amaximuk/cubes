@@ -48,7 +48,7 @@ namespace CubesUnitTypes
 		double SpinDoubleMin;
 		double SpinDoubleMax;
 		double SpinDoubleSingleStep;
-		QList<QString> ComboBoxValues;
+		QMap<int, QString> ComboBoxValues;
 		bool is_expanded;
 
 	public:

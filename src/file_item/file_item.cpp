@@ -106,8 +106,9 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         //platform.parameterInfoId = "";
         platform.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         platform.editorSettings.is_expanded = false;
-        for (const auto& pl : CubesUnitTypes::platform_names_)
-            platform.editorSettings.ComboBoxValues.push_back(QString::fromStdString(pl));
+        //for (const auto& pl : CubesUnitTypes::platform_names_)
+        for (int i = 0; i < CubesUnitTypes::platform_names_.size(); ++i)
+            platform.editorSettings.ComboBoxValues[i] = QString::fromStdString(CubesUnitTypes::platform_names_[i]);
         if (CubesUnitTypes::platform_names_.size() > 0)
         {
             
@@ -349,7 +350,10 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             //pm_logging_level.value = QString("TRACE");
             //pm_logging_level.valueType = "string";
             pm_logging_level.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-            pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
+            const QStringList logLevels{ "LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
+            for (int i = 0; i < logLevels.size(); ++i)
+                pm_logging_level.editorSettings.ComboBoxValues[i] = logLevels[i];
+            //pm_logging_level.editorSettings.ComboBoxValues = QStringList{"LOG_TRACE", "LOG_DEBUG", "LOG_INFO" , "LOG_WARNING" , "LOG_ERROR" , "LOG_FATAL" };
             if (xmlFile == nullptr || !xmlFile->config.logIsSet)
                 pm_logging_level.value = pm_logging_level.editorSettings.ComboBoxValues[CubesXml::Log::Defaults().loggingLevel];
             else if (xmlFile->config.log.loggingLevel < pm_logging_level.editorSettings.ComboBoxValues.size())
@@ -874,19 +878,19 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     }
 }
 
-QStringList FileItem::GetIncludeNames()
+QMap<int, QString> FileItem::GetIncludeNames()
 {
-    QStringList result;
+    QMap<int, QString> result;
 
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
         return result;
 
+    int index = 1;
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmi = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
-        result.push_back(pmi->value.toString());
+        result[index++] = pmi->value.toString();
     }
 
     return result;
@@ -993,7 +997,7 @@ File FileItem::GetFile()
     result.log.limit_mb = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.log.directory_path = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    QStringList includeNames = GetIncludeNames();
+    QStringList includeNames = GetIncludeNames().values();
     for (const auto& includeName : includeNames)
     {
         Include include{};
@@ -1041,7 +1045,7 @@ CubesXml::File FileItem::GetXmlFile()
     result.config.log.totalLogLimit = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.config.log.logDir = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    QStringList includeNames = GetIncludeNames();
+    QStringList includeNames = GetIncludeNames().values();
     for (const auto& includeName : includeNames)
     {
         CubesXml::Include include{};
@@ -1191,9 +1195,14 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             model.parameters.push_back(std::move(group_model));
         }
 
+        QMap<int, QString> includeNamesMap;
+        int index = 1;
+        for (const auto& in : includeNames)
+            includeNamesMap[index++] = in;
+
         // Информируем, что создали
         if (notifyManager_)
-            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
     }
 
     // Теперь удаляем
@@ -1244,9 +1253,14 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             }
         }
 
+        QMap<int, QString> includeNamesMap;
+        int index = 1;
+        for (const auto& in : includeNames)
+            includeNamesMap[index++] = in;
+
         // Информируем, что удалили
         if (notifyManager_)
-            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNames);
+            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
     }
 }
 

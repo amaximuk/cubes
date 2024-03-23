@@ -44,6 +44,8 @@ public:
     void SetColorValue(QtProperty* property, QColor value);
     void SetReadOnly(QtProperty* property, bool readOnly);
 
+    int GetEnumValue(QtProperty* property);
+
 signals:
     void Collapsed(QtBrowserItem* item);
     void Expanded(QtBrowserItem* item);

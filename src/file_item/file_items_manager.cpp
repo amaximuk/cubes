@@ -179,11 +179,11 @@ QSharedPointer<FileItem> FileItemsManager::GetItem(const uint32_t& fileId)
 		return nullptr;
 }
 
-QStringList FileItemsManager::GetFileNames()
+QMap<int, QString> FileItemsManager::GetFileNames()
 {
-	QStringList fileNames;
+	QMap<int, QString> fileNames;
 	for (auto& file : items_)
-		fileNames.push_back(file->GetName());
+		fileNames[file->GetFileId()] = file->GetName();
 	return fileNames;
 }
 
@@ -215,19 +215,21 @@ void FileItemsManager::AddFileInclude(const uint32_t& fileId, const QString& inc
 	}
 }
 
-QStringList FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
+QMap<int, QString> FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	QStringList fileIncludeNames;
+	QMap<int, QString> fileIncludeNames;
 	if (addEmptyValue)
-		fileIncludeNames.push_back("<not selected>");
+		fileIncludeNames[0] = "<not selected>";
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
 		{
-			fileIncludeNames.append(fi->GetIncludeNames());
+			int index = 1;
+			for(const auto& fn : fi->GetIncludeNames())
+				fileIncludeNames[index++] = fn;
 			break;
 		}
 	}
@@ -413,14 +415,16 @@ void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const QStrin
 		cancel = false;
 }
 
-void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const QStringList& includeNames)
+void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const QMap<int, QString>& includeNames)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	QStringList fileIncludeNames;
-	fileIncludeNames.push_back("<not selected>");
-	fileIncludeNames.append(includeNames);
+	QMap<int, QString> fileIncludeNames;
+	fileIncludeNames[0] = "<not selected>";
+	int index = 1;
+	for(const auto& in : includeNames.values())
+		fileIncludeNames[index++] = in;
 	emit IncludesListChanged(fileName, fileIncludeNames);
 }
 
@@ -555,9 +559,9 @@ void FileItemsManager::OnRemoveFileClicked()
 		editor_->GetPropertyEditor()->clear();
 
 	// Получаем все имена, заодно запоминаем элемент для удаления
-	QStringList fileNames;
+	QMap<int, QString> fileNames;
 	for (const auto& item : items_)
-		fileNames.push_back(item->GetName());
+		fileNames[item->GetFileId()] = item->GetName();
 
 	// Сообщаяем об удалении
 	emit FilesListChanged(fileNames);

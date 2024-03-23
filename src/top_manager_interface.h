@@ -19,7 +19,7 @@ public:
 	virtual void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) = 0;
 	virtual void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
 
-    virtual void GetFileIncludeList(const QString& fileName, QStringList& includeNames) = 0;
+    virtual void GetFileIncludeList(const QString& fileName, QMap<int, QString>& includeNames) = 0;
     virtual void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) = 0;
 
     virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
