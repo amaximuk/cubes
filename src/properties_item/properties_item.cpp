@@ -1039,12 +1039,34 @@ void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterMo
     auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
 
-    if (pi != nullptr && pi->type == parameters::helper::common::get_system_type_as_string(parameters::system_types::unit))
+    if (pi != nullptr)
     {
-        QString name = model.value.toString();
-        if (name != "")
-            list.push_back(name);
+        bool isArray = parameters::helper::common::get_is_array_type(pi->type);
+        auto itemType = parameters::helper::common::get_item_type(pi->type);
+        auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
+
+        // isArray нужен для определения, что именно поменялось - количество элементов массива или
+        // значение параметра. В модели параметра есть привязка к описанию параметра - parameterInfoId.
+        // В массивах типа yml items не хранят значение, а параметры имеют свое описание и привязку к типу.
+        // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
+        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+        // что на самом деле не так. Поэтому, дополнительно проверяем такую ситуацию.
+        // P.S. Тип нужен для корректной обработки элементов массива
+        // TODO: Возможно надо добавить в модель флаг на этот случай
+
+        // При редактировании элемента типизированного массива (например, типа array<int>)
+        // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
+        if (model.id.size() > 2 && ids_.IsItem(model.id.right(1)))
+            isArray = false;
+
+        if (isUnitType && !isArray)
+        {
+            QString name = model.value.toString();
+            if (name != "")
+                list.push_back(name);
+        }
     }
+
     for (const auto& pm : model.parameters)
         GetConnectedNamesInternal(pm, list);
 }
@@ -1063,20 +1085,42 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
         }
     }
 
-    if (pi != nullptr && pi->type == parameters::helper::common::get_system_type_as_string(parameters::system_types::unit))
+    if (pi != nullptr)
     {
-        for (const auto& sub : model.parameters)
+        bool isArray = parameters::helper::common::get_is_array_type(pi->type);
+        auto itemType = parameters::helper::common::get_item_type(pi->type);
+        auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
+
+        // isArray нужен для определения, что именно поменялось - количество элементов массива или
+        // значение параметра. В модели параметра есть привязка к описанию параметра - parameterInfoId.
+        // В массивах типа yml items не хранят значение, а параметры имеют свое описание и привязку к типу.
+        // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
+        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+        // что на самом деле не так. Поэтому, дополнительно проверяем такую ситуацию.
+        // P.S. Тип нужен для корректной обработки элементов массива
+        // TODO: Возможно надо добавить в модель флаг на этот случай
+
+        // При редактировании элемента типизированного массива (например, типа array<int>)
+        // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
+        if (model.id.size() > 2 && ids_.IsItem(model.id.right(1)))
+            isArray = false;
+
+        if (isUnitType && !isArray)
         {
-            if (sub.id.endsWith(ids_.depends) &&
-                sub.value.type() == QVariant::Type::Bool &&
-                sub.value.toBool() == true)
+            for (const auto& sub : model.parameters)
             {
-                QString name = model.value.toString();
-                list.push_back(name);
-                break;
+                if (sub.id.endsWith(ids_.depends) &&
+                    sub.value.type() == QVariant::Type::Bool &&
+                    sub.value.toBool() == true)
+                {
+                    QString name = model.value.toString();
+                    list.push_back(name);
+                    break;
+                }
             }
         }
     }
+
     for (const auto& pm : model.parameters)
         GetDependentNamesInternal(pm, list);
 }
@@ -1452,8 +1496,8 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
     }
     else if (pm->id.startsWith(ids_.parameters))
     {
-        auto path = pm->id.split();
-        if (path.size() < 2)
+        //auto path = pm->id.split();
+        if (pm->id.size() < 2)
             return;
 
         // У некоторых параметров есть дополнительные параметры DEPENDS у unit,
@@ -1465,8 +1509,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         // $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/FIRMWARE и т.п.
         // Поэтому дополнительно проверяем предпоследний пункт в id
 
-        if (path.size() > 0 && (path[path.size() - 1] == ids_.depends ||
-            path[path.size() - 1] == ids_.optional))
+        if (pm->id.right(1) == ids_.depends || pm->id.right(1) == ids_.optional)
         {
             // Получаем дополнительные свойства
             // У них нет описания в parameter_info, т.к. они добавлены нами для служебных целей
@@ -1475,16 +1518,16 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             std::istringstream(boolString) >> std::boolalpha >> b;
             pm->value = b;
         }
-        else if (path.size() > 2 && (path[path.size() - 2] == ids_.base ||
-            path[path.size() - 2] == ids_.editor))
+        else if (pm->id.size() > 2 && (pm->id.right(2).startsWith(ids_.base) ||
+            pm->id.right(2).startsWith(ids_.editor)))
         {
             // Если это элемент массива типа yml, получаем дополнительные свойства
             // У них нет описания в parameter_info, т.к. они добавлены нами для служебных целей
-            if (path[path.size() - 2] == ids_.base)
+            if (pm->id.right(2).startsWith(ids_.base))
             {
                 pm->value = property->valueText();
             }
-            else if (path[path.size() - 2] == ids_.editor)
+            else if (pm->id.right(2).startsWith(ids_.editor))
             {
                 pm->value = property->valueText().toDouble();
             }
@@ -1497,7 +1540,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             bool isArray = parameters::helper::common::get_is_array_type(pi.type);
             auto itemType = parameters::helper::common::get_item_type(pi.type);
-            auto unitType = parameters::helper::common::get_is_unit_type(pi.type);
+            //auto unitType = parameters::helper::common::get_is_unit_type(pi.type);
 
             // isArray нужен для определения, что именно поменялось - количество элементов массива или
             // значение параметра. В модели параметра есть привязка к описанию параметра - parameterInfoId.
@@ -1510,7 +1553,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             // При редактировании элемента типизированного массива (например, типа array<int>)
             // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
-            if (path.size() > 2 && ids_.IsItem(path.back()))
+            if (pm->id.size() > 2 && ids_.IsItem(pm->id.right(1)))
                 isArray = false;
 
             if (isArray)
@@ -1668,9 +1711,23 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
 
         bool isArray = parameters::helper::common::get_is_array_type(pi.type);
         auto itemType = parameters::helper::common::get_item_type(pi.type);
-        auto isUnitType = parameters::helper::common::get_is_unit_type(pi.type);
+        auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
 
-        if (isUnitType)
+        // isArray нужен для определения, что именно поменялось - количество элементов массива или
+        // значение параметра. В модели параметра есть привязка к описанию параметра - parameterInfoId.
+        // В массивах типа yml items не хранят значение, а параметры имеют свое описание и привязку к типу.
+        // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
+        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+        // что на самом деле не так. Поэтому, дополнительно проверяем такую ситуацию.
+        // P.S. Тип нужен для корректной обработки элементов массива
+        // TODO: Возможно надо добавить в модель флаг на этот случай
+
+        // При редактировании элемента типизированного массива (например, типа array<int>)
+        // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
+        if (pm->id.size() > 2 && ids_.IsItem(pm->id.right(1)))
+            isArray = false;
+
+        if (isUnitType && !isArray)
         {
             propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
         }
