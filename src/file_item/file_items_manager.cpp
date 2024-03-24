@@ -16,8 +16,8 @@ using namespace CubesFile;
 FileItemsManager::FileItemsManager(ITopManager* topManager)
 {
 	topManager_ = topManager;
-	uniqueNumber_ = 0;
-	selected_ = 0;
+	selected_ = CubesUnitTypes::InvalidFileId;
+	uniqueNumber_ = CubesUnitTypes::InvalidFileId;
 
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
@@ -98,7 +98,6 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 {
-
 	fileId = ++uniqueNumber_;
 
 	auto fileName = xmlFile.name;
@@ -267,18 +266,23 @@ QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId
 	return "";
 }
 
+QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId)
+{
+	for (auto& fi : items_)
+	{
+		if (fi->GetFileId() == fileId)
+			return fi->GetIncludePath(fileIncludeId);
+	}
+	return "";
+}
+
 QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeFileId& includeFileId)
 {
 	QList<QPair<QString, QString>> result;
-
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	QStringList fileIncludeNames;
 	for (auto& fi : items_)
 	{
-		if (fi->GetName() == fileName)
+		if (fi->GetFileId() == fileId)
 		{
 			result = fi->GetIncludeVariables(includeFileId);
 			break;

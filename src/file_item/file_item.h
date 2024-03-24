@@ -44,6 +44,9 @@ namespace CubesFile
         //
         bool notifyManager_;
 
+        //
+        CubesUnitTypes::IncludeFileId uniqueNumber_;
+
     public:
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);

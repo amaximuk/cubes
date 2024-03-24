@@ -23,8 +23,8 @@ namespace CubesFile
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
 		QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> items_;
-		uint32_t selected_;
-		uint32_t uniqueNumber_;
+		CubesUnitTypes::FileId selected_;
+		CubesUnitTypes::FileId uniqueNumber_;
 
 	public:
 		FileItemsManager(ITopManager* topManager);
@@ -49,6 +49,7 @@ namespace CubesFile
 		CubesUnitTypes::IncludeFileIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId);
+		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId);
 		QList<QPair<QString, QString>> GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
 			const CubesUnitTypes::IncludeFileId& includeFileId);
 

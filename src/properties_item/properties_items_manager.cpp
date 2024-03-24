@@ -21,8 +21,8 @@ PropertiesItemsManager::PropertiesItemsManager(ITopManager* topManager, bool isA
 	isArray_(isArray)
 {
 	topManager_ = topManager;
-	uniqueNumber_ = 0;
-	selected_ = 0;
+	selected_ = CubesUnitTypes::InvalidPropertiesId;
+	uniqueNumber_ = CubesUnitTypes::InvalidPropertiesId;
 
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
@@ -54,7 +54,7 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -73,7 +73,7 @@ void PropertiesItemsManager::Create(const QString& unitId, uint32_t& propertiesI
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, CubesUnitTypes::PropertiesId& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -92,7 +92,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
-void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& propertiesId)
+void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
@@ -113,7 +113,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, uint32_t& pro
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
-void PropertiesItemsManager::Select(const uint32_t& propertiesId)
+void PropertiesItemsManager::Select(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	if (selected_ != propertiesId)
 	{
@@ -136,7 +136,7 @@ void PropertiesItemsManager::Select(const uint32_t& propertiesId)
 	}
 }
 
-void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
+void PropertiesItemsManager::Remove(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
@@ -145,7 +145,7 @@ void PropertiesItemsManager::Remove(const uint32_t& propertiesId)
 	items_.remove(propertiesId);
 }
 
-QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t propertiesId)
+QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
@@ -154,7 +154,7 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const uint32_t pr
 		return nullptr;
 }
 
-bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool PropertiesItemsManager::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
@@ -168,7 +168,7 @@ bool PropertiesItemsManager::GetPropetiesForDrawing(const uint32_t propertiesId,
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool PropertiesItemsManager::GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
@@ -178,7 +178,7 @@ bool PropertiesItemsManager::GetUnitParameters(const uint32_t propertiesId, Cube
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitId(const uint32_t propertiesId, QString& unitId)
+bool PropertiesItemsManager::GetUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
@@ -219,7 +219,7 @@ void PropertiesItemsManager::Clear()
 	defaultColorFileIndex_ = 0;
 }
 
-bool PropertiesItemsManager::GetName(const uint32_t propertiesId, QString& name)
+bool PropertiesItemsManager::GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name)
 {
 	name = GetName(propertiesId);
 	return true;
@@ -269,7 +269,7 @@ QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileN
 	return result;
 }
 
-void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
+void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -285,7 +285,8 @@ void PropertiesItemsManager::AfterNameChanged(const uint32_t propertiesId)
 	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
 }
 
-void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, CubesUnitTypes::IncludeFileIdNames& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
+	CubesUnitTypes::IncludeFileIdNames& includeNames)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -305,7 +306,7 @@ void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, C
 	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
 }
 
-void PropertiesItemsManager::AfterIncludeNameChanged(const uint32_t propertiesId)
+void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -321,17 +322,17 @@ void PropertiesItemsManager::AfterIncludeNameChanged(const uint32_t propertiesId
 	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
 }
 
-void PropertiesItemsManager::AfterPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
 	emit PositionChanged(propertiesId, posX, posY, posZ);
 }
 
-void PropertiesItemsManager::AfterError(const uint32_t propertiesId, const QString& message)
+void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
 	emit OnError(propertiesId, message);
 }
 
-void CubesProperties::PropertiesItemsManager::AfterConnectionChanged(const uint32_t propertiesId)
+void CubesProperties::PropertiesItemsManager::AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	emit OnConnectionChanged(propertiesId);
 }
@@ -723,14 +724,14 @@ QWidget* PropertiesItemsManager::CreateHintWidget()
 	return hintWidget;
 }
 
-void PropertiesItemsManager::SetPropertyExpanded(const uint32_t propertiesId, const QtProperty* property, bool is_expanded)
+void PropertiesItemsManager::SetPropertyExpanded(const CubesUnitTypes::PropertiesId propertiesId, const QtProperty* property, bool is_expanded)
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
 		it.value()->ExpandedChanged(property, is_expanded);
 }
 
-QString PropertiesItemsManager::GetName(const uint32_t propertiesId)
+QString PropertiesItemsManager::GetName(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	auto item = GetItem(propertiesId);
 

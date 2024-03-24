@@ -16,9 +16,13 @@ namespace CubesUnitTypes
 	// "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
 
 	using FileId = uint32_t;
+	constexpr FileId InvalidFileId = 0;
 	using IncludeFileId = uint32_t;
+	constexpr IncludeFileId InvalidIncludeFileId = 0;
 	using FileIdNames = QMap<FileId, QString>;
 	using IncludeFileIdNames = QMap<IncludeFileId, QString>;
+	using PropertiesId = uint32_t;
+	constexpr PropertiesId InvalidPropertiesId = 0;
 
 	const std::vector<std::string> platform_names_ = {
 		"Windows x32",

@@ -699,7 +699,7 @@ void MainWindow::FillParametersInfo()
 }
 
 // Units
-bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
+bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
 {
     // Не очищаем, вдруг там уже что-то поменяно
     //if (scene_->items().size() == 0)
@@ -708,11 +708,11 @@ bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
     //QString fileName = QFileInfo(file.fileName).fileName();
 
     //QString name = file.name;
-    uint32_t fileId{ 0 };
+    CubesUnitTypes::FileId fileId{ CubesUnitTypes::InvalidFileId };
     fileItemsManager_->Create(file, fileId);
     fileItemsManager_->Select(fileId);
-    QString name;
-    auto res = fileItemsManager_->GetName(fileId, name);
+    //QString name;
+    //auto res = fileItemsManager_->GetName(fileId, name);
 
     //for (const auto& include : file.includes)
     //    fileItemsManager_->AddFileInclude(fileId, include.fileName, include.variables);
@@ -769,37 +769,71 @@ bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
     //if (file.includes.size() > 0)
     //    file.config.groups.push_back(std::move(g));
 
-    if (!AddUnits(name, "", file))
+    if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeFileId, file))
         return false;
 
     if (zipFileName.isEmpty())
     {
+        // Запрашиваем список из fileItemsManager_, чтобы получить includeId
+        const auto includes = fileItemsManager_->GetFileIncludeNames(fileId, false);
         QDir dir = QFileInfo(file.fileName).absoluteDir();
-        for (int i = 0; i < file.includes.size(); i++)
+
+        for (const auto& includeId : includes.keys())
         {
-            QString includedFileName = dir.filePath(file.includes[i].fileName);
+            const auto includePath = fileItemsManager_->GetFileIncludePath(fileId, includeId);
+
+            QString includeFileName = dir.filePath(includePath);
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(includedFileName, includedFile))
+            if (!CubesXml::Parser::Parse(includeFileName, includedFile))
                 return false;
 
-            if (!AddUnits(name, file.includes[i].fileName, includedFile))
+            if (!AddUnits(fileId, includeId, includedFile))
                 return false;
         }
+
+        //for (int i = 0; i < file.includes.size(); i++)
+        //{
+        //    QString includeFileName = dir.filePath(file.includes[i].fileName);
+        //    CubesXml::File includedFile{};
+        //    if (!CubesXml::Parser::Parse(includeFileName, includedFile))
+        //        return false;
+        //    if (!AddUnits(fileId, file.includes[i].fileName, includedFile))
+        //        return false;
+        //}
     }
     else
     {
-        for (int i = 0; i < file.includes.size(); i++)
+        // Запрашиваем список из fileItemsManager_, чтобы получить includeId
+        const auto includes = fileItemsManager_->GetFileIncludeNames(fileId, false);
+
+        for (const auto& includeId : includes.keys())
         {
+            const auto includePath = fileItemsManager_->GetFileIncludePath(fileId, includeId);
+
             QByteArray byteArray;
-            if (!CubesZip::UnZipFile(zipFileName, file.includes[i].fileName, byteArray))
+            if (!CubesZip::UnZipFile(zipFileName, includePath, byteArray))
                 return false;
 
             CubesXml::File includedFile{};
-            CubesXml::Parser::Parse(byteArray, file.includes[i].fileName, includedFile);
+            if (!CubesXml::Parser::Parse(byteArray, includePath, includedFile))
+                return false;
 
-            if (!AddUnits(name, file.includes[i].fileName, includedFile))
+            if (!AddUnits(fileId, includeId, includedFile))
                 return false;
         }
+
+        //for (int i = 0; i < file.includes.size(); i++)
+        //{
+        //    QByteArray byteArray;
+        //    if (!CubesZip::UnZipFile(zipFileName, file.includes[i].fileName, byteArray))
+        //        return false;
+
+        //    CubesXml::File includedFile{};
+        //    CubesXml::Parser::Parse(byteArray, file.includes[i].fileName, includedFile);
+
+        //    if (!AddUnits(name, file.includes[i].fileName, includedFile))
+        //        return false;
+        //}
 
     }
 
@@ -811,7 +845,7 @@ bool MainWindow::AddMainFile(CubesXml::File& file, const QString& zipFileName)
     return true;
 }
 
-bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file)
+bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
@@ -839,6 +873,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
 
     // Get fileNames list
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    QString fileName = fileItemsManager_->GetFileName(fileId);
 
     // Transform
     CubeDiagram::DiagramItem* di = nullptr;
@@ -861,7 +896,7 @@ bool MainWindow::AddUnits(const QString& fileName, const QString& includedFileNa
                 auto fileId = fileItemsManager_->GetFileId(fileName);
                 CubesUnitTypes::IncludeFileIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
-                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includedFileName);
+                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
                 if (fileIncludeName.isEmpty())
                     fileIncludeName = "<not selected>";
                 pi->SetIncludeNames(fileIncludeNames);

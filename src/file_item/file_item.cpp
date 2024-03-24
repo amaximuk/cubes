@@ -21,6 +21,7 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     model_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
+    uniqueNumber_ = CubesUnitTypes::InvalidIncludeFileId;
 
     CreateParametersModel(nullptr);
     CreateProperties();
@@ -35,6 +36,7 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     model_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
+    uniqueNumber_ = CubesUnitTypes::InvalidIncludeFileId;
 
     CreateParametersModel(&xmlFile);
     CreateProperties();
@@ -981,7 +983,7 @@ QString FileItem::GetIncludePath(const CubesUnitTypes::IncludeFileId& includeId)
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
+        const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i));
         if (pmin->key.toInt() == includeId)
         {
             const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath);
@@ -1138,6 +1140,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             group_model.id = model.id + ids_.Item(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
+            group_model.key = ++uniqueNumber_;
 
             CubesUnitTypes::ParameterModel name;
             name.editorSettings.type = CubesUnitTypes::EditorType::String;
@@ -1218,14 +1221,27 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             model.parameters.push_back(std::move(group_model));
         }
 
-        CubesUnitTypes::IncludeFileIdNames includeNamesMap;
-        int index = 1;
-        for (const auto& in : includeNames)
-            includeNamesMap[index++] = in;
+        //CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+        //for (const auto& pm : model.parameters)
+        //{
+        //    for (const auto& si : pm.parameters)
+        //    {
+        //        if (si.id.endsWith(ids_.name))
+        //        {
+        //            includeNamesMap[pm.key.toInt()] = si.value.toString();
+        //            break;
+        //        }
+        //    }
+        //}
 
-        // Информируем, что создали
-        if (notifyManager_)
-            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
+        ////CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+        ////int index = 1;
+        ////for (const auto& in : includeNames)
+        ////    includeNamesMap[index++] = in;
+
+        //// Информируем, что создали
+        //if (notifyManager_)
+        //    fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
     }
 
     // Теперь удаляем
@@ -1276,15 +1292,32 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             }
         }
 
-        CubesUnitTypes::IncludeFileIdNames includeNamesMap;
-        int index = 1;
-        for (const auto& in : includeNames)
-            includeNamesMap[index++] = in;
+        //CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+        //int index = 1;
+        //for (const auto& in : includeNames)
+        //    includeNamesMap[index++] = in;
 
-        // Информируем, что удалили
-        if (notifyManager_)
-            fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
+        //// Информируем, что удалили
+        //if (notifyManager_)
+        //    fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
     }
+
+    CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+    for (const auto& pm : model.parameters)
+    {
+        for (const auto& si : pm.parameters)
+        {
+            if (si.id.endsWith(ids_.name))
+            {
+                includeNamesMap[pm.key.toInt()] = si.value.toString();
+                break;
+            }
+        }
+    }
+
+    // Информируем, что удалили
+    if (notifyManager_)
+        fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
 }
 
 void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::ParameterModel& model, int& count)
