@@ -15,12 +15,14 @@ struct PropertiesForDrawing
 class ITopManager
 {
 public:
-	virtual void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) = 0;
-	virtual void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) = 0;
+	virtual void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) = 0;
+	virtual void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+        const CubesUnitTypes::IncludeFileId& includeFileId, QStringList& unitNames) = 0;
 	virtual void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
 
-    virtual void GetFileIncludeList(const QString& fileName, CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
-    virtual void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) = 0;
+    virtual void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
+    virtual void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
+        const CubesUnitTypes::IncludeFileId& includeFileId, QList<QPair<QString, QString>>& variables) = 0;
 
     virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
     virtual bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) = 0;

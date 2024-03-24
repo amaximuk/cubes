@@ -56,18 +56,19 @@ namespace CubesFile
         void SetPlatform(QString platform);
         void SetPath(QString name, bool setOldName = false, QString oldName = "");
         void SetColor(QColor color);
-        void AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables);
+        void AddInclude(const CubesUnitTypes::IncludeFileId& includeFileId, QList<QPair<QString, QString>> includeVariables);
         void ExpandedChanged(const QtProperty* property, bool is_expanded);
 
         QString GetName();
         QColor GetColor();
         QString GetPropertyDescription(const QtProperty* property);
         CubesUnitTypes::IncludeFileIdNames GetIncludeNames();
-        QList<QPair<QString, QString>> GetIncludeVariables(const QString& includeName);
+        QList<QPair<QString, QString>> GetIncludeVariables(const CubesUnitTypes::IncludeFileId& includeFileId);
         QString GetIncludeName(const QString& includePath);
+        QString GetIncludeName(const CubesUnitTypes::IncludeFileId& includeFileId);
         uint32_t GetFileId() { return fileId_; };
 
-        QString GetIncludePath(const QString& includeName);
+        QString GetIncludePath(const CubesUnitTypes::IncludeFileId& includeFileId);
         File GetFile();
         CubesXml::File GetXmlFile();
 

@@ -138,7 +138,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	emit FilesListChanged(GetFileNames());
 }
 
-void FileItemsManager::Select(const uint32_t& fileId)
+void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
 {
 	if (selected_ != fileId)
 	{
@@ -161,7 +161,7 @@ void FileItemsManager::Select(const uint32_t& fileId)
 	}
 }
 
-void FileItemsManager::Remove(const uint32_t& fileId)
+void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 {
 	int index = selector_->findData(fileId);
 	if (index != -1)
@@ -170,7 +170,7 @@ void FileItemsManager::Remove(const uint32_t& fileId)
 	items_.remove(fileId);
 }
 
-QSharedPointer<FileItem> FileItemsManager::GetItem(const uint32_t& fileId)
+QSharedPointer<FileItem> FileItemsManager::GetItem(const CubesUnitTypes::FileId fileId)
 {
 	auto it = items_.find(fileId);
 	if (it != items_.end())
@@ -187,7 +187,7 @@ CubesUnitTypes::FileIdNames FileItemsManager::GetFileNames()
 	return fileNames;
 }
 
-QColor FileItemsManager::GetFileColor(const uint32_t& fileId)
+QColor FileItemsManager::GetFileColor(const CubesUnitTypes::FileId fileId)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -200,7 +200,8 @@ QColor FileItemsManager::GetFileColor(const uint32_t& fileId)
 	return QColor("Black");
 }
 
-void FileItemsManager::AddFileInclude(const uint32_t& fileId, const QString& includeName, QList<QPair<QString, QString>> includeVariables)
+void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+	QList<QPair<QString, QString>> includeVariables)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -209,13 +210,20 @@ void FileItemsManager::AddFileInclude(const uint32_t& fileId, const QString& inc
 	{
 		if (fi->GetName() == fileName)
 		{
-			fi->AddInclude(includeName, includeVariables);
+			fi->AddInclude(includeFileId, includeVariables);
 			break;
 		}
 	}
 }
 
-CubesUnitTypes::IncludeFileIdNames FileItemsManager::GetFileIncludeNames(const uint32_t& fileId, bool addEmptyValue)
+QString FileItemsManager::GetFileName(const CubesUnitTypes::FileId fileId)
+{
+	if (items_.contains(fileId))
+		return items_[fileId]->GetName();
+	return "";
+}
+
+CubesUnitTypes::IncludeFileIdNames FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -236,7 +244,7 @@ CubesUnitTypes::IncludeFileIdNames FileItemsManager::GetFileIncludeNames(const u
 	return fileIncludeNames;
 }
 
-QString FileItemsManager::GetFileIncludeName(const uint32_t& fileId, const QString& filePath)
+QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -249,7 +257,18 @@ QString FileItemsManager::GetFileIncludeName(const uint32_t& fileId, const QStri
 	return "";
 }
 
-QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const uint32_t& fileId, const QString& includeName)
+QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId)
+{
+	for (auto& fi : items_)
+	{
+		if (fi->GetFileId() == fileId)
+			return fi->GetIncludeName(fileIncludeId);
+	}
+	return "";
+}
+
+QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileId& includeFileId)
 {
 	QList<QPair<QString, QString>> result;
 
@@ -261,7 +280,7 @@ QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const u
 	{
 		if (fi->GetName() == fileName)
 		{
-			result = fi->GetIncludeVariables(includeName);
+			result = fi->GetIncludeVariables(includeFileId);
 			break;
 		}
 	}
@@ -276,7 +295,7 @@ void FileItemsManager::Clear()
 	items_.clear();
 }
 
-bool FileItemsManager::GetName(const uint32_t fileId, QString& name)
+bool FileItemsManager::GetName(const CubesUnitTypes::FileId fileId, QString& name)
 {
 	auto fi = GetItem(fileId);
 	if (fi == nullptr)
@@ -286,7 +305,7 @@ bool FileItemsManager::GetName(const uint32_t fileId, QString& name)
 	return true;
 }
 
-File FileItemsManager::GetFile(const uint32_t& fileId)
+File FileItemsManager::GetFile(const CubesUnitTypes::FileId fileId)
 {
 	File result{};
 
@@ -320,28 +339,28 @@ CubesXml::File FileItemsManager::GetXmlFile(const QString& fileName)
 
 	return result;
 }
+//
+//void FileItemsManager::BeforeFileNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId oldFileId, bool& cancel)
+//{
+//	//auto item = GetItem(fileId);
+//	//QString fileName = item->GetName();
+//
+//	//int count = 0;
+//	//for (const auto& i : items_)
+//	//{
+//	//	if (i->GetName() == fileName)
+//	//		count++;
+//	//}
+//	//if (count > 0)
+//	//{
+//	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
+//	//	cancel = true;
+//	//}
+//	//else
+//	//	cancel = false;
+//}
 
-void FileItemsManager::BeforeFileNameChanged(const uint32_t fileId, const QString& oldFileName, bool& cancel)
-{
-	//auto item = GetItem(fileId);
-	//QString fileName = item->GetName();
-
-	//int count = 0;
-	//for (const auto& i : items_)
-	//{
-	//	if (i->GetName() == fileName)
-	//		count++;
-	//}
-	//if (count > 0)
-	//{
-	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-	//	cancel = true;
-	//}
-	//else
-	//	cancel = false;
-}
-
-void FileItemsManager::AfterFileNameChanged(const uint32_t fileId, const QString& oldFileName)
+void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -369,39 +388,39 @@ void FileItemsManager::AfterFileNameChanged(const uint32_t fileId, const QString
 	//	selected_ = fileName;
 
 	// Уведомляем о переименовании
-	emit FileNameChanged(fileName, oldFileName);
+	emit FileNameChanged(fileId);
 }
 
-void FileItemsManager::BeforeIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName, bool& cancel)
+//void FileItemsManager::BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId includeId,
+//	const CubesUnitTypes::FileId oldIncludeId, bool& cancel)
+//{
+//	// Ничего не делаем
+//	cancel = false;
+//}
+
+void FileItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId includeId)
+{
+	emit IncludeNameChanged(fileId, includeId);
+}
+
+void FileItemsManager::BeforeIncludesAdd(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
 {
 	// Ничего не делаем
 	cancel = false;
 }
 
-void FileItemsManager::AfterIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName)
+void FileItemsManager::BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	emit IncludeNameChanged(fileName, includeName, oldIncludeName);
-}
-
-void FileItemsManager::BeforeIncludesAdd(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
-{
-	// Ничего не делаем
-	cancel = false;
-}
-
-void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel)
-{
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
+	//auto item = GetItem(fileId);
+	//QString fileName = item->GetName();
 
 	QSet<QString> allUnitNames;
-	for (const auto& includeName : includeNames)
+	for (const auto& includeFileId : includeNames.keys())
 	{
 		QStringList unitNames;
-		topManager_->GetUnitsInFileIncludeList(fileName, includeName, unitNames);
+		topManager_->GetUnitsInFileIncludeList(fileId, includeFileId, unitNames);
 		allUnitNames.unite(QSet<QString>(unitNames.begin(), unitNames.end()));
 	}
 	if (allUnitNames.count() > 0)
@@ -415,7 +434,8 @@ void FileItemsManager::BeforeIncludesRemoved(const uint32_t fileId, const CubesU
 		cancel = false;
 }
 
-void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames)
+void FileItemsManager::AfterIncludesListChanged(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileIdNames& includeNames)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -425,31 +445,30 @@ void FileItemsManager::AfterIncludesListChanged(const uint32_t fileId, const Cub
 	int index = 1;
 	for(const auto& in : includeNames.values())
 		fileIncludeNames[index++] = in;
-	emit IncludesListChanged(fileName, fileIncludeNames);
+	emit IncludesListChanged(fileId, fileIncludeNames);
 }
 
-void FileItemsManager::AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName)
+void FileItemsManager::AfterVariableNameChanged(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileId& includeFileId, const QString& variableName, const QString& oldVariableName)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	emit VariableNameChanged(fileName, includeName, variableName, oldVariableName);
+	emit VariableNameChanged(fileId, includeFileId, variableName, oldVariableName);
 }
 
-void FileItemsManager::AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables)
+void FileItemsManager::AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeFileId& includeFileId, const QList<QPair<QString, QString>>& variables)
+{
+	emit VariablesListChanged(fileId, includeFileId, variables);
+}
+
+void FileItemsManager::AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
 
-	emit VariablesListChanged(fileName, includeName, variables);
-}
-
-void FileItemsManager::AfterColorChanged(const uint32_t fileId, const QColor& color)
-{
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	emit ColorChanged(fileName, color);
+	emit ColorChanged(fileId, color);
 }
 
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
@@ -531,12 +550,12 @@ void FileItemsManager::OnRemoveFileClicked()
 	}
 
 	auto fileId = GetCurrentFileId();
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
+	//auto item = GetItem(fileId);
+	//QString fileName = item->GetName();
 
 	// Проверяем возможность удаления
 	QStringList unitNames;
-	topManager_->GetUnitsInFileList(fileName, unitNames);
+	topManager_->GetUnitsInFileList(fileId, unitNames);
 	if (unitNames.count() > 0)
 	{
 		QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
@@ -631,7 +650,7 @@ QWidget* FileItemsManager::CreateSelectorWidget()
 	return mainWidget;
 }
 
-void FileItemsManager::SetPropertyExpanded(const uint32_t fileId, const QtProperty* property, bool is_expanded)
+void FileItemsManager::SetPropertyExpanded(const CubesUnitTypes::FileId fileId, const QtProperty* property, bool is_expanded)
 {
 	auto it = items_.find(fileId);
 	if (it != items_.end())

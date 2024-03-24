@@ -632,6 +632,34 @@ QString PropertiesItem::GetFileName()
         return "";
 }
 
+CubesUnitTypes::FileId PropertiesItem::GetFileId()
+{
+    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+    if (pm != nullptr)
+    {
+        for (const auto& kvp : pm->editorSettings.ComboBoxValues.toStdMap())
+        {
+            if (kvp.second == pm->value.toString())
+                return kvp.first;
+        }
+    }
+    return 0;
+}
+
+CubesUnitTypes::IncludeFileId PropertiesItem::GetIncludeFileId()
+{
+    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+    if (pm != nullptr)
+    {
+        for (const auto& kvp : pm->editorSettings.ComboBoxValues.toStdMap())
+        {
+            if (kvp.second == pm->value.toString())
+                return kvp.first;
+        }
+    }
+    return 0;
+}
+
 QString PropertiesItem::GetIncludeName()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);

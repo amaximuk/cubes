@@ -62,21 +62,27 @@ namespace CubesFile
 		virtual ~IFileItemsManagerBoss() = default;
 
 		// “ут значени€ мен€ютс€ по одному
-		virtual void BeforeFileNameChanged(const uint32_t fileId, const QString& oldFileName, bool& cancel) = 0;
-		virtual void AfterFileNameChanged(const uint32_t fileId, const QString& oldFileName) = 0;
-		virtual void BeforeIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName, bool& cancel) = 0;
-		virtual void AfterIncludeNameChanged(const uint32_t fileId, const QString& includeName, const QString& oldIncludeName) = 0;
+		//virtual void BeforeFileNameChanged(const CubesUnitTypes::FileId fileId,
+		//	const CubesUnitTypes::FileId oldFileId, bool& cancel) = 0;
+		virtual void AfterFileNameChanged(const CubesUnitTypes::FileId fileId) = 0;
+		//virtual void BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
+		//	const CubesUnitTypes::IncludeFileId oldIncludeId, bool& cancel) = 0;
+		virtual void AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId) = 0;
 
 		// “ут могут мен€тьс€ значени€ не по одному, а сразу список, поэтому передаем сразу все имена
-		virtual void BeforeIncludesAdd(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
-		virtual void BeforeIncludesRemoved(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
-		virtual void AfterIncludesListChanged(const uint32_t fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
-		//virtual void AfterVariableChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
+		virtual void BeforeIncludesAdd(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+		virtual void BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+		virtual void AfterIncludesListChanged(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
 		
-		virtual void AfterVariableNameChanged(const uint32_t fileId, const QString& includeName, const QString& variableName, const QString& oldVariableName) = 0;
-		virtual void AfterVariablesListChanged(const uint32_t fileId, const QString& includeName, const QList<QPair<QString, QString>>& variables) = 0;
+		virtual void AfterVariableNameChanged(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeFileId& includeFileId, const QString& variableName, const QString& oldVariableName) = 0;
+		virtual void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeFileId& includeFileId, const QList<QPair<QString, QString>>& variables) = 0;
 	
-		virtual void AfterColorChanged(const uint32_t fileId, const QColor& color) = 0;
+		virtual void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) = 0;
 	};
 
 	class IFileItemsManagerWorker

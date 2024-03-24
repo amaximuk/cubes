@@ -12,7 +12,8 @@
 
 namespace CubesUnitTypes
 {
-	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
+	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t",
+	// "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
 
 	using FileId = uint32_t;
 	using IncludeFileId = uint32_t;
@@ -696,6 +697,7 @@ namespace CubesUnitTypes
 	public:
 		ParameterModelId id; // id path, separated by /
 		QString name;
+		QVariant key; // Для хранения id списков и т.п.
 		QVariant value;
 		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;

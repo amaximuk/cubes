@@ -677,62 +677,84 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
 
     if (pm->id == ids_.base + ids_.name)
     {
-        bool cancel = false;
-        fileItemsManager_->BeforeFileNameChanged(fileId_, oldValue, cancel);
+        fileItemsManager_->AfterFileNameChanged(fileId_);
 
-        if (!cancel)
-        {
-            QString oldName = pm->value.toString();
-            pm->value = value;
-            fileItemsManager_->AfterFileNameChanged(fileId_, oldName);
-        }
-        else
-        {
-            // Отмена
-            editor_->SetStringValue(property, oldValue);
-        }
+        //bool cancel = false;
+        //fileItemsManager_->BeforeFileNameChanged(fileId_, oldValue, cancel);
+
+        //if (!cancel)
+        //{
+        //    QString oldName = pm->value.toString();
+        //    pm->value = value;
+        //    fileItemsManager_->AfterFileNameChanged(fileId_, oldName);
+        //}
+        //else
+        //{
+        //    // Отмена
+        //    editor_->SetStringValue(property, oldValue);
+        //}
     }
-    else if (pm->id.startsWith(ids_.includes) && !pm->id.contains(ids_.variables) &&
-        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
+    else if (pm->id.startsWith(ids_.includes) && pm->id.size() == 3 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
     {
-        bool cancel = false;
-        fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
+        // INCLUDES/ITEM_0/NAME
+        // INCLUDES/ITEM_0/VARIABLES
+        // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
+        // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
+    
+        fileItemsManager_->AfterIncludeNameChanged(fileId_, pm->key.toInt());
+        //bool cancel = false;
+        //fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
 
-        if (!cancel)
-        {
-            QString oldName = pm->value.toString();
-            pm->value = value;
-            fileItemsManager_->AfterIncludeNameChanged(fileId_, value, oldName);
-        }
-        else
-        {
-            // Отмена
-            editor_->SetStringValue(property, oldValue);
-        }
+        //if (!cancel)
+        //{
+        //    QString oldName = pm->value.toString();
+        //    pm->value = value;
+        //    fileItemsManager_->AfterIncludeNameChanged(fileId_, value, oldName);
+        //}
+        //else
+        //{
+        //    // Отмена
+        //    editor_->SetStringValue(property, oldValue);
+        //}
     }
-    else if (pm->id.startsWith(ids_.includes) && pm->id.contains(ids_.variables) &&
-        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.name))
+    else if (pm->id.startsWith(ids_.includes) && pm->id.size() == 5 && ids_.IsItem(pm->id.mid(1, 1)) && 
+        pm->id.mid(2, 1) == ids_.variables && ids_.IsItem(pm->id.mid(3, 1)) && pm->id.endsWith(ids_.name))
     {
         // INCLUDES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
 
-        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variables)) + ids_.name;
-        const auto pmIncludesName = GetParameterModel(parameterName);
-        QString includesName = pmIncludesName->value.toString();
+        //CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variables)) + ids_.name;
+        //const auto pmIncludesName = GetParameterModel(parameterName);
+        //QString includesName = pmIncludesName->value.toString();
+        //QString oldName = pm->value.toString();
+        //pm->value = value;
+        //fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
+
+        // TODO: Пока возвращаю индекс+1, это фактически совпадает с includeFileId, 
+        // но по честному надо доставать id из editorSettings модели INCLUDES
+        const auto includeFileId = ids_.ItemIndex(pm->id.left(pm->id.indexOf(ids_.variables))) + 1;
         QString oldName = pm->value.toString();
         pm->value = value;
-        fileItemsManager_->AfterVariableNameChanged(fileId_, includesName, value, oldName);
+        fileItemsManager_->AfterVariableNameChanged(fileId_, includeFileId, value, oldName);
     }
-    else if (pm->id.startsWith(ids_.includes) && pm->id.contains(ids_.variables) &&
-        pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.value))
+    else if (pm->id.startsWith(ids_.includes) && pm->id.size() == 5 && ids_.IsItem(pm->id.mid(1, 1)) &&
+        pm->id.mid(2, 1) == ids_.variables && ids_.IsItem(pm->id.mid(3, 1)) && pm->id.endsWith(ids_.value))
     {
-        CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variables)) + ids_.name;
-        const auto pmIncludesName = GetParameterModel(parameterName);
-        QString includesName = pmIncludesName->value.toString();
-        QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
-        fileItemsManager_->AfterVariablesListChanged(fileId_, includesName, variables);
+        //CubesUnitTypes::ParameterModelId parameterName = pm->id.left(pm->id.indexOf(ids_.variables)) + ids_.name;
+        //const auto pmIncludesName = GetParameterModel(parameterName);
+        //QString includesName = pmIncludesName->value.toString();
+        //QList<QPair<QString, QString>> variables = GetIncludeVariables(includesName);
+        //fileItemsManager_->AfterVariablesListChanged(fileId_, includesName, variables);
+
+        // TODO: Пока возвращаю индекс+1, это фактически совпадает с includeFileId, 
+        // но по честному надо доставать id из editorSettings модели INCLUDES
+        const auto includeFileId = ids_.ItemIndex(pm->id.left(pm->id.indexOf(ids_.variables))) + 1;
+        QString oldName = pm->value.toString();
+        pm->value = value;
+        QList<QPair<QString, QString>> variables = GetIncludeVariables(includeFileId);
+        fileItemsManager_->AfterVariablesListChanged(fileId_, includeFileId, variables);
     }
 }
 
@@ -827,7 +849,7 @@ void FileItem::SetColor(QColor color)
     editor_->SetColorValue(pr, color);
 }
 
-void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QString>> includeVariables)
+void FileItem::AddInclude(const CubesUnitTypes::IncludeFileId& includeId, QList<QPair<QString, QString>> includeVariables)
 {
     auto pmi = GetParameterModel(ids_.includes);
     int ci = pmi->value.toInt() + 1;
@@ -838,21 +860,21 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     // необходимого количества заготовок через ValueChanged
 
     auto pmin = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.name);
-    //auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(ci - 1));
     pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
 
     auto prin = GetProperty(pmin->id);
     editor_->SetStringValue(prin, pmin->value.toString());
 
+    const auto includeName = GetIncludeName(includeId);
+
     auto pmifn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.filePath);
-    //auto pmifn = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(ci - 1));
+    pmifn->key = includeId;
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
     editor_->SetStringValue(prifn, includeName);
 
     auto pmiv = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables);
-    //auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName));
 
     auto priv = GetProperty(pmiv->id);
     editor_->SetIntValue(priv, includeVariables.size());
@@ -863,14 +885,12 @@ void FileItem::AddInclude(const QString& includeName, QList<QPair<QString, QStri
     {
         auto& v = includeVariables.at(i);
         auto pmivn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.name);
-        //auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName).arg(i));
         pmivn->value = v.first;
 
         auto privn = GetProperty(pmivn->id);
         editor_->SetStringValue(privn, v.first);
 
         auto pmivv = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.value);
-        //auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(ids_.includesGroupName).arg(ci - 1).arg(ids_.variablesGroupName).arg(i));
         pmivv->value = v.second;
 
         auto privv = GetProperty(pmivv->id);
@@ -896,7 +916,7 @@ CubesUnitTypes::IncludeFileIdNames FileItem::GetIncludeNames()
     return includeNamesMap;
 }
 
-QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& includeName)
+QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeFileId& includeId)
 {
     QList<QPair<QString, QString>> result;
 
@@ -907,17 +927,13 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const QString& incl
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmi = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
-        if (pmi->value == includeName)
+        if (pmi->key.toInt() == includeId)
         {
             const auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables);
-            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/%3").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName));
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
                 auto pmivn = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
-                //const auto pmivn = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/NAME").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName).arg(j));
                 auto pmivv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
-                //const auto pmivv = GetParameterModel(QString("%1/ITEM_%2/%3/ITEM_%4/VALUE").arg(ids_.includesGroupName).arg(i).arg(ids_.variablesGroupName).arg(j));
                 result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
             }
             break;
@@ -936,18 +952,28 @@ QString FileItem::GetIncludeName(const QString& includePath)
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath);
-        //const auto pmif = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(i));
         if (pmif->value == includePath)
         {
             const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-            //const auto pmin = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
             return pmin->value.toString();
         }
     }
     return "";
 }
 
-QString FileItem::GetIncludePath(const QString& includeName)
+QString FileItem::GetIncludeName(const CubesUnitTypes::IncludeFileId& includeFileId)
+{
+    const auto pm = GetParameterModel(ids_.includes);
+    if (pm == nullptr)
+        return "";
+
+    if (pm->editorSettings.ComboBoxValues.contains(includeFileId))
+        return pm->editorSettings.ComboBoxValues[includeFileId];
+
+    return "";
+}
+
+QString FileItem::GetIncludePath(const CubesUnitTypes::IncludeFileId& includeId)
 {
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
@@ -956,11 +982,9 @@ QString FileItem::GetIncludePath(const QString& includeName)
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-        //const auto pmi = GetParameterModel(QString("%1/ITEM_%2/NAME").arg(ids_.includesGroupName).arg(i));
-        if (pmin->value == includeName)
+        if (pmin->key.toInt() == includeId)
         {
             const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath);
-            //const auto pmiv = GetParameterModel(QString("%1/ITEM_%2/FILE_PATH").arg(ids_.includesGroupName).arg(i));
             return pmif->value.toString();
         }
     }
@@ -997,13 +1021,13 @@ File FileItem::GetFile()
     result.log.limit_mb = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.log.directory_path = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    QStringList includeNames = GetIncludeNames().values();
-    for (const auto& includeName : includeNames)
+    const auto includeNames = GetIncludeNames();
+    for (const auto& kvp : includeNames.toStdMap())
     {
         Include include{};
-        include.name = includeName;
-        include.path = GetIncludePath(includeName);
-        include.variables = GetIncludeVariables(includeName);
+        include.name = kvp.second;
+        include.path = GetIncludePath(kvp.first);
+        include.variables = GetIncludeVariables(kvp.first);
         result.includes.push_back(include);
     }
 
@@ -1018,7 +1042,6 @@ CubesXml::File FileItem::GetXmlFile()
     result.fileName = GetParameterModel(ids_.base + ids_.path)->value.toString();
     QColor color = QColor::fromRgba(GetParameterModel(ids_.editor + ids_.color)->value.toUInt());
     result.color = QString("#%1").arg(color.rgba(), 8, 16, QLatin1Char('0'));
-    //result.color = QString("#%1%2%3%4").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
 
     result.config.networkingIsSet = true;
     result.config.networking.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();
@@ -1045,13 +1068,13 @@ CubesXml::File FileItem::GetXmlFile()
     result.config.log.totalLogLimit = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.config.log.logDir = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    QStringList includeNames = GetIncludeNames().values();
-    for (const auto& includeName : includeNames)
+    const auto includeNames = GetIncludeNames();
+    for (const auto& kvp : includeNames.toStdMap())
     {
         CubesXml::Include include{};
-        include.name = includeName;
-        include.fileName = GetIncludePath(includeName);
-        include.variables = GetIncludeVariables(includeName);
+        include.name = kvp.second;
+        include.fileName = GetIncludePath(kvp.first);
+        include.variables = GetIncludeVariables(kvp.first);
         result.includes.push_back(include);
     }
 

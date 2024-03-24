@@ -74,11 +74,13 @@ public:
 
 public:
     // ITopManager
-    void GetUnitsInFileList(const QString& fileName, QStringList& unitNames) override;
-    void GetUnitsInFileIncludeList(const QString& fileName, const QString& includeName, QStringList& unitNames) override;
+    void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
+    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+        QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    void GetFileIncludeList(const QString& fileName, CubesUnitTypes::IncludeFileIdNames& includeNames) override;
-    void GetFileIncludeVariableList(const QString& fileName, const QString& includeName, QList<QPair<QString, QString>>& variables) override;
+    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames) override;
+    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+        QList<QPair<QString, QString>>& variables) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
     bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
     bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
@@ -129,14 +131,24 @@ public slots:
     void selectionChanged(); // QGraphicsScene
 
     // FileItemsManager
-    void FileNameChanged(const QString& fileName, const QString& oldFileName);
-    void FileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-    void FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
-    void FileIncludesListChanged(const QString& fileName, const CubesUnitTypes::IncludeFileIdNames& includeNames);
-    //void FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
-    void FileVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName);
-    void FileVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
-    void FileColorChanged(const QString& fileName, const QColor& color);
+    void FileNameChanged(const CubesUnitTypes::FileId& fileId);
+    void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
+    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId);
+    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames);
+    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+        const QString& variableName, const QString& oldVariableName);
+    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+        const QList<QPair<QString, QString>>& variables);
+    void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+
+    //void FileNameChanged(const QString& fileName, const QString& oldFileName);
+    //void FileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
+    //void FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
+    //void FileIncludesListChanged(const QString& fileName, const CubesUnitTypes::IncludeFileIdNames& includeNames);
+    ////void FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
+    //void FileVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName);
+    //void FileVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
+    //void FileColorChanged(const QString& fileName, const QColor& color);
 
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);

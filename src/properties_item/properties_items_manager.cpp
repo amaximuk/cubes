@@ -297,7 +297,7 @@ void PropertiesItemsManager::AfterFileNameChanged(const uint32_t propertiesId, C
 	auto item = GetItem(propertiesId);
 
 	// Заполняем группы
-	topManager_->GetFileIncludeList(item->GetFileName(), includeNames);
+	topManager_->GetFileIncludeList(item->GetFileId(), includeNames);
 
 	auto fileName = item->GetFileName();
 	auto includeFileName = item->GetIncludeName();
@@ -735,7 +735,7 @@ QString PropertiesItemsManager::GetName(const uint32_t propertiesId)
 	auto item = GetItem(propertiesId);
 
 	QList<QPair<QString, QString>> variables;
-	topManager_->GetFileIncludeVariableList(item->GetFileName(), item->GetIncludeName(), variables);
+	topManager_->GetFileIncludeVariableList(item->GetFileId(), item->GetIncludeFileId(), variables);
 
 	QString name = item->GetName();
 	for (const auto& v : variables)
