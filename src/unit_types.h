@@ -17,10 +17,10 @@ namespace CubesUnitTypes
 
 	using FileId = uint32_t;
 	constexpr FileId InvalidFileId = 0;
-	using IncludeFileId = uint32_t;
-	constexpr IncludeFileId InvalidIncludeFileId = 0;
+	using IncludeId = uint32_t;
+	constexpr IncludeId InvalidIncludeId = 0;
 	using FileIdNames = QMap<FileId, QString>;
-	using IncludeFileIdNames = QMap<IncludeFileId, QString>;
+	using IncludeIdNames = QMap<IncludeId, QString>;
 	using PropertiesId = uint32_t;
 	constexpr PropertiesId InvalidPropertiesId = 0;
 

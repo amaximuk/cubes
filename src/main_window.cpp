@@ -96,7 +96,7 @@ void MainWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStrin
 }
 
 void MainWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeFileId& includeFileId, QStringList& unitNames)
+    const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
 {
     // Соберем имена юнитов в файле
     for (const auto& item : scene_->items())
@@ -104,7 +104,7 @@ void MainWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId &&
-            pi->GetIncludeFileId() == includeFileId)
+            pi->GetIncludeId() == includeId)
         {
             QString name = pi->GetInstanceName();
             unitNames.push_back(name);
@@ -117,15 +117,15 @@ void MainWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
     unitParameters = unitParameters_[unitId];
 }
 
-void MainWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames)
+void MainWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
 {
     includeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
 }
 
 void MainWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeFileId& includeFileId, QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>>& variables)
 {
-    variables = fileItemsManager_->GetFileIncludeVariables(fileId, includeFileId);
+    variables = fileItemsManager_->GetFileIncludeVariables(fileId, includeId);
 }
 
 bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
@@ -769,7 +769,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     //if (file.includes.size() > 0)
     //    file.config.groups.push_back(std::move(g));
 
-    if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeFileId, file))
+    if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeId, file))
         return false;
 
     if (zipFileName.isEmpty())
@@ -782,9 +782,9 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
         {
             const auto includePath = fileItemsManager_->GetFileIncludePath(fileId, includeId);
 
-            QString includeFileName = dir.filePath(includePath);
+            QString includeName = dir.filePath(includePath);
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(includeFileName, includedFile))
+            if (!CubesXml::Parser::Parse(includeName, includedFile))
                 return false;
 
             if (!AddUnits(fileId, includeId, includedFile))
@@ -845,7 +845,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     return true;
 }
 
-bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId, const CubesXml::File& file)
+bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
@@ -894,7 +894,7 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             //if (includedFileName != "")
             {
                 auto fileId = fileItemsManager_->GetFileId(fileName);
-                CubesUnitTypes::IncludeFileIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+                CubesUnitTypes::IncludeIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
                 QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
                 if (fileIncludeName.isEmpty())
@@ -1144,7 +1144,7 @@ QString MainWindow::GetCurrentFileName()
     return fileItemsManager_->GetCurrentFileName();
 }
 
-CubesUnitTypes::IncludeFileIdNames MainWindow::GetCurrentFileIncludeNames()
+CubesUnitTypes::IncludeIdNames MainWindow::GetCurrentFileIncludeNames()
 {
     auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
     return fileItemsManager_->GetFileIncludeNames(fileId, true);
@@ -1166,7 +1166,7 @@ QString MainWindow::GetDisplayName(const QString& baseName)
         {
             auto fileId = fileItemsManager_->GetFileId(pi->GetName());
             variables = fileItemsManager_->GetFileIncludeVariables(fileId,
-                pi->GetIncludeFileId());
+                pi->GetIncludeId());
         }
     }
 
@@ -1251,7 +1251,7 @@ void MainWindow::selectionChanged()
 void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
 {
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    CubesUnitTypes::IncludeFileIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+    CubesUnitTypes::IncludeIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     auto fileName = fileItemsManager_->GetFileName(fileId);
     for (auto& item : scene_->items())
     {
@@ -1287,15 +1287,15 @@ void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     scene_->invalidate();
 }
 
-void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId)
+void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
 {
-    CubesUnitTypes::IncludeFileIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+    CubesUnitTypes::IncludeIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
     auto includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId && pi->GetIncludeFileId() == includeId)
+        if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
             pi->SetIncludeName(includeName);
 
         //const auto includeFileId = pi->GetIncludeFileId();
@@ -1310,7 +1310,7 @@ void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
     scene_->invalidate();
 }
 
-void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames)
+void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
 {
     for (auto& item : scene_->items())
     {
@@ -1323,13 +1323,13 @@ void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, c
     scene_->invalidate();
 }
 
-void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     propertiesItemsManager_->InformVariableChanged();
 }
 
-void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QList<QPair<QString, QString>>& variables)
 {
     propertiesItemsManager_->InformVariableChanged();

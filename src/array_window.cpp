@@ -93,14 +93,14 @@ void ArrayWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStri
 }
 
 void ArrayWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeFileId& includeFileId, QStringList& unitNames)
+    const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
 {
     // Соберем имена юнитов в файле
     for (const auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId && pi->GetIncludeFileId() == includeFileId)
+        if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
         {
             QString name = pi->GetInstanceName();
             unitNames.push_back(name);
@@ -116,13 +116,13 @@ void ArrayWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitP
         unitParameters = unitParameters_[unitId];
 }
 
-void ArrayWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames)
+void ArrayWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
 {
     //includeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
 }
 
 void ArrayWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeFileId& includeFileId, QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>>& variables)
 {
     //variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
 }
@@ -1499,8 +1499,8 @@ void ArrayWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     scene_->invalidate();
 }
 
-void ArrayWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
-    const CubesUnitTypes::IncludeFileId& oldIncludeId)
+void ArrayWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+    const CubesUnitTypes::IncludeId& oldIncludeId)
 {
     //QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
     //for (auto& item : scene_->items())
@@ -1526,7 +1526,7 @@ void ArrayWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, c
     scene_->invalidate();
 }
 
-void ArrayWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileIdNames& includeIdNames)
+void ArrayWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames)
 {
     //for (auto& item : scene_->items())
     //{
@@ -1542,13 +1542,13 @@ void ArrayWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, 
     scene_->invalidate();
 }
 
-void ArrayWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+void ArrayWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     propertiesItemsManager_->InformVariableChanged();
 }
 
-void ArrayWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+void ArrayWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QList<QPair<QString, QString>>& variables)
 {
     propertiesItemsManager_->InformVariableChanged();

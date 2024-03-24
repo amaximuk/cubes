@@ -53,12 +53,12 @@ namespace CubesProperties
 		bool GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name);
 
 		QList<uint32_t> GetPropertyIds();
-		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName = "<not selected>");
-		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeFileName = "<not selected>");
+		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeName = "<not selected>");
+		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeName = "<not selected>");
 
 	signals:
 		void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name, const QString& fileName,
-			const QString& includeFileName);
+			const QString& includeName);
 		void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
 		void OnError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
@@ -68,7 +68,7 @@ namespace CubesProperties
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
 		void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
-			CubesUnitTypes::IncludeFileIdNames& includeNames) override;
+			CubesUnitTypes::IncludeIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		//void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;

@@ -75,11 +75,11 @@ public:
 public:
     // ITopManager
     void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames) override;
-    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         QList<QPair<QString, QString>>& variables) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
     bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
@@ -107,7 +107,7 @@ protected:
 
     // Units
     bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
-    bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId, const CubesXml::File& file);
+    bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
     bool SortUnits();
     bool SortUnitsRectangular(bool check);
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);
@@ -116,7 +116,7 @@ protected:
     // Files
     CubesUnitTypes::FileIdNames GetFileNames();
     QString GetCurrentFileName();
-    CubesUnitTypes::IncludeFileIdNames GetCurrentFileIncludeNames();
+    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
     //QColor GetFileColor(const QString& fileName);
     QString GetDisplayName(const QString& baseName);
 
@@ -133,11 +133,11 @@ public slots:
     // FileItemsManager
     void FileNameChanged(const CubesUnitTypes::FileId& fileId);
     void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId);
-    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames);
-    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId);
+    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const QString& variableName, const QString& oldVariableName);
-    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const QList<QPair<QString, QString>>& variables);
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 

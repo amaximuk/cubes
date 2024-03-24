@@ -45,7 +45,7 @@ namespace CubesFile
         bool notifyManager_;
 
         //
-        CubesUnitTypes::IncludeFileId uniqueNumber_;
+        CubesUnitTypes::IncludeId uniqueNumber_;
 
     public:
         FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
@@ -59,19 +59,19 @@ namespace CubesFile
         void SetPlatform(QString platform);
         void SetPath(QString name, bool setOldName = false, QString oldName = "");
         void SetColor(QColor color);
-        void AddInclude(const CubesUnitTypes::IncludeFileId& includeFileId, QList<QPair<QString, QString>> includeVariables);
+        void AddInclude(const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>> includeVariables);
         void ExpandedChanged(const QtProperty* property, bool is_expanded);
 
         QString GetName();
         QColor GetColor();
         QString GetPropertyDescription(const QtProperty* property);
-        CubesUnitTypes::IncludeFileIdNames GetIncludeNames();
-        QList<QPair<QString, QString>> GetIncludeVariables(const CubesUnitTypes::IncludeFileId& includeFileId);
+        CubesUnitTypes::IncludeIdNames GetIncludeNames();
+        QList<QPair<QString, QString>> GetIncludeVariables(const CubesUnitTypes::IncludeId includeId);
         QString GetIncludeName(const QString& includePath);
-        QString GetIncludeName(const CubesUnitTypes::IncludeFileId& includeFileId);
+        QString GetIncludeName(const CubesUnitTypes::IncludeId includeId);
         uint32_t GetFileId() { return fileId_; };
 
-        QString GetIncludePath(const CubesUnitTypes::IncludeFileId& includeFileId);
+        QString GetIncludePath(const CubesUnitTypes::IncludeId includeId);
         File GetFile();
         CubesXml::File GetXmlFile();
 

@@ -62,8 +62,8 @@ namespace CubesProperties
         void SetFileNameReadOnly(bool readOnly);
         QString GetFileName();
         CubesUnitTypes::FileId GetFileId();
-        CubesUnitTypes::IncludeFileId GetIncludeFileId();
-        void SetIncludeNames(CubesUnitTypes::IncludeFileIdNames includeNames);
+        CubesUnitTypes::IncludeId GetIncludeId();
+        void SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames);
         void SetIncludeName(QString includeName);
         void SetIncludeNameReadOnly(bool readOnly);
         QString GetIncludeName();

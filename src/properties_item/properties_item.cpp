@@ -595,7 +595,7 @@ void PropertiesItem::SetIncludeNameReadOnly(bool readOnly)
     }
 }
 
-void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeFileIdNames includeNames)
+void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames)
 {
     QString oldName = GetIncludeName();
     if (!includeNames.values().contains(oldName))
@@ -646,7 +646,7 @@ CubesUnitTypes::FileId PropertiesItem::GetFileId()
     return 0;
 }
 
-CubesUnitTypes::IncludeFileId PropertiesItem::GetIncludeFileId()
+CubesUnitTypes::IncludeId PropertiesItem::GetIncludeId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
@@ -1435,10 +1435,9 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else if (pm->id == ids_.base + ids_.fileName)
         {
-            const auto s = editor_->GetEnumValue(property);
             pm->value = property->valueText();
 
-            CubesUnitTypes::IncludeFileIdNames includeNames;
+            CubesUnitTypes::IncludeIdNames includeNames;
             propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
             SetIncludeNames(includeNames);

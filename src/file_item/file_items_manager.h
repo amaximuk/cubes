@@ -43,15 +43,15 @@ namespace CubesFile
 		QSharedPointer<FileItem> GetItem(const CubesUnitTypes::FileId fileId);
 		CubesUnitTypes::FileIdNames GetFileNames();
 		QColor GetFileColor(const CubesUnitTypes::FileId fileId);
-		void AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+		void AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			QList<QPair<QString, QString>> includeVariables);
 		QString GetFileName(const CubesUnitTypes::FileId fileId);
-		CubesUnitTypes::IncludeFileIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
+		CubesUnitTypes::IncludeIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
-		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId);
-		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& fileIncludeId);
+		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
+		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
 		QList<QPair<QString, QString>> GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileId& includeFileId);
+			const CubesUnitTypes::IncludeId includeId);
 
 		void Clear();
 		bool GetName(const CubesUnitTypes::FileId fileId, QString& name);
@@ -62,11 +62,11 @@ namespace CubesFile
 	signals:
 		void FileNameChanged(const CubesUnitTypes::FileId fileId);
 		void FilesListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-		void IncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId);
-		void IncludesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames);
-		void VariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
+		void IncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
+		void IncludesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+		void VariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QString& variableName, const QString& oldVariableName);
-		void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
+		void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QList<QPair<QString, QString>>& variables);
 		void ColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color);
 
@@ -76,16 +76,16 @@ namespace CubesFile
 		void AfterFileNameChanged(const CubesUnitTypes::FileId fileId) override;
 		//void BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
 		//	const CubesUnitTypes::IncludeFileId oldIncludeId, bool& cancel) override;
-		void AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId) override;
-		void BeforeIncludesAdd(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames,
+		void AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId) override;
+		void BeforeIncludesAdd(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames,
 			bool& cancel) override;
-		void BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileIdNames& includeNames,
+		void BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames,
 			bool& cancel) override;
 		void AfterIncludesListChanged(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileIdNames& includeNames) override;
-		void AfterVariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+			const CubesUnitTypes::IncludeIdNames& includeNames) override;
+		void AfterVariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QString& variableName, const QString& oldVariableName) override;
-		void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+		void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QList<QPair<QString, QString>>& variables) override;
 		void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) override;
 

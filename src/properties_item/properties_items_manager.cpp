@@ -230,23 +230,23 @@ QList<uint32_t> PropertiesItemsManager::GetPropertyIds()
 	return items_.keys();
 }
 
-QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& fileName, const QString& includeFileName)
+QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& fileName, const QString& includeName)
 {
 	QList<uint32_t> result;
 	for (const auto& item : items_)
 	{
-		if (item->GetFileName() == fileName && item->GetIncludeName() == includeFileName)
+		if (item->GetFileName() == fileName && item->GetIncludeName() == includeName)
 			result.push_back(item->GetPropertiesId());
 	}
 	return result;
 }
 
-QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileName, const QString& includeFileName)
+QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileName, const QString& includeName)
 {
 	QMap<QString, CubesXml::Group> xmlGroups;
 	for (const auto& item : items_)
 	{
-		if (item->GetFileName() == fileName && item->GetIncludeName() == includeFileName)
+		if (item->GetFileName() == fileName && item->GetIncludeName() == includeName)
 		{
 			CubesXml::Unit xmlUnit{};
 			item->GetXml(xmlUnit);
@@ -286,7 +286,7 @@ void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId
 }
 
 void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
-	CubesUnitTypes::IncludeFileIdNames& includeNames)
+	CubesUnitTypes::IncludeIdNames& includeNames)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -301,9 +301,9 @@ void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::Properti
 	topManager_->GetFileIncludeList(item->GetFileId(), includeNames);
 
 	auto fileName = item->GetFileName();
-	auto includeFileName = item->GetIncludeName();
+	auto includeName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
 }
 
 void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
@@ -317,9 +317,9 @@ void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::Prope
 
 	auto item = GetItem(propertiesId);
 	auto fileName = item->GetFileName();
-	auto includeFileName = item->GetIncludeName();
+	auto includeName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, includeFileName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
 }
 
 void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
@@ -736,7 +736,7 @@ QString PropertiesItemsManager::GetName(const CubesUnitTypes::PropertiesId prope
 	auto item = GetItem(propertiesId);
 
 	QList<QPair<QString, QString>> variables;
-	topManager_->GetFileIncludeVariableList(item->GetFileId(), item->GetIncludeFileId(), variables);
+	topManager_->GetFileIncludeVariableList(item->GetFileId(), item->GetIncludeId(), variables);
 
 	QString name = item->GetName();
 	for (const auto& v : variables)

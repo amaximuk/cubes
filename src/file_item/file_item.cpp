@@ -21,7 +21,7 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     model_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
-    uniqueNumber_ = CubesUnitTypes::InvalidIncludeFileId;
+    uniqueNumber_ = CubesUnitTypes::InvalidIncludeId;
 
     CreateParametersModel(nullptr);
     CreateProperties();
@@ -36,7 +36,7 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     model_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
-    uniqueNumber_ = CubesUnitTypes::InvalidIncludeFileId;
+    uniqueNumber_ = CubesUnitTypes::InvalidIncludeId;
 
     CreateParametersModel(&xmlFile);
     CreateProperties();
@@ -740,11 +740,11 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         // но по честному надо доставать id из editorSettings модели INCLUDES
         //const auto includeFileId = ids_.ItemIndex(pm->id.left(pm->id.indexOf(ids_.variables))) + 1;
         const auto pmItem = GetParameterModel(pm->id.left(2));
-        const auto includeFileId = pmItem->key.toInt();
+        const auto includeId = pmItem->key.toInt();
 
         QString oldName = pm->value.toString();
         pm->value = value;
-        fileItemsManager_->AfterVariableNameChanged(fileId_, includeFileId, value, oldName);
+        fileItemsManager_->AfterVariableNameChanged(fileId_, includeId, value, oldName);
     }
     else if (pm->id.startsWith(ids_.includes) && pm->id.size() == 5 && ids_.IsItem(pm->id.mid(1, 1)) &&
         pm->id.mid(2, 1) == ids_.variables && ids_.IsItem(pm->id.mid(3, 1)) && pm->id.endsWith(ids_.value))
@@ -759,12 +759,12 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         // но по честному надо доставать id из editorSettings модели INCLUDES
         //const auto includeFileId = ids_.ItemIndex(pm->id.left(pm->id.indexOf(ids_.variables))) + 1;
         const auto pmItem = GetParameterModel(pm->id.left(2));
-        const auto includeFileId = pmItem->key.toInt();
+        const auto includeId = pmItem->key.toInt();
         
         QString oldName = pm->value.toString();
         pm->value = value;
-        QList<QPair<QString, QString>> variables = GetIncludeVariables(includeFileId);
-        fileItemsManager_->AfterVariablesListChanged(fileId_, includeFileId, variables);
+        QList<QPair<QString, QString>> variables = GetIncludeVariables(includeId);
+        fileItemsManager_->AfterVariablesListChanged(fileId_, includeId, variables);
     }
 }
 
@@ -859,7 +859,7 @@ void FileItem::SetColor(QColor color)
     editor_->SetColorValue(pr, color);
 }
 
-void FileItem::AddInclude(const CubesUnitTypes::IncludeFileId& includeId, QList<QPair<QString, QString>> includeVariables)
+void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>> includeVariables)
 {
     auto pmi = GetParameterModel(ids_.includes);
     int ci = pmi->value.toInt() + 1;
@@ -908,9 +908,9 @@ void FileItem::AddInclude(const CubesUnitTypes::IncludeFileId& includeId, QList<
     }
 }
 
-CubesUnitTypes::IncludeFileIdNames FileItem::GetIncludeNames()
+CubesUnitTypes::IncludeIdNames FileItem::GetIncludeNames()
 {
-    CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+    CubesUnitTypes::IncludeIdNames includeNamesMap;
 
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
@@ -926,7 +926,7 @@ CubesUnitTypes::IncludeFileIdNames FileItem::GetIncludeNames()
     return includeNamesMap;
 }
 
-QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeFileId& includeId)
+QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeId includeId)
 {
     QList<QPair<QString, QString>> result;
 
@@ -971,7 +971,7 @@ QString FileItem::GetIncludeName(const QString& includePath)
     return "";
 }
 
-QString FileItem::GetIncludeName(const CubesUnitTypes::IncludeFileId& includeId)
+QString FileItem::GetIncludeName(const CubesUnitTypes::IncludeId includeId)
 {
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
@@ -990,7 +990,7 @@ QString FileItem::GetIncludeName(const CubesUnitTypes::IncludeFileId& includeId)
     return "";
 }
 
-QString FileItem::GetIncludePath(const CubesUnitTypes::IncludeFileId& includeId)
+QString FileItem::GetIncludePath(const CubesUnitTypes::IncludeId includeId)
 {
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
@@ -1317,7 +1317,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         //    fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
     }
 
-    CubesUnitTypes::IncludeFileIdNames includeNamesMap;
+    CubesUnitTypes::IncludeIdNames includeNamesMap;
     for (const auto& pm : model.parameters)
     {
         for (const auto& si : pm.parameters)

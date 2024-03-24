@@ -67,20 +67,23 @@ namespace CubesFile
 		virtual void AfterFileNameChanged(const CubesUnitTypes::FileId fileId) = 0;
 		//virtual void BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
 		//	const CubesUnitTypes::IncludeFileId oldIncludeId, bool& cancel) = 0;
-		virtual void AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId) = 0;
+		virtual void AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeId includeId) = 0;
 
 		// Тут могут меняться значения не по одному, а сразу список, поэтому передаем сразу все имена
 		virtual void BeforeIncludesAdd(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+			const CubesUnitTypes::IncludeIdNames& includeNames, bool& cancel) = 0;
 		virtual void BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileIdNames& includeNames, bool& cancel) = 0;
+			const CubesUnitTypes::IncludeIdNames& includeNames, bool& cancel) = 0;
 		virtual void AfterIncludesListChanged(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileIdNames& includeNames) = 0;
+			const CubesUnitTypes::IncludeIdNames& includeNames) = 0;
 		
 		virtual void AfterVariableNameChanged(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileId& includeFileId, const QString& variableName, const QString& oldVariableName) = 0;
+			const CubesUnitTypes::IncludeId includeId, const QString& variableName,
+			const QString& oldVariableName) = 0;
 		virtual void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeFileId& includeFileId, const QList<QPair<QString, QString>>& variables) = 0;
+			const CubesUnitTypes::IncludeId includeId,
+			const QList<QPair<QString, QString>>& variables) = 0;
 	
 		virtual void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) = 0;
 	};

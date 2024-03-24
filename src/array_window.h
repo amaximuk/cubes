@@ -76,11 +76,11 @@ public:
 public:
     // ITopManager
     void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         QStringList& unitNames) override;
     void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeFileIdNames& includeNames) override;
-    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeFileId,
+    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         QList<QPair<QString, QString>>& variables) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
@@ -145,17 +145,18 @@ public slots:
     // FileItemsManager
     void FileNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::FileId& oldFileId);
     void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
-        const CubesUnitTypes::IncludeFileId& oldIncludeId);
-    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileIdNames& includeIdNames);
-    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+        const CubesUnitTypes::IncludeId& oldIncludeId);
+    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames);
+    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const QString& variableName, const QString& oldVariableName);
-    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeFileId& includeId,
+    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const QList<QPair<QString, QString>>& variables);
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName,
+        const QString& groupName);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
     void PropertiesOnError(const uint32_t propertiesId, const QString& message);
