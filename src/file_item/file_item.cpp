@@ -566,12 +566,12 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
             (pm->id.size() > 1 && ids_.IsItem(pm->id.mid(1, 1)) && pm->id.endsWith(ids_.variables)))
         {
             int count = value.toInt();
+            pm->value = count;
 
             if (pm->id == ids_.includes)
                 UpdateIncludesArrayModel(nullptr, *pm, count);
             else
                 UpdateVariablesArrayModel(nullptr, *pm, count);
-            pm->value = count;
             editor_->SetIntValue(property, count);
 
             QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
