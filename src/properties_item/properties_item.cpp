@@ -1703,7 +1703,7 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
         //    editor_->SetStringValue(property, oldValue);
         //}
     }
-    else if (pm->id.startsWith(ids_.parameters))
+    else if (pm->id.startsWith(ids_.parameters) && pm->id.size() > 2 && !pm->id.right(2).startsWith(ids_.base))
     {
         // Получаем описание параметра из его yml файла
         auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,

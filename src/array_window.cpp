@@ -22,7 +22,8 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QHeaderView>
-#include "parameters/yaml_parser.h"
+#include "parameters.h"
+//#include "parameters/yaml_parser.h"
 #include "diagram/diagram_view.h"
 #include "diagram/diagram_scene.h"
 #include "diagram/diagram_item.h"
@@ -369,7 +370,22 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             if (group.id == ids_.parameters)
             {
                 for (auto& parameter : group.parameters)
+                {
                     parameter.parameterInfoId.type = "Main";
+
+                    auto& pi = *parameters::helper::parameter::get_parameter_info(afi,
+                        "Main", parameter.parameterInfoId.name.toStdString());
+
+                    bool isArray = parameters::helper::common::get_is_array_type(pi.type);
+                    auto itemType = parameters::helper::common::get_item_type(pi.type);
+                    bool isInner = parameters::helper::common::get_is_inner_type(itemType);
+
+                    if (isArray && isInner)
+                    {
+                        for (auto& arrayParameter : parameter.parameters)
+                            arrayParameter.parameterInfoId.type = "Main";
+                    }
+                }
             }
         }
 
@@ -507,7 +523,23 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
             if (group.id == ids_.parameters)
             {
                 for (auto& parameter : group.parameters)
+                {
                     parameter.parameterInfoId.type = type;
+
+                    auto& pi = *parameters::helper::parameter::get_parameter_info(up.fileInfo,
+                        "Main", parameter.parameterInfoId.name.toStdString());
+                    
+
+                    bool isArray = parameters::helper::common::get_is_array_type(pi.type);
+                    auto itemType = parameters::helper::common::get_item_type(pi.type);
+                    bool isInner = parameters::helper::common::get_is_inner_type(itemType);
+
+                    if (isArray && isInner)
+                    {
+                        for (auto& arrayParameter : parameter.parameters)
+                            arrayParameter.parameterInfoId.type = type;
+                    }
+                }
             }
         }
 
