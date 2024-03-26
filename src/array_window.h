@@ -81,7 +81,7 @@ public:
     void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
     void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
     void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
-        QList<QPair<QString, QString>>& variables) override;
+        CubesUnitTypes::VariableIdVariables& variables) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
     // ISimpleTopManager
@@ -151,7 +151,7 @@ public slots:
     void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const QString& variableName, const QString& oldVariableName);
     void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
-        const QList<QPair<QString, QString>>& variables);
+        const CubesUnitTypes::VariableIdVariables& variables);
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
     // PropertiesItemsManager

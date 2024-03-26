@@ -763,7 +763,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         
         QString oldName = pm->value.toString();
         pm->value = value;
-        QList<QPair<QString, QString>> variables = GetIncludeVariables(includeId);
+        const auto variables = GetIncludeVariables(includeId);
         fileItemsManager_->AfterVariablesListChanged(fileId_, includeId, variables);
     }
 }
@@ -859,7 +859,7 @@ void FileItem::SetColor(QColor color)
     editor_->SetColorValue(pr, color);
 }
 
-void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>> includeVariables)
+void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables)
 {
     auto pmi = GetParameterModel(ids_.includes);
     int ci = pmi->value.toInt() + 1;
@@ -887,13 +887,13 @@ void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, QList<QPair
     auto pmiv = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables);
 
     auto priv = GetProperty(pmiv->id);
-    editor_->SetIntValue(priv, includeVariables.size());
+    editor_->SetIntValue(priv, variables.size());
     // ”становка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
-    for (int i = 0; i < includeVariables.size(); i++)
+    for (int i = 0; i < variables.values().size(); i++)
     {
-        auto& v = includeVariables.at(i);
+        auto& v = variables.values().at(i);
         auto pmivn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.name);
         pmivn->value = v.first;
 
@@ -926,9 +926,9 @@ CubesUnitTypes::IncludeIdNames FileItem::GetIncludeNames()
     return includeNamesMap;
 }
 
-QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeId includeId)
+CubesUnitTypes::VariableIdVariables FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeId includeId)
 {
-    QList<QPair<QString, QString>> result;
+    CubesUnitTypes::VariableIdVariables result;
 
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
@@ -942,9 +942,10 @@ QList<QPair<QString, QString>> FileItem::GetIncludeVariables(const CubesUnitType
             const auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables);
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
+                auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j));
                 auto pmivn = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
                 auto pmivv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
-                result.push_back({ pmivn->value.toString(), pmivv->value.toString() });
+                result[pmiv->key.toInt()] = { pmivn->value.toString(), pmivv->value.toString() };
             }
             break;
         }
@@ -1044,7 +1045,9 @@ File FileItem::GetFile()
         Include include{};
         include.name = kvp.second;
         include.path = GetIncludePath(kvp.first);
-        include.variables = GetIncludeVariables(kvp.first);
+        const auto variables = GetIncludeVariables(kvp.first);
+        for(const auto& v : variables.values())
+            include.variables.push_back(v);
         result.includes.push_back(include);
     }
 
@@ -1091,7 +1094,9 @@ CubesXml::File FileItem::GetXmlFile()
         CubesXml::Include include{};
         include.name = kvp.second;
         include.fileName = GetIncludePath(kvp.first);
-        include.variables = GetIncludeVariables(kvp.first);
+        const auto variables = GetIncludeVariables(kvp.first);
+        for (const auto& v : variables.values())
+            include.variables.push_back(v);
         result.includes.push_back(include);
     }
 
@@ -1370,6 +1375,7 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
             group_model.id = model.id + ids_.Item(i);
             //group_model.id = QString("%1/%2_%3").arg(model.id, "ITEM").arg(i);
             group_model.name = QString::fromLocal8Bit("Ёлемент %1").arg(i);
+            group_model.key = ++uniqueNumber_;
 
             CubesUnitTypes::ParameterModel name;
             name.editorSettings.type = CubesUnitTypes::EditorType::String;

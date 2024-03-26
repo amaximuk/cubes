@@ -126,6 +126,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             CubesUnitTypes::ParameterModel file;
             file.id = ids_.base + ids_.fileName;
             file.name = QString::fromLocal8Bit("Файл");
+            file.key = CubesUnitTypes::InvalidFileId;
             file.value = QString();
             //file.valueType = "string";
             //file.parameterInfoId = "";
@@ -136,6 +137,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             CubesUnitTypes::ParameterModel group;
             group.id = ids_.base + ids_.includeName;
             group.name = QString::fromLocal8Bit("Включаемый файл");
+            file.key = CubesUnitTypes::InvalidIncludeId;
             group.value = QString();
             //group.valueType = "string";
             //group.parameterInfoId = "";
@@ -558,18 +560,31 @@ void PropertiesItem::SetFileNames(CubesUnitTypes::FileIdNames fileNames)
         editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
 
         // При добавлении файлов необходимо восстановить выбранное значение
-        if (fileNames.values().contains(pm->value.toString()))
+        if (fileNames.keys().contains(pm->key.toInt()))
             editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        //if (fileNames.values().contains(pm->value.toString()))
+        //    editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         
         editor_->blockSignals(false);
     }
 }
 
-void PropertiesItem::SetFileName(QString fileName)
+//void PropertiesItem::SetFileName(QString fileName)
+//{
+//    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+//    if (pm != nullptr)
+//    {
+//        pm->value = QString(fileName);
+//        editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+//    }
+//}
+
+void PropertiesItem::SetFileId(CubesUnitTypes::FileId fileId, QString fileName)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
     {
+        pm->key = fileId;
         pm->value = QString(fileName);
         editor_->SetEnumValue(GetProperty(pm->id), pm->value);
     }
@@ -597,9 +612,9 @@ void PropertiesItem::SetIncludeNameReadOnly(bool readOnly)
 
 void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames)
 {
-    QString oldName = GetIncludeName();
-    if (!includeNames.values().contains(oldName))
-        oldName = includeNames[0]; // <not selected>
+    auto oldIncludeId = GetIncludeId();
+    if (!includeNames.keys().contains(oldIncludeId))
+        oldIncludeId = CubesUnitTypes::InvalidIncludeId; // <not selected>
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
@@ -609,14 +624,27 @@ void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames
 
         editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
-    SetIncludeName(oldName);
+    const auto includeName = includeNames.values()[oldIncludeId];
+    SetIncludeId(oldIncludeId, includeName);
 }
 
-void PropertiesItem::SetIncludeName(QString includeName)
+//void PropertiesItem::SetIncludeName(QString includeName)
+//{
+//    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+//    if (pm != nullptr)
+//    {
+//        pm->value = QString(includeName);
+//        editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+//        propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
+//    }
+//}
+
+void PropertiesItem::SetIncludeId(CubesUnitTypes::IncludeId includeId, QString includeName)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
+        pm->key = includeId;
         pm->value = QString(includeName);
         editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
@@ -1485,7 +1513,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
             SetIncludeNames(includeNames);
-            SetIncludeName("<not selected>"); // TODO: убрать <not selected> в константы
+            SetIncludeId(CubesUnitTypes::InvalidIncludeId, "<not selected>"); // TODO: убрать <not selected> в константы
         }
         else if (pm->id == ids_.base + ids_.includeName)
         {
@@ -1703,8 +1731,12 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
         //    editor_->SetStringValue(property, oldValue);
         //}
     }
-    else if (pm->id.startsWith(ids_.parameters) && pm->id.size() > 2 && !pm->id.right(2).startsWith(ids_.base))
+    else if ((pm->id.startsWith(ids_.parameters) && pm->id.size() == 2) ||
+        (pm->id.startsWith(ids_.parameters) && pm->id.size() > 2 && !pm->id.right(2).startsWith(ids_.base)))
     {
+        // Должны проверить любые сочетания, в которых могут быть юниты и исключить параметры
+        // с количеством элементов
+
         // Получаем описание параметра из его yml файла
         auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
             pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());

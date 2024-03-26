@@ -735,7 +735,7 @@ QString PropertiesItemsManager::GetName(const CubesUnitTypes::PropertiesId prope
 {
 	auto item = GetItem(propertiesId);
 
-	QList<QPair<QString, QString>> variables;
+	CubesUnitTypes::VariableIdVariables variables;
 	topManager_->GetFileIncludeVariableList(item->GetFileId(), item->GetIncludeId(), variables);
 
 	QString name = item->GetName();

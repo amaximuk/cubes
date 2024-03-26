@@ -200,7 +200,7 @@ QColor FileItemsManager::GetFileColor(const CubesUnitTypes::FileId fileId)
 }
 
 void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-	QList<QPair<QString, QString>> includeVariables)
+	const CubesUnitTypes::VariableIdVariables& variables)
 {
 	auto item = GetItem(fileId);
 	QString fileName = item->GetName();
@@ -209,7 +209,7 @@ void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const
 	{
 		if (fi->GetName() == fileName)
 		{
-			fi->AddInclude(includeId, includeVariables);
+			fi->AddInclude(includeId, variables);
 			break;
 		}
 	}
@@ -276,10 +276,10 @@ QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId
 	return "";
 }
 
-QList<QPair<QString, QString>> FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
+CubesUnitTypes::VariableIdVariables FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId includeId)
 {
-	QList<QPair<QString, QString>> result;
+	CubesUnitTypes::VariableIdVariables result;
 	for (auto& fi : items_)
 	{
 		if (fi->GetFileId() == fileId)
@@ -459,7 +459,7 @@ void FileItemsManager::AfterVariableNameChanged(const CubesUnitTypes::FileId fil
 }
 
 void FileItemsManager::AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
-	const CubesUnitTypes::IncludeId includeId, const QList<QPair<QString, QString>>& variables)
+	const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables)
 {
 	emit VariablesListChanged(fileId, includeId, variables);
 }

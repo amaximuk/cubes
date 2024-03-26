@@ -83,7 +83,7 @@ namespace CubesFile
 			const QString& oldVariableName) = 0;
 		virtual void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
 			const CubesUnitTypes::IncludeId includeId,
-			const QList<QPair<QString, QString>>& variables) = 0;
+			const CubesUnitTypes::VariableIdVariables& variables) = 0;
 	
 		virtual void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) = 0;
 	};

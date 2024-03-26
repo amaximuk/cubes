@@ -44,13 +44,13 @@ namespace CubesFile
 		CubesUnitTypes::FileIdNames GetFileNames();
 		QColor GetFileColor(const CubesUnitTypes::FileId fileId);
 		void AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-			QList<QPair<QString, QString>> includeVariables);
+			const CubesUnitTypes::VariableIdVariables& variables);
 		QString GetFileName(const CubesUnitTypes::FileId fileId);
 		CubesUnitTypes::IncludeIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
 		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
-		QList<QPair<QString, QString>> GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
+		CubesUnitTypes::VariableIdVariables GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
 			const CubesUnitTypes::IncludeId includeId);
 
 		void Clear();
@@ -67,7 +67,7 @@ namespace CubesFile
 		void VariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QString& variableName, const QString& oldVariableName);
 		void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-			const QList<QPair<QString, QString>>& variables);
+			const CubesUnitTypes::VariableIdVariables& variables);
 		void ColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color);
 
 	public:
@@ -86,7 +86,7 @@ namespace CubesFile
 		void AfterVariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const QString& variableName, const QString& oldVariableName) override;
 		void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-			const QList<QPair<QString, QString>>& variables) override;
+			const CubesUnitTypes::VariableIdVariables& variables) override;
 		void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) override;
 
 		// IFileItemsManagerWorker (для общения с TopManager)

@@ -22,7 +22,7 @@ public:
 
     virtual void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) = 0;
     virtual void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-        const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>>& variables) = 0;
+        const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables) = 0;
 
     virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
     virtual bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) = 0;

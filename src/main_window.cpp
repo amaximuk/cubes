@@ -123,7 +123,7 @@ void MainWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesU
 }
 
 void MainWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
     variables = fileItemsManager_->GetFileIncludeVariables(fileId, includeId);
 }
@@ -135,9 +135,9 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     propertiesItemsManager_->Create(unitId, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     pi->SetFileNames(GetFileNames());
-    pi->SetFileName(GetCurrentFileName());
+    pi->SetFileId(fileItemsManager_->GetCurrentFileId(), fileItemsManager_->GetCurrentFileName());
     pi->SetIncludeNames(GetCurrentFileIncludeNames());
-    pi->SetIncludeName("<not selected>");
+    pi->SetIncludeId(CubesUnitTypes::InvalidIncludeId, "<not selected>");
     //pi->SetName(GetNewUnitName(pi->GetName()));
     //properties_items_manager_->Select(propertiesId);
     return true;
@@ -890,17 +890,16 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
 
             //pi->ApplyXmlProperties(all_units[i]);
             pi->SetFileNames(fileNames);
-            pi->SetFileName(fileName);
+            pi->SetFileId(fileId, fileName);
             //if (includedFileName != "")
             {
-                auto fileId = fileItemsManager_->GetFileId(fileName);
-                CubesUnitTypes::IncludeIdNames fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
+                CubesUnitTypes::IncludeIdNames includeNames = fileItemsManager_->GetFileIncludeNames(fileId, true);
                 // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
-                QString fileIncludeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
-                if (fileIncludeName.isEmpty())
-                    fileIncludeName = "<not selected>";
-                pi->SetIncludeNames(fileIncludeNames);
-                pi->SetIncludeName(fileIncludeName);
+                QString includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
+                if (includeName.isEmpty())
+                    includeName = "<not selected>";
+                pi->SetIncludeNames(includeNames);
+                pi->SetIncludeId(includeId, includeName);
             }
 
             PropertiesForDrawing pfd{};
@@ -1139,10 +1138,10 @@ CubesUnitTypes::FileIdNames MainWindow::GetFileNames()
     return fileItemsManager_->GetFileNames();
 }
 
-QString MainWindow::GetCurrentFileName()
-{
-    return fileItemsManager_->GetCurrentFileName();
-}
+//QString MainWindow::GetCurrentFileName()
+//{
+//    return fileItemsManager_->GetCurrentFileName();
+//}
 
 CubesUnitTypes::IncludeIdNames MainWindow::GetCurrentFileIncludeNames()
 {
@@ -1157,7 +1156,7 @@ CubesUnitTypes::IncludeIdNames MainWindow::GetCurrentFileIncludeNames()
 
 QString MainWindow::GetDisplayName(const QString& baseName)
 {
-    QList<QPair<QString, QString>> variables;
+    CubesUnitTypes::VariableIdVariables variables;
     for (const auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -1260,7 +1259,7 @@ void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
 
 
         if (pi->GetFileId() == fileId)
-            pi->SetFileName(fileName);
+            pi->SetFileId(fileId, fileName);
 
         //QString currentName = pi->GetFileName();
         //QString currentIncludeName = pi->GetIncludeName();
@@ -1296,7 +1295,7 @@ void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
-            pi->SetIncludeName(includeName);
+            pi->SetIncludeId(includeId, includeName);
 
         //const auto includeFileId = pi->GetIncludeFileId();
         //pi->SetIncludeNames(fileIncludeNames);
@@ -1330,7 +1329,7 @@ void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, c
 }
 
 void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
-    const QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::VariableIdVariables& variables)
 {
     propertiesItemsManager_->InformVariableChanged();
 }

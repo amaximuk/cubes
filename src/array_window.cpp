@@ -123,7 +123,7 @@ void ArrayWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, Cubes
 }
 
 void ArrayWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeId includeId, QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
     //variables = fileItemsManager_->GetFileIncludeVariables(fileName, includeName);
 }
@@ -1581,7 +1581,7 @@ void ArrayWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, 
 }
 
 void ArrayWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
-    const QList<QPair<QString, QString>>& variables)
+    const CubesUnitTypes::VariableIdVariables& variables)
 {
     propertiesItemsManager_->InformVariableChanged();
 }
