@@ -20,6 +20,7 @@ namespace CubesFile
             Connect
         };
 
+    private:
         // Params
         IFileItemsManagerBoss* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
@@ -41,10 +42,10 @@ namespace CubesFile
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
 
-        //
+        // Флаг, надо ли информировать менеджер о событиях
         bool notifyManager_;
 
-        //
+        // Уникальное число для формирования id
         CubesUnitTypes::IncludeId uniqueNumber_;
 
     public:
@@ -65,11 +66,11 @@ namespace CubesFile
         QString GetName();
         QColor GetColor();
         QString GetPropertyDescription(const QtProperty* property);
-        CubesUnitTypes::IncludeIdNames GetIncludeNames();
+        CubesUnitTypes::IncludeIdNames GetIncludes();
         CubesUnitTypes::VariableIdVariables GetIncludeVariables(const CubesUnitTypes::IncludeId includeId);
         QString GetIncludeName(const QString& includePath);
         QString GetIncludeName(const CubesUnitTypes::IncludeId includeId);
-        uint32_t GetFileId() { return fileId_; };
+        CubesUnitTypes::FileId GetFileId() { return fileId_; };
 
         QString GetIncludePath(const CubesUnitTypes::IncludeId includeId);
         File GetFile();
@@ -82,22 +83,9 @@ namespace CubesFile
     private:
         void CreateParametersModel(const CubesXml::File* xmlFile);
         void CreateProperties();
-
-
-        //void CreateParameterModel(const ArrayType arrayType, const QString& parentModelId,
-        //    const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
-        //void FillParameterModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, bool isItem);
-        //void FillArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
-        //void UpdateArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model);
-
-
-
         void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
         void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::ParameterModel& model, int& count);
         void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnitTypes::ParameterModel& model, int& count);
-
-
-
         void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const QtProperty* property);

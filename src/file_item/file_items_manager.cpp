@@ -128,10 +128,9 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	//	fi->SetColor();
 	//}
 
-	auto name = fi->GetName();
 
 	items_[fileId] = fi;
-	selector_->addItem(name, fileId);
+	selector_->addItem(fi->GetName(), fileId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
 	emit FilesListChanged(GetFileNames());
@@ -188,91 +187,71 @@ CubesUnitTypes::FileIdNames FileItemsManager::GetFileNames()
 
 QColor FileItemsManager::GetFileColor(const CubesUnitTypes::FileId fileId)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->GetColor();
 
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-			return fi->GetColor();
-	}
 	return QColor("Black");
 }
 
 void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 	const CubesUnitTypes::VariableIdVariables& variables)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-		{
-			fi->AddInclude(includeId, variables);
-			break;
-		}
-	}
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->AddInclude(includeId, variables);
 }
 
 QString FileItemsManager::GetFileName(const CubesUnitTypes::FileId fileId)
 {
-	if (items_.contains(fileId))
-		return items_[fileId]->GetName();
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->GetName();
+
 	return "";
 }
 
 CubesUnitTypes::IncludeIdNames FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	CubesUnitTypes::IncludeIdNames fileIncludeNames;
+	CubesUnitTypes::IncludeIdNames includes;
 	if (addEmptyValue)
-		fileIncludeNames[0] = "<not selected>";
-	for (auto& fi : items_)
+		includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
+
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
 	{
-		if (fi->GetName() == fileName)
-		{
-			int index = 1;
-			for(const auto& fn : fi->GetIncludeNames())
-				fileIncludeNames[index++] = fn;
-			break;
-		}
+		int index = 1;
+		for(const auto& fn : (*it)->GetIncludes())
+			includes[index++] = fn;
 	}
-	return fileIncludeNames;
+
+	return includes;
 }
 
 QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->GetIncludeName(filePath);
 
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-			return fi->GetIncludeName(filePath);
-	}
 	return "";
 }
 
 QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId)
 {
-	for (auto& fi : items_)
-	{
-		if (fi->GetFileId() == fileId)
-			return fi->GetIncludeName(fileIncludeId);
-	}
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->GetIncludeName(fileIncludeId);
+
 	return "";
 }
 
 QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId)
 {
-	for (auto& fi : items_)
-	{
-		if (fi->GetFileId() == fileId)
-			return fi->GetIncludePath(fileIncludeId);
-	}
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		return (*it)->GetIncludePath(fileIncludeId);
+
 	return "";
 }
 
@@ -313,33 +292,20 @@ File FileItemsManager::GetFile(const CubesUnitTypes::FileId fileId)
 {
 	File result{};
 
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-		{
-			result = fi->GetFile();
-			break;
-		}
-	}
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		result = (*it)->GetFile();
 
 	return result;
 }
 
-CubesXml::File FileItemsManager::GetXmlFile(const QString& fileName)
+CubesXml::File FileItemsManager::GetXmlFile(const CubesUnitTypes::FileId fileId)
 {
 	CubesXml::File result{};
 
-	for (auto& fi : items_)
-	{
-		if (fi->GetName() == fileName)
-		{
-			result = fi->GetXmlFile();
-			break;
-		}
-	}
+	const auto it = items_.find(fileId);
+	if (it != items_.end())
+		result = (*it)->GetXmlFile();
 
 	return result;
 }
@@ -441,15 +407,12 @@ void FileItemsManager::BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId
 void FileItemsManager::AfterIncludesListChanged(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeIdNames& includeNames)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
-	CubesUnitTypes::IncludeIdNames fileIncludeNames;
-	fileIncludeNames[0] = "<not selected>";
+	CubesUnitTypes::IncludeIdNames includes;
+	includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
 	int index = 1;
 	for(const auto& in : includeNames.values())
-		fileIncludeNames[index++] = in;
-	emit IncludesListChanged(fileId, fileIncludeNames);
+		includes[index++] = in;
+	emit IncludesListChanged(fileId, includes);
 }
 
 void FileItemsManager::AfterVariableNameChanged(const CubesUnitTypes::FileId fileId,
@@ -466,9 +429,6 @@ void FileItemsManager::AfterVariablesListChanged(const CubesUnitTypes::FileId fi
 
 void FileItemsManager::AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color)
 {
-	auto item = GetItem(fileId);
-	QString fileName = item->GetName();
-
 	emit ColorChanged(fileId, color);
 }
 
@@ -506,6 +466,18 @@ void FileItemsManager::OnContextMenuRequested(const QPoint& pos)
 	}
 }
 
+//void FileItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
+//{
+//	CubesUnitTypes::FileId FileId = GetCurrentFileId();
+//	if (item != nullptr && items_.contains(FileId))
+//	{
+//		QString description = items_[FileId]->GetPropertyDescription(item->property());
+//		hint_->setPlainText(description);
+//	}
+//	else
+//		hint_->setPlainText("");
+//}
+//
 void FileItemsManager::OnDeleteInclude(bool checked)
 {
 
@@ -578,7 +550,7 @@ void FileItemsManager::OnRemoveFileClicked()
 	if (items_.count() == 0)
 		editor_->GetPropertyEditor()->clear();
 
-	// Получаем все имена, заодно запоминаем элемент для удаления
+	// Получаем все имена
 	CubesUnitTypes::FileIdNames fileNames;
 	for (const auto& item : items_)
 		fileNames[item->GetFileId()] = item->GetName();

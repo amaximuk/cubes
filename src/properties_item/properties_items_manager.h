@@ -54,7 +54,8 @@ namespace CubesProperties
 
 		QList<uint32_t> GetPropertyIds();
 		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeName = "<not selected>");
-		QList<CubesXml::Group> GetXmlGroups(const QString& fileName, const QString& includeName = "<not selected>");
+		QList<CubesXml::Group> GetXmlGroups(const CubesUnitTypes::FileId fileId,
+			const CubesUnitTypes::IncludeId& includeId = CubesUnitTypes::InvalidIncludeId);
 
 	signals:
 		void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name, const QString& fileName,

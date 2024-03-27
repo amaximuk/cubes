@@ -241,12 +241,13 @@ QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& 
 	return result;
 }
 
-QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const QString& fileName, const QString& includeName)
+QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeId& includeId)
 {
 	QMap<QString, CubesXml::Group> xmlGroups;
 	for (const auto& item : items_)
 	{
-		if (item->GetFileName() == fileName && item->GetIncludeName() == includeName)
+		if (item->GetFileId() == fileId && item->GetIncludeId() == includeId)
 		{
 			CubesXml::Unit xmlUnit{};
 			item->GetXml(xmlUnit);
@@ -471,7 +472,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 
 void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
 {
-	uint32_t propertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
 	if (item != nullptr && items_.contains(propertiesId))
 	{
 		QString description = items_[propertiesId]->GetPropertyDescription(item->property());

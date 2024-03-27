@@ -908,7 +908,7 @@ void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, const Cubes
     }
 }
 
-CubesUnitTypes::IncludeIdNames FileItem::GetIncludeNames()
+CubesUnitTypes::IncludeIdNames FileItem::GetIncludes()
 {
     CubesUnitTypes::IncludeIdNames includeNamesMap;
 
@@ -1039,8 +1039,8 @@ File FileItem::GetFile()
     result.log.limit_mb = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.log.directory_path = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    const auto includeNames = GetIncludeNames();
-    for (const auto& kvp : includeNames.toStdMap())
+    const auto includes = GetIncludes();
+    for (const auto& kvp : includes.toStdMap())
     {
         Include include{};
         include.name = kvp.second;
@@ -1088,8 +1088,8 @@ CubesXml::File FileItem::GetXmlFile()
     result.config.log.totalLogLimit = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
     result.config.log.logDir = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
-    const auto includeNames = GetIncludeNames();
-    for (const auto& kvp : includeNames.toStdMap())
+    const auto includes = GetIncludes();
+    for (const auto& kvp : includes.toStdMap())
     {
         CubesXml::Include include{};
         include.name = kvp.second;

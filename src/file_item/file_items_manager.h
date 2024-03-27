@@ -57,7 +57,7 @@ namespace CubesFile
 		bool GetName(const CubesUnitTypes::FileId fileId, QString& name);
 
 		File GetFile(const CubesUnitTypes::FileId fileId);
-		CubesXml::File GetXmlFile(const QString& fileName);
+		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);
 
 	signals:
 		void FileNameChanged(const CubesUnitTypes::FileId fileId);
@@ -95,6 +95,7 @@ namespace CubesFile
 		void OnEditorCollapsed(QtBrowserItem* item);
 		void OnEditorExpanded(QtBrowserItem* item);
 		void OnContextMenuRequested(const QPoint& pos);
+		//void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
 		void OnAddFileClicked();

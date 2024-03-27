@@ -1605,7 +1605,7 @@ void MainWindow::OnSaveFileAction()
 
     // Получаем список главных файлов
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    for (const auto& fileName : fileNames)
+    for (const auto& kvpFile : fileNames.toStdMap())
     {
         //// Соберем всю информацию о файле
         //auto file = fileItemsManager_->GetFile(fileName);
@@ -1619,13 +1619,13 @@ void MainWindow::OnSaveFileAction()
 
         //xmlFile.config.networking = file.network;
 
-        auto xmlFile = fileItemsManager_->GetXmlFile(fileName);
+        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
         QFileInfo xmlFileInfo(xmlFile.fileName);
         const auto xmlFileName = xmlFileInfo.fileName();
         const auto xmlZipFilePath = selectedFileName; // QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
 
         {
-            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(fileName);
+            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
             xmlFile.config.groups = std::move(xmlGroups);
 
             QByteArray byteArray;
@@ -1647,13 +1647,19 @@ void MainWindow::OnSaveFileAction()
             //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
 
-        for (const auto& include : xmlFile.includes)
+        auto includes = fileItemsManager_->GetFileIncludeNames(kvpFile.first, false);
+        for (const auto& kvpInclude : includes.toStdMap())
         {
-            auto includeGroups = propertiesItemsManager_->GetXmlGroups(fileName, include.name);
+            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
             CubesXml::File includeXmlFile{};
-            includeXmlFile.name = include.name;
+            
+            const auto item = fileItemsManager_->GetItem(kvpFile.first);
+            const auto includeName = item->GetIncludeName(kvpInclude.first);
+            const auto includePath = item->GetIncludePath(kvpInclude.first);
+
+            includeXmlFile.name = includeName;
             //includeXmlFile.platform = xmlFile.platform;
-            includeXmlFile.fileName = include.fileName;
+            includeXmlFile.fileName = includePath;
 
             includeXmlFile.config.logIsSet = false;
             includeXmlFile.config.networkingIsSet = false;
