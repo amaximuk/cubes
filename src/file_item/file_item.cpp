@@ -807,12 +807,6 @@ QColor FileItem::GetColor()
     return QColor::fromRgba(pm->value.toInt());
 };
 
-QString FileItem::GetPropertyDescription(const QtProperty* property)
-{
-    QString id = GetPropertyId(property).toString();
-    return id;
-}
-
 void FileItem::ExpandedChanged(const QtProperty* property, bool is_expanded)
 {
     if (!ignoreEvents_)

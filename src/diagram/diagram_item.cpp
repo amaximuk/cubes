@@ -100,14 +100,14 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             painter->setPen(QPen(QBrush(color_, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             painter->drawRect(iconRect_);
 
-            QString groupName = includeName_;
-            if (groupName != "<not selected>")
+            QString includeName = includeName_;
+            if (includeName != "<not selected>")
             {
                 QColor colorGroup(color_);
                 colorGroup.setAlpha(0xFF);
                 painter->setFont(groupFont_);
                 painter->setPen(colorGroup);
-                painter->drawText(includeTextRect_, groupName, Qt::AlignCenter | Qt::AlignHCenter);
+                painter->drawText(includeTextRect_, includeName, Qt::AlignCenter | Qt::AlignHCenter);
             }
         }
 

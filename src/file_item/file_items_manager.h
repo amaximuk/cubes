@@ -33,28 +33,32 @@ namespace CubesFile
 		PropertiesEditor* GetEditor();
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
-		uint32_t GetCurrentFileId();
-		QString GetCurrentFileName();
-		uint32_t GetFileId(const QString& fileName);
+
 		void Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId);
 		void Create(const CubesXml::File& xmlFile, uint32_t& fileId);
 		void Select(const CubesUnitTypes::FileId fileId);
 		void Remove(const CubesUnitTypes::FileId fileId);
+		void Clear();
+
 		QSharedPointer<FileItem> GetItem(const CubesUnitTypes::FileId fileId);
+
+		CubesUnitTypes::FileId GetCurrentFileId();
+		CubesUnitTypes::FileId GetFileId(const QString& fileName);
+		QString GetCurrentFileName();
+		QString GetFileName(const CubesUnitTypes::FileId fileId);
+
 		CubesUnitTypes::FileIdNames GetFileNames();
 		QColor GetFileColor(const CubesUnitTypes::FileId fileId);
+
 		void AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const CubesUnitTypes::VariableIdVariables& variables);
-		QString GetFileName(const CubesUnitTypes::FileId fileId);
+
 		CubesUnitTypes::IncludeIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
 		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
 		CubesUnitTypes::VariableIdVariables GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
 			const CubesUnitTypes::IncludeId includeId);
-
-		void Clear();
-		bool GetName(const CubesUnitTypes::FileId fileId, QString& name);
 
 		File GetFile(const CubesUnitTypes::FileId fileId);
 		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);

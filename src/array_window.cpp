@@ -87,7 +87,7 @@ void ArrayWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStri
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId)
         {
-            QString name = pi->GetInstanceName();
+            QString name = pi->GetName();
             unitNames.push_back(name);
         }
     }
@@ -103,7 +103,7 @@ void ArrayWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
         {
-            QString name = pi->GetInstanceName();
+            QString name = pi->GetName();
             unitNames.push_back(name);
         }
     }
@@ -1211,7 +1211,7 @@ bool ArrayWindow::SortUnits()
         di->setPos(position);
 
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->PositionChanged(di->pos());
+        pi->SetPosition(di->pos());
 
 
         //di->setSelected(true);
@@ -1263,7 +1263,7 @@ bool ArrayWindow::SortUnitsRectangular(bool check)
             di->setPos(position);
 
             auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            pi->PositionChanged(di->pos());
+            pi->SetPosition(di->pos());
 
             if (++c == columns) { ++r; c = 0; };
         }
@@ -1424,7 +1424,7 @@ QString ArrayWindow::GetDisplayName(const QString& baseName)
 void ArrayWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    pi->PositionChanged(di->pos());
+    pi->SetPosition(di->pos());
 }
 
 void ArrayWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
@@ -1522,7 +1522,7 @@ void ArrayWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileNames(fileNames);
+        pi->SetFileIdNames(fileNames);
     }
 
     //////if (scene_->selectedItems().size() > 0)
@@ -1597,7 +1597,8 @@ void ArrayWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const Q
 //}
 
 // PropertiesItemsManager
-void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName)
+void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+    const QString& fileName, const QString& includeName)
 {
     for (auto& item : scene_->items())
     {
@@ -1606,7 +1607,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
         {
             di->name_ = name;
             di->fileName_ = fileName;
-            di->includeName_ = groupName;
+            di->includeName_ = includeName;
             //di->color_ = QColor("Red");
             di->color_.setAlpha(0x20);
             di->InformNameChanged(name, "");

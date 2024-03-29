@@ -151,7 +151,8 @@ public slots:
     //void FileColorChanged(const QString& fileName, const QColor& color);
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName, const QString& groupName);
+    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+        const QString& fileName, const QString& includeName);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
     void PropertiesOnError(const uint32_t propertiesId, const QString& message);

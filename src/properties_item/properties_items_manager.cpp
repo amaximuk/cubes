@@ -69,7 +69,7 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	//pi->SetName(propertiesName);
 
 	items_[propertiesId] = pi;
-	selector_->addItem(pi->GetInstanceName(), propertiesId);
+	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
@@ -109,7 +109,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	items_[propertiesId] = pi;
 //	auto name = GetName(propertiesId);
 
-	selector_->addItem(pi->GetInstanceName(), propertiesId);
+	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 }
 
@@ -199,9 +199,9 @@ bool PropertiesItemsManager::InformVariableChanged()
 			selector_->setItemText(index, name);
 
 		auto fileName = p->GetFileName();
-		auto groupName = p->GetIncludeName();
+		auto includeName = p->GetIncludeName();
 
-		emit BasePropertiesChanged(p->GetPropertiesId(), name, fileName, groupName);
+		emit BasePropertiesChanged(p->GetPropertiesId(), name, fileName, includeName);
 	}
 	return true;
 }
@@ -281,9 +281,9 @@ void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId
 
 	auto item = GetItem(propertiesId);
 	auto fileName = item->GetFileName();
-	auto groupName = item->GetIncludeName();
+	auto includeName = item->GetIncludeName();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, groupName);
+	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
 }
 
 void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,

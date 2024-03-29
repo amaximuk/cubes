@@ -544,7 +544,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     }
 }
 
-void PropertiesItem::SetFileNames(CubesUnitTypes::FileIdNames fileNames)
+void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
@@ -579,7 +579,7 @@ void PropertiesItem::SetFileNames(CubesUnitTypes::FileIdNames fileNames)
 //    }
 //}
 
-void PropertiesItem::SetFileId(CubesUnitTypes::FileId fileId, QString fileName)
+void PropertiesItem::SetFileIdName(CubesUnitTypes::FileId fileId, QString fileName)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
@@ -590,27 +590,7 @@ void PropertiesItem::SetFileId(CubesUnitTypes::FileId fileId, QString fileName)
     }
 }
 
-void PropertiesItem::SetFileNameReadOnly(bool readOnly)
-{
-    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
-    if (pm != nullptr)
-    {
-        pm->readOnly = readOnly;
-        editor_->SetReadOnly(GetProperty(pm->id), readOnly);
-    }
-}
-
-void PropertiesItem::SetIncludeNameReadOnly(bool readOnly)
-{
-    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
-    if (pm != nullptr)
-    {
-        pm->readOnly = readOnly;
-        editor_->SetReadOnly(GetProperty(pm->id), readOnly);
-    }
-}
-
-void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames)
+void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNames)
 {
     auto oldIncludeId = GetIncludeId();
     if (!includeNames.keys().contains(oldIncludeId))
@@ -625,7 +605,7 @@ void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames
         editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
     const auto includeName = includeNames.values()[oldIncludeId];
-    SetIncludeId(oldIncludeId, includeName);
+    SetIncludeIdName(oldIncludeId, includeName);
 }
 
 //void PropertiesItem::SetIncludeName(QString includeName)
@@ -639,7 +619,7 @@ void PropertiesItem::SetIncludeNames(CubesUnitTypes::IncludeIdNames includeNames
 //    }
 //}
 
-void PropertiesItem::SetIncludeId(CubesUnitTypes::IncludeId includeId, QString includeName)
+void PropertiesItem::SetIncludeIdName(CubesUnitTypes::IncludeId includeId, QString includeName)
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
@@ -727,32 +707,6 @@ QPointF PropertiesItem::GetPosition()
         return { pmX->value.toDouble(), pmY->value.toDouble() };
     else
         return { 0, 0 };
-}
-
-void PropertiesItem::GetXmlProperties(const CubesUnitTypes::ParameterModel& pm,
-    QList<CubesXml::Param>& params, QList<CubesXml::Array>& arrays)
-{
-    /*struct Param
-    {
-        QString name;
-        QString type;
-        QString val;
-        bool depends;
-    };
-
-    struct Item
-    {
-        QString val;
-        QList<Param> params;
-        QList<Array> arrays;
-    };
-
-    struct Array
-    {
-        QString name;
-        QString type;
-        QList<Item> items;
-    };*/
 }
 
 bool PropertiesItem::GetXmlParam(const CubesUnitTypes::ParameterModel& pm, CubesXml::Param& param)
@@ -1007,15 +961,6 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
     ApplyExpandState();
 }
 
-void PropertiesItem::AddSubProperties(const CubesUnitTypes::ParameterModel& model)
-{
-    //QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
-    //for (auto& pm : model_.parameters)
-    //    topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
-    //for (const auto& kvp : idToProperty.toStdMap())
-    //    RegisterProperty(kvp.second, kvp.first);
-}
-
 QPixmap PropertiesItem::GetPixmap()
 {
     QPixmap px;
@@ -1038,7 +983,7 @@ QPixmap PropertiesItem::GetPixmap()
     return px;
 }
 
-void PropertiesItem::PositionChanged(QPointF point)
+void PropertiesItem::SetPosition(QPointF point)
 {
     auto pm_x = GetParameterModel(ids_.editor + ids_.positionX);
     pm_x->value = point.x();
@@ -1049,7 +994,7 @@ void PropertiesItem::PositionChanged(QPointF point)
     editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
 }
 
-void PropertiesItem::ZOrderChanged(double value)
+void PropertiesItem::SetZOrder(double value)
 {
     auto pm = GetParameterModel(ids_.editor + ids_.positionZ);
     pm->value = value;
@@ -1151,14 +1096,6 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
 
     for (const auto& pm : model.parameters)
         GetDependentNamesInternal(pm, list);
-}
-
-QString PropertiesItem::GetInstanceName()
-{
-    const auto pm = GetParameterModel(ids_.base + ids_.name);
-    if (pm != nullptr)
-        return pm->value.toString();
-    return QString();
 }
 
 QList<QString> PropertiesItem::GetConnectedNames()
@@ -1512,8 +1449,8 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             CubesUnitTypes::IncludeIdNames includeNames;
             propertiesItemsManager_->AfterFileNameChanged(propertiesId_, includeNames);
 
-            SetIncludeNames(includeNames);
-            SetIncludeId(CubesUnitTypes::InvalidIncludeId, "<not selected>"); // TODO: убрать <not selected> в константы
+            SetIncludeIdNames(includeNames);
+            SetIncludeIdName(CubesUnitTypes::InvalidIncludeId, "<not selected>"); // TODO: убрать <not selected> в константы
         }
         else if (pm->id == ids_.base + ids_.includeName)
         {

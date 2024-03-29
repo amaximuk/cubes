@@ -278,16 +278,6 @@ void FileItemsManager::Clear()
 	items_.clear();
 }
 
-bool FileItemsManager::GetName(const CubesUnitTypes::FileId fileId, QString& name)
-{
-	auto fi = GetItem(fileId);
-	if (fi == nullptr)
-		return false;
-
-	name = fi->GetName();
-	return true;
-}
-
 File FileItemsManager::GetFile(const CubesUnitTypes::FileId fileId)
 {
 	File result{};

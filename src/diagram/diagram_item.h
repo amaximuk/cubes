@@ -25,7 +25,8 @@ namespace CubeDiagram
         bool borderOnly_;
 
     public:
-        DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString groupName, QColor color, QGraphicsItem* parent = nullptr);
+        DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName,
+            QString includeName, QColor color, QGraphicsItem* parent = nullptr);
         DiagramItem(const DiagramItem& other);
         ~DiagramItem();
 
