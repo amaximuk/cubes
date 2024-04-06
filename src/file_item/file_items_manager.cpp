@@ -107,7 +107,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 		fileName = fi.fileName();
 	}
 	auto platform = xmlFile.platform;
-	auto filePath = xmlFile.fileName;
+	const auto& filePath = xmlFile.fileName;
 
 	auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
 	if (platform == "" || it == CubesUnitTypes::platform_names_.cend())

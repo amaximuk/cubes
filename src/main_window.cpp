@@ -1658,7 +1658,7 @@ void MainWindow::OnSaveFileAction()
             const auto includeName = item->GetIncludeName(kvpInclude.first);
             const auto includePath = item->GetIncludePath(kvpInclude.first);
 
-            includeXmlFile.name = includeName;
+            //includeXmlFile.name = includeName;
             //includeXmlFile.platform = xmlFile.platform;
             includeXmlFile.fileName = includePath;
 

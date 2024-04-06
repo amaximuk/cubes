@@ -9,7 +9,7 @@ namespace CubesXml
 	</Includes>*/
 	struct Include
 	{
-		QString name; // TODO: Add to xm format - short name of file
+		QString name; // TODO: Add to xml format - short name of file
 		QString fileName;
 		QList<QPair<QString, QString>> variables;
 	};
