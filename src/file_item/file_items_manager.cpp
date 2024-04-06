@@ -219,11 +219,7 @@ CubesUnitTypes::IncludeIdNames FileItemsManager::GetFileIncludeNames(const Cubes
 
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
-	{
-		int index = 1;
-		for(const auto& fn : (*it)->GetIncludes())
-			includes[index++] = fn;
-	}
+		includes.insert((*it)->GetIncludes());
 
 	return includes;
 }
@@ -399,9 +395,7 @@ void FileItemsManager::AfterIncludesListChanged(const CubesUnitTypes::FileId fil
 {
 	CubesUnitTypes::IncludeIdNames includes;
 	includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
-	int index = 1;
-	for(const auto& in : includeNames.values())
-		includes[index++] = in;
+	includes.insert(includeNames);
 	emit IncludesListChanged(fileId, includes);
 }
 

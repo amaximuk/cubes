@@ -703,7 +703,10 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     
-        fileItemsManager_->AfterIncludeNameChanged(fileId_, pm->key.toInt());
+        const auto pmItem = GetParameterModel(pm->id.left(2));
+        const auto includeId = pmItem->key.toInt();
+
+        fileItemsManager_->AfterIncludeNameChanged(fileId_, includeId);
         //bool cancel = false;
         //fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
 
@@ -863,6 +866,9 @@ void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, const Cubes
     // Установка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
+    const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(ci - 1));
+    pmItem->key = includeId;
+
     auto pmin = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.name);
     pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
 
@@ -872,7 +878,7 @@ void FileItem::AddInclude(const CubesUnitTypes::IncludeId includeId, const Cubes
     const auto includeName = GetIncludeName(includeId);
 
     auto pmifn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.filePath);
-    pmifn->key = includeId;
+    //pmifn->key = includeId;
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
@@ -910,11 +916,15 @@ CubesUnitTypes::IncludeIdNames FileItem::GetIncludes()
     if (pm == nullptr)
         return includeNamesMap;
 
-    int index = 1;
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
-        includeNamesMap[index++] = pmi->value.toString();
+        const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto includeId = pmItem->key.toInt();
+
+        const auto pmItemName = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
+        const auto includeName = pmItemName->value.toString();
+
+        includeNamesMap[includeId] = includeName;
     }
 
     return includeNamesMap;

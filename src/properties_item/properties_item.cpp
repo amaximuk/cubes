@@ -604,7 +604,7 @@ void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNam
 
         editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
-    const auto includeName = includeNames.values()[oldIncludeId];
+    const auto& includeName = includeNames[oldIncludeId];
     SetIncludeIdName(oldIncludeId, includeName);
 }
 
