@@ -86,7 +86,8 @@ namespace CubesFile
         void CreateParametersModel(const CubesXml::File* xmlFile);
         void CreateProperties();
         void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
-        void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::ParameterModel& model, int& count);
+        void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::IncludeId includeId,
+            CubesUnitTypes::ParameterModel& model, int& count);
         void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnitTypes::ParameterModel& model, int& count);
         void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);

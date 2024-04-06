@@ -571,7 +571,12 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
             if (pm->id == ids_.includes)
                 UpdateIncludesArrayModel(nullptr, *pm, count);
             else
-                UpdateVariablesArrayModel(nullptr, *pm, count);
+            {
+                const auto pmItem = GetParameterModel(pm->id.left(2));
+                const auto includeId = pmItem->key.toInt();
+
+                UpdateVariablesArrayModel(nullptr, includeId, *pm, count);
+            }
             editor_->SetIntValue(property, count);
 
             QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
@@ -1214,7 +1219,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
                 {
                     int xmlCount = xmlFile->includes[i].variables.size();
                     variables.value = xmlCount;
-                    UpdateVariablesArrayModel(&xmlFile->includes[i], variables, xmlCount);
+                    UpdateVariablesArrayModel(&xmlFile->includes[i], group_model.key.toInt(), variables, xmlCount);
                 }
 
                 //int xmlCount = 0;
@@ -1344,7 +1349,8 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
         fileItemsManager_->AfterIncludesListChanged(fileId_, includeNamesMap);
 }
 
-void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::ParameterModel& model, int& count)
+void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::IncludeId includeId,
+    CubesUnitTypes::ParameterModel& model, int& count)
 {
     //// Разделяем путь на части
     //QStringList path = model.id.split("/");
@@ -1426,8 +1432,8 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
     }
 
     // Получаем includeId
-    const auto pmItem = GetParameterModel(model.id.left(2));
-    const auto includeId = pmItem->key.toInt();
+    //const auto pmItem = GetParameterModel(model.id.left(2));
+    //const auto includeId = pmItem->key.toInt();
 
     // Получаем список имеющихся переменных
     CubesUnitTypes::VariableIdVariables variables;
