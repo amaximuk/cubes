@@ -1425,8 +1425,13 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
         }
     }
 
+    // Получаем includeId
+    const auto pmItem = GetParameterModel(model.id.left(2));
+    const auto includeId = pmItem->key.toInt();
+
     // Получаем список имеющихся переменных
-    QList<QPair<QString, QString>> variables;
+    CubesUnitTypes::VariableIdVariables variables;
+    //QList<QPair<QString, QString>> variables;
     for (const auto& v : model.parameters)
     {
         QString name;
@@ -1438,12 +1443,14 @@ void FileItem::UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, Cu
             else if (si.id.endsWith(ids_.value))
                 value = si.value.toString();
         }
+        const auto variableId = v.key.toInt();
         if (!name.isEmpty())
-            variables.push_back({ name, value });
+            variables[variableId] = { name, value };
     }
 
     // Информируем, что создали
-    //fileItemsManager_->AfterVariablesListChanged(fileId_, includeName, variables);
+    if (notifyManager_)
+        fileItemsManager_->AfterVariablesListChanged(fileId_, includeId, variables);
 }
 
 void FileItem::UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnitTypes::ParameterModel& model, int& count)
