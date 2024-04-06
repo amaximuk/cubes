@@ -90,6 +90,7 @@ public:
     QMap<QString, QStringList> GetDependsConnections() override;
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
     void EnshureVisible(uint32_t propertiesId) override;
+    bool GetIsMainWindow() override { return true; };
 
 protected:
     // UI

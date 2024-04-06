@@ -448,7 +448,10 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			mv->setWindowModality(Qt::ApplicationModal);
 			//mv->setAttribute(Qt::WA_DeleteOnClose, true);
 			qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
-			mv->SetItemModel(afi, pmCopy, pi->restrictions, item);
+			if (topManager_->GetIsMainWindow())
+				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, "Main");
+			else
+				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, QString::fromStdString(afi.info.id));
 			mv->show();
 			//mv->deleteLater();
 		}

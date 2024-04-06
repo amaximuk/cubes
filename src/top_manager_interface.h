@@ -35,4 +35,6 @@ public:
     virtual QString GetNewUnitName(const QString& baseName) = 0;
     virtual QMap<QString, QStringList> GetUnitsConnections() = 0;
     virtual QMap<QString, QStringList> GetDependsConnections() = 0;
+
+    virtual bool GetIsMainWindow() = 0;
 };

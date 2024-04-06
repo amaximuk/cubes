@@ -69,6 +69,17 @@ private:
     // Значения имен параметров
     CubesUnitTypes::ParameterModelIds ids_;
 
+
+
+
+
+    CubesUnitTypes::ParameterModel pm_{};
+    QSharedPointer<CubesProperties::PropertiesItem> pi_;
+    parameters::restrictions_info ri_{};
+    QString tn_;
+
+
+
 public:
     explicit ArrayWindow(QWidget* parent = nullptr);
     ~ArrayWindow() override;
@@ -93,9 +104,10 @@ public:
 
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
     void EnshureVisible(uint32_t propertiesId) override;
+    bool GetIsMainWindow() override { return false; };
 
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
+        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, QString tn);
 
 public:
     void closeEvent(QCloseEvent* event) override;
