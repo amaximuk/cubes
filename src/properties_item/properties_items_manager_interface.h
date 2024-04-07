@@ -18,6 +18,7 @@ namespace CubesProperties
 			double posX, double posY, double posZ) = 0;
 		virtual void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) = 0;
 		virtual void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) = 0;
+		virtual void AfterPropertiesChanged() = 0;
 	};
 
 	class IPropertiesItemsManagerWorker

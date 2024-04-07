@@ -58,13 +58,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &MainWindow::FileVariableNameChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &MainWindow::FileVariablesListChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &MainWindow::FileColorChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &MainWindow::FilePropertiesChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, false);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnError, this, &MainWindow::PropertiesOnError);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnConnectionChanged, this, &MainWindow::PropertiesConnectionChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &MainWindow::PropertiesError);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::ConnectionChanged, this, &MainWindow::PropertiesConnectionChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &MainWindow::PropertiesPropertiesChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MainWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
@@ -297,6 +299,23 @@ void MainWindow::EnshureVisible(uint32_t propertiesId)
             scene_->invalidate();
 
         }
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
+            QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn == QMessageBox::Yes)
+            event->accept();
+        else
+            event->ignore();
+    }
+    else
+    {
+        event->accept();
     }
 }
 
@@ -1420,11 +1439,15 @@ void MainWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->SetPosition(di->pos());
+    
+    UpdateFileState(path_, true);
 }
 
 void MainWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
+
+    UpdateFileState(path_, true);
 }
 
 void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
@@ -1507,6 +1530,8 @@ void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
         //}
     }
 
+    UpdateFileState(path_, true);
+
     scene_->invalidate();
 }
 
@@ -1524,6 +1549,8 @@ void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
         const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
         di->InformColorChanged(color);
     }
+
+    UpdateFileState(path_, true);
 
     scene_->invalidate();
 }
@@ -1548,6 +1575,8 @@ void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
         //}
     }
 
+    UpdateFileState(path_, true);
+
     scene_->invalidate();
 }
 
@@ -1561,6 +1590,8 @@ void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, c
             pi->SetIncludeIdNames(includeNames);
     }
 
+    UpdateFileState(path_, true);
+
     scene_->invalidate();
 }
 
@@ -1568,12 +1599,16 @@ void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, c
     const QString& variableName, const QString& oldVariableName)
 {
     propertiesItemsManager_->InformVariableChanged();
+
+    UpdateFileState(path_, true);
 }
 
 void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
     propertiesItemsManager_->InformVariableChanged();
+
+    UpdateFileState(path_, true);
 }
 
 void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
@@ -1587,7 +1622,14 @@ void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QC
             di->color_ = color;
     }
 
+    UpdateFileState(path_, true);
+    
     scene_->invalidate();
+}
+
+void MainWindow::FilePropertiesChanged()
+{
+    UpdateFileState(path_, true);
 }
 
 //void MainWindow::FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables)
@@ -1614,6 +1656,8 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
         }
     }
 
+    UpdateFileState(path_, true);
+    
     scene_->invalidate();
 }
 
@@ -1652,9 +1696,11 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
             break;
         }
     }
+
+    UpdateFileState(path_, true);
 }
 
-void MainWindow::PropertiesOnError(const uint32_t propertiesId, const QString& message)
+void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
 {
     CubeLog::LogMessage m{};
     m.type = CubeLog::MessageType::error;
@@ -1670,6 +1716,13 @@ void MainWindow::PropertiesOnError(const uint32_t propertiesId, const QString& m
 void MainWindow::PropertiesConnectionChanged(const uint32_t propertiesId)
 {
     scene_->invalidate();
+
+    UpdateFileState(path_, true);
+}
+
+void MainWindow::PropertiesPropertiesChanged()
+{
+    UpdateFileState(path_, true);
 }
 
 // Кнопки

@@ -86,6 +86,7 @@ namespace CubesFile
 			const CubesUnitTypes::VariableIdVariables& variables) = 0;
 	
 		virtual void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) = 0;
+		virtual void AfterPropertiesChanged() = 0;
 	};
 
 	class IFileItemsManagerWorker

@@ -416,6 +416,11 @@ void FileItemsManager::AfterColorChanged(const CubesUnitTypes::FileId fileId, co
 	emit ColorChanged(fileId, color);
 }
 
+void FileItemsManager::AfterPropertiesChanged()
+{
+	emit PropertiesChanged();
+}
+
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
 	uint32_t propertiesId = GetCurrentFileId();

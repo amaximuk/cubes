@@ -62,7 +62,8 @@ ArrayWindow::ArrayWindow(QWidget *parent)
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &ArrayWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &ArrayWindow::PropertiesPositionChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::OnError, this, &ArrayWindow::PropertiesOnError);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &ArrayWindow::PropertiesError);
+    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &ArrayWindow::PropertiesPropertiesChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &ArrayWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &ArrayWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &ArrayWindow::fileIncludeNameChanged);
@@ -1652,7 +1653,7 @@ void ArrayWindow::PropertiesPositionChanged(const uint32_t propertiesId, double 
     }
 }
 
-void ArrayWindow::PropertiesOnError(const uint32_t propertiesId, const QString& message)
+void ArrayWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
 {
     //CubeLog::LogMessage m{};
     //m.type = CubeLog::MessageType::error;

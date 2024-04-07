@@ -669,6 +669,8 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
         else
             pm->value = value.toString();
     }
+
+    fileItemsManager_->AfterPropertiesChanged();
 }
 
 void FileItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
@@ -774,6 +776,8 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         const auto variables = GetIncludeVariables(includeId);
         fileItemsManager_->AfterVariablesListChanged(fileId_, includeId, variables);
     }
+
+    fileItemsManager_->AfterPropertiesChanged();
 }
 
 void FileItem::Select()

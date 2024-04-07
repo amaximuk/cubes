@@ -1660,6 +1660,8 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
     }
+
+    propertiesItemsManager_->AfterPropertiesChanged();
 }
 
 void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue)
@@ -1729,6 +1731,7 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
         }
     }
 
+    propertiesItemsManager_->AfterPropertiesChanged();
 }
 
 void PropertiesItem::RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id)

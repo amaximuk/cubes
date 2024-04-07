@@ -93,6 +93,9 @@ public:
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
     void EnshureVisible(uint32_t propertiesId) override;
 
+private:
+    void closeEvent(QCloseEvent* event) override;
+
 protected:
     // UI
     void CreateUi();
@@ -150,14 +153,16 @@ public slots:
     void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
         const CubesUnitTypes::VariableIdVariables& variables);
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+    void FilePropertiesChanged();
 
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
         const QString& fileName, const QString& includeName);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
-    void PropertiesOnError(const uint32_t propertiesId, const QString& message);
+    void PropertiesError(const uint32_t propertiesId, const QString& message);
     void PropertiesConnectionChanged(const uint32_t propertiesId);
+    void PropertiesPropertiesChanged();
 
 private slots:
     // Кнопки

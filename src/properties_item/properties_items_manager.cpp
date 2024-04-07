@@ -330,12 +330,17 @@ void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::Properti
 
 void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
-	emit OnError(propertiesId, message);
+	emit Error(propertiesId, message);
 }
 
-void CubesProperties::PropertiesItemsManager::AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
-	emit OnConnectionChanged(propertiesId);
+	emit ConnectionChanged(propertiesId);
+}
+
+void PropertiesItemsManager::AfterPropertiesChanged()
+{
+	emit PropertiesChanged();
 }
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)

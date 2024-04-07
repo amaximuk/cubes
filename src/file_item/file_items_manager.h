@@ -73,6 +73,7 @@ namespace CubesFile
 		void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const CubesUnitTypes::VariableIdVariables& variables);
 		void ColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color);
+		void PropertiesChanged();
 
 	public:
 		// IFileItemsManagerBoss (для общения с FileItem)
@@ -92,6 +93,7 @@ namespace CubesFile
 		void AfterVariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const CubesUnitTypes::VariableIdVariables& variables) override;
 		void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) override;
+		void AfterPropertiesChanged() override;
 
 		// IFileItemsManagerWorker (для общения с TopManager)
 

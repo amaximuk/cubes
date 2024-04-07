@@ -62,8 +62,9 @@ namespace CubesProperties
 			const QString& includeName);
 		void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
-		void OnError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
-		void OnConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId);
+		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+		void ConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId);
+		void PropertiesChanged();
 
 	public:
 		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
@@ -75,6 +76,7 @@ namespace CubesProperties
 		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
 		void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
 		void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
+		void AfterPropertiesChanged() override;
 
 		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:
