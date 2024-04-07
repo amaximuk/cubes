@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     uniqueNumber_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
+    UpdateTitle("", false);
 
     fileItemsManager_ = new CubesFile::FileItemsManager(this);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MainWindow::FileNameChanged);
@@ -1179,6 +1180,14 @@ QString MainWindow::GetDisplayName(const QString& baseName)
     return realName;
 }
 
+void MainWindow::UpdateTitle(const QString& path, bool modified)
+{
+    QString title = path.isEmpty() ? "untitled" : path;
+    if (modified) title += "*";
+    setWindowTitle(title);
+    modified_ = modified;
+}
+
 // DiagramScene (as manager)
 void MainWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
 {
@@ -1281,6 +1290,12 @@ void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         pi->SetFileIdNames(fileNames);
+
+        // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
+        // После добавления, у них изменится имя файла и цвет
+        // TODO: возможно изменится имя - но не должно
+        const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
+        di->InformColorChanged(color);
     }
 
     scene_->invalidate();
@@ -1578,9 +1593,8 @@ void MainWindow::OnImportXmlFileAction()
 
 void MainWindow::OnSaveFileAction()
 {
-    //if (!modified_)
-    //    return;
-
+    if (!modified_ && !path_.isEmpty())
+        return;
 
     QFileDialog dialog(this);
     dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });

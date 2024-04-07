@@ -558,6 +558,12 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         // даже если фактически файл остается тем же
         editor_->blockSignals(true);
         editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
+        editor_->blockSignals(false);
+
+        // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
+        // Возьмем нулевой элемент
+        if (pm->key.toInt() == CubesUnitTypes::InvalidFileId && !fileNames.empty())
+            pm->key = fileNames.keys()[0];
 
         // При добавлении файлов необходимо восстановить выбранное значение
         if (fileNames.keys().contains(pm->key.toInt()))
@@ -565,7 +571,6 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         //if (fileNames.values().contains(pm->value.toString()))
         //    editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         
-        editor_->blockSignals(false);
     }
 }
 
@@ -644,12 +649,13 @@ CubesUnitTypes::FileId PropertiesItem::GetFileId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
+        return pm->key.toInt();
     {
-        for (const auto& kvp : pm->editorSettings.ComboBoxValues.toStdMap())
-        {
-            if (kvp.second == pm->value.toString())
-                return kvp.first;
-        }
+        //for (const auto& kvp : pm->editorSettings.ComboBoxValues.toStdMap())
+        //{
+        //    if (kvp.second == pm->value.toString())
+        //        return kvp.first;
+        //}
     }
     return 0;
 }

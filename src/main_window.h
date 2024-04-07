@@ -50,6 +50,7 @@ class MainWindow : public QMainWindow, ITopManager
 
 private:
     bool modified_;
+    QString path_;
     uint32_t uniqueNumber_;
 
     QPointer<CubeDiagram::DiagramScene> scene_;
@@ -119,6 +120,9 @@ protected:
     CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
     //QColor GetFileColor(const QString& fileName);
     QString GetDisplayName(const QString& baseName);
+
+    // Modified
+    void UpdateTitle(const QString& path, bool modified);
 
 public slots:
     // DiagramScene (as manager)
