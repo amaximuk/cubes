@@ -1004,7 +1004,22 @@ void PropertiesItem::SetZOrder(double value)
 QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property).toString();
-    return id;
+    auto pm = GetParameterModel(property);
+    auto ui = GetUnitParameters();
+    auto pi = parameters::helper::parameter::get_parameter_info(ui.fileInfo,
+        pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
+
+    QStringList messageList;
+    messageList.push_back(QString("id: %1").arg(id));
+    if (pm->key.isValid())
+        messageList.push_back(QString("key: %1").arg(pm->key.toString()));
+    if (pi != nullptr)
+        messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
+    if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
+        messageList.push_back(QString("pi_id: %1, %2").arg(pm->parameterInfoId.type).arg(pm->parameterInfoId.name));
+    messageList.push_back(QString("fi_id: %1").arg(QString::fromStdString(ui.fileInfo.info.id)));
+
+    return messageList.join('\n');
 }
 
 void PropertiesItem::GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list)

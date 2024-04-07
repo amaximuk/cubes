@@ -310,12 +310,12 @@ void ArrayWindow::EnshureVisible(uint32_t propertiesId)
 }
 
 void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-    parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, QString tn)
+    parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, bool isMain)
 {
     pm_ = pm;
     pi_ = pi;
     ri_ = ri;
-    tn_ = tn;
+    isMain_ = isMain;
 
     unitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
 
@@ -369,10 +369,10 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             {
                 for (auto& parameter : group.parameters)
                 {
-                    parameter.parameterInfoId.type = tn;
+                    parameter.parameterInfoId.type = "Main";
 
                     auto& pi = *parameters::helper::parameter::get_parameter_info(afi,
-                        tn.toStdString(), parameter.parameterInfoId.name.toStdString());
+                        "Main", parameter.parameterInfoId.name.toStdString());
 
                     bool isArray = parameters::helper::common::get_is_array_type(pi.type);
                     auto itemType = parameters::helper::common::get_item_type(pi.type);
@@ -381,7 +381,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
                     if (isArray && isInner)
                     {
                         for (auto& arrayParameter : parameter.parameters)
-                            arrayParameter.parameterInfoId.type = tn;
+                            arrayParameter.parameterInfoId.type = "Main";
                     }
                 }
             }
@@ -515,14 +515,15 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
         auto pm = item->GetParametersModel();
 
         const auto up = item->GetUnitParameters();
-        //const auto type = QString ::fromStdString(up.fileInfo.info.id); //pm_.id.right(1).toString();
+        const auto type = QString::fromStdString(up.fileInfo.info.id);
+        //const auto type = isMain_ ? "Main" : QString::fromStdString(up.fileInfo.info.id); //pm_.id.right(1).toString();
         for (auto& group : pm.parameters)
         {
             if (group.id == ids_.parameters)
             {
                 for (auto& parameter : group.parameters)
                 {
-                    parameter.parameterInfoId.type = tn_;// type;
+                    parameter.parameterInfoId.type = type;
 
                     auto& pi = *parameters::helper::parameter::get_parameter_info(up.fileInfo,
                         "Main", parameter.parameterInfoId.name.toStdString());
@@ -535,7 +536,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
                     if (isArray && isInner)
                     {
                         for (auto& arrayParameter : parameter.parameters)
-                            arrayParameter.parameterInfoId.type = tn_;// type;
+                            arrayParameter.parameterInfoId.type = type;
                     }
                 }
             }

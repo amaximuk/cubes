@@ -352,6 +352,8 @@ void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 
 void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 {
+	// $PARAMETERS/DEVICES/$ITEM_0/$PARAMETERS/STATES
+
 	auto pe = editor_->GetPropertyEditor();
 	if (pe->currentItem() == nullptr)
 		return;
@@ -448,10 +450,14 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			mv->setWindowModality(Qt::ApplicationModal);
 			//mv->setAttribute(Qt::WA_DeleteOnClose, true);
 			qDebug() << connect(mv, &ArrayWindow::BeforeClose, this, &PropertiesItemsManager::OnArrayWindowBeforeClose);
-			if (topManager_->GetIsMainWindow())
-				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, "Main");
+			if (topManager_->GetIsMainWindow() && pm->id.size() == 2)
+			{
+				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, true);
+			}
 			else
-				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, QString::fromStdString(afi.info.id));
+			{
+				mv->SetItemModel(afi, pmCopy, pi->restrictions, item, false);
+			}
 			mv->show();
 			//mv->deleteLater();
 		}

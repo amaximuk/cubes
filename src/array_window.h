@@ -76,7 +76,7 @@ private:
     CubesUnitTypes::ParameterModel pm_{};
     QSharedPointer<CubesProperties::PropertiesItem> pi_;
     parameters::restrictions_info ri_{};
-    QString tn_;
+    bool isMain_;
 
 
 
@@ -107,7 +107,7 @@ public:
     bool GetIsMainWindow() override { return false; };
 
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, QString tn);
+        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, bool isMain);
 
 public:
     void closeEvent(QCloseEvent* event) override;
