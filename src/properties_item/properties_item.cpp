@@ -558,7 +558,6 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         // даже если фактически файл остается тем же
         editor_->blockSignals(true);
         editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
-        editor_->blockSignals(false);
 
         // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
         // Возьмем нулевой элемент
@@ -571,6 +570,8 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         //if (fileNames.values().contains(pm->value.toString()))
         //    editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         
+        // Разблокировка именно тут, если поднять выше, файл не устанавливается
+        editor_->blockSignals(false);
     }
 }
 

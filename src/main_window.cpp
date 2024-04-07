@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     uniqueNumber_ = 0;
 
     setWindowIcon(QIcon(":/images/cubes.png"));
-    UpdateTitle("", false);
+    UpdateFileState("", false);
 
     fileItemsManager_ = new CubesFile::FileItemsManager(this);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MainWindow::FileNameChanged);
@@ -72,8 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     CreateUi();
 
-    uint32_t fileId{ 0 };
-    fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
+    //uint32_t fileId{ 0 };
+    //fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 
 MainWindow::~MainWindow()
@@ -351,8 +351,8 @@ void MainWindow::CreateMenu()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
-    //recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
-    //fileMenu->addSeparator();
+    recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
+    fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
 
     QAction* sortBoostAct = new QAction(QString::fromLocal8Bit("Сортировать (boost)"), this);
@@ -366,6 +366,8 @@ void MainWindow::CreateMenu()
     QMenu* editMenu = menuBar()->addMenu(QString::fromLocal8Bit("Правка"));
     editMenu->addAction(sortBoostAct);
     editMenu->addAction(sortRectAct);
+
+    UpdateRecent();
 }
 
 QWidget* MainWindow::CreateMainWidget()
@@ -1180,12 +1182,237 @@ QString MainWindow::GetDisplayName(const QString& baseName)
     return realName;
 }
 
-void MainWindow::UpdateTitle(const QString& path, bool modified)
+void MainWindow::UpdateFileState(const QString& path, bool modified)
 {
     QString title = path.isEmpty() ? "untitled" : path;
     if (modified) title += "*";
     setWindowTitle(title);
+    path_ = path;
     modified_ = modified;
+}
+
+bool MainWindow::SaveFileInternal(const QString& path)
+{
+    // Получаем список главных файлов
+    bool is_first = true;
+    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    for (const auto& kvpFile : fileNames.toStdMap())
+    {
+        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
+        QFileInfo xmlFileInfo(xmlFile.fileName);
+        const auto xmlFileName = xmlFileInfo.fileName();
+        const auto xmlZipFilePath = path;
+
+        {
+            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
+            xmlFile.config.groups = std::move(xmlGroups);
+
+            QByteArray byteArray;
+            if (!CubesXml::Writer::Write(byteArray, xmlFile))
+                return false;
+
+            if (is_first)
+            {
+                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
+                    return false;
+
+                is_first = false;
+            }
+            else
+            {
+                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+                    return false;
+            }
+            //CubesXml::Writer::Write(xmlFileName, xmlFile);
+            //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
+        }
+
+        auto includes = fileItemsManager_->GetFileIncludeNames(kvpFile.first, false);
+        for (const auto& kvpInclude : includes.toStdMap())
+        {
+            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
+            CubesXml::File includeXmlFile{};
+
+            const auto item = fileItemsManager_->GetItem(kvpFile.first);
+            const auto includeName = item->GetIncludeName(kvpInclude.first);
+            const auto includePath = item->GetIncludePath(kvpInclude.first);
+
+            ///includeXmlFile.name = includeName;
+            //includeXmlFile.platform = xmlFile.platform;
+            includeXmlFile.fileName = includePath;
+
+            includeXmlFile.config.logIsSet = false;
+            includeXmlFile.config.networkingIsSet = false;
+            includeXmlFile.config.groups = includeGroups;
+
+
+            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
+            const auto includeXmlFileName = includeXmlFileInfo.fileName();
+
+
+            QByteArray byteArray;
+            if (!CubesXml::Writer::Write(byteArray, includeXmlFile))
+                return false;
+
+            if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+                return false;
+
+            //CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
+            //CubesZip::ZipFile(includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append);
+        }
+    }
+
+    AddRecent(path);
+    UpdateFileState(path, false);
+
+    return true;
+}
+
+bool MainWindow::OpenFileInternal(const QString& path)
+{
+    scene_->clear();
+    propertiesItemsManager_->Clear();
+    fileItemsManager_->Clear();
+
+    UpdateFileState("", false);
+
+    QList<QString> fileNames;
+    if (!CubesZip::GetZippedFileNames(path, fileNames))
+        return false;
+
+    for (const auto& fileName : fileNames)
+    {
+        QByteArray byteArray;
+        if (!CubesZip::UnZipFile(path, fileName, byteArray))
+            return false;
+
+        CubesXml::File f{};
+        CubesXml::Parser::Parse(byteArray, fileName, f);
+
+        if (f.config.networkingIsSet)
+        {
+            log_table_model_->Clear();
+
+            if (!AddMainFile(f, path))
+                return false;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        const auto position = pi->GetPosition();
+        di->setPos(position);
+    }
+
+    AddRecent(path);
+    UpdateFileState(path, false);
+
+    return true;
+}
+
+void MainWindow::UpdateRecent()
+{
+    recentMenu_->clear();
+
+    QString iniFileName = QDir(QCoreApplication::applicationDirPath()).filePath("settings.ini");
+    QSettings app_settings(iniFileName, QSettings::IniFormat);
+    int recent_count = app_settings.value("recent/count", "0").toInt();
+    if (recent_count == 0)
+    {
+        QAction* recentAct = new QAction(QString::fromLocal8Bit("<список пуст>"), this);
+        recentAct->setStatusTip(QString::fromLocal8Bit("Список пуст"));
+        recentMenu_->addAction(recentAct);
+    }
+    else
+    {
+        for (int i = 0; i < recent_count; i++)
+        {
+            QString name = QString("recent/filename_%1").arg(i);
+            QString path = app_settings.value(name, "").toString();
+            QAction* recentAct = new QAction(path, this);
+            recentAct->setStatusTip(QString::fromLocal8Bit("Открыть файл %1").arg(path));
+            connect(recentAct, &QAction::triggered, this, &MainWindow::OnRecentAction);
+            recentMenu_->addAction(recentAct);
+        }
+    }
+}
+
+void MainWindow::AddRecent(QString fileName)
+{
+    QString iniFileName = QDir(QCoreApplication::applicationDirPath()).filePath("settings.ini");
+    QSettings app_settings(iniFileName, QSettings::IniFormat);
+    int recent_count = app_settings.value("recent/count", "0").toInt();
+    QList<QString> list;
+    for (int i = 0; i < recent_count; i++)
+    {
+        QString name = QString("recent/filename_%1").arg(i);
+        QString path = app_settings.value(name, "").toString();
+        path.replace("\\", "/");
+        list.push_back(path);
+    }
+
+    app_settings.beginGroup("recent");
+    app_settings.remove(""); //removes the group, and all it keys
+    app_settings.endGroup();
+
+    fileName.replace("\\", "/");
+    if (list.contains(fileName))
+        list.removeAll(fileName);
+    list.push_front(fileName);
+    while (list.size() > 10)
+        list.pop_back();
+
+    app_settings.setValue("recent/count", list.size());
+    for (int i = 0; i < list.size(); i++)
+    {
+        QString name = QString("recent/filename_%1").arg(i);
+        app_settings.setValue(name, list[i]);
+    }
+    app_settings.sync();
+
+    UpdateRecent();
+}
+
+void MainWindow::RemoveRecent(QString fileName)
+{
+    QString iniFileName = QDir(QCoreApplication::applicationDirPath()).filePath("settings.ini");
+    QSettings app_settings(iniFileName, QSettings::IniFormat);
+    int recent_count = app_settings.value("recent/count", "0").toInt();
+    QList<QString> list;
+    for (int i = 0; i < recent_count; i++)
+    {
+        QString name = QString("recent/filename_%1").arg(i);
+        QString path = app_settings.value(name, "").toString();
+        path.replace("\\", "/");
+        list.push_back(path);
+    }
+
+    app_settings.beginGroup("recent");
+    app_settings.remove(""); //removes the group, and all it keys
+    app_settings.endGroup();
+
+    fileName.replace("\\", "/");
+    if (list.contains(fileName))
+        list.removeAll(fileName);
+    while (list.size() > 10)
+        list.pop_back();
+
+    app_settings.setValue("recent/count", list.size());
+    for (int i = 0; i < list.size(); i++)
+    {
+        QString name = QString("recent/filename_%1").arg(i);
+        app_settings.setValue(name, list[i]);
+    }
+    app_settings.sync();
+
+    UpdateRecent();
 }
 
 // DiagramScene (as manager)
@@ -1450,43 +1677,28 @@ void MainWindow::OnNewFileAction()
 {
     if (modified_)
     {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
             QString::fromLocal8Bit("Вы действительно хотите создать новый файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
         if (resBtn != QMessageBox::Yes)
             return;
     }
 
-    //while (tabWidget_->count() > 0)
-    //    tabWidget_->removeTab(0);
+    scene_->clear();
+    propertiesItemsManager_->Clear();
+    fileItemsManager_->Clear();
 
-    //QWidget* widgetTabMain = CreateMainTabWidget();
-    //tabWidget_->addTab(widgetTabMain, "Main");
-
-    //fileInfo_ = {};
-
-    //currentFileName_ = "";
-    //modified_ = false;
-    //UpdateWindowTitle();
+    UpdateFileState("", false);
 }
 
 void MainWindow::OnOpenFileAction()
 {
     if (modified_)
     {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
             QString::fromLocal8Bit("Вы действительно хотите открыть файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
         if (resBtn != QMessageBox::Yes)
             return;
     }
-
-
-
-    scene_->clear();
-    propertiesItemsManager_->Clear();
-    fileItemsManager_->Clear();
-
-
-
 
     QFileDialog dialog(this);
     dialog.setNameFilter("Parameters Archive Files (*.xlmx)");
@@ -1499,57 +1711,8 @@ void MainWindow::OnOpenFileAction()
     if (selectedFileNames.size() == 0)
         return;
 
-    QList<QString> fileNames;
-    if (!CubesZip::GetZippedFileNames(selectedFileNames[0], fileNames))
+    if (!OpenFileInternal(selectedFileNames[0]))
         return;
-
-    for (const auto& fileName : fileNames)
-    {
-        QByteArray byteArray;
-        if (!CubesZip::UnZipFile(selectedFileNames[0], fileName, byteArray))
-            return;
-
-        CubesXml::File f{};
-        CubesXml::Parser::Parse(byteArray, fileName, f);
-
-        if (f.config.networkingIsSet)
-        {
-            log_table_model_->Clear();
-
-            if (!AddMainFile(f, selectedFileNames[0]))
-                return;
-        }
-        else
-        {
-            continue;
-        }
-    }
-
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        const auto position = pi->GetPosition();
-        di->setPos(position);
-    }
-
-    //auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
-
-    //QFileDialog dialog(this);
-    //dialog.setNameFilters({ "Parameters Compiler YAML Files (*.yml *.yaml)", "Parameters Compiler JSON Files (*.json)" });
-    //dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-    //QStringList fileNames;
-    //if (dialog.exec())
-    //    fileNames = dialog.selectedFiles();
-
-    //if (fileNames.size() == 0)
-    //    return;
-
-    //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
-
-    //OpenFileInternal(fileNames[0], is_json);
 }
 
 void MainWindow::OnImportXmlFileAction()
@@ -1596,6 +1759,29 @@ void MainWindow::OnSaveFileAction()
     if (!modified_ && !path_.isEmpty())
         return;
 
+    QString selectedFileName = path_;
+    if (path_.isEmpty())
+    {
+        QFileDialog dialog(this);
+        dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        dialog.setDefaultSuffix("xmlx");
+
+        QStringList selectedFileNames;
+        if (dialog.exec())
+            selectedFileNames = dialog.selectedFiles();
+        if (selectedFileNames.size() <= 0)
+            return;
+
+        selectedFileName = selectedFileNames[0];
+    }
+
+    if (!SaveFileInternal(selectedFileName))
+        return;
+}
+
+void MainWindow::OnSaveAsFileAction()
+{
     QFileDialog dialog(this);
     dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -1607,244 +1793,17 @@ void MainWindow::OnSaveFileAction()
     if (selectedFileNames.size() <= 0)
         return;
 
-    //bool is_json = (dialog.selectedNameFilter() == "Parameters Compiler JSON Files (*.json)");
     QString selectedFileName = selectedFileNames[0];
-    //SaveAsInternal(fileName, is_json, false);
 
-
-
-    //QDir dir;
-    //dir.mkdir("tmp");
-
-    bool is_first = true;
-
-    // Получаем список главных файлов
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    for (const auto& kvpFile : fileNames.toStdMap())
-    {
-        //// Соберем всю информацию о файле
-        //auto file = fileItemsManager_->GetFile(fileName);
-        //auto groups = propertiesItemsManager_->GetXmlGroups(fileName);
-
-        //// Соберем всю информацию о файле
-        //CubesXml::File xmlFile{};
-        //xmlFile.fileName = fileName;
-        //xmlFile.config.networkingIsSet = true;
-        //xmlFile.config.logIsSet = true;
-
-        //xmlFile.config.networking = file.network;
-
-        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
-        QFileInfo xmlFileInfo(xmlFile.fileName);
-        const auto xmlFileName = xmlFileInfo.fileName();
-        const auto xmlZipFilePath = selectedFileName; // QString("tmp/%1.xmlx").arg(xmlFileInfo.completeBaseName());
-
-        {
-            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
-            xmlFile.config.groups = std::move(xmlGroups);
-
-            QByteArray byteArray;
-            if (!CubesXml::Writer::Write(byteArray, xmlFile))
-                return;
-
-            if (is_first)
-            {
-                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
-                    return;
-                is_first = false;
-            }
-            else
-            {
-                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
-                    return;
-            }
-            //CubesXml::Writer::Write(xmlFileName, xmlFile);
-            //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
-        }
-
-        auto includes = fileItemsManager_->GetFileIncludeNames(kvpFile.first, false);
-        for (const auto& kvpInclude : includes.toStdMap())
-        {
-            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
-            CubesXml::File includeXmlFile{};
-            
-            const auto item = fileItemsManager_->GetItem(kvpFile.first);
-            const auto includeName = item->GetIncludeName(kvpInclude.first);
-            const auto includePath = item->GetIncludePath(kvpInclude.first);
-
-            ///includeXmlFile.name = includeName;
-            //includeXmlFile.platform = xmlFile.platform;
-            includeXmlFile.fileName = includePath;
-
-            includeXmlFile.config.logIsSet = false;
-            includeXmlFile.config.networkingIsSet = false;
-            includeXmlFile.config.groups = includeGroups;
-
-
-            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
-            const auto includeXmlFileName = includeXmlFileInfo.fileName();
-
-
-            QByteArray byteArray;
-            if (!CubesXml::Writer::Write(byteArray, includeXmlFile))
-                return;
-
-            if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
-                return;
-
-            //CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
-            //CubesZip::ZipFile(includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append);
-        }
-    }
-
-        /*
-        // Получаем список включаемых файлов
-        QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, false);
-        if (fileIncludeNames.size() > 0)
-        {
-            // Соберем всю информацию о включаемом файле
-            CubesXml::Include xmlInclude{};
-
-            for (const auto& fileIncludeName : fileIncludeNames)
-            {
-                QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName, fileIncludeName);
-                for (const auto& propertiesId : propertiesIds)
-                {
-                    qDebug() << propertiesId << " ";
-
-
-                    auto item = propertiesItemsManager_->GetItem(propertiesId);
-
-                    CubesXml::Unit xmlUnit{};
-                    item->GetXml(xmlUnit);
-                }
-            }
-
-            // Добавляем файл в массив
-            xmlFile.includes.push_back(xmlInclude);
-        }
-        else
-        {
-            // Соберем всю информацию о конфигурации
-            xmlFile.config.networking;
-            xmlFile.config.log;
-            xmlFile.config.groups;
-
-            QMap<QString, CubesXml::Group> xmlGroups;
-
-            QList<uint32_t> propertiesIds = propertiesItemsManager_->GetPropertyIdsByFileName(fileName);
-            for (const auto& propertiesId : propertiesIds)
-            {
-                qDebug() << propertiesId << " ";
-
-                auto item = propertiesItemsManager_->GetItem(propertiesId);
-
-                CubesXml::Unit xmlUnit{};
-                item->GetXml(xmlUnit);
-                const auto group = item->GetUnitCategory().toLower();
-                
-                if (!xmlGroups.contains(group))
-                {
-                    CubesXml::Group xmlGroup{};
-                    xmlGroup.path = group;
-                    xmlGroups[group] = xmlGroup;
-                }
-                xmlGroups[group].units.push_back(xmlUnit);
-            }
-
-            for (const auto& xmlGroup : xmlGroups)
-                xmlFile.config.groups.push_back(xmlGroup);
-            //xmlFile.config.groups = xmlGroups.values();
-            //std::sort(xmlFile.config.groups.begin(), xmlFile.config.groups.end());
-        }
-    */
-    // Получаем спи
-
-
-    //struct Group
-    //{
-    //    QString path;
-    //    QList<Unit> units;
-    //};
-
-    //struct Config
-    //{
-    //    Networking networking;
-    //    bool networking_is_set;
-    //    Log log;
-    //    bool log_is_set;
-    //    QList<Group> groups;
-    //};
-
-    //struct File
-    //{
-    //    QString fileName;
-    //    QList<Include> includes;
-    //    Config config;
-    //};
-
-
-
-    //if (currentFileName_ == "")
-    //{
-    //    SaveAs();
-    //}
-    //else
-    //{
-    //    qDebug() << currentFileName_;
-
-    //    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
-    //        QString::fromLocal8Bit("Вы действительно хотите сохранить файл?\nФайл будет перезаписан!"), QMessageBox::No | QMessageBox::Yes);
-    //    if (resBtn != QMessageBox::Yes)
-    //        return;
-
-    //    if (!ReadCurrentFileInfo())
-    //        return;
-
-    //    std::string message;
-    //    if (!parameters_compiler::helper::validate(fileInfo_, message))
-    //    {
-    //        QMessageBox::critical(this, "Validate error", QString::fromLocal8Bit(message.c_str()));
-    //        return;
-    //    }
-
-    //    bool have_type_loop = false;
-    //    if (!parameters_compiler::helper::rearrange_types(fileInfo_, have_type_loop))
-    //    {
-    //        QMessageBox::critical(this, "Rearrange error", QString::fromLocal8Bit("Ошибка переупорядочивания пользовательских типов перед сохранением"));
-    //        return;
-    //    }
-    //    else if (have_type_loop)
-    //    {
-    //        QMessageBox::warning(this, "Rearrange", QString::fromLocal8Bit("Обнаружена циклицеская зависимость в типах.\nФайл будет сохранен, но эта логическая ошибка требует исправления!"));
-    //    }
-
-    //    if (is_json_)
-    //    {
-    //        if (!json::writer::write(currentFileName_.toStdString(), fileInfo_))
-    //            return;
-    //    }
-    //    else
-    //    {
-    //        if (!yaml::writer::write(currentFileName_.toStdString(), fileInfo_))
-    //            return;
-    //    }
-
-    //    modified_ = false;
-    //    UpdateWindowTitle();
-    //}
-}
-
-void MainWindow::OnSaveAsFileAction()
-{
-    //SaveAs();
+    if (!SaveFileInternal(selectedFileName))
+        return;
 }
 
 void MainWindow::OnQuitAction()
 {
     if (modified_)
     {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "parameters_composer",
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
             QString::fromLocal8Bit("Вы действительно хотите выйти?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
         if (resBtn == QMessageBox::Yes)
             QApplication::quit();
@@ -1863,6 +1822,12 @@ void MainWindow::OnSortBoostAction()
 void MainWindow::OnSortRectAction()
 {
     SortUnitsRectangular(false);
+}
+
+void MainWindow::OnRecentAction()
+{
+    QAction* act = qobject_cast<QAction*>(sender());
+    OpenFileInternal(act->text());
 }
 
 // TODO: Перенести подсказку в менеджер

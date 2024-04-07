@@ -58,6 +58,7 @@ private:
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
+    QPointer<QMenu> recentMenu_;
     //QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
     QPointer<CubeLog::LogTableModel> log_table_model_;
@@ -122,7 +123,12 @@ protected:
     QString GetDisplayName(const QString& baseName);
 
     // Modified
-    void UpdateTitle(const QString& path, bool modified);
+    void UpdateFileState(const QString& path, bool modified);
+    bool SaveFileInternal(const QString& path);
+    bool OpenFileInternal(const QString& path);
+    void UpdateRecent();
+    void AddRecent(QString fileName);
+    void RemoveRecent(QString fileName);
 
 public slots:
     // DiagramScene (as manager)
@@ -145,15 +151,6 @@ public slots:
         const CubesUnitTypes::VariableIdVariables& variables);
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
-    //void FileNameChanged(const QString& fileName, const QString& oldFileName);
-    //void FileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-    //void FileIncludeNameChanged(const QString& fileName, const QString& includeName, const QString& oldIncludeName);
-    //void FileIncludesListChanged(const QString& fileName, const CubesUnitTypes::IncludeFileIdNames& includeNames);
-    ////void FileVariableChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
-    //void FileVariableNameChanged(const QString& fileName, const QString& includeName, const QString& variableName, const QString& oldVariableName);
-    //void FileVariablesListChanged(const QString& fileName, const QString& includeName, const QList<QPair<QString, QString>>& variables);
-    //void FileColorChanged(const QString& fileName, const QColor& color);
-
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
         const QString& fileName, const QString& includeName);
@@ -172,9 +169,7 @@ private slots:
     void OnQuitAction();
     void OnSortBoostAction();
     void OnSortRectAction();
-
-    // TODO: Перенести подсказку в менеджер
-    //void currentItemChanged(QtBrowserItem* item);
+    void OnRecentAction();
 
     // Лог
     void OnErrorButtonClicked(bool checked);
