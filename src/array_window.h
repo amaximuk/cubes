@@ -76,7 +76,6 @@ private:
     CubesUnitTypes::ParameterModel pm_{};
     QSharedPointer<CubesProperties::PropertiesItem> pi_;
     parameters::restrictions_info ri_{};
-    bool isMain_;
 
 
 
@@ -104,10 +103,9 @@ public:
 
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
     void EnshureVisible(uint32_t propertiesId) override;
-    bool GetIsMainWindow() override { return false; };
 
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, bool isMain);
+        parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 public:
     void closeEvent(QCloseEvent* event) override;

@@ -310,12 +310,11 @@ void ArrayWindow::EnshureVisible(uint32_t propertiesId)
 }
 
 void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
-    parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi, bool isMain)
+    parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
     pm_ = pm;
     pi_ = pi;
     ri_ = ri;
-    isMain_ = isMain;
 
     unitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
 
@@ -516,7 +515,6 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
 
         const auto up = item->GetUnitParameters();
         const auto type = QString::fromStdString(up.fileInfo.info.id);
-        //const auto type = isMain_ ? "Main" : QString::fromStdString(up.fileInfo.info.id); //pm_.id.right(1).toString();
         for (auto& group : pm.parameters)
         {
             if (group.id == ids_.parameters)
