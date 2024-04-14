@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/images/cubes.png"));
     UpdateFileState("", false);
 
-    fileItemsManager_ = new CubesFile::FileItemsManager(this);
+    fileItemsManager_ = new CubesFile::FileItemsManager(this, this);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MainWindow::FileNameChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &MainWindow::FileListChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &MainWindow::FileIncludeNameChanged);

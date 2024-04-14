@@ -5,6 +5,10 @@
 
 class QComboBox;
 class ITopManager;
+namespace CubesLog
+{
+	class ILogManager;
+}
 
 namespace CubesFile
 {
@@ -19,6 +23,7 @@ namespace CubesFile
 
 	private:
 		ITopManager* topManager_;
+		CubesLog::ILogManager* logManager_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
@@ -27,7 +32,7 @@ namespace CubesFile
 		CubesUnitTypes::FileId uniqueNumber_;
 
 	public:
-		FileItemsManager(ITopManager* topManager);
+		FileItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager);
 
 	public:
 		PropertiesEditor* GetEditor();

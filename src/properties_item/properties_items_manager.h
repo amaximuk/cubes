@@ -5,7 +5,6 @@
 class QComboBox;
 class QPlainTextEdit;
 class ITopManager;
-
 namespace CubesLog
 {
 	class ILogManager;

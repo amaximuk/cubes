@@ -13,9 +13,10 @@
 
 using namespace CubesFile;
 
-FileItemsManager::FileItemsManager(ITopManager* topManager)
+FileItemsManager::FileItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager)
 {
 	topManager_ = topManager;
+	logManager_ = logManager;
 	selected_ = CubesUnitTypes::InvalidFileId;
 	uniqueNumber_ = CubesUnitTypes::InvalidFileId;
 
@@ -94,6 +95,9 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	selector_->setCurrentIndex(selector_->count() - 1);
 
 	emit FilesListChanged(GetFileNames());
+
+	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
 }
 
 void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
@@ -134,6 +138,9 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 	selector_->setCurrentIndex(selector_->count() - 1);
 
 	emit FilesListChanged(GetFileNames());
+
+	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
 }
 
 void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
@@ -166,6 +173,9 @@ void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 		selector_->removeItem(index);
 
 	items_.remove(fileId);
+
+	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+		QString("Item removed, id = %1").arg(fileId) });
 }
 
 QSharedPointer<FileItem> FileItemsManager::GetItem(const CubesUnitTypes::FileId fileId)
@@ -272,6 +282,9 @@ void FileItemsManager::Clear()
 	editor_->GetPropertyEditor()->clear();
 	selector_->clear();
 	items_.clear();
+
+	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+		QString("All items removed") });
 }
 
 File FileItemsManager::GetFile(const CubesUnitTypes::FileId fileId)
@@ -546,6 +559,9 @@ void FileItemsManager::OnRemoveFileClicked()
 
 	// Сообщаяем об удалении
 	emit FilesListChanged(fileNames);
+
+	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+		QString("Item removed, id = %1").arg(fileId) });
 }
 
 QWidget* FileItemsManager::CreateEditorWidget()
