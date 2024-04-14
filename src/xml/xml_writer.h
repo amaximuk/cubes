@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtXml>
+#include "../log_table/log_table_interface.h"
 #include "xml_types.h"
 
 namespace CubesXml
@@ -8,25 +9,30 @@ namespace CubesXml
 	class Writer
 	{
 	private:
-		static const CubesUnitTypes::ParameterModelIds ids_;
+		const CubesUnitTypes::ParameterModelIds ids_;
+		CubesLog::ILogManager* logManager_;
+		File fi_;
 
 	public:
-		static bool Write(QByteArray& buffer, const File& fi);
-		static bool Write(const QString& filename, const File& fi);
+		Writer(CubesLog::ILogManager* logManager = nullptr);
+
+	public:
+		bool Write(QByteArray& buffer, const File& fi);
+		bool Write(const QString& filename, const File& fi);
 
 	private:
-		static bool SetFile(const File& file, QXmlStreamWriter& xmlWriter);
-		static bool SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWriter);
-		static bool SetConfig(const Config& config, const QString& name, const QString& platform,
+		bool SetFile(const File& file, QXmlStreamWriter& xmlWriter);
+		bool SetIncludes(const QList<Include>& includes, QXmlStreamWriter& xmlWriter);
+		bool SetConfig(const Config& config, const QString& name, const QString& platform,
 			const QString& color, QXmlStreamWriter& xmlWriter);
-		static bool SetNetworking(const Networking& networking, QXmlStreamWriter& xmlWriter);
-		static bool SetLog(const Log& log, QXmlStreamWriter& xmlWriter);
-		static bool SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter);
-		static bool SetGroup(const Group& group, QXmlStreamWriter& xmlWriter);
-		static bool SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter);
-		static bool SetParam(const Param& param, QXmlStreamWriter& xmlWriter);
-		static bool SetArray(const Array& array, QXmlStreamWriter& xmlWriter);
-		static bool SetDepends(const QList<QString>& depends, QXmlStreamWriter& xmlWriter);
-		static bool SetItem(const Item& item, QXmlStreamWriter& xmlWriter);
+		bool SetNetworking(const Networking& networking, QXmlStreamWriter& xmlWriter);
+		bool SetLog(const Log& log, QXmlStreamWriter& xmlWriter);
+		bool SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter);
+		bool SetGroup(const Group& group, QXmlStreamWriter& xmlWriter);
+		bool SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter);
+		bool SetParam(const Param& param, QXmlStreamWriter& xmlWriter);
+		bool SetArray(const Array& array, QXmlStreamWriter& xmlWriter);
+		bool SetDepends(const QList<QString>& depends, QXmlStreamWriter& xmlWriter);
+		bool SetItem(const Item& item, QXmlStreamWriter& xmlWriter);
 	};
 }

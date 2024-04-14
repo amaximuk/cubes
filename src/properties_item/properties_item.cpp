@@ -7,6 +7,7 @@
 #include "../diagram/diagram_item.h"
 #include "../parameters_compiler/variant_converter.h"
 #include "../parameters_compiler/base64.h"
+#include "../xml/xml_helper.h"
 #include "properties_item_types.h"
 #include "properties_item.h"
 
@@ -305,13 +306,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     // Предварительно получаем значение параметра из xml файла, если он доступен
     CubesXml::Param* xmlParam = nullptr;
     if (xmlUnit != nullptr)
-        xmlParam = CubesXml::Parser::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+        xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     // Предварительно получаем значение элемента массива из xml файла, если он доступен
     CubesXml::Item* xmlItem = nullptr;
     QString xmlItemType;
     if (xmlUnit != nullptr)
-        xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
+        xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
 
     // Вычисляем значение из xml файла (параметра или элемента массива)
     QString xmlValueString;
@@ -1158,7 +1159,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
 
     int xmlCount = 0;
     if (xmlUnit != nullptr)
-        xmlCount = CubesXml::Parser::GetItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+        xmlCount = CubesXml::Helper::GetItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
 
     if (pi.restrictions.set_count.size() > 0)
     {
@@ -1283,7 +1284,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             CubesXml::Item* xmlItem = nullptr;
             QString xmlItemType;
             if (xmlUnit != nullptr)
-                xmlItem = CubesXml::Parser::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, xmlItemType);
+                xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, xmlItemType);
 
             //// Вычисляем значение из xml файла (параметра или элемента массива)
             //QString xmlValueString;

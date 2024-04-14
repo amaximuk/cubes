@@ -37,6 +37,7 @@
 #include "tree_item_model.h"
 #include "xml/xml_parser.h"
 #include "xml/xml_writer.h"
+#include "xml/xml_helper.h"
 #include "graph.h"
 #include "zip.h"
 #include "main_window.h"
@@ -812,7 +813,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
 
             QString includeName = dir.filePath(includePath);
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(includeName, includedFile, this))
+            if (!CubesXml::Helper::Parse(includeName, includedFile, this))
                 return false;
 
             if (!AddUnits(fileId, includeId, includedFile))
@@ -843,7 +844,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
                 return false;
 
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(byteArray, includePath, includedFile, this))
+            if (!CubesXml::Helper::Parse(byteArray, includePath, includedFile, this))
                 return false;
 
             if (!AddUnits(fileId, includeId, includedFile))
@@ -1233,7 +1234,7 @@ bool MainWindow::SaveFileInternal(const QString& path)
             xmlFile.config.groups = std::move(xmlGroups);
 
             QByteArray byteArray;
-            if (!CubesXml::Writer::Write(byteArray, xmlFile))
+            if (!CubesXml::Helper::Write(byteArray, xmlFile))
                 return false;
 
             if (is_first)
@@ -1276,7 +1277,7 @@ bool MainWindow::SaveFileInternal(const QString& path)
 
 
             QByteArray byteArray;
-            if (!CubesXml::Writer::Write(byteArray, includeXmlFile))
+            if (!CubesXml::Helper::Write(byteArray, includeXmlFile))
                 return false;
 
             if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
@@ -1312,7 +1313,7 @@ bool MainWindow::OpenFileInternal(const QString& path)
             return false;
 
         CubesXml::File f{};
-        CubesXml::Parser::Parse(byteArray, fileName, f, this);
+        CubesXml::Helper::Parse(byteArray, fileName, f, this);
 
         if (f.config.networkingIsSet)
         {
@@ -1797,7 +1798,7 @@ void MainWindow::OnImportXmlFileAction()
         if (fileNames.size() == 0)
             return;
 
-        CubesXml::Parser::Parse(fileNames[0], f, this);
+        CubesXml::Helper::Parse(fileNames[0], f, this);
     }
 
     if (f.config.networkingIsSet)

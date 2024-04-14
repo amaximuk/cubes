@@ -18,13 +18,6 @@ namespace CubesXml
 		Parser(CubesLog::ILogManager* logManager = nullptr);
 
 	public:
-		static bool Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager = nullptr);
-		static bool Parse(const QString& fileName, File& fi, CubesLog::ILogManager* logManager = nullptr);
-		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager = nullptr);
-		static Param* GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager = nullptr);
-		static Item* GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type, CubesLog::ILogManager* logManager = nullptr);
-
-	public:
 		bool Parse(QByteArray& byteArray, const QString& fileName);
 		bool Parse(const QString& fileName);
 		const File& GetFile();
