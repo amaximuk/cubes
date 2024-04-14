@@ -4,7 +4,7 @@
 #include <QIcon>
 #include "log_table_model.h"
 
-using namespace CubeLog;
+using namespace CubesLog;
 
 LogTableModel::LogTableModel(QObject *parent) : QAbstractTableModel(parent)
 {

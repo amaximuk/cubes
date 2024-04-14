@@ -302,6 +302,12 @@ void MainWindow::EnshureVisible(uint32_t propertiesId)
     }
 }
 
+// ILogManager
+void MainWindow::AddMessage(const CubesLog::LogMessage& m)
+{
+    log_table_model_->AddMessage(m);
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (modified_)
@@ -439,10 +445,10 @@ QWidget* MainWindow::CreateLogWidget()
 {
     table_view_log_ = new QTableView;
 
-    log_table_model_ = new CubeLog::LogTableModel;
-    sort_filter_model_ = new CubeLog::SortFilterModel;
+    log_table_model_ = new CubesLog::LogTableModel;
+    sort_filter_model_ = new CubesLog::SortFilterModel;
     sort_filter_model_->setSourceModel(log_table_model_);
-    sort_filter_model_->SetFilter({ CubeLog::MessageType::error, CubeLog::MessageType::warning, CubeLog::MessageType::information });
+    sort_filter_model_->SetFilter({ CubesLog::MessageType::error, CubesLog::MessageType::warning, CubesLog::MessageType::information });
 
     table_view_log_->setModel(sort_filter_model_);
     table_view_log_->setSortingEnabled(true);
@@ -691,8 +697,8 @@ void MainWindow::FillParametersInfo()
                 parameters::file_info fi{};
                 if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
                 {
-                    CubeLog::LogMessage m{};
-                    m.type = CubeLog::MessageType::error;
+                    CubesLog::LogMessage m{};
+                    m.type = CubesLog::MessageType::error;
                     m.source = filename;
                     m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
                     log_table_model_->AddMessage(m);
@@ -806,7 +812,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
 
             QString includeName = dir.filePath(includePath);
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(includeName, includedFile))
+            if (!CubesXml::Parser::Parse(includeName, includedFile, this))
                 return false;
 
             if (!AddUnits(fileId, includeId, includedFile))
@@ -837,7 +843,7 @@ bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
                 return false;
 
             CubesXml::File includedFile{};
-            if (!CubesXml::Parser::Parse(byteArray, includePath, includedFile))
+            if (!CubesXml::Parser::Parse(byteArray, includePath, includedFile, this))
                 return false;
 
             if (!AddUnits(fileId, includeId, includedFile))
@@ -881,8 +887,8 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             }
             else
             {
-                CubeLog::LogMessage m{};
-                m.type = CubeLog::MessageType::error;
+                CubesLog::LogMessage m{};
+                m.type = CubesLog::MessageType::error;
                 m.source = QFileInfo(file.fileName).fileName();
                 m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
                 log_table_model_->AddMessage(m);
@@ -1306,7 +1312,7 @@ bool MainWindow::OpenFileInternal(const QString& path)
             return false;
 
         CubesXml::File f{};
-        CubesXml::Parser::Parse(byteArray, fileName, f);
+        CubesXml::Parser::Parse(byteArray, fileName, f, this);
 
         if (f.config.networkingIsSet)
         {
@@ -1702,8 +1708,8 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
 
 void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
 {
-    CubeLog::LogMessage m{};
-    m.type = CubeLog::MessageType::error;
+    CubesLog::LogMessage m{};
+    m.type = CubesLog::MessageType::error;
     m.source = QString("%1").arg(propertiesId);
     m.description = message;
     log_table_model_->AddMessage(m);
@@ -1791,7 +1797,7 @@ void MainWindow::OnImportXmlFileAction()
         if (fileNames.size() == 0)
             return;
 
-        CubesXml::Parser::Parse(fileNames[0], f);
+        CubesXml::Parser::Parse(fileNames[0], f, this);
     }
 
     if (f.config.networkingIsSet)
@@ -1904,23 +1910,23 @@ void MainWindow::OnRecentAction()
 void MainWindow::OnErrorButtonClicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::error);
+        sort_filter_model_->AddToFilter(CubesLog::MessageType::error);
     else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::error);
+        sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::error);
 }
 
 void MainWindow::OnWarningButtonClicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::warning);
+        sort_filter_model_->AddToFilter(CubesLog::MessageType::warning);
     else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::warning);
+        sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::warning);
 }
 
 void MainWindow::OnInformationButtonClicked(bool checked)
 {
     if (checked)
-        sort_filter_model_->AddToFilter(CubeLog::MessageType::information);
+        sort_filter_model_->AddToFilter(CubesLog::MessageType::information);
     else
-        sort_filter_model_->RemoveFromFilter(CubeLog::MessageType::information);
+        sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::information);
 }

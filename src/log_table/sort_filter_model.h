@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
+#include "log_table_interface.h"
 #include "log_table_model.h"
 
-namespace CubeLog
+namespace CubesLog
 {
     class SortFilterModel : public QSortFilterProxyModel
     {

@@ -1,39 +1,14 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include "log_table_interface.h"
 
 class QDragEnterEvent;
 class QDropEvent;
 class QMouseEvent;
 
-namespace CubeLog
+namespace CubesLog
 {
-    enum class MessageType
-    {
-        information,
-        warning,
-        error
-    };
-
-    inline MessageType operator|(MessageType lhs, MessageType rhs)
-    {
-        return static_cast<MessageType>(
-            static_cast<std::underlying_type<MessageType>::type>(lhs) |
-            static_cast<std::underlying_type<MessageType>::type>(rhs));
-    }
-
-    inline uint qHash(MessageType key, uint seed)
-    {
-        return ::qHash(static_cast<uint>(key), seed);
-    }
-
-    struct LogMessage
-    {
-        MessageType type;
-        QString source;
-        QString description;
-    };
-
     class LogTableModel : public QAbstractTableModel
     {
     private:

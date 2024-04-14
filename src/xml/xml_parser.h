@@ -2,6 +2,7 @@
 
 #include <QtXml>
 #include "../unit_types.h"
+#include "../log_table/log_table_interface.h"
 #include "xml_types.h"
 
 namespace CubesXml
@@ -9,29 +10,39 @@ namespace CubesXml
 	class Parser
 	{
 	private:
-		static const CubesUnitTypes::ParameterModelIds ids_;
+		const CubesUnitTypes::ParameterModelIds ids_;
+		CubesLog::ILogManager* logManager_;
+		File fi_;
 
 	public:
-		static bool Parse(QByteArray& byteArray, const QString& fileName, File& fi);
-		static bool Parse(const QString& fileName, File& fi);
-		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
-		static Param* GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id);
-		static Item* GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type);
+		Parser(CubesLog::ILogManager* logManager = nullptr);
+
+	public:
+		static bool Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager = nullptr);
+		static bool Parse(const QString& fileName, File& fi, CubesLog::ILogManager* logManager = nullptr);
+		static int GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager = nullptr);
+		static Param* GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager = nullptr);
+		static Item* GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type, CubesLog::ILogManager* logManager = nullptr);
+
+	public:
+		bool Parse(QByteArray& byteArray, const QString& fileName);
+		bool Parse(const QString& fileName);
+		const File& GetFile();
 
 	private:
-		static bool GetFile(const QDomElement& node, File& file);
-		static bool GetIncludes(const QDomElement& node, QList<Include>& includes);
-		static bool GetConfig(const QDomElement& node, QString& name, QString& platform, QString& color, Config& config);
-		static bool GetNetworking(const QDomElement& node, Networking& networking);
-		static bool GetLog(const QDomElement& node, Log& log);
-		static bool GetUnits(const QDomElement& node, QList<Group>& groups);
-		static bool GetGroup(const QDomElement& node, Group& group);
-		static bool GetUnit(const QDomElement& node, Unit& unit);
-		static bool GetParam(const QDomElement& node, Param& param);
-		static bool GetArray(const QDomElement& node, Array& array);
-		static bool GetDepends(const QDomElement& node, QList<QString>& depends);
-		static bool GetItem(const QDomElement& node, Item& item);
+		bool GetFile(const QDomElement& node, File& file);
+		bool GetIncludes(const QDomElement& node, QList<Include>& includes);
+		bool GetConfig(const QDomElement& node, QString& name, QString& platform, QString& color, Config& config);
+		bool GetNetworking(const QDomElement& node, Networking& networking);
+		bool GetLog(const QDomElement& node, Log& log);
+		bool GetUnits(const QDomElement& node, QList<Group>& groups);
+		bool GetGroup(const QDomElement& node, Group& group);
+		bool GetUnit(const QDomElement& node, Unit& unit);
+		bool GetParam(const QDomElement& node, Param& param);
+		bool GetArray(const QDomElement& node, Array& array);
+		bool GetDepends(const QDomElement& node, QList<QString>& depends);
+		bool GetItem(const QDomElement& node, Item& item);
 
-		static QList<QDomElement> ElementsByTagName(const QDomElement& node, const QString& tagname);
+		QList<QDomElement> ElementsByTagName(const QDomElement& node, const QString& tagname);
 	};
 }

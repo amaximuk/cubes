@@ -11,14 +11,224 @@
 
 using namespace CubesXml;
 
-// !!! remove -> last error???
-#define ELRF(message) do { std::cout << message << std::endl; return false; } while(0)
+#define ELRC(code, message) do {\
+		std::stringstream ss;\
+		ss << message;\
+		if (logManager_ != nullptr)\
+			logManager_->AddMessage({CubesLog::MessageType::error, "Xml Parser", QString::fromStdString(ss.str())}); \
+		std::cout << ss.str() << std::endl; return code;\
+	} while(0)
+#define ELRC_S(code, message) do {\
+		std::stringstream ss;\
+		ss << message;\
+		if (logManager != nullptr)\
+			logManager->AddMessage({CubesLog::MessageType::error, "Xml Parser", QString::fromStdString(ss.str())}); \
+		std::cout << ss.str() << std::endl; return code;\
+	} while(0)
 
-const CubesUnitTypes::ParameterModelIds Parser::ids_;
-
-bool Parser::Parse(QByteArray& byteArray, const QString& fileName, File& fi)
+Parser::Parser(CubesLog::ILogManager* logManager)
 {
-	fi.fileName = fileName;
+	logManager_ = logManager;
+}
+
+bool Parser::Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager)
+{
+	Parser parser(logManager);
+	if (!parser.Parse(byteArray, fileName))
+		ELRC_S(false, "Parsing failed");
+	fi = parser.GetFile(); // const& extends lifetime of object
+	return true;
+}
+
+bool Parser::Parse(const QString& fileName, File& fi, CubesLog::ILogManager* logManager)
+{
+	Parser parser(logManager);
+	if (!parser.Parse(fileName))
+		ELRC_S(false, "Parsing failed");
+	fi = parser.GetFile(); // const& extends lifetime of object
+	return true;
+}
+
+int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager)
+{
+	const static CubesUnitTypes::ParameterModelIds ids;
+
+	auto ss = id.split();
+	if (ss.size() < 2)
+		ELRC_S(-1, "ParameterModelId too short");
+	if (ss.front() != ids.parameters)
+		ELRC_S(-1, "Must be started with parameters");
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			auto index = ids.ItemIndex(s);
+			if (index != -1 && array->items.size() > index)
+			{
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
+			}
+			else
+				ELRC_S(-1, "Part of id not found");
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			for (auto& p : *params)
+			{
+				if (s == p.name)
+				{
+					ELRC_S(-1, "Is not array");
+				}
+			}
+
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+
+	if (array == nullptr)
+		ELRC_S(-1, "Not found");
+
+	return array->items.size();
+}
+
+Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager)
+{
+	const static CubesUnitTypes::ParameterModelIds ids;
+
+	auto ss = id.split();
+	if (ss.size() < 2)
+		ELRC_S(nullptr, "ParameterModelId too short");
+	if (ss.front() != ids.parameters)
+		ELRC_S(nullptr, "Must be started with parameters");
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			auto index = ids.ItemIndex(s);
+			if (index != -1 && array->items.size() > index)
+			{
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
+			}
+			else
+				ELRC_S(nullptr, "Part of id not found");
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			for (auto& p : *params)
+			{
+				if (s == p.name)
+				{
+					if (ss.size() != 1)
+						ELRC_S(nullptr, "Is not array");
+				}
+			}
+
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+	return nullptr;
+}
+
+Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type, CubesLog::ILogManager* logManager)
+{
+	const static CubesUnitTypes::ParameterModelIds ids;
+
+	auto ss = id.split();
+	if (ss.size() < 2)
+		ELRC_S(nullptr, "ParameterModelId too short");
+	if (ss.front() != ids.parameters)
+		ELRC_S(nullptr, "Must be started with parameters");
+	ss.pop_front();
+
+	bool inside_array = false;
+	Array* array = nullptr;
+	QString array_type;
+	QList<Param>* params = &unit.params;
+	QList<Array>* arrays = &unit.arrays;
+	while (ss.size() > 0)
+	{
+		const auto& s = ss.front();
+		if (inside_array)
+		{
+			auto index = ids.ItemIndex(s);
+			if (index != -1 && array->items.size() > index)
+			{
+				if (ss.size() == 1)
+				{
+					type = array_type;
+					return &array->items[index];
+				}
+
+				params = &array->items[index].params;
+				arrays = &array->items[index].arrays;
+			}
+			else
+				ELRC_S(nullptr, "Part of id not found");
+
+			array = nullptr;
+			inside_array = false;
+		}
+		else
+		{
+			for (auto& a : *arrays)
+			{
+				if (s == a.name)
+				{
+					array = &a;
+					inside_array = true;
+					array_type = a.type;
+					break;
+				}
+			}
+		}
+		ss.pop_front();
+	}
+	return nullptr;
+}
+
+bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
+{
+	fi_ = {};
+	fi_.fileName = fileName;
 
 	QTextStream in(&byteArray);
 	QString xmlText = in.readAll();
@@ -33,72 +243,31 @@ bool Parser::Parse(QByteArray& byteArray, const QString& fileName, File& fi)
 	}
 
 	QDomDocument doc;
-	//doc.setContent(&xmlFile);
 	doc.setContent(xmlText);
 
 	QDomElement root = doc.documentElement();
-
-	//if (root.tagName() != "Config")
-	//	ELRF("File have no Config or doc malformed");
-
-	if (!GetFile(root, fi))
-		ELRF("File info parse failed");
+	if (!GetFile(root, fi_))
+		ELRC(false, "File info parse failed");
 
 	return true;
 }
 
-bool Parser::Parse(const QString& fileName, File& fi)
+bool Parser::Parse(const QString& fileName)
 {
 	QFile xmlFile(fileName);
 	if (!xmlFile.open(QIODevice::ReadOnly))
 	{
-		ELRF("File " << fileName.toStdString() << " load failed");
+		ELRC(false, "File " << fileName.toStdString() << " load failed");
 	}
 
 	QByteArray byteArray = xmlFile.readAll();
 
-	return Parse(byteArray, fileName, fi);
+	return Parse(byteArray, fileName, fi_);
+}
 
-/*	fi.fileName = filename;
-	//fi.fileName = QFileInfo(filename).fileName();
-
-	//QFile xmlFile(filename);
-	//if (!xmlFile.open(QIODevice::ReadOnly))
-	//{
-	//	ELRF("File " << filename.toStdString() << " load failed");
-	//}
-	QFile xmlFile(filename);
-	if (!xmlFile.open(QIODevice::ReadOnly | QFile::Text))
-	{
-		ELRF("File " << filename.toStdString() << " load failed");
-	}
-
-	QTextStream in(&xmlFile);
-	QString xmlText = in.readAll();
-
-	int pos = xmlText.indexOf("<Includes");
-	if (pos == -1)
-		pos = xmlText.indexOf("<Config");
-	if (pos != -1)
-	{
-		xmlText.insert(pos, "<FakeRoot>\n");
-		xmlText.append("\n</FakeRoot>");
-	}
-
-	QDomDocument doc;
-	//doc.setContent(&xmlFile);
-	doc.setContent(xmlText);
-	xmlFile.close();
-
-	QDomElement root = doc.documentElement();
-
-	//if (root.tagName() != "Config")
-	//	ELRF("File have no Config or doc malformed");
-
-	if (!GetFile(root, fi))
-		ELRF("File info parse failed");
-
-	return true;*/
+const File& Parser::GetFile()
+{
+	return fi_;
 }
 
 bool Parser::GetFile(const QDomElement& node, File& fi)
@@ -114,7 +283,7 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 			if (ne.tagName() == "Includes")
 			{
 				if (!GetIncludes(ne, fi.includes))
-					ELRF("Get Includes failed");
+					ELRC(false, "Get Includes failed");
 			}
 			else if (ne.tagName() == "Config")
 			{
@@ -122,7 +291,7 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 				QString platform;
 				QString color;
 				if (!GetConfig(ne, name, platform, color, fi.config))
-					ELRF("Get Config failed");
+					ELRC(false, "Get Config failed");
 				fi.name = name;
 				fi.platform = platform;
 				fi.color = color;
@@ -143,13 +312,13 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Include")
-				ELRF("Includes have unknown child");
+				ELRC(false, "Includes have unknown child");
 
 			Include include{};
 
 			QString i_val = ei.attribute("val", "");
 			if (i_val == "")
-				ELRF("Includes/Include val is empty");
+				ELRC(false, "Includes/Include val is empty");
 			include.fileName = i_val;
 
 			QString i_name = ei.attribute("_name", "");
@@ -163,18 +332,18 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 				if (!ev.isNull())
 				{
 					if (ev.tagName() != "Variable")
-						ELRF("Includes/Include have unknown child");
+						ELRC(false, "Includes/Include have unknown child");
 
 					QString v_name = ev.attribute("name", "");
 					QString v_val = ev.attribute("val", "");
 
 					if (v_name == "")
-						ELRF("Includes/Include/Variable name is empty");
+						ELRC(false, "Includes/Include/Variable name is empty");
 					if (v_val == "")
-						ELRF("Includes/Include/Variable val is empty");
+						ELRC(false, "Includes/Include/Variable val is empty");
 
 					if (variables.contains(v_name))
-						ELRF("Includes/Include/Variable name duplicate");
+						ELRC(false, "Includes/Include/Variable name duplicate");
 
 					variables[v_name] = v_val;
 				}
@@ -206,21 +375,21 @@ bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform
 			{
 				config.networkingIsSet = true;
 				if (!GetNetworking(ei, config.networking))
-					ELRF("Get Networking failed");
+					ELRC(false, "Get Networking failed");
 			}
 			else if (ei.tagName() == "Log")
 			{
 				config.logIsSet = true;
 				if (!GetLog(ei, config.log))
-					ELRF("Get Log failed");
+					ELRC(false, "Get Log failed");
 			}
 			else if (ei.tagName() == "Units")
 			{
 				if (!GetUnits(ei, config.groups))
-					ELRF("Get Units failed");
+					ELRC(false, "Get Units failed");
 			}
 			else
-				ELRF("Config have unknown child");
+				ELRC(false, "Config have unknown child");
 		}
 		i = i.nextSibling();
 	}
@@ -241,11 +410,11 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 	QString notify_ready_servers = node.attribute("notify_ready_servers", QString("%1").arg(CubesXml::Networking::Defaults().notifyReadyServers));
 
 	if (id == "")
-		ELRF("Networking id is empty");
+		ELRC(false, "Networking id is empty");
 	if (accept_port == "")
-		ELRF("Networking accept_port is empty");
+		ELRC(false, "Networking accept_port is empty");
 	if (keep_alive_sec == "")
-		ELRF("Networking keep_alive_sec is empty");
+		ELRC(false, "Networking keep_alive_sec is empty");
 
 	networking.id = id.toInt();
 	networking.acceptPort = accept_port.toInt();
@@ -264,15 +433,15 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 		if (!ev.isNull())
 		{
 			if (ev.tagName() != "connect")
-				ELRF("Networking have unknown child");
+				ELRC(false, "Networking have unknown child");
 
 			QString v_port = ev.attribute("port", "");
 			QString v_ip = ev.attribute("ip", "");
 
 			if (v_port == "")
-				ELRF("Networking/connect port is empty");
+				ELRC(false, "Networking/connect port is empty");
 			if (v_ip == "")
-				ELRF("Networking/connect ip is empty");
+				ELRC(false, "Networking/connect ip is empty");
 
 			Connect connect{};
 			connect.ip = v_ip;
@@ -295,7 +464,7 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Param")
-				ELRF("Log have unknown child");
+				ELRC(false, "Log have unknown child");
 
 			QString name = ei.attribute("name", "");
 			QString type = ei.attribute("type", "");
@@ -316,7 +485,7 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 				log.logDir = val;
 			}
 			else
-				ELRF("Log/Param is unknown");
+				ELRC(false, "Log/Param is unknown");
 		}
 		i = i.nextSibling();
 	}
@@ -333,11 +502,11 @@ bool Parser::GetUnits(const QDomElement& node, QList<Group>& groups)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Group")
-				ELRF("Units have unknown child");
+				ELRC(false, "Units have unknown child");
 
 			Group group{};
 			if (!GetGroup(ei, group))
-				ELRF("Get Group failed");
+				ELRC(false, "Get Group failed");
 
 			groups.push_back(std::move(group));
 		}
@@ -352,7 +521,7 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	auto paramNodes = ElementsByTagName(node, "Param");
 
 	if (paramNodes.size() != 1)
-		ELRF("Group/Param not found or more then one");
+		ELRC(false, "Group/Param not found or more then one");
 
 	const auto& ep = paramNodes[0];
 	QString name = ep.attribute("name", "");
@@ -362,14 +531,14 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	if (name == "Path" && type == "str")
 		group.path = val;
 	else
-		ELRF("Group/Param is unknown");
+		ELRC(false, "Group/Param is unknown");
 
 	auto unitNodes = ElementsByTagName(node, "Unit");
 	for (const auto& eu : unitNodes)
 	{
 		Unit unit{};
 		if (!GetUnit(eu, unit))
-			ELRF("Get Unit failed");
+			ELRC(false, "Get Unit failed");
 		group.units.push_back(std::move(unit));
 	}
 
@@ -385,9 +554,9 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	int32_t z = node.attribute("_z", "0").toInt();
 
 	if (name == "")
-		ELRF("Unit Name is empty");
+		ELRC(false, "Unit Name is empty");
 	if (id == "")
-		ELRF("Unit Id is empty");
+		ELRC(false, "Unit Id is empty");
 
 	unit.name = name;
 	unit.id = id;
@@ -400,7 +569,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			ELRF("Get Param failed");
+			ELRC(false, "Get Param failed");
 		unit.params.push_back(std::move(param));
 	}
 
@@ -409,7 +578,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			ELRF("Get Array failed");
+			ELRC(false, "Get Array failed");
 		unit.arrays.push_back(std::move(array));
 	}
 
@@ -422,7 +591,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		QList<QString> depends;
 		if (!GetDepends(ed, depends))
-			ELRF("Get Depends failed");
+			ELRC(false, "Get Depends failed");
 
 		Array array{};
 		array.name = ids_.dependencies.toString();
@@ -449,11 +618,11 @@ bool Parser::GetParam(const QDomElement& node, Param& param)
 	QString depends = node.attribute("depends", "");
 
 	if (name == "")
-		ELRF("Unit/Param name is empty");
+		ELRC(false, "Unit/Param name is empty");
 	if (type == "")
-		ELRF("Unit/Param type is empty");
+		ELRC(false, "Unit/Param type is empty");
 	if (val == "")
-		ELRF("Unit/Param val is empty");
+		ELRC(false, "Unit/Param val is empty");
 	// depends is optional
 
 	param.name = name;
@@ -470,7 +639,7 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	QString type = node.attribute("type", "");
 
 	if (name == "")
-		ELRF("Unit/Param name is empty");
+		ELRC(false, "Unit/Param name is empty");
 	// type is optional
 
 	array.name = name;
@@ -481,7 +650,7 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	{
 		Item item;
 		if (!GetItem(ei, item))
-			ELRF("Get Item failed");
+			ELRC(false, "Get Item failed");
 		array.items.push_back(std::move(item));
 	}
 
@@ -496,7 +665,7 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 		QString name = ei.attribute("name", "");
 
 		if (name == "")
-			ELRF("Unit/Depends/Item name is empty");
+			ELRC(false, "Unit/Depends/Item name is empty");
 
 		depends.push_back(name);
 	}
@@ -524,7 +693,7 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			ELRF("Get Param failed");
+			ELRC(false, "Get Param failed");
 		item.params.push_back(std::move(param));
 	}
 
@@ -533,7 +702,7 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			ELRF("Get Array failed");
+			ELRC(false, "Get Array failed");
 		item.arrays.push_back(std::move(array));
 	}
 
@@ -558,233 +727,3 @@ QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QStr
 
 	return list;
 }
-
-int Parser::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
-{
-	auto ss = id.split();
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != ids_.parameters)
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			auto index = ids_.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				return -1;
-
-			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) && s.size() > 4)
-			//{
-			//	int index = s.mid(5).toInt();
-			//	if (array->items.size() > index)
-			//	{
-			//		params = &array->items[index].params;
-			//		arrays = &array->items[index].arrays;
-			//	}
-			//	else
-			//		return -1;
-			//}
-			//else
-			//	return -1;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					return -1;
-				}
-			}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	
-	if (array != nullptr)
-		return array->items.size();
-
-	return -1;
-}
-
-Param* Parser::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id)
-{
-	auto ss = id.split();
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != ids_.parameters)
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			auto index = ids_.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				return nullptr;
-
-			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) &&
-			//	s.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1)
-			//{
-			//	int index = s.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
-			//	if (array->items.size() > index)
-			//	{
-			//		params = &array->items[index].params;
-			//		arrays = &array->items[index].arrays;
-			//	}
-			//	else
-			//		return nullptr;
-			//}
-			//else
-			//	return nullptr;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					if (ss.size() != 1)
-						return nullptr;
-					return &p;
-				}
-			}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-
-Item* Parser::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type)
-{
-	auto ss = id.split();
-	if (ss.size() < 2)
-		return false;
-	if (ss.front() != ids_.parameters)
-		return false;
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QString array_type;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			auto index = ids_.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				if (ss.size() == 1)
-				{
-					type = array_type;
-					return &array->items[index];
-				}
-
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				return nullptr;
-
-			//if (s.startsWith(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName) &&
-			//	s.size() > CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1)
-			//{
-			//	int index = s.mid(CubesUnitTypes::ParameterModelIds::Defaults().itemGroupName.size() + 1).toInt();
-			//	if (array->items.size() > index)
-			//	{
-			//		if (ss.size() == 1)
-			//		{
-			//			type = array_type;
-			//			return &array->items[index];
-			//		}
-			//		params = &array->items[index].params;
-			//		arrays = &array->items[index].arrays;
-			//	}
-			//	else
-			//		return nullptr;
-			//}
-			//else
-			//	return nullptr;
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					array_type = a.type;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-
-//QList<QString> parser::getConnections(Unit u)
-//{
-//	return {};
-//}
-//
-//QList<QString> parser::getDependencies(Unit u)
-//{
-//	return {};
-//}

@@ -61,6 +61,7 @@ namespace CubesFile
 	public:
 		virtual ~IFileItemsManagerBoss() = default;
 
+	public:
 		// “ут значени€ мен€ютс€ по одному
 		//virtual void BeforeFileNameChanged(const CubesUnitTypes::FileId fileId,
 		//	const CubesUnitTypes::FileId oldFileId, bool& cancel) = 0;

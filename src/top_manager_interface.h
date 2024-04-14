@@ -15,6 +15,9 @@ struct PropertiesForDrawing
 class ITopManager
 {
 public:
+    virtual ~ITopManager() = default;
+
+public:
 	virtual void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) = 0;
 	virtual void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
         const CubesUnitTypes::IncludeId includeId, QStringList& unitNames) = 0;

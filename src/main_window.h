@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include "log_table/log_table_interface.h"
 #include "top_manager_interface.h"
 
 namespace CubeDiagram
@@ -16,7 +17,7 @@ namespace CubesUnitTypes
     struct UnitParameters;
 }
 
-namespace CubeLog
+namespace CubesLog
 {
     class LogTableModel;
     class SortFilterModel;
@@ -44,7 +45,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MainWindow : public QMainWindow, ITopManager
+class MainWindow : public QMainWindow, ITopManager, CubesLog::ILogManager
 {
     Q_OBJECT
 
@@ -61,8 +62,8 @@ private:
     QPointer<QMenu> recentMenu_;
     //QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
-    QPointer<CubeLog::LogTableModel> log_table_model_;
-    QPointer<CubeLog::SortFilterModel> sort_filter_model_;
+    QPointer<CubesLog::LogTableModel> log_table_model_;
+    QPointer<CubesLog::SortFilterModel> sort_filter_model_;
 
     QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
@@ -92,6 +93,9 @@ public:
     QMap<QString, QStringList> GetDependsConnections() override;
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
     void EnshureVisible(uint32_t propertiesId) override;
+    
+    // ILogManager
+    void AddMessage(const CubesLog::LogMessage& m);
 
 private:
     void closeEvent(QCloseEvent* event) override;

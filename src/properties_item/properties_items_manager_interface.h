@@ -10,6 +10,8 @@ namespace CubesProperties
 	{
 	public:
 		virtual ~IPropertiesItemsManagerBoss() = default;
+
+	public:
 		virtual void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) = 0;
 		virtual void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
 			CubesUnitTypes::IncludeIdNames& includeNames) = 0;

@@ -5,7 +5,7 @@
 #include <QIcon>
 #include "sort_filter_model.h"
 
-using namespace CubeLog;
+using namespace CubesLog;
 
 SortFilterModel::SortFilterModel(QObject* parent)
     : QSortFilterProxyModel(parent)
