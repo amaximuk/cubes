@@ -6,6 +6,11 @@ class QComboBox;
 class QPlainTextEdit;
 class ITopManager;
 
+namespace CubesLog
+{
+	class ILogManager;
+}
+
 namespace CubesProperties
 {
 	class PropertiesItem;
@@ -21,6 +26,7 @@ namespace CubesProperties
 
 	private:
 		ITopManager* topManager_;
+		CubesLog::ILogManager* logManager_;
 		const bool isArray_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
@@ -31,7 +37,7 @@ namespace CubesProperties
 		CubesUnitTypes::PropertiesId uniqueNumber_;
 
 	public:
-		PropertiesItemsManager(ITopManager* topManager, bool isArray);
+		PropertiesItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray);
 
 	public:
 		PropertiesEditor* GetEditor();

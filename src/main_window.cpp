@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &MainWindow::FileColorChanged);
     connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &MainWindow::FilePropertiesChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, false);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, false);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MainWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MainWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MainWindow::PropertiesPositionChanged);
@@ -1299,6 +1299,7 @@ bool MainWindow::OpenFileInternal(const QString& path)
     scene_->clear();
     propertiesItemsManager_->Clear();
     fileItemsManager_->Clear();
+    log_table_model_->Clear();
 
     UpdateFileState("", false);
 
@@ -1317,7 +1318,7 @@ bool MainWindow::OpenFileInternal(const QString& path)
 
         if (f.config.networkingIsSet)
         {
-            log_table_model_->Clear();
+            //log_table_model_->Clear();
 
             if (!AddMainFile(f, path))
                 return false;
@@ -1746,6 +1747,7 @@ void MainWindow::OnNewFileAction()
     scene_->clear();
     propertiesItemsManager_->Clear();
     fileItemsManager_->Clear();
+    log_table_model_->Clear();
 
     UpdateFileState("", false);
 }
@@ -1803,7 +1805,7 @@ void MainWindow::OnImportXmlFileAction()
 
     if (f.config.networkingIsSet)
     {
-        log_table_model_->Clear();
+        //log_table_model_->Clear();
 
         if (!AddMainFile(f, ""))
             return;

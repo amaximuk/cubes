@@ -58,7 +58,7 @@ ArrayWindow::ArrayWindow(QWidget *parent)
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &ArrayWindow::FileVariableNameChanged);
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &ArrayWindow::FileVariablesListChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, true);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, nullptr, true);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &ArrayWindow::PropertiesSelectedItemChanged);
     connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &ArrayWindow::PropertiesPositionChanged);
