@@ -15,7 +15,7 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager_ != nullptr)\
-			logManager_->AddMessage({CubesLog::MessageType::error, "Xml Parser", QString::fromStdString(ss.str())}); \
+			logManager_->AddMessage({CubesLog::MessageType::error, QString("Xml Parser (%1)").arg(fi_.fileName), QString::fromStdString(ss.str())}); \
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
 #define ELRC_S(code, message) do {\
@@ -262,7 +262,7 @@ bool Parser::Parse(const QString& fileName)
 
 	QByteArray byteArray = xmlFile.readAll();
 
-	return Parse(byteArray, fileName, fi_);
+	return Parse(byteArray, fileName);
 }
 
 const File& Parser::GetFile()
