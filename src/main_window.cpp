@@ -1888,6 +1888,14 @@ void MainWindow::OnSortRectAction()
 
 void MainWindow::OnRecentAction()
 {
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
+            QString::fromLocal8Bit("Вы действительно хотите открыть файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn != QMessageBox::Yes)
+            return;
+    }
+
     QAction* act = qobject_cast<QAction*>(sender());
     OpenFileInternal(act->text());
 }
