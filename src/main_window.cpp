@@ -1231,6 +1231,8 @@ void MainWindow::UpdateFileState(const QString& path, bool modified)
 
 bool MainWindow::SaveFileInternal(const QString& path)
 {
+    log_table_model_->Clear();
+
     // Получаем список главных файлов
     bool is_first = true;
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
@@ -1302,6 +1304,98 @@ bool MainWindow::SaveFileInternal(const QString& path)
 
     AddRecent(path);
     UpdateFileState(path, false);
+
+    return true;
+}
+
+bool MainWindow::SaveFolderInternal(const QString& path)
+{
+    log_table_model_->Clear();
+
+    QFileInfo fi(path);
+    if (!fi.exists() || !fi.isDir())
+        return false;
+
+    QDir dir(path);
+
+    // Получаем список главных файлов
+    bool is_first = true;
+    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    for (const auto& kvpFile : fileNames.toStdMap())
+    {
+        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
+        QFileInfo xmlFileInfo(xmlFile.fileName);
+        const auto xmlFileName = xmlFileInfo.fileName();
+        const auto xmlZipFilePath = path;
+
+        {
+            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
+            xmlFile.config.groups = std::move(xmlGroups);
+
+            if (!CubesXml::Helper::Write(dir.filePath(xmlFileName), xmlFile))
+                return false;
+
+
+            //QByteArray byteArray;
+            //if (!CubesXml::Helper::Write(byteArray, xmlFile))
+            //    return false;
+
+            //if (is_first)
+            //{
+            //    if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
+            //        return false;
+
+            //    is_first = false;
+            //}
+            //else
+            //{
+            //    if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+            //        return false;
+            //}
+            //CubesXml::Writer::Write(xmlFileName, xmlFile);
+            //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
+        }
+
+        auto includes = fileItemsManager_->GetFileIncludeNames(kvpFile.first, false);
+        for (const auto& kvpInclude : includes.toStdMap())
+        {
+            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
+            CubesXml::File includeXmlFile{};
+
+            const auto item = fileItemsManager_->GetItem(kvpFile.first);
+            const auto includeName = item->GetIncludeName(kvpInclude.first);
+            const auto includePath = item->GetIncludePath(kvpInclude.first);
+
+            ///includeXmlFile.name = includeName;
+            //includeXmlFile.platform = xmlFile.platform;
+            includeXmlFile.fileName = includePath;
+
+            includeXmlFile.config.logIsSet = false;
+            includeXmlFile.config.networkingIsSet = false;
+            includeXmlFile.config.groups = includeGroups;
+
+
+            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
+            const auto includeXmlFileName = includeXmlFileInfo.fileName();
+
+            if (!CubesXml::Helper::Write(dir.filePath(includeXmlFileName), includeXmlFile))
+                return false;
+
+
+            //QByteArray byteArray;
+            //if (!CubesXml::Helper::Write(byteArray, includeXmlFile))
+            //    return false;
+
+            //if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+            //    return false;
+
+            //CubesXml::Writer::Write(includeXmlFileName, includeXmlFile);
+            //CubesZip::ZipFile(includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append);
+        }
+    }
+
+    //AddRecent(path);
+    //UpdateFileState(path, false);
 
     return true;
 }
@@ -1861,7 +1955,10 @@ void MainWindow::OnOpenFolderAction()
         return;
 
     if (!OpenFolderInternal(folderPath))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия каталога!"));
         return;
+    }
 }
 
 void MainWindow::OnImportXmlFileAction()
@@ -1895,7 +1992,10 @@ void MainWindow::OnImportXmlFileAction()
         //log_table_model_->Clear();
 
         if (!AddMainFile(f, ""))
+        {
+            QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка импорта файла!"));
             return;
+        }
     }
     else
     {
@@ -1926,7 +2026,10 @@ void MainWindow::OnSaveFileAction()
     }
 
     if (!SaveFileInternal(selectedFileName))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения файла!"));
         return;
+    }
 }
 
 void MainWindow::OnSaveAsFileAction()
@@ -1945,12 +2048,23 @@ void MainWindow::OnSaveAsFileAction()
     QString selectedFileName = selectedFileNames[0];
 
     if (!SaveFileInternal(selectedFileName))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения файла!"));
         return;
+    }
 }
 
 void MainWindow::OnSaveFolderAction()
 {
+    QString folderPath = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+    if (folderPath.isEmpty())
+        return;
 
+    if (!SaveFolderInternal(folderPath))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения каталога!"));
+        return;
+    }
 }
 
 void MainWindow::OnQuitAction()

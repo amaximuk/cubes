@@ -132,6 +132,7 @@ protected:
     // Modified
     void UpdateFileState(const QString& path, bool modified);
     bool SaveFileInternal(const QString& path);
+    bool SaveFolderInternal(const QString& path);
     bool OpenFileInternal(const QString& path);
     bool OpenFolderInternal(const QString& path);
     void UpdateRecent();
