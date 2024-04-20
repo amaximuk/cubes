@@ -349,6 +349,11 @@ void MainWindow::CreateMenu()
     openAct->setStatusTip(QString::fromLocal8Bit("Открыть файл"));
     connect(openAct, &QAction::triggered, this, &MainWindow::OnOpenFileAction);
 
+    QAction* openFolderAct = new QAction(QString::fromLocal8Bit("Открыть каталог"), this);
+    openFolderAct->setShortcut(QKeySequence("Ctrl+K"));
+    openFolderAct->setStatusTip(QString::fromLocal8Bit("Открыть все файлы из каталога"));
+    connect(openFolderAct, &QAction::triggered, this, &MainWindow::OnOpenFolderAction);
+
     QAction* importXmlAct = new QAction(QString::fromLocal8Bit("Импорт xml"), this);
     importXmlAct->setShortcut(QKeySequence("Ctrl+I"));
     importXmlAct->setStatusTip(QString::fromLocal8Bit("Импортировать xml файл"));
@@ -365,6 +370,11 @@ void MainWindow::CreateMenu()
     saveAsAct->setStatusTip(QString::fromLocal8Bit("Сохранить файл как..."));
     connect(saveAsAct, &QAction::triggered, this, &MainWindow::OnSaveAsFileAction);
 
+    QAction* saveFolderAct = new QAction(QString::fromLocal8Bit("Сохранить каталог"), this);
+    saveFolderAct->setShortcut(QKeySequence("Ctrl+L"));
+    saveFolderAct->setStatusTip(QString::fromLocal8Bit("Сохранить все файлы в каталог"));
+    connect(saveFolderAct, &QAction::triggered, this, &MainWindow::OnSaveFolderAction);
+
     QAction* quitAct = new QAction(QString::fromLocal8Bit("Выйти"), this);
     quitAct->setShortcuts(QKeySequence::Quit);
     quitAct->setStatusTip(QString::fromLocal8Bit("Выйти из приложения"));
@@ -373,9 +383,11 @@ void MainWindow::CreateMenu()
     QMenu* fileMenu = menuBar()->addMenu(QString::fromLocal8Bit("Файл"));
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
+    fileMenu->addAction(openFolderAct);
     fileMenu->addAction(importXmlAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
+    fileMenu->addAction(saveFolderAct);
     fileMenu->addSeparator();
     recentMenu_ = fileMenu->addMenu(QString::fromLocal8Bit("Недавние файлы"));
     fileMenu->addSeparator();
@@ -1303,6 +1315,10 @@ bool MainWindow::OpenFileInternal(const QString& path)
 
     UpdateFileState("", false);
 
+    QFileInfo fi(path);
+    if (!fi.exists() || !fi.isFile())
+        return false;
+
     QList<QString> fileNames;
     if (!CubesZip::GetZippedFileNames(path, fileNames))
         return false;
@@ -1340,6 +1356,55 @@ bool MainWindow::OpenFileInternal(const QString& path)
 
     AddRecent(path);
     UpdateFileState(path, false);
+
+    return true;
+}
+
+bool MainWindow::OpenFolderInternal(const QString& path)
+{
+    scene_->clear();
+    propertiesItemsManager_->Clear();
+    fileItemsManager_->Clear();
+    log_table_model_->Clear();
+
+    UpdateFileState("", false);
+
+    QFileInfo fi(path);
+    if (!fi.exists() || !fi.isDir())
+        return false;
+
+    QDir dir(path);
+    QStringList fileNames = dir.entryList({ "*.xml" }, QDir::Files);
+
+    for (const auto& fileName : fileNames)
+    {
+        CubesXml::File f{};
+        CubesXml::Helper::Parse(dir.filePath(fileName), f, this);
+
+        if (f.config.networkingIsSet)
+        {
+            if (!AddMainFile(f, ""))
+                return false;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    for (auto& item : scene_->items())
+    {
+        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+
+        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        const auto position = pi->GetPosition();
+        di->setPos(position);
+    }
+
+    UpdateFileState("", true);
+
+    //AddRecent(path);
+    //UpdateFileState(path, false);
 
     return true;
 }
@@ -1774,6 +1839,28 @@ void MainWindow::OnOpenFileAction()
         return;
 
     if (!OpenFileInternal(selectedFileNames[0]))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия файла!"));
+        RemoveRecent(selectedFileNames[0]);
+        return;
+    }
+}
+
+void MainWindow::OnOpenFolderAction()
+{
+    if (modified_)
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "cubes",
+            QString::fromLocal8Bit("Вы действительно хотите открыть файл?\nВсе несохраненные изменения будут потеряны!"), QMessageBox::No | QMessageBox::Yes);
+        if (resBtn != QMessageBox::Yes)
+            return;
+    }
+
+    QString folderPath = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+    if (folderPath.isEmpty())
+        return;
+
+    if (!OpenFolderInternal(folderPath))
         return;
 }
 
@@ -1861,6 +1948,11 @@ void MainWindow::OnSaveAsFileAction()
         return;
 }
 
+void MainWindow::OnSaveFolderAction()
+{
+
+}
+
 void MainWindow::OnQuitAction()
 {
     if (modified_)
@@ -1897,7 +1989,12 @@ void MainWindow::OnRecentAction()
     }
 
     QAction* act = qobject_cast<QAction*>(sender());
-    OpenFileInternal(act->text());
+    if (!OpenFileInternal(act->text()))
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия файла!"));
+        RemoveRecent(act->text());
+        return;
+    }
 }
 
 // TODO: Перенести подсказку в менеджер

@@ -77,7 +77,8 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 		QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName())});
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, CubesUnitTypes::PropertiesId& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm,
+	CubesUnitTypes::PropertiesId& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");

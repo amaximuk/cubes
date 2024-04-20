@@ -133,6 +133,7 @@ protected:
     void UpdateFileState(const QString& path, bool modified);
     bool SaveFileInternal(const QString& path);
     bool OpenFileInternal(const QString& path);
+    bool OpenFolderInternal(const QString& path);
     void UpdateRecent();
     void AddRecent(QString fileName);
     void RemoveRecent(QString fileName);
@@ -172,9 +173,11 @@ private slots:
     // Кнопки
     void OnNewFileAction();
     void OnOpenFileAction();
+    void OnOpenFolderAction();
     void OnImportXmlFileAction();
     void OnSaveFileAction();
     void OnSaveAsFileAction();
+    void OnSaveFolderAction();
     void OnQuitAction();
     void OnSortBoostAction();
     void OnSortRectAction();
