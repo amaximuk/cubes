@@ -112,6 +112,14 @@ Param* Helper::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 		ELRC(nullptr, "Must be started with parameters");
 	ss.pop_front();
 
+	// –аскручиваем путь к параметру из id, внутри структуры Unit
+	// »щем полное совпадение на каждом этапе с учетом массивов
+	// ѕуть должен начинатьс€ с ${PARAMETERS}, а далее, из служебных
+	// составл€ющих, путь может содержать только ${ITEM_N}
+	// ѕараметры не могут быть вложенными в другой параметр, только в массив
+	// ѕоэтому, им€ параметра должно полностью совпасть только один раз в конце
+	// ¬ложенность возможна только через массивы
+
 	bool inside_array = false;
 	Array* array = nullptr;
 	QList<Param>* params = &unit.params;
@@ -121,6 +129,8 @@ Param* Helper::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 		const auto& s = ss.front();
 		if (inside_array)
 		{
+			// ¬нутри массива элементы типа ${ITEM_N}
+			// Ќаходим совпадающий с очередной частью пути в id и идем внутрь
 			auto index = ids.ItemIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
@@ -128,26 +138,36 @@ Param* Helper::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				arrays = &array->items[index].arrays;
 			}
 			else
-				ELRC(nullptr, "Part of id not found");
+				ELRC(nullptr, "Array item not found");
 
 			array = nullptr;
 			inside_array = false;
 		}
 		else
 		{
+			// ѕараметры не могут быть вложенными в другой параметр, только в массив
+			// ѕоэтому, им€ параметра должно полностью совпасть только один раз в конце
+			// ¬ложенность возможна только через массивы
+
+			// ѕровер€ем совпадение имени параметра с очередной частью пути в id
 			for (auto& p : *params)
 			{
 				if (s == p.name)
 				{
 					if (ss.size() != 1)
-						ELRC(nullptr, "Is not array");
+						ELRC(nullptr, "Not last part of id must be array");
+
+					// Ќашли искомый параметр
+					return &p;
 				}
 			}
 
+			// ѕровер€ем совпадение имени массива с очередной частью пути в id
 			for (auto& a : *arrays)
 			{
 				if (s == a.name)
 				{
+					// Ќашли массив, идем в него
 					array = &a;
 					inside_array = true;
 					break;
