@@ -18,7 +18,7 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager != nullptr)\
-			logManager->AddMessage({CubesLog::MessageType::error, "Xml Parser", QString::fromStdString(ss.str())}); \
+			logManager->AddMessage({CubesLog::MessageType::error, 0, "Xml Parser", QString::fromStdString(ss.str())}); \
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
 

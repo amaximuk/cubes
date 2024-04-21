@@ -96,7 +96,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 	emit FilesListChanged(GetFileNames());
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
 }
 
@@ -139,7 +139,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
 
 	emit FilesListChanged(GetFileNames());
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
 }
 
@@ -174,7 +174,7 @@ void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 
 	items_.remove(fileId);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item removed, id = %1").arg(fileId) });
 }
 
@@ -283,7 +283,7 @@ void FileItemsManager::Clear()
 	selector_->clear();
 	items_.clear();
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+	logManager_->AddMessage({ CubesLog::MessageType::information, 0, "Files Manager",
 		QString("All items removed") });
 }
 
@@ -560,7 +560,7 @@ void FileItemsManager::OnRemoveFileClicked()
 	// Сообщаяем об удалении
 	emit FilesListChanged(fileNames);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Files Manager",
+	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item removed, id = %1").arg(fileId) });
 }
 

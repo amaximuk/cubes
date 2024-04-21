@@ -75,7 +75,7 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		logManager_->AddMessage({ CubesLog::MessageType::information, propertiesId, "Properties Manager",
 			QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
 	}
 }
@@ -101,7 +101,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		logManager_->AddMessage({ CubesLog::MessageType::information, propertiesId, "Properties Manager",
 			   QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
 	}
 }
@@ -128,7 +128,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		logManager_->AddMessage({ CubesLog::MessageType::information, propertiesId, "Properties Manager",
 		   QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
 	}
 }
@@ -166,7 +166,7 @@ void PropertiesItemsManager::Remove(const CubesUnitTypes::PropertiesId propertie
 
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		logManager_->AddMessage({ CubesLog::MessageType::information, propertiesId, "Properties Manager",
 		   QString("Item removed, id = %1").arg(propertiesId) });
 	}
 }
@@ -246,7 +246,7 @@ void PropertiesItemsManager::Clear()
 
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		logManager_->AddMessage({ CubesLog::MessageType::information, 0, "Properties Manager",
 		   QString("All items removed") });
 	}
 }
@@ -364,7 +364,7 @@ void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId prope
 {
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::error, "Properties Manager", message });
+		logManager_->AddMessage({ CubesLog::MessageType::error, propertiesId, "Properties Manager", message });
 	}
 	//emit Error(propertiesId, message);
 }

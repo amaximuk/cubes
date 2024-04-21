@@ -257,20 +257,9 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     // parameterInfoId может быть не заполнен для дополнительных полей (BASE, EDITOR и т.п.)
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
-    // Предварительно получаем значение параметра из xml файла, если он доступен
-    //CubesXml::Param* xmlParam = nullptr;
-    //if (xmlUnit != nullptr)
-    //    xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
-
     CubesXml::Element element{};
     if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, element))
         assert(false);
-
-    // Предварительно получаем значение элемента массива из xml файла, если он доступен
-    //CubesXml::Item* xmlItem = nullptr;
-    //QString xmlItemType;
-    //if (xmlUnit != nullptr)
-    //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
 
     // Вычисляем значение из xml файла (параметра или элемента массива)
     QString xmlValueString;
@@ -302,6 +291,40 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         assert(false);
     }
 
+
+    // Получаем описание параметра из его yml файла
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
+    const bool res = CubesParameters::convert_variant(v, model.value);
+
+    // Параметр не должен быть массивом, здесь была проверка
+    // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
+    // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+    // что на самом деле не так
+    // На всякий случай возьмем тип элемента
+    const auto itemType = parameters::helper::common::get_item_type(pi.type);
+
+    const auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
+    const auto baseItemType = parameters::helper::common::get_base_item_type(pi.type);
+
+    if (element.type == CubesXml::ElementType::Param)
+    {
+        // Проверяем совместимость типов параметров из xml и из описания yml
+        auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
+        if (xmlBaseType != baseItemType)
+        {
+            propertiesItemsManager_->AfterError(propertiesId_,
+                QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не совместим с типом %5 параметра юнита").
+                arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
+                arg(QString::fromStdString(pi.type)));
+
+            return;
+            // Ошибка! Тип данных в xml не совместим с типом параметра
+            // TODO: вернуть ошибку
+        }
+    }
+
     // Конвертируем в QVariant
     QVariant xmlValue;
     if (haveXmlValue)
@@ -329,33 +352,6 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         }
     }
 
-    // Получаем описание параметра из его yml файла
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
-        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
-    const bool res = CubesParameters::convert_variant(v, model.value);
-
-    // Параметр не должен быть массивом, здесь была проверка
-    // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
-    // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
-    // что на самом деле не так
-    // На всякий случай возьмем тип элемента
-    const auto itemType = parameters::helper::common::get_item_type(pi.type);
-
-    const auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
-    const auto baseItemType = parameters::helper::common::get_base_item_type(itemType);
-
-    if (element.type == CubesXml::ElementType::Param)
-    {
-        // Проверяем совместимость типов параметров из xml и из описания yml
-        auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
-        if (xmlBaseType != baseItemType)
-        {
-            propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
-            // Ошибка! Тип данных в xml не совместим с типом параметра
-            // TODO: вернуть ошибку
-        }
-    }
 
     if (pi.restrictions.set_.size() > 0)
     {
@@ -1243,6 +1239,8 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                 properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
                 properties_group.editorSettings.is_expanded = true;
 
+                CheckParametersMatching(xmlUnit, QString::fromStdString(ti.name), properties_group.id);
+
                 for (const auto& pi : ti.parameters)
                 {
                     CubesUnitTypes::ParameterModel pm;
@@ -1712,26 +1710,35 @@ void PropertiesItem::ApplyExpandState()
 
 bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, const QString& type, const CubesUnitTypes::ParameterModelId& id)
 {
+    if (xmlUnit == nullptr)
+        return true;
+
+    for (const auto& xpi : xmlUnit->params)
+    {
+        const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xpi.name.toStdString());
+
+        if (pi == nullptr)
+        {
+            propertiesItemsManager_->AfterError(propertiesId_,
+                QString::fromLocal8Bit("Параметр %1 в xml файле юнита %2 (тип %3) не найден в параметрах юнита").
+                arg(xpi.name).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
+        }
+    }
+    return true;
+
+
+
+
+
     const auto pis = parameters::helper::parameter::get_parameters(unitParameters_.fileInfo, type.toStdString());
     if (pis == nullptr)
         return false;
 
     for (const auto& pi : *pis)
     {
-        // Предварительно получаем значение параметра из xml файла, если он доступен
-        //CubesXml::Param* xmlParam = nullptr;
-        //if (xmlUnit != nullptr)
-        //    xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
-
         CubesXml::Element element{};
         if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), id + QString::fromStdString(pi.name), element))
             assert(false);
-
-        // Предварительно получаем значение элемента массива из xml файла, если он доступен
-        //CubesXml::Item* xmlItem = nullptr;
-        //QString xmlItemType;
-        //if (xmlUnit != nullptr)
-        //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
 
         // Вычисляем значение из xml файла (параметра или элемента массива)
         QString xmlValueString;
@@ -1762,56 +1769,18 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
             assert(false);
         }
 
-        // Конвертируем в QVariant
-        QVariant xmlValue;
-        if (haveXmlValue)
-        {
-            const auto xmlBaseItemType = parameters::helper::common::get_xml_base_item_type(xmlValueTypeString.toStdString());
-            switch (xmlBaseItemType)
-            {
-            case parameters::base_item_types::string:
-                xmlValue = QString(xmlValueString);
-                break;
-            case parameters::base_item_types::integer:
-                xmlValue = std::stoi(xmlValueString.toStdString());
-                break;
-            case parameters::base_item_types::floating:
-                xmlValue = std::stod(xmlValueString.toStdString());
-                break;
-            case parameters::base_item_types::boolean:
-                xmlValue = (xmlValueString == "true");
-                break;
-            case parameters::base_item_types::none:
-            case parameters::base_item_types::user:
-            default:
-                assert(false);
-                break;
-            }
-        }
-
-        //// Получаем описание параметра из его yml файла
-        //auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
-        //    model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
-        //auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
-        //const bool res = CubesParameters::convert_variant(v, model.value);
-
-        // Параметр не должен быть массивом, здесь была проверка
-        // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
-        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
-        // что на самом деле не так
-        // На всякий случай возьмем тип элемента
-        const auto itemType = parameters::helper::common::get_item_type(pi.type);
-
-        const auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
-        const auto baseItemType = parameters::helper::common::get_base_item_type(itemType);
-
         if (element.type == CubesXml::ElementType::Param)
         {
+            const auto baseItemType = parameters::helper::common::get_base_item_type(pi.type);
+
             // Проверяем совместимость типов параметров из xml и из описания yml
             auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
             if (xmlBaseType != baseItemType)
             {
-                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
+                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра %1 %2 %3 %4").
+                    arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).arg(element.param->name).arg(element.param->type).
+                    arg(QString::fromStdString(pi.type)));
+                continue;
                 // Ошибка! Тип данных в xml не совместим с типом параметра
                 // TODO: вернуть ошибку
             }

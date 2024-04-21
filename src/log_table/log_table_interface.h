@@ -24,6 +24,7 @@ namespace CubesLog
     struct LogMessage
     {
         MessageType type;
+        uint32_t tag;
         QString source;
         QString description;
     };
