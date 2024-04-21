@@ -473,6 +473,7 @@ QWidget* MainWindow::CreateLogWidget()
     table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
     //table_view_log_->sortByColumn(0, Qt::AscendingOrder);
     table_view_log_->resizeColumnsToContents();
+    qDebug() << connect(table_view_log_, &QTableView::doubleClicked, this, &MainWindow::OnDoubleClicked);
 
     QToolButton* buttonError = new QToolButton;
     buttonError->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -2111,23 +2112,6 @@ void MainWindow::OnRecentAction()
     }
 }
 
-// TODO: Перенести подсказку в менеджер
-//void MainWindow::currentItemChanged(QtBrowserItem* item)
-//{
-//    if (item != nullptr)
-//        qDebug() << item->property()->propertyName();
-//
-//    if (scene_->selectedItems().size() > 0)
-//    {
-//        auto di = reinterpret_cast<CubeDiagram::DiagramItem*>(scene_->selectedItems()[0]);
-//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-//        if (item != nullptr)
-//            plainTextEditHint_->setPlainText(pi->GetPropertyDescription(item->property()));
-//        else
-//            plainTextEditHint_->setPlainText("");
-//    }
-//}
-
 // Лог
 void MainWindow::OnErrorButtonClicked(bool checked)
 {
@@ -2151,4 +2135,19 @@ void MainWindow::OnInformationButtonClicked(bool checked)
         sort_filter_model_->AddToFilter(CubesLog::MessageType::information);
     else
         sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::information);
+}
+
+void MainWindow::OnDoubleClicked(const QModelIndex& index)
+{
+    CubesLog::LogMessage m{};
+    const auto mapped = sort_filter_model_->mapToSource(index);
+    if (log_table_model_->GetMessage(mapped.row(), m))
+    {
+        // TODO: Properties Manager и т.п. в enum
+        if (m.source == "Properties Manager")
+        {
+            CubesUnitTypes::PropertiesId propertiesId = m.tag;
+            propertiesItemsManager_->Select(propertiesId);
+        }
+    }
 }

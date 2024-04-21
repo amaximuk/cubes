@@ -26,6 +26,16 @@ void LogTableModel::AddMessage(const LogMessage& message)
     //log_messages[log_messages.size() - 1] = message;
 }
 
+bool LogTableModel::GetMessage(int row, LogMessage& message)
+{
+    if (row < log_messages_.size())
+    {
+        message = log_messages_.at(row);
+        return true;
+    }
+    return false;
+}
+
 void LogTableModel::Clear()
 {
     if (log_messages_.size() > 0)
@@ -69,7 +79,7 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
     else if (role == Qt::DisplayRole)
     {
         if (index.column() == 1)
-            return QString("%1 (%2)").arg(log_messages_[index.row()].source).arg(log_messages_[index.row()].tag);
+            return log_messages_[index.row()].source;
         else if (index.column() == 2)
             return log_messages_[index.row()].description;
     }
@@ -91,7 +101,7 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
                 return static_cast<uint32_t>(MessageType::error);
         }
         else if (index.column() == 1)
-            return log_messages_[index.row()].source;
+            return log_messages_[index.row()].tag;
         else if (index.column() == 2)
             return log_messages_[index.row()].description;
     }

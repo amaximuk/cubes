@@ -188,4 +188,5 @@ private slots:
     void OnErrorButtonClicked(bool checked);
     void OnWarningButtonClicked(bool checked);
     void OnInformationButtonClicked(bool checked);
+    void OnDoubleClicked(const QModelIndex& index);
 };

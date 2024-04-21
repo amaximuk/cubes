@@ -19,6 +19,7 @@ namespace CubesLog
 
     public:
         void AddMessage(const LogMessage& message);
+        bool GetMessage(int row, LogMessage& message);
         void Clear();
 
     private:
