@@ -190,6 +190,16 @@ Item* Helper::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QS
 		ELRC(nullptr, "Must be started with parameters");
 	ss.pop_front();
 
+	// ¬ отличие от GetParam ищем элемент массива и его тип
+
+	// –аскручиваем путь к параметру из id, внутри структуры Unit
+	// »щем полное совпадение на каждом этапе с учетом массивов
+	// ѕуть должен начинатьс€ с ${PARAMETERS}, а далее, из служебных
+	// составл€ющих, путь может содержать только ${ITEM_N}
+	// ѕараметры не могут быть вложенными в другой параметр, только в массив
+	// ѕоэтому, им€ параметра должно полностью совпасть только один раз в конце
+	// ¬ложенность возможна только через массивы
+
 	bool inside_array = false;
 	Array* array = nullptr;
 	QString array_type;
@@ -200,30 +210,40 @@ Item* Helper::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QS
 		const auto& s = ss.front();
 		if (inside_array)
 		{
+			// ¬нутри массива элементы типа ${ITEM_N}
+			// Ќаходим совпадающий с очередной частью пути в id и идем внутрь
 			auto index = ids.ItemIndex(s);
 			if (index != -1 && array->items.size() > index)
 			{
 				if (ss.size() == 1)
 				{
+					// Ќашли искомый элемент массива
 					type = array_type;
 					return &array->items[index];
 				}
 
+				// »дем внутрь элемента
 				params = &array->items[index].params;
 				arrays = &array->items[index].arrays;
 			}
 			else
-				ELRC(nullptr, "Part of id not found");
+				ELRC(nullptr, "Array item not found");
 
 			array = nullptr;
 			inside_array = false;
 		}
 		else
 		{
+			// ѕараметры не могут быть вложенными в другой параметр, только в массив
+			// ¬ложенность возможна только через массивы
+			// ѕоскольку мы ищем элемент массива, параметры не провер€ем
+
+			// ѕровер€ем совпадение имени массива с очередной частью пути в id
 			for (auto& a : *arrays)
 			{
 				if (s == a.name)
 				{
+					// Ќашли массив, идем в него
 					array = &a;
 					inside_array = true;
 					array_type = a.type;
