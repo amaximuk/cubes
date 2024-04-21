@@ -319,7 +319,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                 arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
                 arg(QString::fromStdString(pi.type)));
 
-            return;
+            //return;
             // Ошибка! Тип данных в xml не совместим с типом параметра
             // TODO: вернуть ошибку
         }
@@ -336,11 +336,35 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             xmlValue = QString(xmlValueString);
             break;
         case parameters::base_item_types::integer:
-            xmlValue = std::stoi(xmlValueString.toStdString());
+        {
+            bool flag{ false };
+            xmlValue = xmlValueString.toInt(&flag);
+            if (!flag)
+            {
+                propertiesItemsManager_->AfterError(propertiesId_,
+                    QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
+                    arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
+                    arg(xmlValueString));
+
+                xmlValue = int{ 0 };
+            }
             break;
+        }
         case parameters::base_item_types::floating:
-            xmlValue = std::stod(xmlValueString.toStdString());
+        {
+            bool flag{ false };
+            xmlValue = xmlValueString.toDouble(&flag);
+            if (!flag)
+            {
+                propertiesItemsManager_->AfterError(propertiesId_,
+                    QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
+                    arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
+                    arg(xmlValueString));
+
+                xmlValue = double{ 0.0 };
+            }
             break;
+        }
         case parameters::base_item_types::boolean:
             xmlValue = (xmlValueString == "true");
             break;
