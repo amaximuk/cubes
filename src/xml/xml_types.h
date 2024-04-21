@@ -179,4 +179,31 @@ namespace CubesXml
 		QList<Include> includes;
 		Config config;
 	};
+
+	enum class ElementType
+	{
+		None,
+		Param,
+		Array,
+		Item
+	};
+
+	struct Element
+	{
+		ElementType type;
+		int itemsCount; // For array elements
+		QString arrayType; // For item element
+		Param* param;
+		Array* array;
+		Item* item;
+
+		Element()
+		{
+			type = ElementType::None;
+			itemsCount = 0;
+			param = nullptr;
+			array = nullptr;
+			item = nullptr;
+		}
+	};
 }

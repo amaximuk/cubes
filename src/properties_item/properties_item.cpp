@@ -151,10 +151,12 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         properties_group.editorSettings.is_expanded = true;
 
+        CheckParametersMatching(xmlUnit, QString::fromStdString(parameters::helper::type::main_type), ids_.parameters);
+
         for (const auto& pi : unitParameters_.fileInfo.parameters)
         {
             CubesUnitTypes::ParameterModel pm;
-            CreateParameterModel({ "Main", QString::fromStdString(pi.name) },
+            CreateParameterModel({ QString::fromStdString(parameters::helper::type::main_type), QString::fromStdString(pi.name) },
                 ids_.parameters, xmlUnit, pm);
             properties_group.parameters.push_back(std::move(pm));
         }
@@ -256,31 +258,48 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
     // Предварительно получаем значение параметра из xml файла, если он доступен
-    CubesXml::Param* xmlParam = nullptr;
-    if (xmlUnit != nullptr)
-        xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+    //CubesXml::Param* xmlParam = nullptr;
+    //if (xmlUnit != nullptr)
+    //    xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+
+    CubesXml::Element element{};
+    if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, element))
+        assert(false);
 
     // Предварительно получаем значение элемента массива из xml файла, если он доступен
-    CubesXml::Item* xmlItem = nullptr;
-    QString xmlItemType;
-    if (xmlUnit != nullptr)
-        xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
+    //CubesXml::Item* xmlItem = nullptr;
+    //QString xmlItemType;
+    //if (xmlUnit != nullptr)
+    //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
 
     // Вычисляем значение из xml файла (параметра или элемента массива)
     QString xmlValueString;
     QString xmlValueTypeString;
     bool haveXmlValue = false;
-    if (xmlParam != nullptr)
+    if (element.type == CubesXml::ElementType::Param)
     {
-        xmlValueString = xmlParam->val;
-        xmlValueTypeString = xmlParam->type;
+        xmlValueString = element.param->val;
+        xmlValueTypeString = element.param->type;
         haveXmlValue = true;
     }
-    else if (xmlItem != nullptr)
+    else if (element.type == CubesXml::ElementType::Array)
     {
-        xmlValueString = xmlItem->val;
-        xmlValueTypeString = xmlItemType;
+        // Массивов быть не должно
+        assert(false);
+    }
+    else if (element.type == CubesXml::ElementType::Item)
+    {
+        xmlValueString = element.item->val;
+        xmlValueTypeString = element.arrayType;
         haveXmlValue = true;
+    }
+    else if (element.type == CubesXml::ElementType::None)
+    {
+        // Это нормально, если параметр не задан в xml файле
+    }
+    else
+    {
+        assert(false);
     }
 
     // Конвертируем в QVariant
@@ -326,10 +345,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     const auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
     const auto baseItemType = parameters::helper::common::get_base_item_type(itemType);
 
-    if (xmlParam != nullptr)
+    if (element.type == CubesXml::ElementType::Param)
     {
         // Проверяем совместимость типов параметров из xml и из описания yml
-        auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(xmlParam->type.toStdString());
+        auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
         if (xmlBaseType != baseItemType)
         {
             propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
@@ -374,10 +393,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                 pm_depends.id = model.id + ids_.depends;
                 pm_depends.name = QString::fromLocal8Bit("Зависимость");
                 // Если есть значение в xml, заполняем его в модели зависимости
-                if (xmlParam == nullptr)
-                    pm_depends.value = bool{ false };
+                if (element.type == CubesXml::ElementType::Param)
+                    pm_depends.value = bool{ element.param->depends };
                 else
-                    pm_depends.value = bool{ xmlParam->depends };
+                    pm_depends.value = bool{ false };
                 //pm_depends.valueType = "bool";
                 pm_depends.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
 
@@ -479,17 +498,17 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         // Если xml файл есть, устанавливаем значение флага
         if (xmlUnit != nullptr)
         {
-            if (xmlParam == nullptr)
+            if (element.type == CubesXml::ElementType::Param)
+            {
+                // Параметр есть, сбрасываем флаг не задавать
+                pmo.value = bool{ false };
+            }
+            else
             {
                 // Параметр отсутствует, ставим флаг не задавать
                 // TODO: надо как-то помечать не заданные параметры,
                 // вариант - model.value = QString::fromLocal8Bit("не задано"); - плохой, не учитывает тип данных
                 pmo.value = bool{ true };
-            }
-            else
-            {
-                // Параметр есть, сбрасываем флаг не задавать
-                pmo.value = bool{ false };
             }
         }
 
@@ -1055,9 +1074,13 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     bool res = CubesParameters::convert_variant(v, model.value);
     //model.valueType = "int";
 
-    int xmlCount = 0;
-    if (xmlUnit != nullptr)
-        xmlCount = CubesXml::Helper::GetItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+    //int xmlCount = 0;
+    //if (xmlUnit != nullptr)
+    //    xmlCount = CubesXml::Helper::GetItemsCount(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+
+    CubesXml::Element element{};
+    if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, element))
+        assert(false);
 
     if (pi.restrictions.set_count.size() > 0)
     {
@@ -1065,9 +1088,9 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         for (int i = 0; i < pi.restrictions.set_count.size(); ++i)
             model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pi.restrictions.set_count[i]);
     
-        if (xmlUnit != nullptr && xmlCount != -1)
+        if (element.type == CubesXml::ElementType::Array)
         {
-            if (!model.editorSettings.ComboBoxValues.values().contains(QString("%1").arg(xmlCount)))
+            if (!model.editorSettings.ComboBoxValues.values().contains(QString("%1").arg(element.itemsCount)))
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
@@ -1075,7 +1098,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
                 // TODO: вернуть ошибку
             }
             else
-                model.value = QString("%1").arg(xmlCount);
+                model.value = QString("%1").arg(element.itemsCount);
         }
     }
     else
@@ -1092,9 +1115,9 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         else
             model.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
 
-        if (xmlUnit != nullptr && xmlCount != -1)
+        if (element.type == CubesXml::ElementType::Array)
         {
-            if (xmlCount < model.editorSettings.SpinIntergerMin || xmlCount > model.editorSettings.SpinIntergerMax)
+            if (element.itemsCount < model.editorSettings.SpinIntergerMin || element.itemsCount > model.editorSettings.SpinIntergerMax)
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
@@ -1102,7 +1125,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
                 // TODO: вернуть ошибку
             }
             else
-                model.value = QString("%1").arg(xmlCount);
+                model.value = QString("%1").arg(element.itemsCount);
         }
     }
 }
@@ -1176,10 +1199,14 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
 
             // Получаем значение из xml файла
-            CubesXml::Item* xmlItem = nullptr;
-            QString xmlItemType;
-            if (xmlUnit != nullptr)
-                xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, xmlItemType);
+            //CubesXml::Item* xmlItem = nullptr;
+            //QString xmlItemType;
+            //if (xmlUnit != nullptr)
+            //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, xmlItemType);
+
+            CubesXml::Element element;
+            if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, element))
+                assert(false);
 
             // Заполняем базовые параметры
             {
@@ -1192,10 +1219,10 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                 CubesUnitTypes::ParameterModel instance_name;
                 instance_name.id = group_model.id + ids_.base + ids_.name;
                 instance_name.name = QString::fromLocal8Bit("Имя");
-                if (xmlItem == nullptr || xmlItem->name == "")
-                    instance_name.value = QString(group_model.name);
+                if (element.type == CubesXml::ElementType::Item)
+                    instance_name.value = QString(element.item->name);
                 else
-                    instance_name.value = QString(xmlItem->name);
+                    instance_name.value = QString(group_model.name);
                 instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
 
                 base_group.parameters.push_back(std::move(instance_name));
@@ -1239,7 +1266,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + ids_.editor + ids_.positionX;
                     pm.name = QString::fromLocal8Bit("Позиция X");
-                    pm.value = double{ xmlItem == nullptr ? 0.0 : xmlItem->x };
+                    pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->x : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
                     pm.editorSettings.SpinDoubleMin = -10000;
                     pm.editorSettings.SpinDoubleMax = 10000;
@@ -1251,7 +1278,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + ids_.editor + ids_.positionY;
                     pm.name = QString::fromLocal8Bit("Позиция Y");
-                    pm.value = double{ xmlItem == nullptr ? 0.0 : xmlItem->y };
+                    pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->y : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
                     pm.editorSettings.SpinDoubleMin = -10000;
                     pm.editorSettings.SpinDoubleMax = 10000;
@@ -1263,7 +1290,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     CubesUnitTypes::ParameterModel pm;
                     pm.id = group_model.id + ids_.editor + ids_.positionZ;
                     pm.name = QString::fromLocal8Bit("Позиция Z");
-                    pm.value = double{ xmlItem == nullptr ? 0.0 : xmlItem->z };
+                    pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->z : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
                     pm.editorSettings.SpinDoubleMin = -10000;
                     pm.editorSettings.SpinDoubleMax = 10000;
@@ -1681,4 +1708,115 @@ void PropertiesItem::ApplyExpandState()
     QListIterator<QtBrowserItem*> itItem(indexes);
     while (itItem.hasNext())
         ApplyExpandState(itItem.next());
+}
+
+bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, const QString& type, const CubesUnitTypes::ParameterModelId& id)
+{
+    const auto pis = parameters::helper::parameter::get_parameters(unitParameters_.fileInfo, type.toStdString());
+    if (pis == nullptr)
+        return false;
+
+    for (const auto& pi : *pis)
+    {
+        // Предварительно получаем значение параметра из xml файла, если он доступен
+        //CubesXml::Param* xmlParam = nullptr;
+        //if (xmlUnit != nullptr)
+        //    xmlParam = CubesXml::Helper::GetParam(*const_cast<CubesXml::Unit*>(xmlUnit), model.id);
+
+        CubesXml::Element element{};
+        if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), id + QString::fromStdString(pi.name), element))
+            assert(false);
+
+        // Предварительно получаем значение элемента массива из xml файла, если он доступен
+        //CubesXml::Item* xmlItem = nullptr;
+        //QString xmlItemType;
+        //if (xmlUnit != nullptr)
+        //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), model.id, xmlItemType);
+
+        // Вычисляем значение из xml файла (параметра или элемента массива)
+        QString xmlValueString;
+        QString xmlValueTypeString;
+        bool haveXmlValue = false;
+        if (element.type == CubesXml::ElementType::Param)
+        {
+            xmlValueString = element.param->val;
+            xmlValueTypeString = element.param->type;
+            haveXmlValue = true;
+        }
+        else if (element.type == CubesXml::ElementType::Array)
+        {
+            // Это нормально, параметр - массив
+        }
+        else if (element.type == CubesXml::ElementType::Item)
+        {
+            xmlValueString = element.item->val;
+            xmlValueTypeString = element.arrayType;
+            haveXmlValue = true;
+        }
+        else if (element.type == CubesXml::ElementType::None)
+        {
+            // Это нормально, если параметр не задан в xml файле
+        }
+        else
+        {
+            assert(false);
+        }
+
+        // Конвертируем в QVariant
+        QVariant xmlValue;
+        if (haveXmlValue)
+        {
+            const auto xmlBaseItemType = parameters::helper::common::get_xml_base_item_type(xmlValueTypeString.toStdString());
+            switch (xmlBaseItemType)
+            {
+            case parameters::base_item_types::string:
+                xmlValue = QString(xmlValueString);
+                break;
+            case parameters::base_item_types::integer:
+                xmlValue = std::stoi(xmlValueString.toStdString());
+                break;
+            case parameters::base_item_types::floating:
+                xmlValue = std::stod(xmlValueString.toStdString());
+                break;
+            case parameters::base_item_types::boolean:
+                xmlValue = (xmlValueString == "true");
+                break;
+            case parameters::base_item_types::none:
+            case parameters::base_item_types::user:
+            default:
+                assert(false);
+                break;
+            }
+        }
+
+        //// Получаем описание параметра из его yml файла
+        //auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        //    model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+        //auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
+        //const bool res = CubesParameters::convert_variant(v, model.value);
+
+        // Параметр не должен быть массивом, здесь была проверка
+        // Проблема с типизированными массивами. В них каждый item хранит значение и привязку к
+        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+        // что на самом деле не так
+        // На всякий случай возьмем тип элемента
+        const auto itemType = parameters::helper::common::get_item_type(pi.type);
+
+        const auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
+        const auto baseItemType = parameters::helper::common::get_base_item_type(itemType);
+
+        if (element.type == CubesXml::ElementType::Param)
+        {
+            // Проверяем совместимость типов параметров из xml и из описания yml
+            auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
+            if (xmlBaseType != baseItemType)
+            {
+                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра"));
+                // Ошибка! Тип данных в xml не совместим с типом параметра
+                // TODO: вернуть ошибку
+            }
+        }
+    }
+
+    return true;
 }

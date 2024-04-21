@@ -132,5 +132,7 @@ namespace CubesProperties
         CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
 
+    private:
+        bool CheckParametersMatching(const CubesXml::Unit* xmlUnit, const QString& type, const CubesUnitTypes::ParameterModelId& id);
     };
 }

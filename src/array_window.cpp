@@ -369,10 +369,10 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             {
                 for (auto& parameter : group.parameters)
                 {
-                    parameter.parameterInfoId.type = "Main";
+                    parameter.parameterInfoId.type = QString::fromStdString(parameters::helper::type::main_type);
 
                     auto& pi = *parameters::helper::parameter::get_parameter_info(afi,
-                        "Main", parameter.parameterInfoId.name.toStdString());
+                        parameters::helper::type::main_type, parameter.parameterInfoId.name.toStdString());
 
                     bool isArray = parameters::helper::common::get_is_array_type(pi.type);
                     auto itemType = parameters::helper::common::get_item_type(pi.type);
@@ -381,7 +381,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
                     if (isArray && isInner)
                     {
                         for (auto& arrayParameter : parameter.parameters)
-                            arrayParameter.parameterInfoId.type = "Main";
+                            arrayParameter.parameterInfoId.type = QString::fromStdString(parameters::helper::type::main_type);
                     }
                 }
             }
@@ -525,7 +525,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
                     parameter.parameterInfoId.type = type;
 
                     auto& pi = *parameters::helper::parameter::get_parameter_info(up.fileInfo,
-                        "Main", parameter.parameterInfoId.name.toStdString());
+                        parameters::helper::type::main_type, parameter.parameterInfoId.name.toStdString());
                     
 
                     bool isArray = parameters::helper::common::get_is_array_type(pi.type);
