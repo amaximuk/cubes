@@ -73,8 +73,11 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
-		QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName())});
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+			QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
+	}
 }
 
 void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm,
@@ -96,8 +99,11 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	selector_->addItem(propertiesName, propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
-		QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+			   QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
+	}
 }
 
 void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId)
@@ -115,13 +121,16 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	//pi->SetName(propertiesName);
 
 	items_[propertiesId] = pi;
-//	auto name = GetName(propertiesId);
+	//	auto name = GetName(propertiesId);
 
 	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
-		QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		   QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
+	}
 }
 
 void PropertiesItemsManager::Select(const CubesUnitTypes::PropertiesId propertiesId)
@@ -155,8 +164,11 @@ void PropertiesItemsManager::Remove(const CubesUnitTypes::PropertiesId propertie
 
 	items_.remove(propertiesId);
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
-		QString("Item removed, id = %1").arg(propertiesId) });
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		   QString("Item removed, id = %1").arg(propertiesId) });
+	}
 }
 
 QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const CubesUnitTypes::PropertiesId propertiesId)
@@ -232,8 +244,11 @@ void PropertiesItemsManager::Clear()
 
 	defaultColorFileIndex_ = 0;
 
-	logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
-		QString("All items removed") });
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::information, "Properties Manager",
+		   QString("All items removed") });
+	}
 }
 
 bool PropertiesItemsManager::GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name)
@@ -347,7 +362,10 @@ void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::Properti
 
 void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
-	logManager_->AddMessage({ CubesLog::MessageType::error, "Properties Manager", message });
+	if (logManager_ != nullptr)
+	{
+		logManager_->AddMessage({ CubesLog::MessageType::error, "Properties Manager", message });
+	}
 	//emit Error(propertiesId, message);
 }
 
