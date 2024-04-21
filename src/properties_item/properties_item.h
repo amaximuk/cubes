@@ -103,7 +103,7 @@ namespace CubesProperties
         void ValueChanged(QtProperty* property, const QVariant& value);
         void StringEditingFinished(QtProperty* property, const QString& value, const QString& oldValue);
 
-    public:
+    private:
         void CreateParametersModel(const CubesXml::Unit* xmlUnit, bool isArrayUnit);
         void CreateProperties();
         void CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
@@ -121,11 +121,16 @@ namespace CubesProperties
         void UnregisterProperty(const QtProperty* property);
         QtProperty* GetProperty(const CubesUnitTypes::ParameterModelId& id);
         CubesUnitTypes::ParameterModelId GetPropertyId(const QtProperty* property);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
+        //CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
+        //CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
         CubesUnitTypes::UnitParameters* GetPropertyUnitParameters(const QtProperty* property);
 
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);
+
+    public:
+        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
+        CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
+
     };
 }

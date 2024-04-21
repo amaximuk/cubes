@@ -719,59 +719,6 @@ namespace CubesUnitTypes
 		ParameterModel()
 		{
 			readOnly = false;
-
-			//struct XXX
-			//{
-			//public:
-			//	QStringList value_;
-
-			//public:
-			//	XXX() = default;
-
-			//	//XXX()
-			//	//{
-			//	//};
-
-			//	XXX(const XXX& rhs)
-			//	{
-			//		value_ = rhs.value_;
-			//	};
-
-			//	XXX(XXX&& rhs) noexcept
-			//	{
-			//		value_ = std::move(rhs.value_);
-			//	};
-
-			//	XXX(const QString& value)
-			//	{
-			//		value_.push_back(value);
-			//	}
-
-			//	XXX(const char* value) :
-			//		XXX(QString(value))
-			//	{}
-			//};
-
-			//XXX x("123456");
-
-			//QList<XXX> list1;
-			//{
-			//	list1.push_back(x);
-			//}
-
-			//int z1 = list1.size();
-			//auto zs = list1.at(0).value_;
-
-			//ParameterModelId v("aaaa");
-
-			//QList<ParameterModelId> list;
-			//{
-			//	list.push_back(v);
-			//}
-
-			//int z = list.size();
-			//auto zs1 = list.at(0).value_;
-
 		}
 	};
 
