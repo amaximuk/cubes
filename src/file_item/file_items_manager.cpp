@@ -5,9 +5,12 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QLabel>
+#include <QFileInfo>
+#include <QDebug>
 #include "qttreepropertybrowser.h"
 #include "../top_manager_interface.h"
 #include "../unit_types.h"
+#include "../log_table/log_table_interface.h"
 #include "file_item.h"
 #include "file_items_manager.h"
 
@@ -308,6 +311,19 @@ CubesXml::File FileItemsManager::GetXmlFile(const CubesUnitTypes::FileId fileId)
 
 	return result;
 }
+
+bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
+{
+	files.clear();
+
+	for (const auto& f : items_)
+	{
+		const auto files = f->GetAnalysisFiles();
+	}
+
+	return true;
+}
+
 //
 //void FileItemsManager::BeforeFileNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId oldFileId, bool& cancel)
 //{

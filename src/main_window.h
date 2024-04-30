@@ -33,6 +33,11 @@ namespace CubesProperties
     class PropertiesItemsManager;
 }
 
+namespace CubesAnalysis
+{
+    class AnalysisManager;
+}
+
 class QPlainTextEdit;
 class QGraphicsScene;
 class QGraphicsView;
@@ -67,6 +72,7 @@ private:
 
     QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
+    QPointer<CubesAnalysis::AnalysisManager> analysisManager_;
 
     // Значения имен параметров
     CubesUnitTypes::ParameterModelIds ids_;
@@ -84,15 +90,16 @@ public:
     void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
     void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         CubesUnitTypes::VariableIdVariables& variables) override;
-    bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
-    bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
-    bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) override;
+    bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
+    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
+    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
+    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
     QString GetNewUnitName(const QString& baseName) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
-    bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
-    void EnshureVisible(uint32_t propertiesId) override;
+    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
+    void EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
     
     // ILogManager
     void AddMessage(const CubesLog::LogMessage& m);
@@ -121,6 +128,7 @@ protected:
     bool SortUnitsRectangular(bool check);
     QMap<QString, QStringList> GetConnectionsInternal(bool depends);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
+    bool Test();
 
     // Files
     CubesUnitTypes::FileIdNames GetFileNames();
@@ -183,6 +191,7 @@ private slots:
     void OnSortBoostAction();
     void OnSortRectAction();
     void OnRecentAction();
+    void OnTestAction();
 
     // Лог
     void OnErrorButtonClicked(bool checked);

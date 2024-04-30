@@ -1,7 +1,10 @@
 #pragma once
 
+#include <QPixmap>
+#include <QColor>
 #include "unit_types.h"
-#include "xml/xml_parser.h"
+#include "xml/xml_types.h"
+#include "analysis/analysis_types.h"
 
 struct PropertiesForDrawing
 {
@@ -38,4 +41,6 @@ public:
     virtual QString GetNewUnitName(const QString& baseName) = 0;
     virtual QMap<QString, QStringList> GetUnitsConnections() = 0;
     virtual QMap<QString, QStringList> GetDependsConnections() = 0;
+
+    virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) = 0;
 };

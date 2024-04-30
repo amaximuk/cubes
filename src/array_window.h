@@ -107,6 +107,9 @@ public:
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
+    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
+
+
 public:
     void closeEvent(QCloseEvent* event) override;
 

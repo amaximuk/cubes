@@ -33,6 +33,7 @@
 #include "parameters_compiler/base64.h"
 #include "properties_item/properties_item.h"
 #include "properties_item/properties_items_manager.h"
+#include "analysis/analysis_manager.h"
 #include "qttreepropertybrowser.h" // потом убрать
 #include "tree_item_model.h"
 #include "xml/xml_parser.h"
@@ -72,6 +73,8 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MainWindow::fileListChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MainWindow::fileIncludeNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::IncludesListChanged, this, &MainWindow::fileIncludesListChanged);
+
+    analysisManager_ = new CubesAnalysis::AnalysisManager(this, this);
 
     CreateUi();
 
@@ -303,6 +306,14 @@ void MainWindow::EnshureVisible(uint32_t propertiesId)
     }
 }
 
+bool MainWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
+{
+    if (!fileItemsManager_->GetAnalysisFiles(files))
+        return false;
+
+    return true;
+}
+
 // ILogManager
 void MainWindow::AddMessage(const CubesLog::LogMessage& m)
 {
@@ -393,6 +404,8 @@ void MainWindow::CreateMenu()
     fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
 
+    UpdateRecent();
+
     QAction* sortBoostAct = new QAction(QString::fromLocal8Bit("Сортировать (boost)"), this);
     sortBoostAct->setStatusTip(QString::fromLocal8Bit("Автоматическая сортировка"));
     connect(sortBoostAct, &QAction::triggered, this, &MainWindow::OnSortBoostAction);
@@ -405,7 +418,13 @@ void MainWindow::CreateMenu()
     editMenu->addAction(sortBoostAct);
     editMenu->addAction(sortRectAct);
 
-    UpdateRecent();
+    QAction* testAct = new QAction(QString::fromLocal8Bit("Тест"), this);
+    testAct->setShortcut(QKeySequence("Ctrl+T"));
+    testAct->setStatusTip(QString::fromLocal8Bit("Тест конфигурации"));
+    connect(testAct, &QAction::triggered, this, &MainWindow::OnTestAction);
+
+    QMenu* analysisMenu = menuBar()->addMenu(QString::fromLocal8Bit("Анализ"));
+    analysisMenu->addAction(testAct);
 }
 
 QWidget* MainWindow::CreateMainWidget()
@@ -1172,6 +1191,13 @@ CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
             return &up;
     }
     return nullptr;
+}
+
+bool MainWindow::Test()
+{
+    log_table_model_->Clear();
+    analysisManager_->Test();
+    return true;
 }
 
 // Files
@@ -2110,6 +2136,11 @@ void MainWindow::OnRecentAction()
         RemoveRecent(act->text());
         return;
     }
+}
+
+void MainWindow::OnTestAction()
+{
+    Test();
 }
 
 // Лог

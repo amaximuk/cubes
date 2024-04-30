@@ -3,6 +3,7 @@
 #include <QCursor>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QDebug>
 #include "diagram_item.h"
 #include "diagram_scene.h"
 

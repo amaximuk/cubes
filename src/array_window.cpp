@@ -421,6 +421,11 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
     SortUnitsRectangular(true);
 }
 
+bool ArrayWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
+{
+    return false;
+}
+
 QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
 {
     return GetConnectionsInternal(false);

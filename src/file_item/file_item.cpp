@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
@@ -1111,6 +1112,49 @@ CubesXml::File FileItem::GetXmlFile()
         for (const auto& v : variables.values())
             include.variables.push_back(v);
         result.includes.push_back(include);
+    }
+
+    return result;
+}
+
+std::vector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
+{
+    std::vector<CubesAnalysis::File> result;
+
+    {
+        CubesAnalysis::File file;
+        file.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
+        file.is_include = false;
+        file.main.fileId = GetFileId();
+        file.main.accept.host = GetParameterModel(ids_.parameters + ids_.networking + ids_.ip)->value.toString();
+        file.main.accept.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
+
+        int count = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
+        for (int i = 0; i < count; i++)
+        {
+            CubesAnalysis::Endpoint endpoint{};
+            endpoint.host = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
+            endpoint.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
+            file.main.connect.push_back(endpoint);
+        }
+
+        result.push_back(file);
+    }
+
+    const auto pm = GetParameterModel(ids_.includes);
+    if (pm == nullptr)
+        return result;
+
+    for (int i = 0; i < pm->value.toInt(); i++)
+    {
+        const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto includeId = pmItem->key.toInt();
+
+        CubesAnalysis::File file;
+        file.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
+        file.is_include = true;
+        file.include.includeId = includeId;
+        result.push_back(file);
     }
 
     return result;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QPointer>
+
 class QtProperty;
 class QtBrowserItem;
 class QtTreePropertyBrowser;

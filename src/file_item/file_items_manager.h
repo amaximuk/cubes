@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../unit_types.h"
+#include "../analysis/analysis_types.h"
 #include "file_items_manager_interface.h"
 
 class QComboBox;
@@ -67,6 +68,7 @@ namespace CubesFile
 
 		File GetFile(const CubesUnitTypes::FileId fileId);
 		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);
+		bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files);
 
 	signals:
 		void FileNameChanged(const CubesUnitTypes::FileId fileId);
