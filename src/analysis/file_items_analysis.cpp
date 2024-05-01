@@ -1,3 +1,4 @@
+#include <QFileInfo>
 #include "analysis_types.h"
 #include "file_items_analysis.h"
 
@@ -65,5 +66,23 @@ bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 
 bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 {
-	return true;
+	QSet<QString> filenames;
+	bool result = true;
+	for (const auto& file : files_)
+	{
+		QFileInfo fi(file.path);
+		const auto fn = fi.fileName();
+		if (filenames.contains(fn))
+		{
+			QString message = rule.description + QString::fromLocal8Bit("\nÈìÿ ôàéëà: %1").arg(fn);
+			analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
+			result = false;
+		}
+		else
+		{
+			filenames.insert(fn);
+		}
+	}
+
+	return result;
 }

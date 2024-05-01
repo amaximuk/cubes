@@ -318,6 +318,11 @@ bool MainWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 void MainWindow::AddMessage(const CubesLog::LogMessage& m)
 {
     log_table_model_->AddMessage(m);
+
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->horizontalHeader()->setStretchLastSection(false);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->resizeRowsToContents();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -335,6 +340,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
     {
         event->accept();
     }
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+    QMainWindow::resizeEvent(event);
+
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->horizontalHeader()->setStretchLastSection(false);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->resizeRowsToContents();
 }
 
 // UI
@@ -487,11 +502,12 @@ QWidget* MainWindow::CreateLogWidget()
     table_view_log_->verticalHeader()->hide();
     table_view_log_->horizontalHeader()->setHighlightSections(false);
     //table_view_log_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //table_view_log_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     table_view_log_->horizontalHeader()->setStretchLastSection(true);
     table_view_log_->setSelectionBehavior(QAbstractItemView::SelectRows);
     table_view_log_->setSelectionMode(QAbstractItemView::SingleSelection);
     //table_view_log_->sortByColumn(0, Qt::AscendingOrder);
-    table_view_log_->resizeColumnsToContents();
+    //table_view_log_->resizeColumnsToContents();
     qDebug() << connect(table_view_log_, &QTableView::doubleClicked, this, &MainWindow::OnDoubleClicked);
 
     QToolButton* buttonError = new QToolButton;
@@ -734,7 +750,7 @@ void MainWindow::FillParametersInfo()
                     m.type = CubesLog::MessageType::error;
                     m.source = filename;
                     m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    log_table_model_->AddMessage(m);
+                    AddMessage(m);
                 }
 
                 // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
@@ -924,13 +940,13 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
                 m.type = CubesLog::MessageType::error;
                 m.source = QFileInfo(file.fileName).fileName();
                 m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                log_table_model_->AddMessage(m);
+                AddMessage(m);
             }
         }
     }
-    log_table_model_->submit();
-    table_view_log_->resizeColumnsToContents();
-    table_view_log_->update();
+    //log_table_model_->submit();
+    //table_view_log_->resizeColumnsToContents();
+    //table_view_log_->update();
 
     // Get fileNames list
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
@@ -1900,11 +1916,11 @@ void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& mes
     m.type = CubesLog::MessageType::error;
     m.source = QString("%1").arg(propertiesId);
     m.description = message;
-    log_table_model_->AddMessage(m);
+    AddMessage(m);
 
-    log_table_model_->submit();
-    table_view_log_->resizeColumnsToContents();
-    table_view_log_->update();
+    //log_table_model_->submit();
+    //table_view_log_->resizeColumnsToContents();
+    //table_view_log_->update();
 }
 
 void MainWindow::PropertiesConnectionChanged(const uint32_t propertiesId)

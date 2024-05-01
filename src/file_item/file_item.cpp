@@ -1147,13 +1147,10 @@ std::vector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(i));
-        const auto includeId = pmItem->key.toInt();
-
         CubesAnalysis::File file;
-        file.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
+        file.path = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
         file.is_include = true;
-        file.include.includeId = includeId;
+        file.include.includeId = GetParameterModel(ids_.includes + ids_.Item(i))->key.toInt();
         result.push_back(file);
     }
 

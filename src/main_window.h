@@ -106,6 +106,7 @@ public:
 
 private:
     void closeEvent(QCloseEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 protected:
     // UI

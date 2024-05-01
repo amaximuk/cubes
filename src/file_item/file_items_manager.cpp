@@ -316,9 +316,11 @@ bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 {
 	files.clear();
 
-	for (const auto& f : items_)
+	for (const auto& item : items_)
 	{
-		const auto files = f->GetAnalysisFiles();
+		const auto itemFiles = item->GetAnalysisFiles();
+		for(const auto& file : itemFiles)
+			files.push_back(file);
 	}
 
 	return true;
