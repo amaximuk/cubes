@@ -14,7 +14,7 @@ using namespace CubesFile;
 //namespace ids = CubesUnitTypes::ParameterModelIds;
 
 
-FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
@@ -29,7 +29,7 @@ FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* ed
     notifyManager_ = true;
 }
 
-FileItem::FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;

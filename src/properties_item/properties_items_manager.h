@@ -14,7 +14,7 @@ namespace CubesProperties
 {
 	class PropertiesItem;
 
-	class PropertiesItemsManager : public QObject, IPropertiesItemsManagerBoss, IPropertiesItemsManagerWorker
+	class PropertiesItemsManager : public QObject, IPropertiesItemsManager
 	{
 		Q_OBJECT
 
@@ -72,7 +72,7 @@ namespace CubesProperties
 		void PropertiesChanged();
 
 	public:
-		// IPropertiesItemsManagerBoss (для общения с PropertiesItem)
+		// IPropertiesItemsManager (для общения с PropertiesItem)
 		void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
 			CubesUnitTypes::IncludeIdNames& includeNames) override;
@@ -83,7 +83,6 @@ namespace CubesProperties
 		void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;
 
-		// IPropertiesItemsManagerWorker (для общения с TopManager)
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);
 		void OnEditorExpanded(QtBrowserItem* item);

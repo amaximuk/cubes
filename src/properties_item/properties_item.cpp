@@ -13,7 +13,7 @@
 
 using namespace CubesProperties;
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
@@ -27,7 +27,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     CreateProperties();
 }
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm)
 {
     propertiesItemsManager_ = propertiesItemsManager;
@@ -41,7 +41,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManag
     CreateProperties();
 }
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;

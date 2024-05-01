@@ -13,7 +13,7 @@ namespace CubesLog
 
 namespace CubesFile
 {
-	class FileItemsManager : public QObject, IFileItemsManagerBoss
+	class FileItemsManager : public QObject, IFileItemsManager
 	{
 		Q_OBJECT
 
@@ -83,7 +83,7 @@ namespace CubesFile
 		void PropertiesChanged();
 
 	public:
-		// IFileItemsManagerBoss (для общения с FileItem)
+		// IFileItemsManager (для общения с FileItem)
 		//void BeforeFileNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId oldFileId, bool& cancel) override;
 		void AfterFileNameChanged(const CubesUnitTypes::FileId fileId) override;
 		//void BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeFileId includeId,
@@ -101,8 +101,6 @@ namespace CubesFile
 			const CubesUnitTypes::VariableIdVariables& variables) override;
 		void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) override;
 		void AfterPropertiesChanged() override;
-
-		// IFileItemsManagerWorker (для общения с TopManager)
 
 	private:
 		void OnEditorCollapsed(QtBrowserItem* item);

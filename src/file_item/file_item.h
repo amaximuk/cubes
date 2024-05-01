@@ -24,7 +24,7 @@ namespace CubesFile
 
     private:
         // Params
-        IFileItemsManagerBoss* fileItemsManager_;
+        IFileItemsManager* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
         uint32_t fileId_;
 
@@ -51,8 +51,8 @@ namespace CubesFile
         CubesUnitTypes::IncludeId uniqueNumber_;
 
     public:
-        FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
-        FileItem(IFileItemsManagerBoss* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, uint32_t fileId);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId);
 
     public:
         CubesUnitTypes::FileId GetFileId() { return fileId_; };

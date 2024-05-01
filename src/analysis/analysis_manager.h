@@ -28,11 +28,14 @@ namespace CubesAnalysis
 	public:
 		AnalysisManager(ITopManager* topManager, CubesLog::ILogManager* logManager);
 
+	public:
+		void Test();
+
 	signals:
 		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
 
 	public:
-		// IFileItemsManager
-		void Test() override;
+		// IAnalysisManager
+		void AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message) override;
 	};
 }

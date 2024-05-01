@@ -18,13 +18,13 @@ namespace CubesAnalysis
         Q_OBJECT
 
     private:
-        CubesLog::ILogManager* logManager_;
+        IAnalysisManager* analysisManager_;
         QVector<Rule> rules_;
         QMap<RuleId, std::function<bool()>> delegates_;
         QVector<File> files_;
 
     public:
-        FileItemsAnalysis(CubesLog::ILogManager* logManager);
+        FileItemsAnalysis(IAnalysisManager* analysisManager);
 
     public:
         void SetFiles(const QVector<File>& files);

@@ -4,10 +4,10 @@
 
 namespace CubesFile
 {
-	class IFileItemsManagerBoss
+	class IFileItemsManager
 	{
 	public:
-		virtual ~IFileItemsManagerBoss() = default;
+		virtual ~IFileItemsManager() = default;
 
 	public:
 		// “ут значени€ мен€ютс€ по одному
@@ -36,11 +36,5 @@ namespace CubesFile
 	
 		virtual void AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color) = 0;
 		virtual void AfterPropertiesChanged() = 0;
-	};
-
-	class IFileItemsManagerWorker
-	{
-	public:
-		virtual ~IFileItemsManagerWorker() = default;
 	};
 }

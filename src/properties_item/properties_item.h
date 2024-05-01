@@ -15,7 +15,7 @@ namespace CubesProperties
 
     private:
         // Params
-        IPropertiesItemsManagerBoss* propertiesItemsManager_;
+        IPropertiesItemsManager* propertiesItemsManager_;
         QPointer<PropertiesEditor> editor_;
         uint32_t propertiesId_;
         CubesUnitTypes::UnitParameters unitParameters_;
@@ -37,11 +37,11 @@ namespace CubesProperties
         CubesUnitTypes::ParameterModelIds ids_;
 
     public:
-        PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, uint32_t propertiesId);
-        PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm);
-        PropertiesItem(IPropertiesItemsManagerBoss* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t propertiesId);
 
     public:

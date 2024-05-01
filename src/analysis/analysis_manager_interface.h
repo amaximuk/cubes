@@ -8,7 +8,6 @@ namespace CubesAnalysis
 		virtual ~IAnalysisManager() = default;
 
 	public:
-		virtual void Test() = 0;
-		virtual void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) = 0;
+		virtual void AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message) = 0;
 	};
 }

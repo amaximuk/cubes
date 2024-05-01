@@ -6,10 +6,10 @@ namespace CubesProperties
 {
 	class PropertiesItem;
 
-	class IPropertiesItemsManagerBoss
+	class IPropertiesItemsManager
 	{
 	public:
-		virtual ~IPropertiesItemsManagerBoss() = default;
+		virtual ~IPropertiesItemsManager() = default;
 
 	public:
 		virtual void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) = 0;
@@ -21,11 +21,5 @@ namespace CubesProperties
 		virtual void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) = 0;
 		virtual void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) = 0;
 		virtual void AfterPropertiesChanged() = 0;
-	};
-
-	class IPropertiesItemsManagerWorker
-	{
-	public:
-		virtual ~IPropertiesItemsManagerWorker() = default;
 	};
 }

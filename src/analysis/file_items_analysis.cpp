@@ -1,13 +1,12 @@
 #include "analysis_types.h"
-#include "../log_table/log_table_interface.h"
 #include "file_items_analysis.h"
 
 using namespace CubesAnalysis;
 
-FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
+FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
 {
-	logManager_ = logManager;
-
+	analysisManager_ = analysisManager;
+	
 	{
 		Rule rule{};
 		rule.id = 1000;
@@ -59,15 +58,7 @@ bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 			return true;
 	}
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::LogMessage lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.tag = 0;
-		lm.source = QString::fromLocal8Bit("FileItemsAnalysis");
-		lm.description = rule.description;
-		logManager_->AddMessage(lm);
-	}
+	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
 
 	return false;
 }
