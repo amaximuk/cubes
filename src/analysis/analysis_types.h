@@ -5,6 +5,23 @@
 
 namespace CubesAnalysis
 {
+	using RuleId = uint32_t;
+	constexpr RuleId InvalidRuleId = 0;
+
+	struct Rule
+	{
+		RuleId id;
+		QString name;
+		QString description;
+		bool isActive;
+
+		Rule()
+		{
+			id = InvalidRuleId;
+			isActive = true;
+		}
+	};
+
 	struct Endpoint
 	{
 		QString host;
@@ -18,7 +35,8 @@ namespace CubesAnalysis
 		struct
 		{
 			CubesUnitTypes::FileId fileId;
-			Endpoint accept;
+			int id;
+			int port;
 			std::vector<Endpoint> connect;
 		} main;
 		struct

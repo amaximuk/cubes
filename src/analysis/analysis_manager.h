@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSharedPointer>
 #include "../unit_types.h"
 #include "analysis_manager_interface.h"
 
@@ -7,6 +8,10 @@ class ITopManager;
 namespace CubesLog
 {
 	class ILogManager;
+}
+namespace CubesAnalysis
+{
+	class FileItemsAnalysis;
 }
 
 namespace CubesAnalysis
@@ -18,6 +23,7 @@ namespace CubesAnalysis
 	private:
 		ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
+		QSharedPointer<FileItemsAnalysis> fileItemAnalysis_;
 
 	public:
 		AnalysisManager(ITopManager* topManager, CubesLog::ILogManager* logManager);
