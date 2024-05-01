@@ -1,19 +1,9 @@
 #pragma once
 
-#include <QPixmap>
-#include <QColor>
 #include "unit_types.h"
 #include "xml/xml_types.h"
 #include "analysis/analysis_types.h"
-
-struct PropertiesForDrawing
-{
-    QPixmap pixmap;
-    QString name;
-    QString fileName;
-    QString includeName;
-    QColor color;
-};
+#include "top_manager_types.h"
 
 class ITopManager
 {

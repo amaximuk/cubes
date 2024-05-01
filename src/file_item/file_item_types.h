@@ -5,36 +5,57 @@
 
 namespace CubesFile
 {
-    //struct ParameterModelIds
-    //{
-    //    CubesUnitTypes::ParameterModelId baseGroupName;
-    //    CubesUnitTypes::ParameterModelId parametersGroupName;
-    //    CubesUnitTypes::ParameterModelId editorGroupName;
-    //    CubesUnitTypes::ParameterModelId itemGroupName;
-    //    CubesUnitTypes::ParameterModelId dependsParameterName;
-    //    CubesUnitTypes::ParameterModelId optionalParameterName;
-    //    CubesUnitTypes::ParameterModelId includesGroupName;
-    //    CubesUnitTypes::ParameterModelId variablesGroupName;
+	struct Connect
+	{
+		uint16_t port;
+		QString ip;
+	};
 
-    //    static const ParameterModelIds& Defaults()
-    //    {
-    //        static const ParameterModelIds ids {
-    //            QString::fromLocal8Bit("$BASE"),
-    //            QString::fromLocal8Bit("$PARAMETERS"),
-    //            QString::fromLocal8Bit("$EDITOR"),
-    //            QString::fromLocal8Bit("$ITEM"),
-    //            QString::fromLocal8Bit("$DEPENDS"),
-    //            QString::fromLocal8Bit("$OPTIONAL"),
-    //            QString::fromLocal8Bit("$INCLUDES"),
-    //            QString::fromLocal8Bit("$VARIABLES")
-    //        };
-    //        return ids;
-    //    }
+	struct Networking
+	{
+		uint32_t id;
+		uint16_t accept_port;
+		uint32_t keep_alive_sec;
+		bool time_client;
+		uint32_t network_threads;
+		uint32_t broadcast_threads;
+		uint32_t clients_threads;
+		bool notify_ready_clients;
+		bool notify_ready_servers;
+		QList<Connect> connect;
+	};
 
-    //    static const CubesUnitTypes::ParameterModelId GetDefaultItemId(int n)
-    //    {
-    //        auto itemGroupName = ParameterModelIds::Defaults().itemGroupName;
-    //        return QString("%1_%2").arg(itemGroupName.toString()).arg(n);
-    //    }
-    //};
+	enum LoggingLevel
+	{
+		LOG_TRACE,
+		LOG_DEBUG,
+		LOG_INFO,
+		LOG_WARNING,
+		LOG_ERROR,
+		LOG_FATAL
+	};
+
+	struct Log
+	{
+		LoggingLevel level;
+		uint32_t limit_mb;
+		QString directory_path;
+	};
+
+	struct Include
+	{
+		QString name;
+		QString path;
+		QList<QPair<QString, QString>> variables;
+	};
+
+	struct File
+	{
+		QString name;
+		QString platform;
+		QString path;
+		Networking network;
+		Log log;
+		QList<Include> includes;
+	};
 }
