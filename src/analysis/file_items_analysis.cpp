@@ -30,6 +30,17 @@ FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
 		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsFileNamesUnique, this, rule);
 	}
 
+	{
+		Rule rule{};
+		rule.id = 1002;
+		rule.name = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
+		rule.description = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
+		rule.isActive = true;
+		rules_.push_back(rule);
+
+		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsFileIdUnique, this, rule);
+	}
+
 }
 
 void FileItemsAnalysis::SetFiles(const QVector<File>& files)
@@ -49,6 +60,18 @@ bool FileItemsAnalysis::RunRuleTest(RuleId id)
 		return (*delegate)();
 	
 	return false;
+}
+
+bool FileItemsAnalysis::RunAllTests()
+{
+	bool result = true;
+	for(const auto& rule : rules_)
+	{
+		if (!RunRuleTest(rule.id))
+			result = false;
+	}
+
+	return result;
 }
 
 bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
@@ -81,6 +104,30 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 		else
 		{
 			filenames.insert(fn);
+		}
+	}
+
+	return result;
+}
+
+bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
+{
+	QSet<int> fileIds;
+	bool result = true;
+	for (const auto& file : files_)
+	{
+		if (file.is_include == false)
+		{
+			if (fileIds.contains(file.main.id))
+			{
+				QString message = rule.description + QString::fromLocal8Bit("\nID хоста: %1").arg(file.main.id);
+				analysisManager_->AfterFileError(file.main.fileId, message);
+				result = false;
+			}
+			else
+			{
+				fileIds.insert(file.main.id);
+			}
 		}
 	}
 

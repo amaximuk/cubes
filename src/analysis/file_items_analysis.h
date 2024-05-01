@@ -30,9 +30,11 @@ namespace CubesAnalysis
         void SetFiles(const QVector<File>& files);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(RuleId id);
+        bool RunAllTests();
 
     public:
         bool IsHaveAtLeastOneMainConfig(Rule rule);
         bool IsFileNamesUnique(Rule rule);
+        bool IsFileIdUnique(Rule rule);
     };
 }

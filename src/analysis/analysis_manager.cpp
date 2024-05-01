@@ -22,9 +22,7 @@ void AnalysisManager::Test()
 		return;
 
 	fileItemAnalysis_->SetFiles(files);
-
-	fileItemAnalysis_->RunRuleTest(1000);
-	fileItemAnalysis_->RunRuleTest(1001);
+	fileItemAnalysis_->RunAllTests();
 }
 
 void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message)
