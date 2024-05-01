@@ -97,7 +97,8 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 		const auto fn = fi.fileName();
 		if (filenames.contains(fn))
 		{
-			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1").arg(fn);
+			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
+				arg(file.is_include ? file.include.name : file.main.name).arg(fn);
 			analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
 			result = false;
 		}
@@ -116,11 +117,12 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 	bool result = true;
 	for (const auto& file : files_)
 	{
-		if (file.is_include == false)
+		if (!file.is_include)
 		{
 			if (fileIds.contains(file.main.id))
 			{
-				QString message = rule.description + QString::fromLocal8Bit("\nID хоста: %1").arg(file.main.id);
+				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
+					arg(file.main.name).arg(file.main.id);
 				analysisManager_->AfterFileError(file.main.fileId, message);
 				result = false;
 			}

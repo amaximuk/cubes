@@ -746,11 +746,12 @@ void MainWindow::FillParametersInfo()
                 parameters::file_info fi{};
                 if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
                 {
-                    CubesLog::LogMessage m{};
-                    m.type = CubesLog::MessageType::error;
-                    m.source = filename;
-                    m.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    AddMessage(m);
+                    CubesLog::LogMessage lm{};
+                    lm.type = CubesLog::MessageType::error;
+                    lm.tag = 0;
+                    lm.source = filename;
+                    lm.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
+                    AddMessage(lm);
                 }
 
                 // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
@@ -936,17 +937,15 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             }
             else
             {
-                CubesLog::LogMessage m{};
-                m.type = CubesLog::MessageType::error;
-                m.source = QFileInfo(file.fileName).fileName();
-                m.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                AddMessage(m);
+                CubesLog::LogMessage lm{};
+                lm.type = CubesLog::MessageType::error;
+                lm.tag = 0;
+                lm.source = QFileInfo(file.fileName).fileName();
+                lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+                AddMessage(lm);
             }
         }
     }
-    //log_table_model_->submit();
-    //table_view_log_->resizeColumnsToContents();
-    //table_view_log_->update();
 
     // Get fileNames list
     CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
@@ -1471,8 +1470,6 @@ bool MainWindow::OpenFileInternal(const QString& path)
 
         if (f.config.networkingIsSet)
         {
-            //log_table_model_->Clear();
-
             if (!AddMainFile(f, path))
                 return false;
         }
@@ -1912,15 +1909,12 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
 
 void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
 {
-    CubesLog::LogMessage m{};
-    m.type = CubesLog::MessageType::error;
-    m.source = QString("%1").arg(propertiesId);
-    m.description = message;
-    AddMessage(m);
-
-    //log_table_model_->submit();
-    //table_view_log_->resizeColumnsToContents();
-    //table_view_log_->update();
+    CubesLog::LogMessage lm{};
+    lm.type = CubesLog::MessageType::error;
+    lm.tag = 0;
+    lm.source = QString("%1").arg(propertiesId);
+    lm.description = message;
+    AddMessage(lm);
 }
 
 void MainWindow::PropertiesConnectionChanged(const uint32_t propertiesId)
@@ -2032,8 +2026,6 @@ void MainWindow::OnImportXmlFileAction()
 
     if (f.config.networkingIsSet)
     {
-        //log_table_model_->Clear();
-
         if (!AddMainFile(f, ""))
         {
             QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка импорта файла!"));

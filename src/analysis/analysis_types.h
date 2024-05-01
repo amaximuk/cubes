@@ -35,6 +35,7 @@ namespace CubesAnalysis
 		struct
 		{
 			CubesUnitTypes::FileId fileId;
+			QString name;
 			int id;
 			int port;
 			std::vector<Endpoint> connect;
@@ -42,6 +43,7 @@ namespace CubesAnalysis
 		struct
 		{
 			CubesUnitTypes::IncludeId includeId;
+			QString name;
 		} include;
 	};
 }

@@ -29,6 +29,11 @@ void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const 
 {
 	if (logManager_ != nullptr)
 	{
-		logManager_->AddMessage({ CubesLog::MessageType::error, fileId, "AnalysisManager", message });
+		CubesLog::LogMessage lm{};
+		lm.type = CubesLog::MessageType::error;
+		lm.tag = fileId;
+		lm.source = QString::fromLocal8Bit("AnalysisManager");
+		lm.description = message;
+		logManager_->AddMessage(lm);
 	}
 }

@@ -315,7 +315,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         if (xmlBaseType != baseItemType)
         {
             propertiesItemsManager_->AfterError(propertiesId_,
-                QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не совместим с типом %5 параметра юнита").
+                QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не совместим с типом %5 параметра юнита").
                 arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
                 arg(QString::fromStdString(pi.type)));
 
@@ -342,7 +342,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             if (!flag)
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
+                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
                     arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
                     arg(xmlValueString));
 
@@ -357,7 +357,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             if (!flag)
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 в xml файле юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
+                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
                     arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
                     arg(xmlValueString));
 
@@ -1737,76 +1737,39 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
     if (xmlUnit == nullptr)
         return true;
 
-    for (const auto& xpi : xmlUnit->params)
-    {
-        const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xpi.name.toStdString());
-
-        if (pi == nullptr)
-        {
-            propertiesItemsManager_->AfterError(propertiesId_,
-                QString::fromLocal8Bit("Параметр %1 в xml файле юнита %2 (тип %3) не найден в параметрах юнита").
-                arg(xpi.name).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
-        }
-    }
-    return true;
-
-
-
-
-
-    const auto pis = parameters::helper::parameter::get_parameters(unitParameters_.fileInfo, type.toStdString());
-    if (pis == nullptr)
+    CubesXml::Element element{};
+    if (!CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), id, element))
         return false;
 
-    for (const auto& pi : *pis)
+    if (element.type != CubesXml::ElementType::Service)
+        return false;
+    
+    if (element.params != nullptr)
     {
-        CubesXml::Element element{};
-        if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), id + QString::fromStdString(pi.name), element))
-            assert(false);
+        for (const auto& xpi : *(element.params))
+        {
+            const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xpi.name.toStdString());
 
-        // Вычисляем значение из xml файла (параметра или элемента массива)
-        QString xmlValueString;
-        QString xmlValueTypeString;
-        bool haveXmlValue = false;
-        if (element.type == CubesXml::ElementType::Param)
-        {
-            xmlValueString = element.param->val;
-            xmlValueTypeString = element.param->type;
-            haveXmlValue = true;
-        }
-        else if (element.type == CubesXml::ElementType::Array)
-        {
-            // Это нормально, параметр - массив
-        }
-        else if (element.type == CubesXml::ElementType::Item)
-        {
-            xmlValueString = element.item->val;
-            xmlValueTypeString = element.arrayType;
-            haveXmlValue = true;
-        }
-        else if (element.type == CubesXml::ElementType::None)
-        {
-            // Это нормально, если параметр не задан в xml файле
-        }
-        else
-        {
-            assert(false);
-        }
-
-        if (element.type == CubesXml::ElementType::Param)
-        {
-            const auto baseItemType = parameters::helper::common::get_base_item_type(pi.type);
-
-            // Проверяем совместимость типов параметров из xml и из описания yml
-            auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
-            if (xmlBaseType != baseItemType)
+            if (pi == nullptr)
             {
-                propertiesItemsManager_->AfterError(propertiesId_, QString::fromLocal8Bit("Тип данных в xml не совместим с типом параметра %1 %2 %3 %4").
-                    arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).arg(element.param->name).arg(element.param->type).
-                    arg(QString::fromStdString(pi.type)));
-                continue;
-                // Ошибка! Тип данных в xml не совместим с типом параметра
-                // TODO: вернуть ошибку
+                propertiesItemsManager_->AfterError(propertiesId_,
+                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не найден в параметрах юнита").
+                    arg(xpi.name).arg(type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
+            }
+        }
+    }
+
+    if (element.arrays != nullptr)
+    {
+        for (const auto& xai : *(element.arrays))
+        {
+            const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xai.name.toStdString());
+
+            if (pi == nullptr)
+            {
+                propertiesItemsManager_->AfterError(propertiesId_,
+                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не найден в параметрах юнита").
+                    arg(xai.name).arg(type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
             }
         }
     }

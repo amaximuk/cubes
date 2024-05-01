@@ -1126,6 +1126,7 @@ std::vector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
         file.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
         file.is_include = false;
         file.main.fileId = GetFileId();
+        file.main.name = GetName();
         file.main.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();
         file.main.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
 
@@ -1151,6 +1152,7 @@ std::vector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
         file.path = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
         file.is_include = true;
         file.include.includeId = GetParameterModel(ids_.includes + ids_.Item(i))->key.toInt();
+        file.include.name = GetIncludeName(file.include.includeId);
         result.push_back(file);
     }
 

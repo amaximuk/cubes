@@ -185,7 +185,8 @@ namespace CubesXml
 		None,
 		Param,
 		Array,
-		Item
+		Item,
+		Service
 	};
 
 	struct Element
@@ -196,6 +197,8 @@ namespace CubesXml
 		Param* param;
 		Array* array;
 		Item* item;
+		QList<Param>* params; // For service elements
+		QList<Array>* arrays; // For service elements
 
 		Element()
 		{
@@ -204,6 +207,8 @@ namespace CubesXml
 			param = nullptr;
 			array = nullptr;
 			item = nullptr;
+			params = nullptr;
+			arrays = nullptr;
 		}
 	};
 }

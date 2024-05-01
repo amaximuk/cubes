@@ -18,7 +18,7 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager != nullptr)\
-			logManager->AddMessage({CubesLog::MessageType::error, 0, "Xml Parser", QString::fromStdString(ss.str())}); \
+			logManager->AddMessage({CubesLog::MessageType::error, 0, "Xml Helper", QString::fromStdString(ss.str())}); \
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
 
@@ -45,8 +45,8 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 	const static CubesUnitTypes::ParameterModelIds ids;
 
 	auto ss = id.split();
-	if (ss.size() < 2)
-		ELRC(false, "ParameterModelId too short");
+	if (ss.isEmpty())
+		ELRC(false, "ParameterModelId is empty");
 	if (ss.front() != ids.parameters)
 		ELRC(false, "Must be started with parameters");
 	ss.pop_front();
@@ -54,7 +54,7 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 	// Раскручиваем путь к параметру из id, внутри структуры Unit
 	// Ищем полное совпадение на каждом этапе с учетом массивов
 	// Путь должен начинаться с ${PARAMETERS}, а далее, из служебных
-	// составляющих, путь может содержать только ${ITEM_N}
+	// составляющих, путь может содержать только ${ITEM_N} и ${PARAMETERS}
 	// Параметры не могут быть вложенными в другой параметр, только в массив
 	// Поэтому, имя параметра должно полностью совпасть только один раз в конце
 	// Вложенность возможна только через массивы
@@ -143,8 +143,18 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 		ss.pop_front();
 	}
 
+	if (id.endsWith(ids.parameters))
+	{
+		// Нашли параметры, возвращаем два массива внутри параметров
+		element = {};
+		element.type = ElementType::Service;
+		element.params = params;
+		element.arrays = arrays;
+		return true;
+	}
+
 	// Если дошли до сюда, значит элемент не найден
-	// Это не ошибка, в xml файле частьь параметров может отсутствовать
+	// Это не ошибка, в xml файле часть параметров может отсутствовать
 	element = {};
 	return true;
 }
@@ -225,7 +235,7 @@ Param* Helper::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 	// Раскручиваем путь к параметру из id, внутри структуры Unit
 	// Ищем полное совпадение на каждом этапе с учетом массивов
 	// Путь должен начинаться с ${PARAMETERS}, а далее, из служебных
-	// составляющих, путь может содержать только ${ITEM_N}
+	// составляющих, путь может содержать только ${ITEM_N} и ${PARAMETERS}
 	// Параметры не могут быть вложенными в другой параметр, только в массив
 	// Поэтому, имя параметра должно полностью совпасть только один раз в конце
 	// Вложенность возможна только через массивы
@@ -305,7 +315,7 @@ Item* Helper::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QS
 	// Раскручиваем путь к параметру из id, внутри структуры Unit
 	// Ищем полное совпадение на каждом этапе с учетом массивов
 	// Путь должен начинаться с ${PARAMETERS}, а далее, из служебных
-	// составляющих, путь может содержать только ${ITEM_N}
+	// составляющих, путь может содержать только ${ITEM_N} и ${PARAMETERS}
 	// Параметры не могут быть вложенными в другой параметр, только в массив
 	// Поэтому, имя параметра должно полностью совпасть только один раз в конце
 	// Вложенность возможна только через массивы
