@@ -906,6 +906,23 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
     ApplyExpandState();
 }
 
+CubesAnalysis::Properties PropertiesItem::GetAnalysisProperties()
+{
+    CubesAnalysis::Properties properties{};
+    properties.name = GetName();
+    properties.dependencies = GetDependentNames().toVector();
+
+    QVector<CubesAnalysis::Unit> list;
+    for (const auto& pm : model_.parameters)
+    {
+        if (pm.id == ids_.parameters)
+            GetAnalysisPropertiesInternal(pm, list);
+    }
+    properties.connections = list;
+
+    return properties;
+}
+
 QPixmap PropertiesItem::GetPixmap()
 {
     QPixmap px;
@@ -1056,6 +1073,57 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
 
     for (const auto& pm : model.parameters)
         GetDependentNamesInternal(pm, list);
+}
+
+void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::Unit>& list)
+{
+    auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
+
+    if (pi != nullptr)
+    {
+        bool isArray = parameters::helper::common::get_is_array_type(pi->type);
+        auto itemType = parameters::helper::common::get_item_type(pi->type);
+        auto isUnitType = parameters::helper::common::get_is_unit_type(itemType);
+
+        // isArray нужен дл€ определени€, что именно помен€лось - количество элементов массива или
+        // значение параметра. ¬ модели параметра есть прив€зка к описанию параметра - parameterInfoId.
+        // ¬ массивах типа yml items не хран€т значение, а параметры имеют свое описание и прив€зку к типу.
+        // ѕроблема с типизированными массивами. ¬ них каждый item хранит значение и прив€зку к
+        // базовому типу массива, т.е. при получении parameter_info получим, что каждый item это массив,
+        // что на самом деле не так. ѕоэтому, дополнительно провер€ем такую ситуацию.
+        // P.S. “ип нужен дл€ корректной обработки элементов массива
+        // TODO: ¬озможно надо добавить в модель флаг на этот случай
+
+        // ѕри редактировании элемента типизированного массива (например, типа array<int>)
+        // pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
+        if (model.id.size() > 2 && ids_.IsItem(model.id.right(1)))
+            isArray = false;
+
+        if (isUnitType && !isArray)
+        {
+            CubesAnalysis::Unit unit{};
+            unit.id = QString::fromStdString(pi->name);
+            unit.name = model.value.toString();
+            const auto pmDepends = GetParameterModel(model.id + ids_.depends);
+            unit.depends = pmDepends->value.toBool();
+            unit.dontSet = false;
+            bool isOptional = parameters::helper::parameter::get_is_optional(*pi);
+            if (isOptional)
+            {
+                const auto pmOptional = GetParameterModel(model.id + ids_.optional);
+                unit.dontSet = pmOptional->value.toBool();
+            }
+            unit.category = QString::fromStdString(pi->restrictions.category);
+            for (const auto& id : pi->restrictions.ids)
+                unit.ids.push_back(QString::fromStdString(id));
+
+            list.push_back(unit);
+        }
+    }
+
+    for (const auto& pm : model.parameters)
+        GetAnalysisPropertiesInternal(pm, list);
 }
 
 QList<QString> PropertiesItem::GetConnectedNames()

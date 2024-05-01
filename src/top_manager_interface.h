@@ -33,4 +33,5 @@ public:
     virtual QMap<QString, QStringList> GetDependsConnections() = 0;
 
     virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) = 0;
+    virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) = 0;
 };

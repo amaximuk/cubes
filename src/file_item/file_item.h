@@ -79,7 +79,7 @@ namespace CubesFile
 
         File GetFile();
         CubesXml::File GetXmlFile();
-        std::vector<CubesAnalysis::File> GetAnalysisFiles();
+        QVector<CubesAnalysis::File> GetAnalysisFiles();
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);

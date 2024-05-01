@@ -314,6 +314,14 @@ bool MainWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
     return true;
 }
 
+bool MainWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties)
+{
+    if (!propertiesItemsManager_->GetAnalysisProperties(properties))
+        return false;
+
+    return true;
+}
+
 // ILogManager
 void MainWindow::AddMessage(const CubesLog::LogMessage& m)
 {

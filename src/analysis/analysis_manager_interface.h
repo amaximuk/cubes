@@ -9,5 +9,6 @@ namespace CubesAnalysis
 
 	public:
 		virtual void AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message) = 0;
+		virtual void AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) = 0;
 	};
 }

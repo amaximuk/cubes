@@ -100,7 +100,8 @@ public:
     bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
     void EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
-    
+    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
+
     // ILogManager
     void AddMessage(const CubesLog::LogMessage& m);
 

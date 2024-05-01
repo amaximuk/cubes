@@ -4,6 +4,7 @@
 #include <QString>
 #include "properties_items_manager_interface.h"
 #include "../unit_types.h"
+#include "../analysis/analysis_types.h"
 #include "../xml/xml_parser.h"
 #include "../property_browser/properties_editor.h"
 
@@ -93,6 +94,7 @@ namespace CubesProperties
         void GetXml(CubesXml::Unit& xmlUnit);
         void RemoveItems(const CubesUnitTypes::ParameterModelId& id);
         void AddItems(const CubesUnitTypes::ParameterModel& model);
+        CubesAnalysis::Properties GetAnalysisProperties();
 
     private:
         // TODO: move to private
@@ -115,6 +117,7 @@ namespace CubesProperties
 
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
+        void GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::Unit>& list);
 
         void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);

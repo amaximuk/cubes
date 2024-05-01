@@ -37,5 +37,6 @@ namespace CubesAnalysis
 	public:
 		// IAnalysisManager
 		void AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message) override;
+		void AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
 	};
 }

@@ -23,6 +23,12 @@ void AnalysisManager::Test()
 
 	fileItemAnalysis_->SetFiles(files);
 	fileItemAnalysis_->RunAllTests();
+
+	QVector<Properties> properties;
+	if (!topManager_->GetAnalysisProperties(properties))
+		return;
+
+
 }
 
 void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message)
@@ -32,7 +38,20 @@ void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const 
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.tag = fileId;
-		lm.source = QString::fromLocal8Bit("AnalysisManager");
+		lm.source = QString::fromLocal8Bit("File analysis");
+		lm.description = message;
+		logManager_->AddMessage(lm);
+	}
+}
+
+void AnalysisManager::AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
+{
+	if (logManager_ != nullptr)
+	{
+		CubesLog::LogMessage lm{};
+		lm.type = CubesLog::MessageType::error;
+		lm.tag = propertiesId;
+		lm.source = QString::fromLocal8Bit("Properties analysis");
 		lm.description = message;
 		logManager_->AddMessage(lm);
 	}

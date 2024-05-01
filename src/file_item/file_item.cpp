@@ -1117,9 +1117,9 @@ CubesXml::File FileItem::GetXmlFile()
     return result;
 }
 
-std::vector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
+QVector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
 {
-    std::vector<CubesAnalysis::File> result;
+    QVector<CubesAnalysis::File> result;
 
     {
         CubesAnalysis::File file;

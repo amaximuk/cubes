@@ -46,4 +46,21 @@ namespace CubesAnalysis
 			QString name;
 		} include;
 	};
+
+	struct Unit
+	{
+		QString id;
+		QString name;
+		bool depends;
+		bool dontSet;
+		QString category;
+		QStringList ids;
+	};
+
+	struct Properties
+	{
+		QString name;
+		QVector<Unit> connections;
+		QVector<QString> dependencies;
+	};
 }

@@ -302,6 +302,20 @@ QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const CubesUnitTypes
 	return result;
 }
 
+bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties)
+{
+	properties.clear();
+
+	for (const auto& item : items_)
+	{
+		auto itemProperties = item->GetAnalysisProperties();
+		itemProperties.name = GetName(item->GetPropertiesId());
+		properties.push_back(itemProperties);
+	}
+
+	return true;
+}
+
 void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
 	QString name;

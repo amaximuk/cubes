@@ -426,6 +426,11 @@ bool ArrayWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
     return false;
 }
 
+bool ArrayWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties)
+{
+    return false;
+}
+
 QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
 {
     return GetConnectionsInternal(false);

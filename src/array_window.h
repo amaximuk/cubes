@@ -108,6 +108,7 @@ public:
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
+    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
 
 public:
