@@ -59,12 +59,12 @@ namespace CubesFile
 		void AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			const CubesUnitTypes::VariableIdVariables& variables);
 
-		CubesUnitTypes::IncludeIdNames GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue);
+		bool GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue, CubesUnitTypes::IncludeIdNames& includes);
 		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
-		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
-		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId);
-		CubesUnitTypes::VariableIdVariables GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeId includeId);
+		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId);
+		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId);
+		bool GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
+			CubesUnitTypes::VariableIdVariables& variables);
 
 		File GetFile(const CubesUnitTypes::FileId fileId);
 		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);

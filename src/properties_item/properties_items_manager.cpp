@@ -180,6 +180,29 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(const CubesUnitTy
 		return nullptr;
 }
 
+bool PropertiesItemsManager::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId)
+			unitNames.push_back(item->GetName());
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+	const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId && item->GetIncludeId() == includeId)
+			unitNames.push_back(item->GetName());
+	}
+
+	return true;
+}
+
 bool PropertiesItemsManager::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
 {
 	auto pi = GetItem(propertiesId);

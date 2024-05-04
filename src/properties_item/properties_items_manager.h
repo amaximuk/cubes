@@ -49,6 +49,9 @@ namespace CubesProperties
 		void Select(const CubesUnitTypes::PropertiesId propertiesId);
 		void Remove(const CubesUnitTypes::PropertiesId propertiesId);
 		QSharedPointer<PropertiesItem> GetItem(const CubesUnitTypes::PropertiesId propertiesId);
+		bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames);
+		bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+			const CubesUnitTypes::IncludeId includeId, QStringList& unitNames);
 		bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd);
 		bool GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
 		bool GetUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId);

@@ -224,9 +224,8 @@ QString FileItemsManager::GetFileName(const CubesUnitTypes::FileId fileId)
 	return "";
 }
 
-CubesUnitTypes::IncludeIdNames FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue)
+bool FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue, CubesUnitTypes::IncludeIdNames& includes)
 {
-	CubesUnitTypes::IncludeIdNames includes;
 	if (addEmptyValue)
 		includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
 
@@ -234,7 +233,7 @@ CubesUnitTypes::IncludeIdNames FileItemsManager::GetFileIncludeNames(const Cubes
 	if (it != items_.end())
 		includes.insert((*it)->GetIncludes());
 
-	return includes;
+	return true;
 }
 
 QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
@@ -246,7 +245,7 @@ QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId
 	return "";
 }
 
-QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId)
+QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId)
 {
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
@@ -255,7 +254,7 @@ QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId
 	return "";
 }
 
-QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId& fileIncludeId)
+QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId)
 {
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
@@ -264,20 +263,16 @@ QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId
 	return "";
 }
 
-CubesUnitTypes::VariableIdVariables FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId,
-	const CubesUnitTypes::IncludeId includeId)
+bool FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
+	CubesUnitTypes::VariableIdVariables& variables)
 {
-	CubesUnitTypes::VariableIdVariables result;
 	for (auto& fi : items_)
 	{
 		if (fi->GetFileId() == fileId)
-		{
-			result = fi->GetIncludeVariables(includeId);
-			break;
-		}
+			return fi->GetIncludeVariables(includeId, variables);
 	}
 
-	return result;
+	return false;
 }
 
 void FileItemsManager::Clear()

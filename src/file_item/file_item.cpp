@@ -940,13 +940,11 @@ CubesUnitTypes::IncludeIdNames FileItem::GetIncludes()
     return includeNamesMap;
 }
 
-CubesUnitTypes::VariableIdVariables FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeId includeId)
+bool FileItem::GetIncludeVariables(const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
-    CubesUnitTypes::VariableIdVariables result;
-
     const auto pm = GetParameterModel(ids_.includes);
     if (pm == nullptr)
-        return result;
+        return false;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
@@ -959,13 +957,13 @@ CubesUnitTypes::VariableIdVariables FileItem::GetIncludeVariables(const CubesUni
                 auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j));
                 auto pmivn = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
                 auto pmivv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
-                result[pmiv->key.toInt()] = { pmivn->value.toString(), pmivv->value.toString() };
+                variables[pmiv->key.toInt()] = { pmivn->value.toString(), pmivv->value.toString() };
             }
             break;
         }
     }
 
-    return result;
+    return true;
 }
 
 QString FileItem::GetIncludeName(const QString& includePath)

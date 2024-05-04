@@ -11,6 +11,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+option(BUILD_TESTS ON)
+
 set(PACKAGE_MANAGER "NONE" CACHE STRING "Type of package manager to be used for configure project")
 set_property(CACHE PACKAGE_MANAGER PROPERTY STRINGS NONE CONAN 3RDPARTY)
 
@@ -23,6 +25,7 @@ if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
 	find_package(yaml-cpp REQUIRED CONFIG)
 	find_package(jsoncpp REQUIRED CONFIG)
 	find_package(minizip REQUIRED CONFIG)
+	find_package(GTest REQUIRED CONFIG)
 	
 	set(QT_ROOT_DEBUG "${Qt5_Core_LIB_DIRS_DEBUG}/..")
 	set(QT_ROOT_RELEASE "${Qt5_Core_LIB_DIRS_RELEASE}/..")
@@ -36,6 +39,7 @@ else()
 	find_package(yaml-cpp REQUIRED)
 	find_package(jsoncpp REQUIRED)
 	find_package(minizip REQUIRED CONFIG)
+	find_package(GTest REQUIRED CONFIG)
 endif()
 
 if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
@@ -45,6 +49,9 @@ if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${PROJECT_SOURCE_DIR}/patches/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake
 		${PROJECT_SOURCE_DIR}/submodules/QtPropertyBrowser/cmake/InstallProjectConfig.cmake)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${PROJECT_SOURCE_DIR}/patches/submodules/QtPropertyBrowser/src/qttreepropertybrowser.cpp
+		${PROJECT_SOURCE_DIR}/submodules/QtPropertyBrowser/src/qttreepropertybrowser.cpp)
 	add_subdirectory(submodules/QtPropertyBrowser)
 	add_subdirectory(submodules/parameters)
 endif()
@@ -104,12 +111,12 @@ add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES}
     ${XML_HDRS} ${XML_SRCS} ${ANALYSIS_HDRS} ${ANALYSIS_SRCS})
 
 if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
-	target_link_libraries(${PROJECT_NAME} parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static minizip::minizip)
+	target_link_libraries(${PROJECT_NAME} parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static minizip::minizip GTest::gtest_main)
 	target_include_directories(${PROJECT_NAME} PRIVATE submodules/QtPropertyBrowser/src)
 elseif("${PACKAGE_MANAGER}" STREQUAL "3RDPARTY")
-	target_link_libraries(${PROJECT_NAME} tpv2::parameters tpv2::qtpropertybrowser tpv2::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml tpv2::yamlcpp tpv2::jsoncpp)
+	target_link_libraries(${PROJECT_NAME} PRIVATE tpv2::parameters tpv2::qtpropertybrowser tpv2::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml tpv2::yamlcpp tpv2::jsoncpp tpv2::gtest)
 else()
-	target_link_libraries(${PROJECT_NAME} parameters::parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static minizip::minizip)
+	target_link_libraries(${PROJECT_NAME} PRIVATE parameters::parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static minizip::minizip GTest::gtest_main)
 endif()
 
 if(WIN32)
@@ -122,3 +129,8 @@ endif()
 configure_file(${PROJECT_SOURCE_DIR}/deploy_linux.sh.in ${PROJECT_SOURCE_DIR}/deploy_linux.sh @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/deploy_windows_debug.cmd.in ${PROJECT_SOURCE_DIR}/deploy_windows_debug.cmd @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/deploy_windows_release.cmd.in ${PROJECT_SOURCE_DIR}/deploy_windows_release.cmd @ONLY)
+
+if(BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(test)
+endif()

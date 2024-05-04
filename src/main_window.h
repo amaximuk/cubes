@@ -83,22 +83,21 @@ public:
 
 public:
     // ITopManager
-    void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-    void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+    bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
+    bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         QStringList& unitNames) override;
-    void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-    void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+    bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
+    bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+    bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         CubesUnitTypes::VariableIdVariables& variables) override;
     bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
     bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
     bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
     bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-    QString GetNewUnitName(const QString& baseName) override;
     QMap<QString, QStringList> GetUnitsConnections() override;
     QMap<QString, QStringList> GetDependsConnections() override;
     bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
-    void EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
     bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
@@ -137,7 +136,7 @@ protected:
     //QString GetCurrentFileName();
     CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
     //QColor GetFileColor(const QString& fileName);
-    QString GetDisplayName(const QString& baseName);
+    //QString GetDisplayName(const QString& baseName);
 
     // Modified
     void UpdateFileState(const QString& path, bool modified);

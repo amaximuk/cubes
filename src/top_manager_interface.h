@@ -11,13 +11,13 @@ public:
     virtual ~ITopManager() = default;
 
 public:
-	virtual void GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) = 0;
-	virtual void GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+	virtual bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) = 0;
+	virtual bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
         const CubesUnitTypes::IncludeId includeId, QStringList& unitNames) = 0;
-	virtual void GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
+	virtual bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
 
-    virtual void GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) = 0;
-    virtual void GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
+    virtual bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) = 0;
+    virtual bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
         const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables) = 0;
 
     virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
@@ -26,9 +26,8 @@ public:
     virtual bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) = 0;
 
     virtual bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) = 0;
-    virtual void EnshureVisible(uint32_t propertiesId) = 0;
+    virtual bool EnshureVisible(uint32_t propertiesId) = 0;
 
-    virtual QString GetNewUnitName(const QString& baseName) = 0;
     virtual QMap<QString, QStringList> GetUnitsConnections() = 0;
     virtual QMap<QString, QStringList> GetDependsConnections() = 0;
 

@@ -69,7 +69,7 @@ namespace CubesFile
 
         void AddInclude(const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables);
         CubesUnitTypes::IncludeIdNames GetIncludes();
-        CubesUnitTypes::VariableIdVariables GetIncludeVariables(const CubesUnitTypes::IncludeId includeId);
+        bool GetIncludeVariables(const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables);
         QString GetIncludeName(const QString& includePath);
         QString GetIncludeName(const CubesUnitTypes::IncludeId includeId);
         QString GetIncludePath(const CubesUnitTypes::IncludeId includeId);
