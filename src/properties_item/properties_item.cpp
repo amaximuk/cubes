@@ -912,7 +912,7 @@ CubesAnalysis::Properties PropertiesItem::GetAnalysisProperties()
     properties.name = GetName();
     properties.dependencies = GetDependentNames().toVector();
 
-    QVector<CubesAnalysis::Unit> list;
+    QVector<CubesAnalysis::UnitProperty> list;
     for (const auto& pm : model_.parameters)
     {
         if (pm.id == ids_.parameters)
@@ -1075,7 +1075,7 @@ void PropertiesItem::GetDependentNamesInternal(const CubesUnitTypes::ParameterMo
         GetDependentNamesInternal(pm, list);
 }
 
-void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::Unit>& list)
+void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::UnitProperty>& list)
 {
     auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         model.parameterInfoId.type.toStdString(), model.parameterInfoId.name.toStdString());
@@ -1102,7 +1102,7 @@ void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::Paramet
 
         if (isUnitType && !isArray)
         {
-            CubesAnalysis::Unit unit{};
+            CubesAnalysis::UnitProperty unit{};
             unit.id = QString::fromStdString(pi->name);
             unit.name = model.value.toString();
             const auto pmDepends = GetParameterModel(model.id + ids_.depends);

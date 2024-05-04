@@ -2191,7 +2191,7 @@ void MainWindow::OnDoubleClicked(const QModelIndex& index)
     if (log_table_model_->GetMessage(mapped.row(), m))
     {
         // TODO: Properties Manager è ò.ï. â enum
-        if (m.source == "Properties Manager")
+        if (m.source == "Properties Manager" || m.source == "Properties analysis")
         {
             CubesUnitTypes::PropertiesId propertiesId = m.tag;
             propertiesItemsManager_->Select(propertiesId);

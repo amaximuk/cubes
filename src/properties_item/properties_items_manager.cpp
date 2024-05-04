@@ -309,6 +309,8 @@ bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Proper
 	for (const auto& item : items_)
 	{
 		auto itemProperties = item->GetAnalysisProperties();
+		itemProperties.propertiesId = item->GetPropertiesId();
+		itemProperties.unitId = item->GetUnitId();
 		itemProperties.name = GetName(item->GetPropertiesId());
 		properties.push_back(itemProperties);
 	}

@@ -21,19 +21,19 @@ namespace CubesAnalysis
         IAnalysisManager* analysisManager_;
         QVector<Rule> rules_;
         QMap<RuleId, std::function<bool()>> delegates_;
-        QVector<File> files_;
+        QVector<Properties> properties_;
 
     public:
         PropertiesItemsAnalysis(IAnalysisManager* analysisManager);
 
     public:
-        void SetFiles(const QVector<File>& files);
+        void SetProperties(const QVector<Properties>& properties);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(RuleId id);
         bool RunAllTests();
 
     public:
-        bool IsHaveAtLeastOneMainConfig(Rule rule);
+        bool IsAllUnitsHaveName(Rule rule);
         bool IsFileNamesUnique(Rule rule);
         bool IsFileIdUnique(Rule rule);
     };

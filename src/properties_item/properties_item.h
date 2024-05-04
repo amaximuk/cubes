@@ -117,7 +117,7 @@ namespace CubesProperties
 
         void GetConnectedNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
         void GetDependentNamesInternal(const CubesUnitTypes::ParameterModel& model, QList<QString>& list);
-        void GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::Unit>& list);
+        void GetAnalysisPropertiesInternal(const CubesUnitTypes::ParameterModel& model, QVector<CubesAnalysis::UnitProperty>& list);
 
         void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
         void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);

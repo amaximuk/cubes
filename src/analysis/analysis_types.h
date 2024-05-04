@@ -47,7 +47,7 @@ namespace CubesAnalysis
 		} include;
 	};
 
-	struct Unit
+	struct UnitProperty
 	{
 		QString id;
 		QString name;
@@ -59,8 +59,10 @@ namespace CubesAnalysis
 
 	struct Properties
 	{
+		CubesUnitTypes::PropertiesId propertiesId;
+		QString unitId;
 		QString name;
-		QVector<Unit> connections;
+		QVector<UnitProperty> connections;
 		QVector<QString> dependencies;
 	};
 }

@@ -12,6 +12,7 @@ namespace CubesLog
 namespace CubesAnalysis
 {
 	class FileItemsAnalysis;
+	class PropertiesItemsAnalysis;
 }
 
 namespace CubesAnalysis
@@ -23,7 +24,8 @@ namespace CubesAnalysis
 	private:
 		ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
-		QSharedPointer<FileItemsAnalysis> fileItemAnalysis_;
+		QSharedPointer<FileItemsAnalysis> fileItemsAnalysis_;
+		QSharedPointer<PropertiesItemsAnalysis> propertiesItemsAnalysis_;
 
 	public:
 		AnalysisManager(ITopManager* topManager, CubesLog::ILogManager* logManager);

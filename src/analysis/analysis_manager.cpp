@@ -12,7 +12,8 @@ AnalysisManager::AnalysisManager(ITopManager* topManager, CubesLog::ILogManager*
 {
 	topManager_ = topManager;
 	logManager_ = logManager;
-	fileItemAnalysis_.reset(new FileItemsAnalysis(this));
+	fileItemsAnalysis_.reset(new FileItemsAnalysis(this));
+	propertiesItemsAnalysis_.reset(new PropertiesItemsAnalysis(this));
 }
 
 void AnalysisManager::Test()
@@ -21,14 +22,15 @@ void AnalysisManager::Test()
 	if (!topManager_->GetAnalysisFiles(files))
 		return;
 
-	fileItemAnalysis_->SetFiles(files);
-	fileItemAnalysis_->RunAllTests();
+	fileItemsAnalysis_->SetFiles(files);
+	fileItemsAnalysis_->RunAllTests();
 
 	QVector<Properties> properties;
 	if (!topManager_->GetAnalysisProperties(properties))
 		return;
 
-
+	propertiesItemsAnalysis_->SetProperties(properties);
+	propertiesItemsAnalysis_->RunAllTests();
 }
 
 void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message)

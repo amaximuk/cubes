@@ -41,9 +41,10 @@ FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
 		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsFileIdUnique, this, rule);
 	}
 
-	// Проверка, что ip/port соединений указывает на существующий сервер
-	// с учетом 127.0.0.1
-
+	// Проверка, что ip/port соединений указывает на существующий сервер с учетом 127.0.0.1
+	// Цвета файлов должны различаться
+	// Имена файлов должны содержать только латинские буквы, цифры и знак .
+	// Имена файлов не должны быть длинее 260 символов
 }
 
 void FileItemsAnalysis::SetFiles(const QVector<File>& files)
