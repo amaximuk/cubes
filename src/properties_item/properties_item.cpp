@@ -554,7 +554,10 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
         // Возьмем нулевой элемент
         if (pm->key.toInt() == CubesUnitTypes::InvalidFileId && !fileNames.empty())
+        {
             pm->key = fileNames.keys()[0];
+            pm->value = fileNames.values()[0];
+        }
 
         // При добавлении файлов необходимо восстановить выбранное значение
         if (fileNames.keys().contains(pm->key.toInt()))
