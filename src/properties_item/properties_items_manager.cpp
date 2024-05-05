@@ -203,19 +203,19 @@ bool PropertiesItemsManager::GetUnitsInFileIncludeList(const CubesUnitTypes::Fil
 	return true;
 }
 
-bool PropertiesItemsManager::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
-{
-	auto pi = GetItem(propertiesId);
-	if (pi == nullptr)
-		return false;
-
-	pfd.pixmap = pi->GetPixmap();
-	pfd.name = GetName(propertiesId);
-	pfd.fileName = pi->GetFileName();
-	pfd.includeName = pi->GetIncludeName();
-	pfd.color = {};
-	return true;
-}
+//bool PropertiesItemsManager::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
+//{
+//	auto pi = GetItem(propertiesId);
+//	if (pi == nullptr)
+//		return false;
+//
+//	pfd.pixmap = pi->GetPixmap();
+//	pfd.name = GetName(propertiesId);
+//	pfd.fileName = pi->GetFileName();
+//	pfd.includeName = pi->GetIncludeName();
+//	pfd.color = {};
+//	return true;
+//}
 
 bool PropertiesItemsManager::GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
@@ -679,8 +679,29 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		Create(unitId, propertiesId);
 
 		PropertiesForDrawing pfd{};
-		if (!GetPropetiesForDrawing(propertiesId, pfd))
+
+
+
+
+		auto pi = GetItem(propertiesId);
+		if (pi == nullptr)
 			return;
+
+		pfd.pixmap = pi->GetPixmap();
+		QString name;
+		if (!GetName(propertiesId, name))
+			return;
+		pfd.name = name;
+		pfd.fileName = pi->GetFileName();
+		pfd.includeName = pi->GetIncludeName();
+		pfd.color = Qt::white;
+
+
+
+
+
+		//if (!GetPropetiesForDrawing(propertiesId, pfd))
+		//	return;
 
 		const auto item = GetItem(currentPropertiesId);
 		
@@ -700,8 +721,29 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		Create(unitId, propertiesId);
 
 		PropertiesForDrawing pfd{};
-		if (!GetPropetiesForDrawing(propertiesId, pfd))
+
+
+
+
+
+		auto pi = GetItem(propertiesId);
+		if (pi == nullptr)
 			return;
+
+		pfd.pixmap = pi->GetPixmap();
+		QString name;
+		if (!GetName(propertiesId, name))
+			return;
+		pfd.name = name;
+		pfd.fileName = pi->GetFileName();
+		pfd.includeName = pi->GetIncludeName();
+		pfd.color = Qt::white;
+
+
+
+
+		//if (!GetPropetiesForDrawing(propertiesId, pfd))
+		//	return;
 
 		QPointF pos{ 0, 0 };
 		topManager_->CreateDiagramItem(propertiesId, pfd, pos);

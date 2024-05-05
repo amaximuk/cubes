@@ -6,4 +6,11 @@
 
 namespace CubesProperties
 {
+	//struct PropertiesForDrawing
+	//{
+	//	QPixmap pixmap;
+	//	QString name;
+	//	CubesUnitTypes::FileId fileId;
+	//	CubesUnitTypes::IncludeId includeId;
+	//};
 }

@@ -132,16 +132,19 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
 
 bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
 {
-    //auto pi = propertiesItemsManager_->GetItem(propertiesId);
-    //pfd.pixmap = pi->GetPixmap();
-    //pfd.name = pi->GetName();
-    //pfd.fileName = pi->GetFileName();
-    //pfd.groupName = pi->GetGroupName();
-    //pfd.color = GetFileColor(pi->GetFileName());
-    if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
+    auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    if (pi == nullptr)
         return false;
-    auto fileId = fileItemsManager_->GetFileId(pfd.fileName);
-    pfd.color = fileItemsManager_->GetFileColor(fileId);
+
+    pfd.pixmap = pi->GetPixmap();
+    QString name;
+    if (!propertiesItemsManager_->GetName(propertiesId, name))
+        return false;
+    pfd.name = name;
+    pfd.fileName = pi->GetFileName();
+    pfd.includeName = pi->GetIncludeName();
+    pfd.color = fileItemsManager_->GetFileColor(pi->GetFileId());
+
     return true;
 }
 
