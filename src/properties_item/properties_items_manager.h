@@ -55,8 +55,18 @@ namespace CubesProperties
 		bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd);
 		bool GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
 		bool GetUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId);
+		// TODO: переделать на PropertiesId
+		bool GetUnitsConnections(QMap<QString, QStringList>& connections);
+		bool GetDependsConnections(QMap<QString, QStringList>& connections);
 
 		bool InformVariableChanged();
+		bool InformFileNameChanged(const CubesUnitTypes::FileId& fileId, const QString& fileName);
+		bool InformFileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
+		bool InformIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+			const QString& includeName);
+		bool InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+		bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+
 		void Clear();
 		bool GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name);
 
@@ -81,7 +91,6 @@ namespace CubesProperties
 		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
 			CubesUnitTypes::IncludeIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
-		//void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId, QList<QPair<QString, QString>>& variables) override;
 		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
 		void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
 		void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) override;

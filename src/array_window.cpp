@@ -335,14 +335,14 @@ bool ArrayWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prop
     return false;
 }
 
-QMap<QString, QStringList> ArrayWindow::GetUnitsConnections()
+bool MainWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(false);
+    return propertiesItemsManager_->GetUnitsConnections(connections);
 }
 
-QMap<QString, QStringList> ArrayWindow::GetDependsConnections()
+bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(true);
+    return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
 void ArrayWindow::closeEvent(QCloseEvent* event)

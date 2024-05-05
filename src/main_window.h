@@ -94,8 +94,8 @@ public:
     bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
     bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
     bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-    QMap<QString, QStringList> GetUnitsConnections() override;
-    QMap<QString, QStringList> GetDependsConnections() override;
+    bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
+    bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
     bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;

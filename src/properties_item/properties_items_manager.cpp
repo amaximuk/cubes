@@ -238,21 +238,117 @@ bool PropertiesItemsManager::GetUnitId(const CubesUnitTypes::PropertiesId proper
 
 }
 
+bool PropertiesItemsManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
+{
+	for (auto& item : items_)
+	{
+		QString name;
+		if (!GetName(item->GetPropertiesId(), name))
+			return false;
+
+		QStringList conn = item->GetConnectedNames();
+		if (conn.size() > 0)
+			connections[name].append(conn);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::GetDependsConnections(QMap<QString, QStringList>& connections)
+{
+	for (auto& item : items_)
+	{
+		QString name;
+		if (!GetName(item->GetPropertiesId(), name))
+			return false;
+
+		QStringList conn = item->GetDependentNames();
+		if (conn.size() > 0)
+			connections[name].append(conn);
+	}
+
+	return true;
+}
+
 bool PropertiesItemsManager::InformVariableChanged()
 {
-	for (auto& p : items_)
+	for (auto& item : items_)
 	{
-		auto name = GetName(p->GetPropertiesId());
-		int index = selector_->findData(p->GetPropertiesId());
+		auto name = GetName(item->GetPropertiesId());
+		int index = selector_->findData(item->GetPropertiesId());
 		if (index != -1)
 			selector_->setItemText(index, name);
 
-		auto fileName = p->GetFileName();
-		auto includeName = p->GetIncludeName();
+		auto fileName = item->GetFileName();
+		auto includeName = item->GetIncludeName();
 
-		emit BasePropertiesChanged(p->GetPropertiesId(), name, fileName, includeName);
+		// TODO: Нужно ли это тут? Inform приходит от формы?
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, includeName);
 	}
+
 	return true;
+}
+
+bool PropertiesItemsManager::InformFileNameChanged(const CubesUnitTypes::FileId& fileId, const QString& fileName)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId)
+			item->SetFileIdName(fileId, fileName);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::InformFileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
+{
+	for (auto& item : items_)
+		item->SetFileIdNames(fileNames);
+
+	return true;
+}
+
+bool PropertiesItemsManager::InformIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+	const QString& includeName)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId && item->GetIncludeId() == includeId)
+			item->SetIncludeIdName(includeId, includeName);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId)
+			item->SetIncludeIdNames(includeNames);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+{
+	for (auto& item : items_)
+	{
+		if (item->GetFileId() == fileId)
+			item->color_ = color;
+	}
+
+	return true;
+	for (auto& item : scene_->items())
+	{
+		CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+
+		auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
+		if (pi->GetFileId() == fileId)
+			di->color_ = color;
+	}
+
 }
 
 void PropertiesItemsManager::Clear()

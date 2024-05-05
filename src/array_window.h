@@ -92,8 +92,8 @@ public:
     bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
     bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
         CubesUnitTypes::VariableIdVariables& variables) override;
-    QMap<QString, QStringList> GetUnitsConnections() override;
-    QMap<QString, QStringList> GetDependsConnections() override;
+    bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
+    bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
     // ISimpleTopManager
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
     bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;

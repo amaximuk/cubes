@@ -45,12 +45,12 @@ QWidget* FileItemsManager::GetWidget()
 	return widget_;
 }
 
-uint32_t FileItemsManager::GetCurrentFileId()
+CubesUnitTypes::FileId FileItemsManager::GetCurrentFileId()
 {
 	if (selector_->count() > 0)
 		return selector_->itemData(selector_->currentIndex()).toUInt();
 	else
-		return 0;
+		return CubesUnitTypes::InvalidFileId;
 }
 
 QString FileItemsManager::GetCurrentFileName()
@@ -61,17 +61,17 @@ QString FileItemsManager::GetCurrentFileName()
 		return "";
 }
 
-uint32_t FileItemsManager::GetFileId(const QString& fileName)
+CubesUnitTypes::FileId FileItemsManager::GetFileId(const QString& fileName)
 {
 	for (auto& fi : items_)
 	{
 		if (fi->GetName() == fileName)
 			return fi->GetFileId();
 	}
-	return 0;
+	return CubesUnitTypes::InvalidFileId;
 }
 
-void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId)
+void FileItemsManager::Create(const QString& filePath, QString& fileName, QString& platform, CubesUnitTypes::FileId& fileId)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! filePath unused!!!
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
@@ -103,7 +103,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
 }
 
-void FileItemsManager::Create(const CubesXml::File& xmlFile, uint32_t& fileId)
+void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::FileId& fileId)
 {
 	fileId = ++uniqueNumber_;
 

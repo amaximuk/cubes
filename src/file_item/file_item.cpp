@@ -774,7 +774,9 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         
         QString oldName = pm->value.toString();
         pm->value = value;
-        const auto variables = GetIncludeVariables(includeId);
+        CubesUnitTypes::VariableIdVariables variables;
+        if (!GetIncludeVariables(includeId, variables))
+            return;
         fileItemsManager_->AfterVariablesListChanged(fileId_, includeId, variables);
     }
 
@@ -1057,7 +1059,10 @@ File FileItem::GetFile()
         Include include{};
         include.name = kvp.second;
         include.path = GetIncludePath(kvp.first);
-        const auto variables = GetIncludeVariables(kvp.first);
+
+        CubesUnitTypes::VariableIdVariables variables;
+        if (!GetIncludeVariables(kvp.first, variables))
+            return {};
         for(const auto& v : variables.values())
             include.variables.push_back(v);
         result.includes.push_back(include);
@@ -1106,7 +1111,9 @@ CubesXml::File FileItem::GetXmlFile()
         CubesXml::Include include{};
         include.name = kvp.second;
         include.fileName = GetIncludePath(kvp.first);
-        const auto variables = GetIncludeVariables(kvp.first);
+        CubesUnitTypes::VariableIdVariables variables;
+        if (!GetIncludeVariables(kvp.first, variables))
+            return {};
         for (const auto& v : variables.values())
             include.variables.push_back(v);
         result.includes.push_back(include);

@@ -309,7 +309,9 @@ DiagramItem* DiagramScene::GetDiagramItem(QString name)
 void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
 {
     {
-        QMap<QString, QStringList> connections = topManager_->GetUnitsConnections();
+        QMap<QString, QStringList> connections;
+        if (!topManager_->GetUnitsConnections(connections))
+            return;
         painter->setPen(QPen(QBrush(QColor(0xFF, 0, 0, 0x20), Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())
@@ -324,7 +326,9 @@ void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
     }
 
     {
-        QMap<QString, QStringList> connections = topManager_->GetDependsConnections();
+        QMap<QString, QStringList> connections;
+        if (!topManager_->GetDependsConnections(connections))
+            return;
         painter->setPen(QPen(QBrush(QColor(0, 0, 0, 0x80), Qt::SolidPattern), 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter->setRenderHint(QPainter::Antialiasing);
         for (const auto& kvp : connections.toStdMap())

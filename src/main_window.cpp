@@ -155,14 +155,14 @@ bool MainWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
-QMap<QString, QStringList> MainWindow::GetUnitsConnections()
+bool MainWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(false);
+    return propertiesItemsManager_->GetUnitsConnections(connections);
 }
 
-QMap<QString, QStringList> MainWindow::GetDependsConnections()
+bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(true);
+    return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
 bool MainWindow::EnshureVisible(uint32_t propertiesId)

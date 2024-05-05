@@ -113,14 +113,14 @@ bool MainWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
-QMap<QString, QStringList> MainWindow::GetUnitsConnections()
+bool MainWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(false);
+    return propertiesItemsManager_->GetUnitsConnections(connections);
 }
 
-QMap<QString, QStringList> MainWindow::GetDependsConnections()
+bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
-    return GetConnectionsInternal(true);
+    return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
 bool MainWindow::EnshureVisible(uint32_t propertiesId)
@@ -430,67 +430,6 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     //    return false;
 
     return true;
-}
-
-QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
-{
-    // Сюда будем собирать реальные соединения на этой сцене
-    QMap<QString, QStringList> result;
-
-    // Соберем имена юнитов на главной панели
-    QStringList mainUnits;
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        //auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name;
-        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
-            mainUnits.push_back(name);
-    }
-
-    // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
-    QMap<QString, QStringList> connections;
-    for (const auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name;
-        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
-        {
-            QStringList conn = depends ? pi->GetDependentNames() : pi->GetConnectedNames();
-            if (conn.size() > 0)
-                connections[name].append(conn);
-        }
-    }
-
-    // Перебираем юниты сцены и для них рисуем соединения
-    for (const auto& kvp : connections.toStdMap())
-    {
-        // Проверяем этот юнит
-        QString unitName = kvp.first;
-
-        // Перебираем все соединения
-        for (const auto& name : kvp.second)
-        {
-            // Проверяем, что соединение с юнитом, который на этой сцене
-            if (mainUnits.contains(name))
-            {
-                // Отсеиваем дубликаты
-                if ((result.contains(unitName) && result[unitName].contains(name)) ||
-                    (result.contains(name) && result[name].contains(unitName)))
-                {
-                    // Уже есть
-                }
-                else
-                {
-                    // Добавляем
-                    result[unitName].push_back(name);
-                }
-            }
-        }
-    }
-
-    return result;
 }
 
 CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
@@ -845,85 +784,63 @@ bool MainWindow::OpenFolderInternal(const QString& path)
 // FileItemsManager
 void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
 {
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    auto fileName = fileItemsManager_->GetFileName(fileId);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-
-        if (pi->GetFileId() == fileId)
-            pi->SetFileIdName(fileId, fileName);
-    }
+    const auto fileName = fileItemsManager_->GetFileName(fileId);
+    if (!propertiesItemsManager_->InformFileNameChanged(fileId, fileName))
+        return;
 
     UpdateFileState(path_, true);
 
-    scene_->invalidate();
+    //scene_->invalidate();
 }
 
 void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 {
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileIdNames(fileNames);
+    if (!propertiesItemsManager_->InformFileListChanged(fileNames))
+        return;
 
-        // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
-        // После добавления, у них изменится имя файла и цвет
-        // TODO: возможно изменится имя - но не должно
-        const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
-        di->InformColorChanged(color);
-    }
+    // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
+    // После добавления, у них изменится имя файла и цвет
+    // TODO: возможно изменится имя - но не должно
+    // TODO: разрулить как то через слоты изменения состояния, чтобы не лезть напрямую в Item
+    //for (auto& item : scene_->items())
+    //{
+    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
+    //    di->InformColorChanged(color);
+    //}
 
     UpdateFileState(path_, true);
 
-    scene_->invalidate();
+    //scene_->invalidate();
 }
 
 void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
 {
-    auto includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
-            pi->SetIncludeIdName(includeId, includeName);
-
-        //const auto includeFileId = pi->GetIncludeFileId();
-        //pi->SetIncludeNames(fileIncludeNames);
-        //if (includeFileId == oldIncludeId)
-        //{
-        //    const auto includeName = fileItemsManager_->GetFileIncludeName();
-        //    pi->SetIncludeName(includeName);
-        //}
-    }
+    const auto includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
+    if (!propertiesItemsManager_->InformIncludeNameChanged(fileId, includeId, includeName))
+        return;
 
     UpdateFileState(path_, true);
 
-    scene_->invalidate();
+    //scene_->invalidate();
 }
 
 void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
 {
-    for (auto& item : scene_->items())
-    {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId)
-            pi->SetIncludeIdNames(includeNames);
-    }
+    if (!propertiesItemsManager_->InformIncludesListChanged(fileId, includeNames))
+        return;
 
     UpdateFileState(path_, true);
 
-    scene_->invalidate();
+    //scene_->invalidate();
 }
 
 void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QString& variableName, const QString& oldVariableName)
 {
-    propertiesItemsManager_->InformVariableChanged();
+    if (!propertiesItemsManager_->InformVariableChanged())
+        return;
 
     UpdateFileState(path_, true);
 }
@@ -931,13 +848,17 @@ void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, c
 void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
-    propertiesItemsManager_->InformVariableChanged();
+    if (!propertiesItemsManager_->InformVariableChanged())
+        return;
 
     UpdateFileState(path_, true);
 }
 
 void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
 {
+    //if (!propertiesItemsManager_->InformFileColorChanged(fileId, color))
+    //    return;
+
     for (auto& item : scene_->items())
     {
         CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -947,9 +868,10 @@ void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QC
             di->color_ = color;
     }
 
+
     UpdateFileState(path_, true);
 
-    scene_->invalidate();
+    //scene_->invalidate();
 }
 
 void MainWindow::FilePropertiesChanged()

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QColor>
 #include "../unit_types.h"
 #include "../analysis/analysis_types.h"
 #include "file_items_manager_interface.h"
@@ -40,8 +41,8 @@ namespace CubesFile
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 
-		void Create(const QString& filePath, QString& fileName, QString& platform, uint32_t& fileId);
-		void Create(const CubesXml::File& xmlFile, uint32_t& fileId);
+		void Create(const QString& filePath, QString& fileName, QString& platform, CubesUnitTypes::FileId& fileId);
+		void Create(const CubesXml::File& xmlFile, CubesUnitTypes::FileId& fileId);
 		void Select(const CubesUnitTypes::FileId fileId);
 		void Remove(const CubesUnitTypes::FileId fileId);
 		void Clear();

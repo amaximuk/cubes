@@ -28,8 +28,8 @@ public:
     virtual bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) = 0;
     virtual bool EnshureVisible(uint32_t propertiesId) = 0;
 
-    virtual QMap<QString, QStringList> GetUnitsConnections() = 0;
-    virtual QMap<QString, QStringList> GetDependsConnections() = 0;
+    virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) = 0;
+    virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) = 0;
 
     virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) = 0;
     virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) = 0;
