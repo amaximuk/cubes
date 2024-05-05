@@ -2,7 +2,7 @@
 
 #include <QGraphicsItem>
 
-namespace CubeDiagram
+namespace CubesDiagram
 {
     class DiagramItem : public QGraphicsItem
     {

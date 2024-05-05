@@ -3,7 +3,7 @@
 #include <QGraphicsScene>
 #include "../top_manager_interface.h"
 
-namespace CubeDiagram
+namespace CubesDiagram
 {
     class DiagramItem;
 
@@ -24,7 +24,7 @@ namespace CubeDiagram
 
     public:
         // TODO: Это заготовка для функций интерфейса, чтобы напрямую не управлять diagram_item
-        void InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
+        //void InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
 
         void InformItemPositionChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);

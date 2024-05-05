@@ -169,7 +169,7 @@ bool MainWindow::EnshureVisible(uint32_t propertiesId)
 {
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->GetPropertiesId() == propertiesId)
         {
             QPointF center = di->GetLineAncorPosition();
@@ -433,21 +433,21 @@ QWidget* MainWindow::CreateLogWidget()
 
 void MainWindow::CreateScene()
 {
-    scene_ = new CubeDiagram::DiagramScene(this);
+    scene_ = new CubesDiagram::DiagramScene(this);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::DiagramAfterItemCreated);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::DiagramBeforeItemDeleted);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::DiagramAfterItemCreated);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::DiagramBeforeItemDeleted);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &MainWindow::DiagramItemNameChanged);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &MainWindow::DiagramItemFileChanged);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemGroupChanged, this, &MainWindow::DiagramItemGroupChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
 }
 
 void MainWindow::CreateView()
 {
-    view_ = new CubeDiagram::DiagramView(this, scene_);
+    view_ = new CubesDiagram::DiagramView(this, scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
@@ -835,7 +835,7 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     QString fileName = fileItemsManager_->GetFileName(fileId);
 
     // Transform
-    CubeDiagram::DiagramItem* di = nullptr;
+    CubesDiagram::DiagramItem* di = nullptr;
     for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;
@@ -869,7 +869,7 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+            di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
             di->setX(all_units[i].x);
             di->setY(all_units[i].y);
             di->setZValue(all_units[i].z);
@@ -902,7 +902,7 @@ bool MainWindow::SortUnits()
     QMap<QString, QSet<QString>> connectedNames;
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         if (!nameToIndex.contains(di->name_))
         {
@@ -937,7 +937,7 @@ bool MainWindow::SortUnits()
     auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         int i = nameToIndex[di->name_];
 
@@ -982,7 +982,7 @@ bool MainWindow::SortUnitsRectangular(bool check)
         int count = 0;
         for (auto& item : scene_->items())
         {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
             QPointF p = di->pos();
             if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
                 ++count;
@@ -1004,7 +1004,7 @@ bool MainWindow::SortUnitsRectangular(bool check)
         int r = 0;
         for (auto& item : scene_->items())
         {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
             QPoint position(c * 200, r * 80);
             di->setPos(position);
 
@@ -1031,7 +1031,7 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     QStringList mainUnits;
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         //auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name;
         if (propertiesItemsManager_->GetName(di->propertiesId_, name))
@@ -1042,7 +1042,7 @@ QMap<QString, QStringList> MainWindow::GetConnectionsInternal(bool depends)
     QMap<QString, QStringList> connections;
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name;
         if (propertiesItemsManager_->GetName(di->propertiesId_, name))
@@ -1291,7 +1291,7 @@ bool MainWindow::SaveFolderInternal(const QString& path)
         }
 
         CubesUnitTypes::IncludeIdNames includes;
-        if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false))
+        if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false, includes))
             return false;
         for (const auto& kvpInclude : includes.toStdMap())
         {
@@ -1375,7 +1375,7 @@ bool MainWindow::OpenFileInternal(const QString& path)
 
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         const auto position = pi->GetPosition();
@@ -1422,7 +1422,7 @@ bool MainWindow::OpenFolderInternal(const QString& path)
 
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         const auto position = pi->GetPosition();
@@ -1536,7 +1536,7 @@ void MainWindow::RemoveRecent(QString fileName)
 }
 
 // DiagramScene (as manager)
-void MainWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->SetPosition(di->pos());
@@ -1544,14 +1544,14 @@ void MainWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
     UpdateFileState(path_, true);
 }
 
-void MainWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramAfterItemCreated(CubesDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
 
     UpdateFileState(path_, true);
 }
 
-void MainWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
+void MainWindow::DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Remove(di->propertiesId_);
     //for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
@@ -1591,7 +1591,7 @@ void MainWindow::selectionChanged()
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (scene_->selectedItems().count() > 0)
     {
-        CubeDiagram::DiagramItem* di = (CubeDiagram::DiagramItem*)(scene_->selectedItems()[0]);
+        CubesDiagram::DiagramItem* di = (CubesDiagram::DiagramItem*)(scene_->selectedItems()[0]);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         //pi->PositionChanged(di->pos());
         //pi->ZOrderChanged(di->zValue());
@@ -1613,7 +1613,7 @@ void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
     auto fileName = fileItemsManager_->GetFileName(fileId);
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
 
         if (pi->GetFileId() == fileId)
@@ -1629,7 +1629,7 @@ void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         pi->SetFileIdNames(fileNames);
 
@@ -1650,7 +1650,7 @@ void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
     auto includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
             pi->SetIncludeIdName(includeId, includeName);
@@ -1673,7 +1673,7 @@ void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, c
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         if (pi->GetFileId() == fileId)
             pi->SetIncludeIdNames(includeNames);
@@ -1704,7 +1704,7 @@ void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QC
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
         if (pi->GetFileId() == fileId)
@@ -1732,7 +1732,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
@@ -1755,7 +1755,7 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             item_to_select = item;
@@ -1777,7 +1777,7 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->setPos(QPointF(posX, posY));

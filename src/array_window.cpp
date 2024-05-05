@@ -174,7 +174,7 @@ bool ArrayWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitI
 
 bool ArrayWindow::CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
 {
-    CubeDiagram::DiagramItem* di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    CubesDiagram::DiagramItem* di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
 
     scene_->InformItemCreated(di);
 
@@ -199,7 +199,7 @@ bool ArrayWindow::EnshureVisible(uint32_t propertiesId)
 {
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->GetPropertiesId() == propertiesId)
         {
             QPointF center = di->GetLineAncorPosition();
@@ -227,7 +227,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
 //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
 //            up.fileInfo = fi;
 //            up.platforms.insert(QFileInfo(platformDir).baseName());
-    CubeDiagram::DiagramItem* di = nullptr;
+    CubesDiagram::DiagramItem* di = nullptr;
 
     for (auto& item : pm.parameters)
     {
@@ -308,7 +308,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         auto posY = pi->GetParameterModel(ids_.editor + ids_.positionY)->value.toDouble();
         auto posZ = pi->GetParameterModel(ids_.editor + ids_.positionZ)->value.toDouble();
 
-        di = new CubeDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+        di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
         di->setX(posX);
         di->setY(posY);
         di->setZValue(posZ);
@@ -335,12 +335,12 @@ bool ArrayWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prop
     return false;
 }
 
-bool MainWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
+bool ArrayWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetUnitsConnections(connections);
 }
 
-bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
+bool ArrayWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
@@ -660,21 +660,21 @@ QWidget* ArrayWindow::CreateLogWidget()
 
 void ArrayWindow::CreateScene()
 {
-    scene_ = new CubeDiagram::DiagramScene(this);
+    scene_ = new CubesDiagram::DiagramScene(this);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemPositionChanged, this, &ArrayWindow::DiagramItemPositionChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::AfterItemCreated, this, &ArrayWindow::DiagramAfterItemCreated);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::BeforeItemDeleted, this, &ArrayWindow::DiagramBeforeItemDeleted);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemPositionChanged, this, &ArrayWindow::DiagramItemPositionChanged);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::AfterItemCreated, this, &ArrayWindow::DiagramAfterItemCreated);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::BeforeItemDeleted, this, &ArrayWindow::DiagramBeforeItemDeleted);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemNameChanged, this, &ArrayWindow::DiagramItemNameChanged);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemFileChanged, this, &ArrayWindow::DiagramItemFileChanged);
     //qDebug() << connect(scene_, &CubeDiagram::DiagramScene::ItemGroupChanged, this, &ArrayWindow::DiagramItemGroupChanged);
-    qDebug() << connect(scene_, &CubeDiagram::DiagramScene::selectionChanged, this, &ArrayWindow::selectionChanged);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::selectionChanged, this, &ArrayWindow::selectionChanged);
 }
 
 void ArrayWindow::CreateView()
 {
-    view_ = new CubeDiagram::DiagramView(this, scene_);
+    view_ = new CubesDiagram::DiagramView(this, scene_);
     view_->setDragMode(QGraphicsView::RubberBandDrag);
 }
 
@@ -1066,7 +1066,7 @@ bool ArrayWindow::SortUnits()
     QMap<QString, QSet<QString>> connectedNames;
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         if (!nameToIndex.contains(di->name_))
         {
@@ -1101,7 +1101,7 @@ bool ArrayWindow::SortUnits()
     auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         int i = nameToIndex[di->name_];
 
@@ -1147,7 +1147,7 @@ bool ArrayWindow::SortUnitsRectangular(bool check)
         int count = 0;
         for (auto& item : scene_->items())
         {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
             QPointF p = di->pos();
             if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
                 ++count;
@@ -1170,7 +1170,7 @@ bool ArrayWindow::SortUnitsRectangular(bool check)
         int r = 0;
         for (auto& item : scene_->items(Qt::AscendingOrder))
         {
-            CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
             QPoint position(c * 200, r * 80);
             di->setPos(position);
 
@@ -1222,7 +1222,7 @@ QMap<QString, QStringList> ArrayWindow::GetConnectionsInternal(bool depends)
     QStringList mainUnits;
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         //auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name;
         if (propertiesItemsManager_->GetName(di->propertiesId_, name))
@@ -1233,7 +1233,7 @@ QMap<QString, QStringList> ArrayWindow::GetConnectionsInternal(bool depends)
     QMap<QString, QStringList> connections;
     for (const auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         QString name;
         if (propertiesItemsManager_->GetName(di->propertiesId_, name))
@@ -1333,18 +1333,18 @@ QString ArrayWindow::GetDisplayName(const QString& baseName)
 }
 
 // DiagramScene (as manager)
-void ArrayWindow::DiagramItemPositionChanged(CubeDiagram::DiagramItem* di)
+void ArrayWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)
 {
     auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
     pi->SetPosition(di->pos());
 }
 
-void ArrayWindow::DiagramAfterItemCreated(CubeDiagram::DiagramItem* di)
+void ArrayWindow::DiagramAfterItemCreated(CubesDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->propertiesId_);
 }
 
-void ArrayWindow::DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* di)
+void ArrayWindow::DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Remove(di->propertiesId_);
     //for (int i = 1; i < propertiesItemsManager_->GetSelector()->count(); i++)
@@ -1384,7 +1384,7 @@ void ArrayWindow::selectionChanged()
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (scene_->selectedItems().count() > 0)
     {
-        CubeDiagram::DiagramItem* di = (CubeDiagram::DiagramItem*)(scene_->selectedItems()[0]);
+        CubesDiagram::DiagramItem* di = (CubesDiagram::DiagramItem*)(scene_->selectedItems()[0]);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         //pi->PositionChanged(di->pos());
         //pi->ZOrderChanged(di->zValue());
@@ -1432,7 +1432,7 @@ void ArrayWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
         pi->SetFileIdNames(fileNames);
     }
@@ -1514,7 +1514,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
@@ -1535,7 +1535,7 @@ void ArrayWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             item_to_select = item;
@@ -1557,7 +1557,7 @@ void ArrayWindow::PropertiesPositionChanged(const uint32_t propertiesId, double 
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->setPos(QPointF(posX, posY));

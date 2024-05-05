@@ -3,7 +3,7 @@
 #include "diagram_item.h"
 #include "../properties_item/properties_item.h"
 
-using namespace CubeDiagram;
+using namespace CubesDiagram;
 
 DiagramItem::DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)

@@ -5,7 +5,7 @@
 #include "log_table/log_table_interface.h"
 #include "top_manager_interface.h"
 
-namespace CubeDiagram
+namespace CubesDiagram
 {
     class DiagramItem;
     class DiagramScene;
@@ -59,8 +59,8 @@ private:
     QString path_;
     uint32_t uniqueNumber_;
 
-    QPointer<CubeDiagram::DiagramScene> scene_;
-    QPointer<CubeDiagram::DiagramView> view_;
+    QPointer<CubesDiagram::DiagramScene> scene_;
+    QPointer<CubesDiagram::DiagramView> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
@@ -131,9 +131,9 @@ protected:
 
 public slots:
     // DiagramScene (as manager)
-    void DiagramItemPositionChanged(CubeDiagram::DiagramItem* item);
-    void DiagramAfterItemCreated(CubeDiagram::DiagramItem* item);
-    void DiagramBeforeItemDeleted(CubeDiagram::DiagramItem* item);
+    void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
+    void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
+    void DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* item);
     //void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
     //void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
     //void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);

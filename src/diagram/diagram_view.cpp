@@ -7,7 +7,7 @@
 #include "../main_window.h"
 #include "diagram_view.h"
 
-using namespace CubeDiagram;
+using namespace CubesDiagram;
 
 DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget *parent):
     QGraphicsView(scene, parent)

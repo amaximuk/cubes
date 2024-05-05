@@ -331,25 +331,18 @@ bool PropertiesItemsManager::InformIncludesListChanged(const CubesUnitTypes::Fil
 	return true;
 }
 
-bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
-{
-	for (auto& item : items_)
-	{
-		if (item->GetFileId() == fileId)
-			item->color_ = color;
-	}
-
-	return true;
-	for (auto& item : scene_->items())
-	{
-		CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-
-		auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
-		if (pi->GetFileId() == fileId)
-			di->color_ = color;
-	}
-
-}
+//bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+//{
+//	for (auto& item : scene_->items())
+//	{
+//		CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+//
+//		auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
+//		if (pi->GetFileId() == fileId)
+//			di->color_ = color;
+//	}
+//
+//}
 
 void PropertiesItemsManager::Clear()
 {

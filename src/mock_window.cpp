@@ -374,7 +374,7 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     QString fileName = fileItemsManager_->GetFileName(fileId);
 
     // Transform
-    CubeDiagram::DiagramItem* di = nullptr;
+    CubesDiagram::DiagramItem* di = nullptr;
     for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;
@@ -861,7 +861,7 @@ void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QC
 
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
         auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
         if (pi->GetFileId() == fileId)
@@ -885,7 +885,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
@@ -908,7 +908,7 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             item_to_select = item;
@@ -930,7 +930,7 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
 {
     for (auto& item : scene_->items())
     {
-        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
         if (di->propertiesId_ == propertiesId)
         {
             di->setPos(QPointF(posX, posY));

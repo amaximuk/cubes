@@ -65,7 +65,7 @@ namespace CubesProperties
 		bool InformIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
 			const QString& includeName);
 		bool InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-		bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+		//bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
 		void Clear();
 		bool GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name);
@@ -88,8 +88,7 @@ namespace CubesProperties
 	public:
 		// IPropertiesItemsManager (для общения с PropertiesItem)
 		void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
-		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
-			CubesUnitTypes::IncludeIdNames& includeNames) override;
+		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::IncludeIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
 		void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;

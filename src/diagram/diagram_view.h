@@ -3,7 +3,7 @@
 #include <QGraphicsView>
 #include "../top_manager_interface.h"
 
-namespace CubeDiagram
+namespace CubesDiagram
 {
     // Класс DiagramView нужен для создания юнитов путем перетаскивания из дерева
     class DiagramView : public QGraphicsView

@@ -7,7 +7,7 @@
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
-using namespace CubeDiagram;
+using namespace CubesDiagram;
 
 DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     QGraphicsScene(parent)
@@ -16,11 +16,6 @@ DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     isItemMoving_ = false;
     movingItem_ = nullptr;
     selectedWithCtrl_ = false;
-}
-
-void DiagramScene::InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
-{
-
 }
 
 void DiagramScene::InformItemPositionChanged(DiagramItem* item)
