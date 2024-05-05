@@ -212,7 +212,7 @@ void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const
 {
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
-		return (*it)->AddInclude(includeId, variables);
+		(*it)->AddInclude(includeId, variables);
 }
 
 QString FileItemsManager::GetFileName(const CubesUnitTypes::FileId fileId)
@@ -250,7 +250,7 @@ bool FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId fileIncludeId, QString& includeName)
 {
 	const auto it = items_.find(fileId);
-	if (it != items_.end())
+	if (it == items_.end())
 		return false;
 
 	includeName = (*it)->GetIncludeName(fileIncludeId);
@@ -262,7 +262,7 @@ bool FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId fileIncludeId, QString& includePath)
 {
 	const auto it = items_.find(fileId);
-	if (it != items_.end())
+	if (it == items_.end())
 		return false;
 	
 	includePath = (*it)->GetIncludePath(fileIncludeId);
