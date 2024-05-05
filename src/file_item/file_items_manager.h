@@ -61,9 +61,9 @@ namespace CubesFile
 			const CubesUnitTypes::VariableIdVariables& variables);
 
 		bool GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue, CubesUnitTypes::IncludeIdNames& includes);
-		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
-		QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId);
-		QString GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId);
+		//QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
+		bool GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId, QString& includeName);
+		bool GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId, QString& includePath);
 		bool GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			CubesUnitTypes::VariableIdVariables& variables);
 

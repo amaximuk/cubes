@@ -224,7 +224,8 @@ QString FileItemsManager::GetFileName(const CubesUnitTypes::FileId fileId)
 	return "";
 }
 
-bool FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue, CubesUnitTypes::IncludeIdNames& includes)
+bool FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue,
+	CubesUnitTypes::IncludeIdNames& includes)
 {
 	if (addEmptyValue)
 		includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
@@ -236,31 +237,37 @@ bool FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, 
 	return true;
 }
 
-QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
+//QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
+//{
+//	const auto it = items_.find(fileId);
+//	if (it != items_.end())
+//		return (*it)->GetIncludeName(filePath);
+//
+//	return "";
+//}
+
+bool FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeId fileIncludeId, QString& includeName)
 {
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
-		return (*it)->GetIncludeName(filePath);
+		return false;
 
-	return "";
+	includeName = (*it)->GetIncludeName(fileIncludeId);
+
+	return true;
 }
 
-QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId)
+bool FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId,
+	const CubesUnitTypes::IncludeId fileIncludeId, QString& includePath)
 {
 	const auto it = items_.find(fileId);
 	if (it != items_.end())
-		return (*it)->GetIncludeName(fileIncludeId);
+		return false;
+	
+	includePath = (*it)->GetIncludePath(fileIncludeId);
 
-	return "";
-}
-
-QString FileItemsManager::GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId)
-{
-	const auto it = items_.find(fileId);
-	if (it != items_.end())
-		return (*it)->GetIncludePath(fileIncludeId);
-
-	return "";
+	return true;
 }
 
 bool FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,

@@ -136,7 +136,7 @@ bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertie
     //instanceName = name + QString("_#%1").arg(unique_number_++);
     //uint32_t propertiesId{ 0 };
     propertiesItemsManager_->Create(unitId, propertiesId);
-    auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    //auto pi = propertiesItemsManager_->GetItem(propertiesId);
     //pi->SetFileNames(GetFileNames());
     //pi->SetFileName(GetCurrentFileName());
     //pi->SetIncludeNames(GetCurrentFileIncludeNames());
@@ -1212,67 +1212,6 @@ bool ArrayWindow::SortUnitsRectangular(bool check)
 //    scene_->invalidate();
 //    return true;
 //}
-
-QMap<QString, QStringList> ArrayWindow::GetConnectionsInternal(bool depends)
-{
-    // Сюда будем собирать реальные соединения на этой сцене
-    QMap<QString, QStringList> result;
-
-    // Соберем имена юнитов на главной панели
-    QStringList mainUnits;
-    for (const auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        //auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name;
-        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
-            mainUnits.push_back(name);
-    }
-
-    // Для юнитов сцены собираем список зависимостей, а для групп еще список юнитов
-    QMap<QString, QStringList> connections;
-    for (const auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        QString name;
-        if (propertiesItemsManager_->GetName(di->propertiesId_, name))
-        {
-            QStringList conn = depends ? pi->GetDependentNames() : pi->GetConnectedNames();
-            if (conn.size() > 0)
-                connections[name].append(conn);
-        }
-    }
-
-    // Перебираем юниты сцены и для них рисуем соединения
-    for (const auto& kvp : connections.toStdMap())
-    {
-        // Проверяем этот юнит
-        QString unitName = kvp.first;
-
-        // Перебираем все соединения
-        for (const auto& name : kvp.second)
-        {
-            // Проверяем, что соединение с юнитом, который на этой сцене
-            if (mainUnits.contains(name))
-            {
-                // Отсеиваем дубликаты
-                if ((result.contains(unitName) && result[unitName].contains(name)) ||
-                    (result.contains(name) && result[name].contains(unitName)))
-                {
-                    // Уже есть
-                }
-                else
-                {
-                    // Добавляем
-                    result[unitName].push_back(name);
-                }
-            }
-        }
-    }
-
-    return result;
-}
 
 CubesUnitTypes::UnitParameters* ArrayWindow::GetUnitParameters(const QString& id)
 {

@@ -277,7 +277,9 @@ bool MockWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
 
         for (const auto& includeId : includes.keys())
         {
-            const auto includePath = fileItemsManager_->GetFileIncludePath(fileId, includeId);
+            QString includePath;
+            if (!fileItemsManager_->GetFileIncludePath(fileId, includeId, includePath))
+                return false;
 
             QString includeName = dir.filePath(includePath);
             CubesXml::File includedFile{};
@@ -304,9 +306,12 @@ bool MockWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
         CubesUnitTypes::IncludeIdNames includes;
         if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
             return false;
+
         for (const auto& includeId : includes.keys())
         {
-            const auto includePath = fileItemsManager_->GetFileIncludePath(fileId, includeId);
+            QString includePath;
+            if (!fileItemsManager_->GetFileIncludePath(fileId, includeId, includePath))
+                return false;
 
             QByteArray byteArray;
             if (!CubesZip::UnZipFile(zipFileName, includePath, byteArray))
@@ -392,10 +397,11 @@ bool MockWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
                 CubesUnitTypes::IncludeIdNames includes;
                 if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
                     return false;
-                // TODO: Добавить в xml название файла и убрать функцию GetFileIncludeName отовсюду за ненадобностью
-                QString includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
-                if (includeName.isEmpty())
+
+                QString includeName;
+                if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
                     includeName = "<not selected>";
+
                 pi->SetIncludeIdNames(includes);
                 pi->SetIncludeIdName(includeId, includeName);
             }
@@ -815,7 +821,10 @@ void MockWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 
 void MockWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
 {
-    const auto includeName = fileItemsManager_->GetFileIncludeName(fileId, includeId);
+    QString includeName;
+    if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
+        return;
+
     if (!propertiesItemsManager_->InformIncludeNameChanged(fileId, includeId, includeName))
         return;
 

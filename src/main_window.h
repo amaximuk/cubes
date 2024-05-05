@@ -127,7 +127,6 @@ protected:
     bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
     bool SortUnits();
     bool SortUnitsRectangular(bool check);
-    QMap<QString, QStringList> GetConnectionsInternal(bool depends);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
     bool Test();
 
