@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QMainWindow>
+#include <QObject>
 #include <QPointer>
 #include "log_table/log_table_interface.h"
 #include "top_manager_interface.h"
@@ -50,7 +50,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MainWindow : public QMainWindow, ITopManager, CubesLog::ILogManager
+class MockWindow : public QObject, ITopManager, CubesLog::ILogManager
 {
     Q_OBJECT
 
@@ -59,17 +59,7 @@ private:
     QString path_;
     uint32_t uniqueNumber_;
 
-    QPointer<CubesDiagram::DiagramScene> scene_;
-    QPointer<CubesDiagram::DiagramView> view_;
-    QPointer<QTreeView> tree_view_;
-    QPointer<QTableView> table_view_log_;
-    QPointer<QTreeView> tree_;
-    QPointer<QMenu> recentMenu_;
-    //QPointer<QPlainTextEdit> plainTextEditHint_;
     QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
-    QPointer<CubesLog::LogTableModel> log_table_model_;
-    QPointer<CubesLog::SortFilterModel> sort_filter_model_;
-
     QPointer<CubesFile::FileItemsManager> fileItemsManager_;
     QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
     QPointer<CubesAnalysis::AnalysisManager> analysisManager_;
@@ -78,8 +68,8 @@ private:
     CubesUnitTypes::ParameterModelIds ids_;
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow() override;
+    explicit MockWindow(QWidget* parent = nullptr);
+    ~MockWindow() override;
 
 public:
     // ITopManager
@@ -110,8 +100,8 @@ protected:
     // Units
     bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
     bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
-    bool SortUnits();
-    bool SortUnitsRectangular(bool check);
+    //bool SortUnits();
+    //bool SortUnitsRectangular(bool check);
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
     bool Test();
 
@@ -125,19 +115,16 @@ protected:
     bool SaveFolderInternal(const QString& path);
     bool OpenFileInternal(const QString& path);
     bool OpenFolderInternal(const QString& path);
-    void UpdateRecent();
-    void AddRecent(QString fileName);
-    void RemoveRecent(QString fileName);
 
 public slots:
-    // DiagramScene (as manager)
-    void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
-    void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
-    void DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* item);
-    //void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
-    //void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
-    //void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
-    void selectionChanged(); // QGraphicsScene
+    //// DiagramScene (as manager)
+    //void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
+    //void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
+    //void DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* item);
+    ////void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
+    ////void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
+    ////void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
+    //void selectionChanged(); // QGraphicsScene
 
     // FileItemsManager
     void FileNameChanged(const CubesUnitTypes::FileId& fileId);
@@ -169,15 +156,15 @@ private slots:
     void OnSaveFileAction();
     void OnSaveAsFileAction();
     void OnSaveFolderAction();
-    void OnQuitAction();
+    //void OnQuitAction();
     void OnSortBoostAction();
     void OnSortRectAction();
-    void OnRecentAction();
+    //void OnRecentAction();
     void OnTestAction();
 
     // ÀÓ„
-    void OnErrorButtonClicked(bool checked);
-    void OnWarningButtonClicked(bool checked);
-    void OnInformationButtonClicked(bool checked);
-    void OnDoubleClicked(const QModelIndex& index);
+    //void OnErrorButtonClicked(bool checked);
+    //void OnWarningButtonClicked(bool checked);
+    //void OnInformationButtonClicked(bool checked);
+    //void OnDoubleClicked(const QModelIndex& index);
 };

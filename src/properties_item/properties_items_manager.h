@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../top_manager_types.h"
 #include "properties_items_manager_interface.h"
 
 class QComboBox;

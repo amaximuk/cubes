@@ -315,7 +315,9 @@ void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
             for (const auto& item : kvp.second)
             {
                 auto di2 = GetDiagramItem(item);
-                painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
+                // Может быть указано имя несуществующего юнита
+                if (di2 != nullptr)
+                    painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
             }
         }
     }
@@ -332,7 +334,9 @@ void DiagramScene::DrawConnections(QPainter* painter, const QRectF& rect)
             for (const auto& item : kvp.second)
             {
                 auto di2 = GetDiagramItem(item);
-                painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
+                // Может быть указано имя несуществующего юнита
+                if (di2 != nullptr)
+                    painter->drawLine(di1->GetLineAncorPosition(), di2->GetLineAncorPosition());
             }
         }
     }
