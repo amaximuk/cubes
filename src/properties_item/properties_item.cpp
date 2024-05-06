@@ -562,8 +562,6 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         // При добавлении файлов необходимо восстановить выбранное значение
         if (fileNames.keys().contains(pm->key.toInt()))
             editor_->SetEnumValue(GetProperty(pm->id), pm->value);
-        //if (fileNames.values().contains(pm->value.toString()))
-        //    editor_->SetEnumValue(GetProperty(pm->id), pm->value);
         
         // Разблокировка именно тут, если поднять выше, файл не устанавливается
         editor_->blockSignals(false);

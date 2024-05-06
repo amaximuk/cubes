@@ -86,13 +86,13 @@ public:
     bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
     bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
     bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
-    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override { return true; };
+    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
     bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
     // ILogManager
-    void AddMessage(const CubesLog::LogMessage& m);
+    void AddMessage(const CubesLog::LogMessage& m) override;
 
 protected:
     void FillParametersInfo();
@@ -140,7 +140,7 @@ public slots:
 
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-        const QString& fileName, const QString& includeName);
+        const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
     void PropertiesError(const uint32_t propertiesId, const QString& message);

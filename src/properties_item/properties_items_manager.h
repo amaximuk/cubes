@@ -68,6 +68,7 @@ namespace CubesProperties
 		bool InformIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
 			const QString& includeName);
 		bool InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+		bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId);
 		//bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
 		void Clear();
@@ -80,8 +81,8 @@ namespace CubesProperties
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
 
 	signals:
-		void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name, const QString& fileName,
-			const QString& includeName);
+		void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+			const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
 		void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
 		void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
 		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);

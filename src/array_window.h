@@ -94,20 +94,19 @@ public:
         CubesUnitTypes::VariableIdVariables& variables) override;
     bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
     bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
-    // ISimpleTopManager
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
     bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
     bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
     bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) override;
-
     bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
     bool EnshureVisible(uint32_t propertiesId) override;
+    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
+    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
+
+
 
     void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
-
-    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
-    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
 
 public:
@@ -167,8 +166,8 @@ public slots:
     void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name, const QString& fileName,
-        const QString& includeName);
+    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+        const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
     void PropertiesSelectedItemChanged(const uint32_t propertiesId);
     void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
     void PropertiesError(const uint32_t propertiesId, const QString& message);

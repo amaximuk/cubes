@@ -168,6 +168,11 @@ bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
+bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+{
+    return false;
+}
+
 bool MainWindow::EnshureVisible(uint32_t propertiesId)
 {
     for (const auto& item : scene_->items())
@@ -176,7 +181,6 @@ bool MainWindow::EnshureVisible(uint32_t propertiesId)
         if (di->GetPropertiesId() == propertiesId)
         {
             QPointF center = di->GetLineAncorPosition();
-            //QPointF center = scene_->selectionArea().boundingRect().center();
             view_->centerOn(center);
 
             scene_->invalidate();
@@ -1653,14 +1657,15 @@ void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, 
 
 void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
 {
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    propertiesItemsManager_->InformFileColorChanged(fileId);
+    //for (auto& item : scene_->items())
+    //{
+    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
 
-        auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
-        if (pi->GetFileId() == fileId)
-            di->color_ = color;
-    }
+    //    auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
+    //    if (pi->GetFileId() == fileId)
+    //        di->color_ = color;
+    //}
 
     UpdateFileState(path_, true);
     
@@ -1679,7 +1684,7 @@ void MainWindow::FilePropertiesChanged()
 
 // PropertiesItemsManager
 void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-    const QString& fileName, const QString& includeName)
+    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     for (auto& item : scene_->items())
     {
@@ -1687,9 +1692,11 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
-            di->fileName_ = fileName;
+            di->fileName_ = fileItemsManager_->GetFileName(fileId);
+            QString includeName;
+            if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
+                return;
             di->includeName_ = includeName;
-            auto fileId = fileItemsManager_->GetFileId(fileName);
             di->color_ = fileItemsManager_->GetFileColor(fileId);
             di->InformNameChanged(name, "");
             di->InformIncludeChanged();

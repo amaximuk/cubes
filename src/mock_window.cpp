@@ -133,6 +133,11 @@ bool MockWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
+bool MockWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+{
+    return false;
+}
+
 bool MockWindow::EnshureVisible(uint32_t propertiesId)
 {
     return false;
@@ -875,20 +880,10 @@ void MockWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, 
 
 void MockWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
 {
-    //if (!propertiesItemsManager_->InformFileColorChanged(fileId, color))
-    //    return;
+    if (!propertiesItemsManager_->InformFileColorChanged(fileId))
+        return;
 
-    //for (auto& item : scene_->items())
-    //{
-    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-
-    //    auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
-    //    if (pi->GetFileId() == fileId)
-    //        di->color_ = color;
-    //}
-
-
-    //UpdateFileState(path_, true);
+    UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
@@ -900,7 +895,7 @@ void MockWindow::FilePropertiesChanged()
 
 // PropertiesItemsManager
 void MockWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-    const QString& fileName, const QString& includeName)
+    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     //for (auto& item : scene_->items())
     //{

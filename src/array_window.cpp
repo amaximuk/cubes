@@ -1451,7 +1451,7 @@ void ArrayWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const Q
 
 // PropertiesItemsManager
 void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-    const QString& fileName, const QString& includeName)
+    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     for (auto& item : scene_->items())
     {
@@ -1459,8 +1459,8 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
         if (di->propertiesId_ == propertiesId)
         {
             di->name_ = name;
-            di->fileName_ = fileName;
-            di->includeName_ = includeName;
+            di->fileName_ = "";
+            di->includeName_ = "";
             //di->color_ = QColor("Red");
             di->color_.setAlpha(0x20);
             di->InformNameChanged(name, "");

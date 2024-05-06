@@ -279,11 +279,10 @@ bool PropertiesItemsManager::InformVariableChanged()
 		if (index != -1)
 			selector_->setItemText(index, name);
 
-		auto fileName = item->GetFileName();
-		auto includeName = item->GetIncludeName();
+		auto fileId = item->GetFileId();
+		auto includeId = item->GetIncludeId();
 
-		// TODO: Нужно ли это тут? Inform приходит от формы?
-		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileName, includeName);
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
 	}
 
 	return true;
@@ -326,6 +325,20 @@ bool PropertiesItemsManager::InformIncludesListChanged(const CubesUnitTypes::Fil
 	{
 		if (item->GetFileId() == fileId)
 			item->SetIncludeIdNames(includeNames);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId& fileId)
+{
+	for (auto& item : items_)
+	{
+		auto name = GetName(item->GetPropertiesId());
+		auto fileId = item->GetFileId();
+		auto includeId = item->GetIncludeId();
+
+		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
 	}
 
 	return true;
@@ -440,10 +453,10 @@ void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId
 		selector_->setItemText(index, name);
 
 	auto item = GetItem(propertiesId);
-	auto fileName = item->GetFileName();
-	auto includeName = item->GetIncludeName();
+	auto fileId = item->GetFileId();
+	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
+	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
@@ -461,10 +474,10 @@ void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::Properti
 	// Заполняем группы
 	topManager_->GetFileIncludeList(item->GetFileId(), includeNames);
 
-	auto fileName = item->GetFileName();
-	auto includeName = item->GetIncludeName();
+	auto fileId = item->GetFileId();
+	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
+	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
@@ -477,10 +490,10 @@ void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::Prope
 		selector_->setItemText(index, name);
 
 	auto item = GetItem(propertiesId);
-	auto fileName = item->GetFileName();
-	auto includeName = item->GetIncludeName();
+	auto fileId = item->GetFileId();
+	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(propertiesId, name, fileName, includeName);
+	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
