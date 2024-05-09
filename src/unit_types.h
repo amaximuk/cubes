@@ -8,28 +8,82 @@
 #include <QVariant>
 #include <QSet>
 #include <QString>
+#include <QVector>
 #include "parameters/types.h"
 
 namespace CubesUnitTypes
 {
 	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t",
 	// "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
+	
+	constexpr uint32_t InvalidUniversalId = 0;
 
 	using FileId = uint32_t;
-	constexpr FileId InvalidFileId = 0;
+	constexpr FileId InvalidFileId = InvalidUniversalId;
 	using FileIdNames = QMap<FileId, QString>;
 	
 	using IncludeId = uint32_t;
-	constexpr IncludeId InvalidIncludeId = 0;
+	constexpr IncludeId InvalidIncludeId = InvalidUniversalId;
 	using IncludeIdNames = QMap<IncludeId, QString>;
 
 	using Variable = QPair<QString, QString>;
 	using VariableId = uint32_t;
-	constexpr VariableId InvalidVariableId = 0;
+	constexpr VariableId InvalidVariableId = InvalidUniversalId;
 	using VariableIdVariables = QMap<VariableId, Variable>;
 
 	using PropertiesId = uint32_t;
-	constexpr PropertiesId InvalidPropertiesId = 0;
+	constexpr PropertiesId InvalidPropertiesId = InvalidUniversalId;
+
+	struct UniversalId
+	{
+		union
+		{
+			uint32_t raw;
+			FileId fileId;
+			IncludeId includeId;
+			VariableId variableId;
+			PropertiesId propertiesId;
+		};
+
+		UniversalId()
+		{
+			raw = InvalidUniversalId;
+		}
+
+		UniversalId(uint32_t value)
+		{
+			raw = value;
+		}
+
+		UniversalId(int value)
+		{
+			raw = static_cast<uint32_t>(value);
+		}
+
+		bool operator==(const UniversalId& rhs) const
+		{
+			if (this == &rhs)
+				return true;
+
+			return raw == rhs.raw;
+		}
+
+		bool operator!=(const UniversalId& rhs) const
+		{
+			return !(*this == rhs);
+		}
+
+		friend bool operator<(const UniversalId& lhs, const UniversalId& rhs)
+		{
+			return lhs.raw < rhs.raw;
+		}
+	};
+
+	struct ComboBoxValue
+	{
+		UniversalId id;
+		QString value;
+	};
 
 	const std::vector<std::string> platform_names_ = {
 		"Windows x32",
@@ -58,26 +112,24 @@ namespace CubesUnitTypes
 
 	struct EditorSettings
 	{
-	public:
 		EditorType type;
-		int SpinIntergerMin;
-		int SpinIntergerMax;
-		double SpinDoubleMin;
-		double SpinDoubleMax;
-		double SpinDoubleSingleStep;
-		QMap<int, QString> ComboBoxValues;
-		bool is_expanded;
+		int spinIntergerMin;
+		int spinIntergerMax;
+		double spinDoubleMin;
+		double spinDoubleMax;
+		double spinDoubleSingleStep;
+		QVector<ComboBoxValue> comboBoxValues;
+		bool isExpanded;
 
-	public:
 		EditorSettings()
 		{
 			type = EditorType::String;
-			SpinIntergerMin = 0;
-			SpinIntergerMax = 0;
-			SpinDoubleMin = 0;
-			SpinDoubleMax = 0;
-			SpinDoubleSingleStep = 1;
-			is_expanded = false;
+			spinIntergerMin = 0;
+			spinIntergerMax = 0;
+			spinDoubleMin = 0;
+			spinDoubleMax = 0;
+			spinDoubleSingleStep = 1;
+			isExpanded = false;
 		};
 	};
 
@@ -236,28 +288,10 @@ namespace CubesUnitTypes
 			return value_ == rhs.value_;
 		}
 
-		//bool operator==(const QString& rhs)
-		//{
-		//	return *this == ParameterModelId(rhs);
-		//}
-
 		bool operator!=(const ParameterModelId& rhs) const
 		{
 			return !(*this == rhs);
 		}
-
-		//bool operator!=(const QString& rhs)
-		//{
-		//	return !(*this == rhs);
-		//}
-
-		//bool operator<(const ParameterModelId& rhs)
-		//{
-		//	if (this == &rhs)
-		//		return true;
-
-		//	return value_ < rhs.value_;
-		//}
 
 		friend bool operator<(const ParameterModelId& lhs, const ParameterModelId& rhs)
 		{
@@ -705,20 +739,139 @@ namespace CubesUnitTypes
 
 	struct ParameterModel
 	{
-	public:
 		ParameterModelId id; // id path, separated by /
 		QString name;
-		QVariant key; // Для хранения id списков и т.п.
+		UniversalId key; // Для хранения id списков и т.п.
 		QVariant value;
 		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;
 		QList<ParameterModel> parameters;
 		bool readOnly;
 
-	public:
 		ParameterModel()
 		{
 			readOnly = false;
+		}
+
+		void SetComboBoxFileNames(FileIdNames fileNames)
+		{
+			editorSettings.comboBoxValues.clear();
+			for (const auto& kvp : fileNames.toStdMap())
+				editorSettings.comboBoxValues.push_back({ kvp.first, kvp.second });
+		}
+
+		void SetComboBoxIncludeNames(IncludeIdNames includeNames)
+		{
+			editorSettings.comboBoxValues.clear();
+			for (const auto& kvp : includeNames.toStdMap())
+				editorSettings.comboBoxValues.push_back({ kvp.first, kvp.second });
+		}
+
+		void SetComboBoxValue(UniversalId id, const QString& value)
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return;
+
+			auto it = std::find_if(editorSettings.comboBoxValues.begin(),
+				editorSettings.comboBoxValues.end(), [&id](const auto& cbv) { return cbv.id == id; });
+			if (it != editorSettings.comboBoxValues.end())
+			{
+				it->value = value;
+				this->key = it->id.raw;
+				this->value = it->value;
+			}
+		}
+
+		void SetComboBoxValueDefault()
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return;
+
+			key = editorSettings.comboBoxValues[0].id.raw;
+			value = editorSettings.comboBoxValues[0].value;
+		}
+
+		void SetComboBoxValue(UniversalId id)
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return;
+
+			const auto it = std::find_if(editorSettings.comboBoxValues.cbegin(),
+				editorSettings.comboBoxValues.cend(), [&id](const auto& cbv) { return cbv.id == id; });
+			if (it == editorSettings.comboBoxValues.end())
+			{
+				key = editorSettings.comboBoxValues[0].id.raw;
+				value = editorSettings.comboBoxValues[0].value;
+			}
+			else
+			{
+				key = it->id.raw;
+				value = it->value;
+			}
+		}
+
+		void SetComboBoxValue(const QString& value)
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return;
+
+			const auto it = std::find_if(editorSettings.comboBoxValues.cbegin(),
+				editorSettings.comboBoxValues.cend(), [&value](const auto& cbv) { return cbv.value == value; });
+			if (it == editorSettings.comboBoxValues.end())
+			{
+				this->key = editorSettings.comboBoxValues[0].id.raw;
+				this->value = editorSettings.comboBoxValues[0].value;
+			}
+			else
+			{
+				this->key = it->id.raw;
+				this->value = it->value;
+			}
+		}
+
+		QStringList GetComboBoxValues() const
+		{
+			QStringList result;
+			for (const auto& item : editorSettings.comboBoxValues)
+				result.push_back(item.value);
+
+			return result;
+		}
+	
+		bool HaveComboBoxValue(const QString& value) const
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return false;
+
+			const auto it = std::find_if(editorSettings.comboBoxValues.cbegin(),
+				editorSettings.comboBoxValues.cend(), [&value](const auto& cbv) { return cbv.value == value; });
+			return it != editorSettings.comboBoxValues.end();
+		}
+
+		int GetComboBoxIndex() const
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return -1;
+
+			const auto it = std::find_if(editorSettings.comboBoxValues.cbegin(),
+				editorSettings.comboBoxValues.cend(), [&](const auto& cbv) { return cbv.id == key; });
+			if (it == editorSettings.comboBoxValues.end())
+				return -1;
+			else
+				return std::distance(editorSettings.comboBoxValues.cbegin(), it);
+		}
+
+		int GetComboBoxIndex(const QString& value) const
+		{
+			if (editorSettings.comboBoxValues.empty())
+				return -1;
+
+			const auto it = std::find_if(editorSettings.comboBoxValues.cbegin(),
+				editorSettings.comboBoxValues.cend(), [&value](const auto& cbv) { return cbv.value == value; });
+			if (it == editorSettings.comboBoxValues.end())
+				return -1;
+			else
+				return std::distance(editorSettings.comboBoxValues.cbegin(), it);
 		}
 	};
 

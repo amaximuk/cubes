@@ -82,7 +82,7 @@ void PropertiesItem::ExpandedChanged(const QtProperty* property, bool is_expande
     {
         auto pm = GetParameterModel(property);
         if (pm != nullptr)
-            pm->editorSettings.is_expanded = is_expanded;
+            pm->editorSettings.isExpanded = is_expanded;
     }
 }
 
@@ -105,7 +105,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         base_group.name = QString::fromLocal8Bit("Базовые");
         base_group.value = QVariant();
         base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
-        base_group.editorSettings.is_expanded = true;
+        base_group.editorSettings.isExpanded = true;
 
         CubesUnitTypes::ParameterModel instance_name;
         instance_name.id = ids_.base + ids_.name;
@@ -115,7 +115,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         else
             instance_name.value = QString(xmlUnit->name);
         instance_name.editorSettings.type = CubesUnitTypes::EditorType::String;
-        instance_name.editorSettings.is_expanded = false;
+        instance_name.editorSettings.isExpanded = false;
         base_group.parameters.push_back(std::move(instance_name));
 
         if (!isArrayUnit)
@@ -126,7 +126,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             file.key = CubesUnitTypes::InvalidFileId;
             file.value = QString();
             file.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-            file.editorSettings.is_expanded = false;
+            file.editorSettings.isExpanded = false;
             base_group.parameters.push_back(std::move(file));
 
             CubesUnitTypes::ParameterModel group;
@@ -135,7 +135,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             file.key = CubesUnitTypes::InvalidIncludeId;
             group.value = QString();
             group.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
-            group.editorSettings.is_expanded = false;
+            group.editorSettings.isExpanded = false;
             base_group.parameters.push_back(std::move(group));
         }
 
@@ -149,7 +149,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         properties_group.name = QString::fromLocal8Bit("Параметры");
         properties_group.value = QVariant();
         properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
-        properties_group.editorSettings.is_expanded = true;
+        properties_group.editorSettings.isExpanded = true;
 
         CheckParametersMatching(xmlUnit, QString::fromStdString(parameters::helper::type::main_type), ids_.parameters);
 
@@ -170,7 +170,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         editor_group.name = QString::fromLocal8Bit("Редактор");
         editor_group.value = QVariant();
         editor_group.editorSettings.type = CubesUnitTypes::EditorType::None;
-        editor_group.editorSettings.is_expanded = true;
+        editor_group.editorSettings.isExpanded = true;
 
         {
             CubesUnitTypes::ParameterModel pm;
@@ -178,9 +178,9 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             pm.name = QString::fromLocal8Bit("Позиция X");
             pm.value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->x };
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-            pm.editorSettings.SpinDoubleMin = -10000;
-            pm.editorSettings.SpinDoubleMax = 10000;
-            pm.editorSettings.SpinDoubleSingleStep = 20;
+            pm.editorSettings.spinDoubleMin = -10000;
+            pm.editorSettings.spinDoubleMax = 10000;
+            pm.editorSettings.spinDoubleSingleStep = 20;
             editor_group.parameters.push_back(std::move(pm));
         }
 
@@ -190,9 +190,9 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             pm.name = QString::fromLocal8Bit("Позиция Y");
             pm.value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->y };
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-            pm.editorSettings.SpinDoubleMin = -10000;
-            pm.editorSettings.SpinDoubleMax = 10000;
-            pm.editorSettings.SpinDoubleSingleStep = 20;
+            pm.editorSettings.spinDoubleMin = -10000;
+            pm.editorSettings.spinDoubleMax = 10000;
+            pm.editorSettings.spinDoubleSingleStep = 20;
             editor_group.parameters.push_back(std::move(pm));
         }
 
@@ -202,8 +202,8 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             pm.name = QString::fromLocal8Bit("Позиция Z");
             pm.value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->z };
             pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-            pm.editorSettings.SpinDoubleMin = -10000;
-            pm.editorSettings.SpinDoubleMax = 10000;
+            pm.editorSettings.spinDoubleMin = -10000;
+            pm.editorSettings.spinDoubleMax = 10000;
             editor_group.parameters.push_back(std::move(pm));
         }
 
@@ -384,13 +384,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
         // Заполняем допустимые значения из ограничений в yml файле
         for (int i = 0; i < pi.restrictions.set_.size(); ++i)
-            model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pi.restrictions.set_[i]);
+            model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pi.restrictions.set_[i]) });
 
         // Проверяем допустимость значений из xml файла (параметра или элемента массива)
         if (haveXmlValue)
         {
             // Проверяем ограничения на список элементов
-            if (!model.editorSettings.ComboBoxValues.values().contains(xmlValue.toString()))
+            if (!model.HaveComboBoxValue(xmlValue.toString()))
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
@@ -440,13 +440,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             // Устанавливаем ограничения из yml файла юнита
             if (pi.restrictions.min != "")
-                model.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min);
+                model.editorSettings.spinIntergerMin = std::stoi(pi.restrictions.min);
             else
-                model.editorSettings.SpinIntergerMin = parameters::helper::common::get_min_for_integral_type(itemType);
+                model.editorSettings.spinIntergerMin = parameters::helper::common::get_min_for_integral_type(itemType);
             if (pi.restrictions.max != "")
-                model.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max);
+                model.editorSettings.spinIntergerMax = std::stoi(pi.restrictions.max);
             else
-                model.editorSettings.SpinIntergerMax = parameters::helper::common::get_max_for_integral_type(itemType);
+                model.editorSettings.spinIntergerMax = parameters::helper::common::get_max_for_integral_type(itemType);
         }
         else if (baseItemType == parameters::base_item_types::floating)
         {
@@ -455,13 +455,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             // Устанавливаем ограничения из yml файла юнита
             if (pi.restrictions.min != "")
-                model.editorSettings.SpinDoubleMin = std::stod(pi.restrictions.min);
+                model.editorSettings.spinDoubleMin = std::stod(pi.restrictions.min);
             else
-                model.editorSettings.SpinDoubleMin = parameters::helper::common::get_min_for_floating_point_type(itemType);
+                model.editorSettings.spinDoubleMin = parameters::helper::common::get_min_for_floating_point_type(itemType);
             if (pi.restrictions.max != "")
-                model.editorSettings.SpinDoubleMax = std::stod(pi.restrictions.max);
+                model.editorSettings.spinDoubleMax = std::stod(pi.restrictions.max);
             else
-                model.editorSettings.SpinDoubleMax = parameters::helper::common::get_max_for_floating_point_type(itemType);
+                model.editorSettings.spinDoubleMax = parameters::helper::common::get_max_for_floating_point_type(itemType);
         }
         else if (baseItemType == parameters::base_item_types::user)
         {
@@ -479,13 +479,13 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             if (pti->values.size() > 0)
             {
                 for (int i = 0; i < pti->values.size(); ++i)
-                    model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pti->values[i].first);
+                    model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pti->values[i].first) });
             }
 
             // Проверяем допустимость значений из xml файла
             if (haveXmlValue)
             {
-                if (!model.editorSettings.ComboBoxValues.values().contains(xmlValue.toString()))
+                if (!model.HaveComboBoxValue(xmlValue.toString()))
                 {
                     propertiesItemsManager_->AfterError(propertiesId_,
                         QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
@@ -541,9 +541,7 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
     {
-        pm->editorSettings.ComboBoxValues.clear();
-        for(const auto& fn : fileNames.toStdMap())
-            pm->editorSettings.ComboBoxValues[fn.first] = fn.second;
+        pm->SetComboBoxFileNames(fileNames);
 
         // Блокируем сигналы, чтобы не сбрасывался выбранный включаемыый файл, т.к. по сигналу
         // изменения файла автоматически устанавливается значение <не установлено>,
@@ -553,15 +551,15 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
 
         // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
         // Возьмем нулевой элемент
-        if (pm->key.toInt() == CubesUnitTypes::InvalidFileId && !fileNames.empty())
+        if (pm->key.fileId == CubesUnitTypes::InvalidFileId && !fileNames.empty())
         {
             pm->key = fileNames.keys()[0];
             pm->value = fileNames.values()[0];
         }
 
         // При добавлении файлов необходимо восстановить выбранное значение
-        if (fileNames.keys().contains(pm->key.toInt()))
-            editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        if (fileNames.keys().contains(pm->key.fileId))
+            editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
         
         // Разблокировка именно тут, если поднять выше, файл не устанавливается
         editor_->blockSignals(false);
@@ -575,7 +573,7 @@ void PropertiesItem::SetFileIdName(CubesUnitTypes::FileId fileId, QString fileNa
     {
         pm->key = fileId;
         pm->value = QString(fileName);
-        editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
     }
 }
 
@@ -587,10 +585,7 @@ void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNam
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
-        pm->editorSettings.ComboBoxValues.clear();
-        for (const auto& in : includeNames.toStdMap())
-            pm->editorSettings.ComboBoxValues[in.first] = in.second;
-
+        pm->SetComboBoxIncludeNames(includeNames);
         editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
     const auto& includeName = includeNames[oldIncludeId];
@@ -604,7 +599,7 @@ void PropertiesItem::SetIncludeIdName(CubesUnitTypes::IncludeId includeId, QStri
     {
         pm->key = includeId;
         pm->value = QString(includeName);
-        editor_->SetEnumValue(GetProperty(pm->id), pm->value);
+        editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
         propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
     }
 }
@@ -622,7 +617,7 @@ CubesUnitTypes::FileId PropertiesItem::GetFileId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
-        return pm->key.toInt();
+        return pm->key.fileId;
     return 0;
 }
 
@@ -630,14 +625,9 @@ CubesUnitTypes::IncludeId PropertiesItem::GetIncludeId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
-    {
-        for (const auto& kvp : pm->editorSettings.ComboBoxValues.toStdMap())
-        {
-            if (kvp.second == pm->value.toString())
-                return kvp.first;
-        }
-    }
-    return 0;
+        return pm->key.includeId;
+    
+    return CubesUnitTypes::InvalidIncludeId;
 }
 
 QString PropertiesItem::GetIncludeName()
@@ -896,13 +886,17 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
         RegisterProperty(kvp.second, kvp.first);
 
     auto pm = GetParameterModel(model.id);
-    pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
+    QString s = QString("%1").arg(model.parameters.size());
+    if (pm->editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
+        pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
+    else
+        pm->SetComboBoxValue(s);
     pm->parameters = model.parameters;
 
     if (pm->editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
         editor_->SetIntValue(pi, model.parameters.size());
     else
-        editor_->SetEnumValue(pi, QString("%1").arg(model.parameters.size()));
+        editor_->SetEnumValue(pi, pm->GetComboBoxIndex(s));
 
     ApplyExpandState();
 }
@@ -974,8 +968,8 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 
     QStringList messageList;
     messageList.push_back(QString("id: %1").arg(id));
-    if (pm->key.isValid())
-        messageList.push_back(QString("key: %1").arg(pm->key.toString()));
+    if (pm->key == CubesUnitTypes::InvalidUniversalId)
+        messageList.push_back(QString("key: %1").arg(pm->key.raw));
     if (pi != nullptr)
         messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
     if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
@@ -1175,11 +1169,11 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     {
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         for (int i = 0; i < pi.restrictions.set_count.size(); ++i)
-            model.editorSettings.ComboBoxValues[i] = QString::fromStdString(pi.restrictions.set_count[i]);
+            model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pi.restrictions.set_count[i]) });
     
         if (element.type == CubesXml::ElementType::Array)
         {
-            if (!model.editorSettings.ComboBoxValues.values().contains(QString("%1").arg(element.itemsCount)))
+            if (!model.HaveComboBoxValue(QString("%1").arg(element.itemsCount)))
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
@@ -1195,18 +1189,18 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         model.editorSettings.type = CubesUnitTypes::EditorType::SpinInterger;
 
         if (pi.restrictions.min_count != "")
-            model.editorSettings.SpinIntergerMin = std::stoi(pi.restrictions.min_count);
+            model.editorSettings.spinIntergerMin = std::stoi(pi.restrictions.min_count);
         else
-            model.editorSettings.SpinIntergerMin = 0;
+            model.editorSettings.spinIntergerMin = 0;
 
         if (pi.restrictions.max_count != "")
-            model.editorSettings.SpinIntergerMax = std::stoi(pi.restrictions.max_count);
+            model.editorSettings.spinIntergerMax = std::stoi(pi.restrictions.max_count);
         else
-            model.editorSettings.SpinIntergerMax = 1000; // !!! TODO: make a define for a const
+            model.editorSettings.spinIntergerMax = 1000; // !!! TODO: make a define for a const
 
         if (element.type == CubesXml::ElementType::Array)
         {
-            if (element.itemsCount < model.editorSettings.SpinIntergerMin || element.itemsCount > model.editorSettings.SpinIntergerMax)
+            if (element.itemsCount < model.editorSettings.spinIntergerMin || element.itemsCount > model.editorSettings.spinIntergerMax)
             {
                 propertiesItemsManager_->AfterError(propertiesId_,
                     QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
@@ -1330,7 +1324,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                 properties_group.name = QString::fromLocal8Bit("Параметры");
                 properties_group.value = QVariant();
                 properties_group.editorSettings.type = CubesUnitTypes::EditorType::None;
-                properties_group.editorSettings.is_expanded = true;
+                properties_group.editorSettings.isExpanded = true;
 
                 CheckParametersMatching(xmlUnit, QString::fromStdString(ti.name), properties_group.id);
 
@@ -1359,9 +1353,9 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     pm.name = QString::fromLocal8Bit("Позиция X");
                     pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->x : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-                    pm.editorSettings.SpinDoubleMin = -10000;
-                    pm.editorSettings.SpinDoubleMax = 10000;
-                    pm.editorSettings.SpinDoubleSingleStep = 20;
+                    pm.editorSettings.spinDoubleMin = -10000;
+                    pm.editorSettings.spinDoubleMax = 10000;
+                    pm.editorSettings.spinDoubleSingleStep = 20;
                     editor_group.parameters.push_back(std::move(pm));
                 }
 
@@ -1371,9 +1365,9 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     pm.name = QString::fromLocal8Bit("Позиция Y");
                     pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->y : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-                    pm.editorSettings.SpinDoubleMin = -10000;
-                    pm.editorSettings.SpinDoubleMax = 10000;
-                    pm.editorSettings.SpinDoubleSingleStep = 20;
+                    pm.editorSettings.spinDoubleMin = -10000;
+                    pm.editorSettings.spinDoubleMax = 10000;
+                    pm.editorSettings.spinDoubleSingleStep = 20;
                     editor_group.parameters.push_back(std::move(pm));
                 }
 
@@ -1383,8 +1377,8 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
                     pm.name = QString::fromLocal8Bit("Позиция Z");
                     pm.value = double{ element.type == CubesXml::ElementType::Item ? element.item->z : 0.0 };
                     pm.editorSettings.type = CubesUnitTypes::EditorType::SpinDouble;
-                    pm.editorSettings.SpinDoubleMin = -10000;
-                    pm.editorSettings.SpinDoubleMax = 10000;
+                    pm.editorSettings.spinDoubleMin = -10000;
+                    pm.editorSettings.spinDoubleMax = 10000;
                     editor_group.parameters.push_back(std::move(pm));
                 }
 
@@ -1427,6 +1421,8 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else if (pm->id == ids_.base + ids_.fileName)
         {
+            const auto enumIndex = editor_->GetEnumValue(property);
+            pm->key = pm->editorSettings.comboBoxValues[enumIndex].id;
             pm->value = property->valueText();
 
             CubesUnitTypes::IncludeIdNames includeNames;
@@ -1437,6 +1433,8 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
         else if (pm->id == ids_.base + ids_.includeName)
         {
+            const auto enumIndex = editor_->GetEnumValue(property);
+            pm->key = pm->editorSettings.comboBoxValues[enumIndex].id;
             pm->value = property->valueText();
 
             propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
@@ -1788,7 +1786,7 @@ void PropertiesItem::ApplyExpandState(QtBrowserItem* index)
 
     auto pm = GetParameterModel(prop);
     if (pm != nullptr)
-        pe->setExpanded(index, pm->editorSettings.is_expanded);
+        pe->setExpanded(index, pm->editorSettings.isExpanded);
 }
 
 void PropertiesItem::ApplyExpandState()

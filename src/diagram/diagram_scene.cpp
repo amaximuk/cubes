@@ -18,6 +18,25 @@ DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
     selectedWithCtrl_ = false;
 }
 
+void DiagramScene::InformBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+    const QString& fileName, const QString& includeName, const QColor& color)
+{
+    for (auto& item : items())
+    {
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+        if (di->propertiesId_ == propertiesId)
+        {
+            di->name_ = name;
+            di->fileName_ = fileName;
+            di->includeName_ = includeName;
+            di->color_ = color;
+            di->InformNameChanged(name, "");
+            di->InformIncludeChanged();
+            di->InformColorChanged(color);
+        }
+    }
+}
+
 void DiagramScene::InformItemPositionChanged(DiagramItem* item)
 {
     emit ItemPositionChanged(item);

@@ -1686,22 +1686,30 @@ void MainWindow::FilePropertiesChanged()
 void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
     const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
-        {
-            di->name_ = name;
-            di->fileName_ = fileItemsManager_->GetFileName(fileId);
-            QString includeName;
-            if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
-                return;
-            di->includeName_ = includeName;
-            di->color_ = fileItemsManager_->GetFileColor(fileId);
-            di->InformNameChanged(name, "");
-            di->InformIncludeChanged();
-        }
-    }
+    const auto fileName = fileItemsManager_->GetFileName(fileId);
+    QString includeName;
+    if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
+        return;
+    const auto color = fileItemsManager_->GetFileColor(fileId);
+
+    scene_->InformBasePropertiesChanged(propertiesId, name, fileName, includeName, color);
+
+    //for (auto& item : scene_->items())
+    //{
+    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    //    if (di->propertiesId_ == propertiesId)
+    //    {
+    //        di->name_ = name;
+    //        di->fileName_ = fileItemsManager_->GetFileName(fileId);
+    //        QString includeName;
+    //        if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
+    //            return;
+    //        di->includeName_ = includeName;
+    //        di->color_ = fileItemsManager_->GetFileColor(fileId);
+    //        di->InformNameChanged(name, "");
+    //        di->InformIncludeChanged();
+    //    }
+    //}
 
     UpdateFileState(path_, true);
     

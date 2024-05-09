@@ -82,7 +82,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
     {
         pr = intManager_->addProperty(model.name);
         intManager_->blockSignals(true);
-        intManager_->setRange(pr, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
+        intManager_->setRange(pr, model.editorSettings.spinIntergerMin, model.editorSettings.spinIntergerMax);
         intManager_->setValue(pr, model.value.toInt());
         intManager_->blockSignals(false);
     }
@@ -90,8 +90,8 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
     {
         pr = doubleManager_->addProperty(model.name);
         doubleManager_->blockSignals(true);
-        doubleManager_->setRange(pr, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
-        doubleManager_->setSingleStep(pr, model.editorSettings.SpinDoubleSingleStep);
+        doubleManager_->setRange(pr, model.editorSettings.spinDoubleMin, model.editorSettings.spinDoubleMax);
+        doubleManager_->setSingleStep(pr, model.editorSettings.spinDoubleSingleStep);
         doubleManager_->setValue(pr, model.value.toDouble());
         doubleManager_->blockSignals(false);
     }
@@ -99,29 +99,29 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
     {
         pr = enumManager_->addProperty(model.name);
         enumManager_->blockSignals(true);
-        enumManager_->setEnumNames(pr, model.editorSettings.ComboBoxValues.values());
+        enumManager_->setEnumNames(pr, model.GetComboBoxValues());
 
-        int pos = 0;
-        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
-        {
-            if (model.value.type() == QVariant::Type::Double &&
-                model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.value.type() == QVariant::Type::Int &&
-                model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.value.type() == QVariant::Type::Bool &&
-                model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
-                break;
-            else if (model.value.type() == QVariant::Type::String &&
-                model.value.toString() == model.editorSettings.ComboBoxValues[pos])
-                break;
-        }
+        //int pos = 0;
+        //for (; pos < model.editorSettings.comboBoxValues.size(); ++pos)
+        //{
+        //    if (model.value.type() == QVariant::Type::Double &&
+        //        model.value.toDouble() == model.get//std::stod(model.editorSettings.comboBoxValues[pos].toStdString()))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::Int &&
+        //        model.value.toInt() == std::stoi(model.editorSettings.comboBoxValues[pos].toStdString()))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::Bool &&
+        //        model.value.toBool() == (model.editorSettings.comboBoxValues[pos] == "true"))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::String &&
+        //        model.value.toString() == model.editorSettings.comboBoxValues[pos])
+        //        break;
+        //}
 
-        if (pos == model.editorSettings.ComboBoxValues.size())
-            pos = 0;
+        //if (pos == model.editorSettings.comboBoxValues.size())
+        //    pos = 0;
 
-        enumManager_->setValue(pr, pos);
+        enumManager_->setValue(pr, model.GetComboBoxIndex());
         enumManager_->blockSignals(false);
     }
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
@@ -170,44 +170,44 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
     {
         intManager_->blockSignals(true);
-        intManager_->setRange(property, model.editorSettings.SpinIntergerMin, model.editorSettings.SpinIntergerMax);
+        intManager_->setRange(property, model.editorSettings.spinIntergerMin, model.editorSettings.spinIntergerMax);
         intManager_->setValue(property, model.value.toInt());
         intManager_->blockSignals(false);
     }
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinDouble)
     {
         doubleManager_->blockSignals(true);
-        doubleManager_->setRange(property, model.editorSettings.SpinDoubleMin, model.editorSettings.SpinDoubleMax);
-        doubleManager_->setSingleStep(property, model.editorSettings.SpinDoubleSingleStep);
+        doubleManager_->setRange(property, model.editorSettings.spinDoubleMin, model.editorSettings.spinDoubleMax);
+        doubleManager_->setSingleStep(property, model.editorSettings.spinDoubleSingleStep);
         doubleManager_->setValue(property, model.value.toDouble());
         doubleManager_->blockSignals(false);
     }
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
     {
         enumManager_->blockSignals(true);
-        enumManager_->setEnumNames(property, model.editorSettings.ComboBoxValues.values());
+        enumManager_->setEnumNames(property, model.GetComboBoxValues());
 
-        int pos = 0;
-        for (; pos < model.editorSettings.ComboBoxValues.size(); ++pos)
-        {
-            if (model.value.type() == QVariant::Type::Double &&
-                model.value.toDouble() == std::stod(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.value.type() == QVariant::Type::Int &&
-                model.value.toInt() == std::stoi(model.editorSettings.ComboBoxValues[pos].toStdString()))
-                break;
-            else if (model.value.type() == QVariant::Type::Bool &&
-                model.value.toBool() == (model.editorSettings.ComboBoxValues[pos] == "true"))
-                break;
-            else if (model.value.type() == QVariant::Type::String &&
-                model.value.toString() == model.editorSettings.ComboBoxValues[pos])
-                break;
-        }
+        //int pos = 0;
+        //for (; pos < model.editorSettings.comboBoxValues.size(); ++pos)
+        //{
+        //    if (model.value.type() == QVariant::Type::Double &&
+        //        model.value.toDouble() == std::stod(model.editorSettings.comboBoxValues[pos].toStdString()))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::Int &&
+        //        model.value.toInt() == std::stoi(model.editorSettings.comboBoxValues[pos].toStdString()))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::Bool &&
+        //        model.value.toBool() == (model.editorSettings.comboBoxValues[pos] == "true"))
+        //        break;
+        //    else if (model.value.type() == QVariant::Type::String &&
+        //        model.value.toString() == model.editorSettings.comboBoxValues[pos])
+        //        break;
+        //}
 
-        if (pos == model.editorSettings.ComboBoxValues.size())
-            pos = 0;
+        //if (pos == model.editorSettings.comboBoxValues.size())
+        //    pos = 0;
 
-        enumManager_->setValue(property, pos);
+        enumManager_->setValue(property, model.GetComboBoxIndex());
         enumManager_->blockSignals(false);
     }
     else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
@@ -258,27 +258,27 @@ void PropertiesEditor::SetEnumValues(QtProperty* property, QStringList values)
     enumManager_->setEnumNames(property, values);
 }
     
-void PropertiesEditor::SetEnumValue(QtProperty* property, QVariant value)
-{
-    auto values = enumManager_->enumNames(property);
-    int pos = 0;
-    for (; pos < values.size(); ++pos)
-    {
-        if (value.type() == QVariant::Type::Double && value.toDouble() == std::stod(values[pos].toStdString()))
-            break;
-        else if (value.type() == QVariant::Type::Int && value.toInt() == std::stoi(values[pos].toStdString()))
-            break;
-        else if (value.type() == QVariant::Type::Bool && value.toBool() == (values[pos] == "true"))
-            break;
-        else if (value.type() == QVariant::Type::String && value.toString() == values[pos])
-            break;
-    }
-
-    if (pos == values.size())
-        pos = 0;
-
-    enumManager_->setValue(property, pos);
-}
+//void PropertiesEditor::SetEnumValue(QtProperty* property, QVariant value)
+//{
+//    auto values = enumManager_->enumNames(property);
+//    int pos = 0;
+//    for (; pos < values.size(); ++pos)
+//    {
+//        if (value.type() == QVariant::Type::Double && value.toDouble() == std::stod(values[pos].toStdString()))
+//            break;
+//        else if (value.type() == QVariant::Type::Int && value.toInt() == std::stoi(values[pos].toStdString()))
+//            break;
+//        else if (value.type() == QVariant::Type::Bool && value.toBool() == (values[pos] == "true"))
+//            break;
+//        else if (value.type() == QVariant::Type::String && value.toString() == values[pos])
+//            break;
+//    }
+//
+//    if (pos == values.size())
+//        pos = 0;
+//
+//    enumManager_->setValue(property, pos);
+//}
 
 void PropertiesEditor::SetBoolValue(QtProperty* property, bool value)
 {

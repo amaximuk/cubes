@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QGraphicsScene>
+#include <QColor>
 #include "../top_manager_interface.h"
 
 namespace CubesDiagram
@@ -25,6 +26,8 @@ namespace CubesDiagram
     public:
         // TODO: Это заготовка для функций интерфейса, чтобы напрямую не управлять diagram_item
         //void InformItemPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
+        void InformBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+            const QString& fileName, const QString& includeName, const QColor& color);
 
         void InformItemPositionChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);

@@ -41,7 +41,7 @@ public:
     void SetStringValue(QtProperty* property, const QString& value, bool setOldValue = false, const QString& oldValue = "");
     void SetEnumValue(QtProperty* property, int value);
     void SetEnumValues(QtProperty* property, QStringList values);
-    void SetEnumValue(QtProperty* property, QVariant value);
+    //void SetEnumValue(QtProperty* property, QVariant value);
     void SetBoolValue(QtProperty* property, bool value);
     void SetColorValue(QtProperty* property, QColor value);
     void SetReadOnly(QtProperty* property, bool readOnly);
