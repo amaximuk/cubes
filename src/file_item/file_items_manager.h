@@ -61,7 +61,6 @@ namespace CubesFile
 			const CubesUnitTypes::VariableIdVariables& variables);
 
 		bool GetFileIncludeNames(const CubesUnitTypes::FileId fileId, bool addEmptyValue, CubesUnitTypes::IncludeIdNames& includes);
-		//QString GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath);
 		bool GetFileIncludeName(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId, QString& includeName);
 		bool GetFileIncludePath(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId fileIncludeId, QString& includePath);
 		bool GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
@@ -107,7 +106,6 @@ namespace CubesFile
 		void OnEditorCollapsed(QtBrowserItem* item);
 		void OnEditorExpanded(QtBrowserItem* item);
 		void OnContextMenuRequested(const QPoint& pos);
-		//void OnCurrentItemChanged(QtBrowserItem* item);
 		void OnDeleteInclude(bool checked = false);
 		void OnSelectorIndexChanged(int index);
 		void OnAddFileClicked();

@@ -79,8 +79,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 	fileId = ++uniqueNumber_;
 
-	//auto item = GetItem(fileName);
-	if (fileName == ""/* || item != nullptr*/)
+	if (fileName == "")
 		fileName = QString::fromLocal8Bit("Файл %1").arg(fileId);
 
 	auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
@@ -107,34 +106,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 {
 	fileId = ++uniqueNumber_;
 
-	//auto fileName = xmlFile.name;
-	//if (fileName.isEmpty())
-	//{
-	//	QFileInfo fi(xmlFile.fileName);
-	//	fileName = fi.fileName();
-	//}
-	//auto platform = xmlFile.platform;
-	//const auto& filePath = xmlFile.fileName;
-
-	//auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
-	//if (platform == "" || it == CubesUnitTypes::platform_names_.cend())
-	//	platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
-
-
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
-	//fi->SetName(fileName, true, fileName);
-	//fi->SetPath(filePath);
-	//if (/*xmlFile == nullptr || */ xmlFile.color.isEmpty())
-	//{
-	//	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-	//		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-	//	fi->SetColor(color);
-	//}
-	//else
-	//{
-	//	fi->SetColor();
-	//}
-
 
 	items_[fileId] = fi;
 	selector_->addItem(fi->GetName(), fileId);
@@ -237,15 +209,6 @@ bool FileItemsManager::GetFileIncludeNames(const CubesUnitTypes::FileId fileId, 
 	return true;
 }
 
-//QString FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId, const QString& filePath)
-//{
-//	const auto it = items_.find(fileId);
-//	if (it != items_.end())
-//		return (*it)->GetIncludeName(filePath);
-//
-//	return "";
-//}
-
 bool FileItemsManager::GetFileIncludeName(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId fileIncludeId, QString& includeName)
 {
@@ -328,27 +291,6 @@ bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 	return true;
 }
 
-//
-//void FileItemsManager::BeforeFileNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId oldFileId, bool& cancel)
-//{
-//	//auto item = GetItem(fileId);
-//	//QString fileName = item->GetName();
-//
-//	//int count = 0;
-//	//for (const auto& i : items_)
-//	//{
-//	//	if (i->GetName() == fileName)
-//	//		count++;
-//	//}
-//	//if (count > 0)
-//	//{
-//	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-//	//	cancel = true;
-//	//}
-//	//else
-//	//	cancel = false;
-//}
-
 void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 {
 	auto item = GetItem(fileId);
@@ -361,31 +303,9 @@ void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 	// Переименовываем имя выбранного файла
 	selected_ = fileId;
 
-	//// Переименовываем в comboBox
-	//for (int i = 0; i < selector_->count(); ++i)
-	//{
-	//	if (selector_->itemText(i) == oldFileName)
-	//	{
-	//		selector_->setItemText(i, fileName);
-	//		break;
-	//	}
-	//}
-
-	//// Переименовываем имя выбранного файла
-	//// Проверка selected_ == oldFileName избыточна, на всякий случай оставлю
-	//if (selected_ == oldFileName)
-	//	selected_ = fileName;
-
 	// Уведомляем о переименовании
 	emit FileNameChanged(fileId);
 }
-
-//void FileItemsManager::BeforeIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId includeId,
-//	const CubesUnitTypes::FileId oldIncludeId, bool& cancel)
-//{
-//	// Ничего не делаем
-//	cancel = false;
-//}
 
 void FileItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId includeId)
 {
@@ -402,9 +322,6 @@ void FileItemsManager::BeforeIncludesAdd(const CubesUnitTypes::FileId fileId,
 void FileItemsManager::BeforeIncludesRemoved(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeIdNames& includeNames, bool& cancel)
 {
-	//auto item = GetItem(fileId);
-	//QString fileName = item->GetName();
-
 	QSet<QString> allUnitNames;
 	for (const auto& includeId : includeNames.keys())
 	{
@@ -488,18 +405,6 @@ void FileItemsManager::OnContextMenuRequested(const QPoint& pos)
 	}
 }
 
-//void FileItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
-//{
-//	CubesUnitTypes::FileId FileId = GetCurrentFileId();
-//	if (item != nullptr && items_.contains(FileId))
-//	{
-//		QString description = items_[FileId]->GetPropertyDescription(item->property());
-//		hint_->setPlainText(description);
-//	}
-//	else
-//		hint_->setPlainText("");
-//}
-//
 void FileItemsManager::OnDeleteInclude(bool checked)
 {
 
@@ -545,8 +450,6 @@ void FileItemsManager::OnRemoveFileClicked()
 	}
 
 	auto fileId = GetCurrentFileId();
-	//auto item = GetItem(fileId);
-	//QString fileName = item->GetName();
 
 	// Проверяем возможность удаления
 	QStringList unitNames;

@@ -64,7 +64,6 @@ namespace CubesFile
         void SetName(QString name, bool setOldName = false, QString oldName = "");
         QString GetName();
 
-        //void SetPlatform(QString platform);
         void SetPath(QString name, bool setOldName = false, QString oldName = "");
 
         void AddInclude(const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables);

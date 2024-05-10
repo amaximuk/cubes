@@ -367,7 +367,5 @@ void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
     if (item != nullptr)
     {
         DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-        //if (di->getProperties()->GetId() == "group")
-        //    main_->ActivateGroup(di->getProperties()->GetName());
     }
 }

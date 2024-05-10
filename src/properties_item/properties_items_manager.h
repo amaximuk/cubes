@@ -54,7 +54,6 @@ namespace CubesProperties
 		bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
 			const CubesUnitTypes::IncludeId includeId, QStringList& unitNames);
 
-		//bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd);
 		bool GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
 		bool GetUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId);
 
@@ -69,7 +68,6 @@ namespace CubesProperties
 			const QString& includeName);
 		bool InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
 		bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId);
-		//bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
 
 		void Clear();
 		bool GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name);

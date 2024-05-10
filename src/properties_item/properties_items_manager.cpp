@@ -66,9 +66,6 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	propertiesId = ++uniqueNumber_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, isArray_, propertiesId));
 
-	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
-	//pi->SetName(propertiesName);
-
 	items_[propertiesId] = pi;
 	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
@@ -117,11 +114,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	propertiesId = ++uniqueNumber_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, isArray_, propertiesId));
 
-	//QString propertiesName = QString::fromStdString(unitParameters.fileInfo.info.id) + " #" + QString("%1").arg(propertiesId);
-	//pi->SetName(propertiesName);
-
 	items_[propertiesId] = pi;
-	//	auto name = GetName(propertiesId);
 
 	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
@@ -203,20 +196,6 @@ bool PropertiesItemsManager::GetUnitsInFileIncludeList(const CubesUnitTypes::Fil
 	return true;
 }
 
-//bool PropertiesItemsManager::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
-//{
-//	auto pi = GetItem(propertiesId);
-//	if (pi == nullptr)
-//		return false;
-//
-//	pfd.pixmap = pi->GetPixmap();
-//	pfd.name = GetName(propertiesId);
-//	pfd.fileName = pi->GetFileName();
-//	pfd.includeName = pi->GetIncludeName();
-//	pfd.color = {};
-//	return true;
-//}
-
 bool PropertiesItemsManager::GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
 	auto pi = GetItem(propertiesId);
@@ -235,7 +214,6 @@ bool PropertiesItemsManager::GetUnitId(const CubesUnitTypes::PropertiesId proper
 
 	unitId = pi->GetUnitId();
 	return true;
-
 }
 
 bool PropertiesItemsManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
@@ -344,19 +322,6 @@ bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId
 	return true;
 }
 
-//bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
-//{
-//	for (auto& item : scene_->items())
-//	{
-//		CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-//
-//		auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
-//		if (pi->GetFileId() == fileId)
-//			di->color_ = color;
-//	}
-//
-//}
-
 void PropertiesItemsManager::Clear()
 {
 	editor_->GetPropertyEditor()->clear();
@@ -447,7 +412,7 @@ void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId
 {
 	QString name;
 	GetName(propertiesId, name);
-	//	auto name = GetName(propertiesId);
+
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
@@ -464,7 +429,7 @@ void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::Properti
 {
 	QString name;
 	GetName(propertiesId, name);
-	//auto name = GetName(propertiesId);
+
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
@@ -484,7 +449,7 @@ void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::Prope
 {
 	QString name;
 	GetName(propertiesId, name);
-	//	auto name = GetName(propertiesId);
+
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->setItemText(index, name);
@@ -507,7 +472,6 @@ void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId prope
 	{
 		logManager_->AddMessage({ CubesLog::MessageType::error, propertiesId, "Properties Manager", message });
 	}
-	//emit Error(propertiesId, message);
 }
 
 void PropertiesItemsManager::AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId)
@@ -566,63 +530,8 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
 
-		//auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
-		//	for (auto& parameter : parameters)
-		//	{
-		//		parameter.id = parameter.id.mid(to_remove.length() + 1);
-		//		rename(parameter.parameters, to_remove, rename);
-		//	}
-		//};
-
 		// Удаляем все элементы массива из панели параметров
-		//item->RemoveSubProperties(pe->currentItem()->property());
 		item->RemoveItems(pm->id);
-
-		//{
-		//	auto property = pe->currentItem()->property();
-
-		//	//QMap<QString, const QtProperty*> idToProperty;
-		//	//for (int i = property->subProperties().size(); i < count; ++i)
-		//	//	property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
-		//	//for (const auto& kvp : idToProperty.toStdMap())
-		//	//	RegisterProperty(kvp.second, kvp.first);
-
-		//	auto collect = [](QtProperty* property, QList<QtProperty*>& list, auto&& collect) -> void {
-		//		list.push_back(property);
-		//		for (const auto& p : property->subProperties())
-		//		{
-		//			collect(p, list, collect);
-		//			property->removeSubProperty(p);
-		//		}
-		//	};
-
-
-		//	//QList<QtProperty*> toRemove;
-		//	QList<QtProperty*> toUnregister;
-		//	//const auto& subProperties = property->subProperties();
-		//	//for (int i = count; i < subProperties.size(); ++i)
-		//	//{
-		//	//	collect(subProperties[i], toUnregister, collect);
-		//	//	toRemove.push_back(subProperties[i]);
-		//	//}
-		//	collect(property, toUnregister, collect);
-
-		//	//for (auto& p : toRemove)
-		//	//	property->removeSubProperty(p);
-
-		//	for (auto& p : toUnregister)
-		//		UnregisterProperty(p);
-		//}
-
-
-
-
-
-
-
-
-
-
 
 		if (b)
 		{
@@ -639,19 +548,6 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		else
 			return;
 	}
-
-	//QString name = pe->currentItem()->property()->propertyName();
-	//QString parentName = pe->currentItem()->parent()->property()->propertyName();
-	//if (parentName == QString::fromLocal8Bit("Включаемые файлы"))
-	//{
-	//	QMenu contextMenu("Context menu");
-
-	//	QAction action1(QString::fromLocal8Bit("Удалить %1").arg(name));
-	//	connect(&action1, &QAction::triggered, this, &PropertiesItemsManager::OnDeleteInclude);
-	//	contextMenu.addAction(&action1);
-
-	//	contextMenu.exec(pe->mapToGlobal(pos));
-	//}
 }
 
 void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
@@ -668,7 +564,6 @@ void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
 
 void PropertiesItemsManager::OnDeleteInclude(bool checked)
 {
-
 }
 
 void PropertiesItemsManager::OnSelectorIndexChanged(int index)
@@ -693,9 +588,6 @@ void PropertiesItemsManager::OnAddUnitClicked()
 
 		PropertiesForDrawing pfd{};
 
-
-
-
 		auto pi = GetItem(propertiesId);
 		if (pi == nullptr)
 			return;
@@ -709,15 +601,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		pfd.includeName = pi->GetIncludeName();
 		pfd.color = Qt::white;
 
-
-
-
-
-		//if (!GetPropetiesForDrawing(propertiesId, pfd))
-		//	return;
-
 		const auto item = GetItem(currentPropertiesId);
-		
 
 		QPointF pos = item->GetPosition();
 		pos += { 40, 20 };
@@ -735,10 +619,6 @@ void PropertiesItemsManager::OnAddUnitClicked()
 
 		PropertiesForDrawing pfd{};
 
-
-
-
-
 		auto pi = GetItem(propertiesId);
 		if (pi == nullptr)
 			return;
@@ -752,55 +632,9 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		pfd.includeName = pi->GetIncludeName();
 		pfd.color = Qt::white;
 
-
-
-
-		//if (!GetPropetiesForDrawing(propertiesId, pfd))
-		//	return;
-
 		QPointF pos{ 0, 0 };
 		topManager_->CreateDiagramItem(propertiesId, pfd, pos);
 	}
-
-	//topManager_->CreateDiagramItem();
-	//Create(const QString & unitId, bool isArrayUnit, uint32_t & propertiesId);
-
-	//bool ok;
-	//QString fileName = QInputDialog::getText(widget_, QString::fromLocal8Bit("Добавление файла"), QString::fromLocal8Bit("Имя файла:"), QLineEdit::Normal, "", &ok);
-	//if (!ok || fileName.isEmpty())
-	//	return;
-
-	//int count = 0;
-	//for (const auto& i : items_)
-	//{
-	//	if (i->GetName() == fileName)
-	//		count++;
-	//}
-	//if (count > 0)
-	//{
-	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Имя уже используется. Дубликаты не допускаются!"));
-	//	return;
-	//}
-
-	//QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-	//	defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-
-	//uint32_t propertiesId{ 0 };
-	//Create(fileName, propertiesId);
-	//Select(fileName);
-
-	//for (auto& item : panes_[0].first->items())
-	//{
-	//	diagram_item* di = reinterpret_cast<diagram_item*>(item);
-	//	QStringList fileNames = properties_items_manager_->GetFileNames();
-	//	di->getProperties()->SetFileNames(fileNames);
-	//}
-
-	//if (panes_[0].first->selectedItems().size() > 0)
-	//	reinterpret_cast<diagram_item*>(panes_[0].first->selectedItems()[0])->getProperties()->ApplyToBrowser(propertyEditor_);
-
-	//panes_[0].first->invalidate();
-
 }
 
 void PropertiesItemsManager::OnAimUnitClicked()
@@ -811,51 +645,6 @@ void PropertiesItemsManager::OnAimUnitClicked()
 	{
 		topManager_->EnshureVisible(currentPropertiesId);
 	}
-
-	//if (selected_ == 0)
-	//{
-	//	QMessageBox::critical(widget_, "Error", QString::fromLocal8Bit("Файл не выбран!"));
-	//	return;
-	//}
-
-	//// Проверяем возможность удаления
-	//QStringList unitNames;
-	//top_manager_->GetUnitsInFileList(selected_, unitNames);
-	//if (unitNames.count() > 0)
-	//{
-	//	QString text = QString::fromLocal8Bit("Имя используется.\nУдаление невозможно!\nЮниты:\n");
-	//	text.append(unitNames.join('\n'));
-	//	QMessageBox::critical(widget_, "Error", text);
-	//	return;
-	//}
-
-	//// Сохраняем копию, после удаления selected_ изменится
-	//QString selected = selected_;
-
-	//// Удаляем из селектора, автоматически происходит UnSelect
-	//selector_->removeItem(selector_->findText(selected_));
-
-	//// Получаем все имена, заодно запоминаем элемент для удаления
-	//QStringList fileNames;
-	//QSharedPointer<properties_item> toRemove;
-	//for (const auto& item : items_)
-	//{
-	//	QString name = item->GetName();
-	//	if (name == selected)
-	//		toRemove = item;
-	//	else
-	//		fileNames.push_back(item->GetName());
-	//}
-
-	//// Удаляем из списка
-	////items_.removeAll(toRemove);
-
-	//// Если это был последний
-	//if (items_.count() == 0)
-	//	editor_->GetPropertyEditor()->clear();
-
-	//// Сообщаяем об удалении
-	//emit FilesListChanged(fileNames);
 }
 
 QWidget* PropertiesItemsManager::CreateEditorWidget()

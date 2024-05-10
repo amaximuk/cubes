@@ -417,7 +417,6 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                     pm_depends.value = bool{ element.param->depends };
                 else
                     pm_depends.value = bool{ false };
-                //pm_depends.valueType = "bool";
                 pm_depends.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
 
                 model.parameters.push_back(std::move(pm_depends));
@@ -512,7 +511,6 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         pmo.id = model.id + ids_.optional;
         pmo.name = QString::fromLocal8Bit("Не задавать");
         pmo.value = bool{ false };
-        //pmo.valueType = "bool";
         pmo.editorSettings.type = CubesUnitTypes::EditorType::CheckBox;
 
         // Если xml файл есть, устанавливаем значение флага
@@ -1280,12 +1278,6 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitTy
             group_model.name = QString::fromLocal8Bit("Элемент %1").arg(i);
             group_model.value = QVariant();
             group_model.editorSettings.type = CubesUnitTypes::EditorType::None;
-
-            // Получаем значение из xml файла
-            //CubesXml::Item* xmlItem = nullptr;
-            //QString xmlItemType;
-            //if (xmlUnit != nullptr)
-            //    xmlItem = CubesXml::Helper::GetItem(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, xmlItemType);
 
             CubesXml::Element element;
             if (xmlUnit != nullptr && !CubesXml::Helper::GetElement(*const_cast<CubesXml::Unit*>(xmlUnit), group_model.id, element))
