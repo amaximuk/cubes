@@ -9,9 +9,9 @@
 #include "xml/xml_helper.h"
 #include "graph.h"
 #include "zip.h"
-#include "mock_window.h"
+#include "top_manager.h"
 
-MockWindow::MockWindow(QWidget *parent)
+TopManager::TopManager(QWidget *parent)
 {
     modified_ = false;
     uniqueNumber_ = 0;
@@ -19,26 +19,26 @@ MockWindow::MockWindow(QWidget *parent)
     UpdateFileState("", false);
 
     fileItemsManager_ = new CubesFile::FileItemsManager(this, this);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &MockWindow::FileNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &MockWindow::FileListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &MockWindow::FileIncludeNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &MockWindow::FileIncludesListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &MockWindow::FileVariableNameChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &MockWindow::FileVariablesListChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &MockWindow::FileColorChanged);
-    connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &MockWindow::FilePropertiesChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &TopManager::FileNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &TopManager::FileListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &TopManager::FileIncludeNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &TopManager::FileIncludesListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &TopManager::FileVariableNameChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &TopManager::FileVariablesListChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &TopManager::FileColorChanged);
+    connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &TopManager::FilePropertiesChanged);
     
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, false);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &MockWindow::PropertiesBasePropertiesChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &MockWindow::PropertiesSelectedItemChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &MockWindow::PropertiesPositionChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &MockWindow::PropertiesError);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::ConnectionChanged, this, &MockWindow::PropertiesConnectionChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &MockWindow::PropertiesPropertiesChanged);
-    //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &MockWindow::propertiesFileNameChanged);
-    //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &MockWindow::fileListChanged);
-    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &MockWindow::fileIncludeNameChanged);
-    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludesListChanged, this, &MockWindow::fileIncludesListChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &TopManager::PropertiesBasePropertiesChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &TopManager::PropertiesSelectedItemChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &TopManager::PropertiesPositionChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &TopManager::PropertiesError);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::ConnectionChanged, this, &TopManager::PropertiesConnectionChanged);
+    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &TopManager::PropertiesPropertiesChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &TopManager::propertiesFileNameChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &TopManager::fileListChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludeNameChanged, this, &TopManager::fileIncludeNameChanged);
+    //connect(properties_items_manager_, &Properties::properties_items_manager::IncludesListChanged, this, &TopManager::fileIncludesListChanged);
 
     analysisManager_ = new CubesAnalysis::AnalysisManager(this, this);
 
@@ -48,40 +48,40 @@ MockWindow::MockWindow(QWidget *parent)
     //fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("АРМ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 
-MockWindow::~MockWindow()
+TopManager::~TopManager()
 {
 }
 
 // ITopManager
-bool MockWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
+bool TopManager::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileList(fileId, unitNames);
 }
 
-bool MockWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+bool TopManager::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
     const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileIncludeList(fileId, includeId, unitNames);
 }
 
-bool MockWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
+bool TopManager::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     unitParameters = unitParameters_[unitId];
     return true;
 }
 
-bool MockWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
+bool TopManager::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
 {
     return fileItemsManager_->GetFileIncludeNames(fileId, true, includeNames);
 }
 
-bool MockWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
+bool TopManager::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
     const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
     return fileItemsManager_->GetFileIncludeVariables(fileId, includeId, variables);
 }
 
-bool MockWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
+bool TopManager::CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId)
 {
     propertiesItemsManager_->Create(unitId, propertiesId);
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
@@ -92,7 +92,7 @@ bool MockWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool MockWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool TopManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
 {
     //if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
     //    return false;
@@ -113,52 +113,52 @@ bool MockWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesF
     return true;
 }
 
-bool MockWindow::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool TopManager::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool MockWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
+bool TopManager::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
-bool MockWindow::GetUnitsConnections(QMap<QString, QStringList>& connections)
+bool TopManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetUnitsConnections(connections);
 }
 
-bool MockWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
+bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
-bool MockWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
 {
     return false;
 }
 
-bool MockWindow::EnshureVisible(uint32_t propertiesId)
+bool TopManager::EnshureVisible(uint32_t propertiesId)
 {
     return false;
 }
 
-bool MockWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
+bool TopManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 {
     return fileItemsManager_->GetAnalysisFiles(files);
 }
 
-bool MockWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties)
+bool TopManager::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties)
 {
     return propertiesItemsManager_->GetAnalysisProperties(properties);
 }
 
 // ILogManager
-void MockWindow::AddMessage(const CubesLog::LogMessage& m)
+void TopManager::AddMessage(const CubesLog::LogMessage& m)
 {
 }
 
-void MockWindow::FillParametersInfo()
+void TopManager::FillParametersInfo()
 {
     QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
     QStringList platformDirs;
@@ -211,7 +211,7 @@ void MockWindow::FillParametersInfo()
 }
 
 // Units
-bool MockWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
+bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
 {
     // Не очищаем, вдруг там уже что-то поменяно
     //if (scene_->items().size() == 0)
@@ -365,7 +365,7 @@ bool MockWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     return true;
 }
 
-bool MockWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
+bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
@@ -453,7 +453,7 @@ bool MockWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     return true;
 }
 
-CubesUnitTypes::UnitParameters* MockWindow::GetUnitParameters(const QString& id)
+CubesUnitTypes::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 {
     for (auto& up : unitParameters_)
     {
@@ -463,7 +463,7 @@ CubesUnitTypes::UnitParameters* MockWindow::GetUnitParameters(const QString& id)
     return nullptr;
 }
 
-bool MockWindow::Test()
+bool TopManager::Test()
 {
     //log_table_model_->Clear();
     analysisManager_->Test();
@@ -471,17 +471,17 @@ bool MockWindow::Test()
 }
 
 // Files
-CubesUnitTypes::FileIdNames MockWindow::GetFileNames()
+CubesUnitTypes::FileIdNames TopManager::GetFileNames()
 {
     return fileItemsManager_->GetFileNames();
 }
 
-//QString MockWindow::GetCurrentFileName()
+//QString TopManager::GetCurrentFileName()
 //{
 //    return fileItemsManager_->GetCurrentFileName();
 //}
 
-CubesUnitTypes::IncludeIdNames MockWindow::GetCurrentFileIncludeNames()
+CubesUnitTypes::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
 {
     auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
     CubesUnitTypes::IncludeIdNames includes;
@@ -491,7 +491,7 @@ CubesUnitTypes::IncludeIdNames MockWindow::GetCurrentFileIncludeNames()
     return includes;
 }
 
-//QString MockWindow::GetDisplayName(const QString& baseName)
+//QString TopManager::GetDisplayName(const QString& baseName)
 //{
 //    CubesUnitTypes::VariableIdVariables variables;
 //    for (const auto& item : scene_->items())
@@ -516,7 +516,7 @@ CubesUnitTypes::IncludeIdNames MockWindow::GetCurrentFileIncludeNames()
 //    return realName;
 //}
 
-void MockWindow::UpdateFileState(const QString& path, bool modified)
+void TopManager::UpdateFileState(const QString& path, bool modified)
 {
     QString title = path.isEmpty() ? "untitled" : path;
     if (modified) title += "*";
@@ -525,7 +525,7 @@ void MockWindow::UpdateFileState(const QString& path, bool modified)
     modified_ = modified;
 }
 
-bool MockWindow::SaveFileInternal(const QString& path)
+bool TopManager::SaveFileInternal(const QString& path)
 {
     //log_table_model_->Clear();
 
@@ -607,7 +607,7 @@ bool MockWindow::SaveFileInternal(const QString& path)
     return true;
 }
 
-bool MockWindow::SaveFolderInternal(const QString& path)
+bool TopManager::SaveFolderInternal(const QString& path)
 {
     //log_table_model_->Clear();
 
@@ -701,7 +701,7 @@ bool MockWindow::SaveFolderInternal(const QString& path)
     return true;
 }
 
-bool MockWindow::OpenFileInternal(const QString& path)
+bool TopManager::OpenFileInternal(const QString& path)
 {
     //scene_->clear();
     propertiesItemsManager_->Clear();
@@ -753,7 +753,7 @@ bool MockWindow::OpenFileInternal(const QString& path)
     return true;
 }
 
-bool MockWindow::OpenFolderInternal(const QString& path)
+bool TopManager::OpenFolderInternal(const QString& path)
 {
     //scene_->clear();
     propertiesItemsManager_->Clear();
@@ -803,7 +803,7 @@ bool MockWindow::OpenFolderInternal(const QString& path)
 }
 
 // FileItemsManager
-void MockWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
+void TopManager::FileNameChanged(const CubesUnitTypes::FileId& fileId)
 {
     const auto fileName = fileItemsManager_->GetFileName(fileId);
     if (!propertiesItemsManager_->InformFileNameChanged(fileId, fileName))
@@ -814,7 +814,7 @@ void MockWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
     //scene_->invalidate();
 }
 
-void MockWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
+void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 {
     if (!propertiesItemsManager_->InformFileListChanged(fileNames))
         return;
@@ -836,7 +836,7 @@ void MockWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     //scene_->invalidate();
 }
 
-void MockWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
+void TopManager::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
 {
     QString includeName;
     if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
@@ -850,7 +850,7 @@ void MockWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
     //scene_->invalidate();
 }
 
-void MockWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+void TopManager::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
 {
     if (!propertiesItemsManager_->InformIncludesListChanged(fileId, includeNames))
         return;
@@ -860,7 +860,7 @@ void MockWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, c
     //scene_->invalidate();
 }
 
-void MockWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void TopManager::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
@@ -869,7 +869,7 @@ void MockWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, c
     UpdateFileState(path_, true);
 }
 
-void MockWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void TopManager::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
@@ -878,7 +878,7 @@ void MockWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, 
     UpdateFileState(path_, true);
 }
 
-void MockWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+void TopManager::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
 {
     if (!propertiesItemsManager_->InformFileColorChanged(fileId))
         return;
@@ -888,13 +888,13 @@ void MockWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QC
     //scene_->invalidate();
 }
 
-void MockWindow::FilePropertiesChanged()
+void TopManager::FilePropertiesChanged()
 {
     UpdateFileState(path_, true);
 }
 
 // PropertiesItemsManager
-void MockWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+void TopManager::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
     const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     //for (auto& item : scene_->items())
@@ -917,11 +917,11 @@ void MockWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
     //scene_->invalidate();
 }
 
-void MockWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
+void TopManager::PropertiesSelectedItemChanged(const uint32_t propertiesId)
 {
 }
 
-void MockWindow::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+void TopManager::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
 {
     //for (auto& item : scene_->items())
     //{
@@ -937,7 +937,7 @@ void MockWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
     //UpdateFileState(path_, true);
 }
 
-void MockWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
+void TopManager::PropertiesError(const uint32_t propertiesId, const QString& message)
 {
     CubesLog::LogMessage lm{};
     lm.type = CubesLog::MessageType::error;
@@ -947,18 +947,18 @@ void MockWindow::PropertiesError(const uint32_t propertiesId, const QString& mes
     AddMessage(lm);
 }
 
-void MockWindow::PropertiesConnectionChanged(const uint32_t propertiesId)
+void TopManager::PropertiesConnectionChanged(const uint32_t propertiesId)
 {
     UpdateFileState(path_, true);
 }
 
-void MockWindow::PropertiesPropertiesChanged()
+void TopManager::PropertiesPropertiesChanged()
 {
     UpdateFileState(path_, true);
 }
 
 // Кнопки
-void MockWindow::OnNewFileAction()
+void TopManager::OnNewFileAction()
 {
     //scene_->clear();
     propertiesItemsManager_->Clear();
@@ -968,7 +968,7 @@ void MockWindow::OnNewFileAction()
     UpdateFileState("", false);
 }
 
-void MockWindow::OnOpenFileAction()
+void TopManager::OnOpenFileAction()
 {
     //if (!OpenFileInternal(selectedFileNames[0]))
     //{
@@ -976,7 +976,7 @@ void MockWindow::OnOpenFileAction()
     //}
 }
 
-void MockWindow::OnOpenFolderAction()
+void TopManager::OnOpenFolderAction()
 {
     //if (!OpenFolderInternal(folderPath))
     //{
@@ -984,7 +984,7 @@ void MockWindow::OnOpenFolderAction()
     //}
 }
 
-void MockWindow::OnImportXmlFileAction()
+void TopManager::OnImportXmlFileAction()
 {
     CubesXml::File f{};
     {
@@ -1000,7 +1000,7 @@ void MockWindow::OnImportXmlFileAction()
     }
 }
 
-void MockWindow::OnSaveFileAction()
+void TopManager::OnSaveFileAction()
 {
     if (!modified_ && !path_.isEmpty())
         return;
@@ -1017,7 +1017,7 @@ void MockWindow::OnSaveFileAction()
     }
 }
 
-void MockWindow::OnSaveAsFileAction()
+void TopManager::OnSaveAsFileAction()
 {
     //if (!SaveFileInternal(selectedFileName))
     //{
@@ -1025,7 +1025,7 @@ void MockWindow::OnSaveAsFileAction()
     //}
 }
 
-void MockWindow::OnSaveFolderAction()
+void TopManager::OnSaveFolderAction()
 {
     //if (!SaveFolderInternal(folderPath))
     //{
@@ -1033,17 +1033,17 @@ void MockWindow::OnSaveFolderAction()
     //}
 }
 
-void MockWindow::OnSortBoostAction()
+void TopManager::OnSortBoostAction()
 {
     //SortUnits();
 }
 
-void MockWindow::OnSortRectAction()
+void TopManager::OnSortRectAction()
 {
     //SortUnitsRectangular(false);
 }
 
-void MockWindow::OnTestAction()
+void TopManager::OnTestAction()
 {
     Test();
 }

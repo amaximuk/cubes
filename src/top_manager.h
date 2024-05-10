@@ -50,7 +50,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MockWindow : public QObject, ITopManager, CubesLog::ILogManager
+class TopManager : public QObject, ITopManager, CubesLog::ILogManager
 {
     Q_OBJECT
 
@@ -68,8 +68,8 @@ private:
     CubesUnitTypes::ParameterModelIds ids_;
 
 public:
-    explicit MockWindow(QWidget* parent = nullptr);
-    ~MockWindow() override;
+    explicit TopManager(QWidget* parent = nullptr);
+    ~TopManager() override;
 
 public:
     // ITopManager
