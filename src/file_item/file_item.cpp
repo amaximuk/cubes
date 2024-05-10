@@ -115,9 +115,11 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         if (CubesUnitTypes::platform_names_.size() > 0)
         {
             if (xmlFile == nullptr || xmlFile->name.isEmpty())
-                platform.value = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
+                platform.SetComboBoxValue(QString::fromStdString(CubesUnitTypes::platform_names_[0]));
+                //platform.value = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
             else
-                platform.value = QString(xmlFile->platform);
+                platform.SetComboBoxValue(xmlFile->platform);
+                //platform.value = QString(xmlFile->platform);
         }
         base_group.parameters.push_back(std::move(platform));
 

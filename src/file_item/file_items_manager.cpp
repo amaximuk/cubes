@@ -107,18 +107,18 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 {
 	fileId = ++uniqueNumber_;
 
-	auto fileName = xmlFile.name;
-	if (fileName.isEmpty())
-	{
-		QFileInfo fi(xmlFile.fileName);
-		fileName = fi.fileName();
-	}
-	auto platform = xmlFile.platform;
-	const auto& filePath = xmlFile.fileName;
+	//auto fileName = xmlFile.name;
+	//if (fileName.isEmpty())
+	//{
+	//	QFileInfo fi(xmlFile.fileName);
+	//	fileName = fi.fileName();
+	//}
+	//auto platform = xmlFile.platform;
+	//const auto& filePath = xmlFile.fileName;
 
-	auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
-	if (platform == "" || it == CubesUnitTypes::platform_names_.cend())
-		platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
+	//auto it = std::find(CubesUnitTypes::platform_names_.cbegin(), CubesUnitTypes::platform_names_.cend(), platform.toStdString());
+	//if (platform == "" || it == CubesUnitTypes::platform_names_.cend())
+	//	platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
 
 
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
@@ -143,7 +143,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	emit FilesListChanged(GetFileNames());
 
 	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
-		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
+		QString("Item created, id = %1, name = %2").arg(fileId).arg(xmlFile.name) });
 }
 
 void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
