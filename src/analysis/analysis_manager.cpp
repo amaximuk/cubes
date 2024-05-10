@@ -8,7 +8,7 @@
 
 using namespace CubesAnalysis;
 
-AnalysisManager::AnalysisManager(ITopManager* topManager, CubesLog::ILogManager* logManager)
+AnalysisManager::AnalysisManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager)
 {
 	topManager_ = topManager;
 	logManager_ = logManager;

@@ -4,16 +4,10 @@
 #include "../unit_types.h"
 #include "analysis_manager_interface.h"
 
-class ITopManager;
-namespace CubesLog
-{
-	class ILogManager;
-}
-namespace CubesAnalysis
-{
-	class FileItemsAnalysis;
-	class PropertiesItemsAnalysis;
-}
+namespace CubesTop { class ITopManager; }
+namespace CubesLog { class ILogManager; }
+namespace CubesAnalysis { class FileItemsAnalysis; }
+namespace CubesAnalysis { class PropertiesItemsAnalysis; }
 
 namespace CubesAnalysis
 {
@@ -22,13 +16,13 @@ namespace CubesAnalysis
 		Q_OBJECT
 
 	private:
-		ITopManager* topManager_;
+		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
 		QSharedPointer<FileItemsAnalysis> fileItemsAnalysis_;
 		QSharedPointer<PropertiesItemsAnalysis> propertiesItemsAnalysis_;
 
 	public:
-		AnalysisManager(ITopManager* topManager, CubesLog::ILogManager* logManager);
+		AnalysisManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager);
 
 	public:
 		void Test();

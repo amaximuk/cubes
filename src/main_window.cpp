@@ -119,7 +119,7 @@ bool MainWindow::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool MainWindow::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd)
 {
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -137,7 +137,7 @@ bool MainWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesF
     return true;
 }
 
-bool MainWindow::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool MainWindow::GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
@@ -157,7 +157,7 @@ bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
-bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos)
 {
     return false;
 }
@@ -696,7 +696,7 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
                 pi->SetIncludeIdName(includeId, includeName);
             }
 
-            PropertiesForDrawing pfd{};
+            CubesTop::PropertiesForDrawing pfd{};
             if (!GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;

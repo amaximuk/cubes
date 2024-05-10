@@ -77,6 +77,8 @@ file(GLOB XML_HDRS src/xml/*.h)
 file(GLOB XML_SRCS src/xml/*.cpp)
 file(GLOB ANALYSIS_HDRS src/analysis/*.h)
 file(GLOB ANALYSIS_SRCS src/analysis/*.cpp)
+file(GLOB TOP_HDRS src/top/*.h)
+file(GLOB TOP_SRCS src/top/*.cpp)
 
 source_group("Header Files" FILES ${PROJ_HDRS})
 source_group("Source Files" FILES ${PROJ_SRCS})
@@ -96,6 +98,8 @@ source_group("Header Files/Xml" FILES ${XML_HDRS})
 source_group("Source Files/Xml" FILES ${XML_SRCS})
 source_group("Header Files/Analysis" FILES ${ANALYSIS_HDRS})
 source_group("Source Files/Analysis" FILES ${ANALYSIS_SRCS})
+source_group("Header Files/Top" FILES ${TOP_HDRS})
+source_group("Source Files/Top" FILES ${TOP_SRCS})
 
 if(UNIX)
 	set(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -108,7 +112,7 @@ add_executable(${PROJECT_NAME} ${PROJ_HDRS} ${PROJ_SRCS} ${PROJ_RES}
 	${FILE_ITEM_HDRS} ${FILE_ITEM_SRCS} ${LOG_TABLE_ITEM_HDRS} ${LOG_TABLE_ITEM_SRCS}
 	${PARAMETERS_COMPIER_HDRS} ${PARAMETERS_COMPIER_SRCS} ${PROPERTIES_ITEM_HDRS} ${PROPERTIES_ITEM_SRCS}
 	${PROPERTY_BROWSER_HDRS} ${PROPERTY_BROWSER_SRCS} ${DIAGRAM_HDRS} ${DIAGRAM_SRCS}
-    ${XML_HDRS} ${XML_SRCS} ${ANALYSIS_HDRS} ${ANALYSIS_SRCS})
+    ${XML_HDRS} ${XML_SRCS} ${ANALYSIS_HDRS} ${ANALYSIS_SRCS} ${TOP_HDRS} ${TOP_SRCS})
 
 if("${PACKAGE_MANAGER}" STREQUAL "CONAN")
 	target_link_libraries(${PROJECT_NAME} parameters QtPropertyBrowser Boost::boost Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml yaml-cpp jsoncpp_lib_static minizip::minizip GTest::gtest_main)

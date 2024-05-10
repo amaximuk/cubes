@@ -146,7 +146,7 @@ bool ArrayWindow::CreatePropetiesItem(const QString& unitId, uint32_t& propertie
     return true;
 }
 
-bool ArrayWindow::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool ArrayWindow::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd)
 {
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -164,17 +164,17 @@ bool ArrayWindow::GetPropetiesForDrawing(const uint32_t propertiesId, Properties
     return true;
 }
 
-bool ArrayWindow::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool ArrayWindow::GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool ArrayWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
+bool ArrayWindow::GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
-bool ArrayWindow::CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos)
 {
     CubesDiagram::DiagramItem* di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
 
@@ -197,7 +197,7 @@ bool ArrayWindow::CreateDiagramItem(uint32_t propertiesId, const PropertiesForDr
     return true;
 }
 
-bool ArrayWindow::EnshureVisible(uint32_t propertiesId)
+bool ArrayWindow::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
 {
     for (const auto& item : scene_->items())
     {
@@ -300,7 +300,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
         auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
-        PropertiesForDrawing pfd{};
+        CubesTop::PropertiesForDrawing pfd{};
         if (!GetPropetiesForDrawing(propertiesId, pfd))
         {
             qDebug() << "ERROR GetPropeties: " << propertiesId;

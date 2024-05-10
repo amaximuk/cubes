@@ -5,12 +5,10 @@
 #include "../analysis/analysis_types.h"
 #include "file_items_manager_interface.h"
 
+namespace CubesTop { class ITopManager; }
+namespace CubesLog { class ILogManager; }
+
 class QComboBox;
-class ITopManager;
-namespace CubesLog
-{
-	class ILogManager;
-}
 
 namespace CubesFile
 {
@@ -24,7 +22,7 @@ namespace CubesFile
 		int defaultColorFileIndex_;
 
 	private:
-		ITopManager* topManager_;
+		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
@@ -34,7 +32,7 @@ namespace CubesFile
 		CubesUnitTypes::FileId uniqueNumber_;
 
 	public:
-		FileItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager);
+		FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager);
 
 	public:
 		PropertiesEditor* GetEditor();

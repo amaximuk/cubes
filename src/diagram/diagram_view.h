@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QGraphicsView>
-#include "../top_manager_interface.h"
+#include "../top/top_manager_interface.h"
+
+namespace CubesTop { class ITopManager; }
 
 namespace CubesDiagram
 {
@@ -9,10 +11,10 @@ namespace CubesDiagram
     class DiagramView : public QGraphicsView
     {
     private:
-        ITopManager* topManager_;
+        CubesTop::ITopManager* topManager_;
 
     public:
-        DiagramView(ITopManager* topManager, QGraphicsScene* scene, QWidget* parent = nullptr);
+        DiagramView(CubesTop::ITopManager* topManager, QGraphicsScene* scene, QWidget* parent = nullptr);
 
     public:
         void dragEnterEvent(QDragEnterEvent* event) override;

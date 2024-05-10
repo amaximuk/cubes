@@ -9,7 +9,7 @@
 
 using namespace CubesDiagram;
 
-DiagramScene::DiagramScene(ITopManager* topManager, QObject *parent) :
+DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, QObject *parent) :
     QGraphicsScene(parent)
 {
     topManager_ = topManager;
@@ -154,7 +154,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
                     qDebug() << "ERROR CreatePropetiesItem: " << unitId;
                 }
 
-                PropertiesForDrawing pfd{};
+                CubesTop::PropertiesForDrawing pfd{};
                 if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
                 {
                     qDebug() << "ERROR GetPropetiesForDrawing: " << propertiesId;

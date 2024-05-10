@@ -2,10 +2,10 @@
 
 #include "../unit_types.h"
 
+namespace CubesProperties { class PropertiesItem; }
+
 namespace CubesProperties
 {
-	class PropertiesItem;
-
 	class IPropertiesItemsManager
 	{
 	public:

@@ -2,18 +2,19 @@
 
 #include <QGraphicsScene>
 #include <QColor>
-#include "../top_manager_interface.h"
+#include "../top/top_manager_interface.h"
+
+namespace CubesTop { class ITopManager; }
+namespace CubesDiagram { class DiagramItem; }
 
 namespace CubesDiagram
 {
-    class DiagramItem;
-
     class DiagramScene : public QGraphicsScene
     {
         Q_OBJECT
 
     private:
-        ITopManager* topManager_;
+        CubesTop::ITopManager* topManager_;
         QPointF startPosition_;
         bool isItemMoving_;
         QGraphicsItem* movingItem_;
@@ -21,7 +22,7 @@ namespace CubesDiagram
         bool selectedWithCtrl_;
 
     public:
-        explicit DiagramScene(ITopManager* topManager, QObject* parent = nullptr);
+        explicit DiagramScene(CubesTop::ITopManager* topManager, QObject* parent = nullptr);
 
     public:
         // TODO: Это заготовка для функций интерфейса, чтобы напрямую не управлять diagram_item

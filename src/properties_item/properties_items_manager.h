@@ -1,20 +1,17 @@
 #pragma once
 
-#include "../top_manager_types.h"
+#include "../top/top_manager_interface.h"
 #include "properties_items_manager_interface.h"
+
+namespace CubesTop { class ITopManager; }
+namespace CubesLog { class ILogManager; }
+namespace CubesProperties { class PropertiesItem; }
 
 class QComboBox;
 class QPlainTextEdit;
-class ITopManager;
-namespace CubesLog
-{
-	class ILogManager;
-}
 
 namespace CubesProperties
 {
-	class PropertiesItem;
-
 	class PropertiesItemsManager : public QObject, IPropertiesItemsManager
 	{
 		Q_OBJECT
@@ -25,7 +22,7 @@ namespace CubesProperties
 		int defaultColorFileIndex_;
 
 	private:
-		ITopManager* topManager_;
+		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
 		const bool isArray_;
 		QPointer<QWidget> widget_;
@@ -37,7 +34,7 @@ namespace CubesProperties
 		CubesUnitTypes::PropertiesId uniqueNumber_;
 
 	public:
-		PropertiesItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray);
+		PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray);
 
 	public:
 		PropertiesEditor* GetEditor();

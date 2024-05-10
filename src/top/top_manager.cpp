@@ -1,17 +1,19 @@
 #include "parameters/yaml_parser.h"
-#include "file_item/file_item.h"
-#include "file_item/file_items_manager.h"
-#include "properties_item/properties_item.h"
-#include "properties_item/properties_items_manager.h"
-#include "analysis/analysis_manager.h"
-#include "xml/xml_parser.h"
-#include "xml/xml_writer.h"
-#include "xml/xml_helper.h"
-#include "graph.h"
-#include "zip.h"
+#include "../file_item/file_item.h"
+#include "../file_item/file_items_manager.h"
+#include "../properties_item/properties_item.h"
+#include "../properties_item/properties_items_manager.h"
+#include "../analysis/analysis_manager.h"
+#include "../xml/xml_parser.h"
+#include "../xml/xml_writer.h"
+#include "../xml/xml_helper.h"
+#include "../graph.h"
+#include "../zip.h"
 #include "top_manager.h"
 
-TopManager::TopManager(QWidget *parent)
+using namespace CubesTop;
+
+TopManager::TopManager()
 {
     modified_ = false;
     uniqueNumber_ = 0;
@@ -394,7 +396,6 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     QString fileName = fileItemsManager_->GetFileName(fileId);
 
     // Transform
-    CubesDiagram::DiagramItem* di = nullptr;
     for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;

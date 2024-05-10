@@ -1,3 +1,5 @@
+#pragma once
+
 namespace CubesGraph
 {
     bool MakeConnected(const int vertex_count, std::vector<std::pair<int, int>>& initial_edges);

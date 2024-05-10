@@ -17,7 +17,7 @@
 
 using namespace CubesProperties;
 
-PropertiesItemsManager::PropertiesItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray):
+PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray):
 	isArray_(isArray)
 {
 	topManager_ = topManager;
@@ -586,7 +586,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		uint32_t propertiesId{ 0 };
 		Create(unitId, propertiesId);
 
-		PropertiesForDrawing pfd{};
+		CubesTop::PropertiesForDrawing pfd{};
 
 		auto pi = GetItem(propertiesId);
 		if (pi == nullptr)
@@ -617,7 +617,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		uint32_t propertiesId{ 0 };
 		Create(unitId, propertiesId);
 
-		PropertiesForDrawing pfd{};
+		CubesTop::PropertiesForDrawing pfd{};
 
 		auto pi = GetItem(propertiesId);
 		if (pi == nullptr)

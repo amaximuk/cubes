@@ -3,35 +3,17 @@
 #include <QMainWindow>
 #include <QPointer>
 #include "properties_item/properties_item.h" // !!!!!!!!!!!!!!! used directly not top_manager_interface
-#include "top_manager_interface.h"
+#include "top/top_manager_interface.h"
 
-namespace CubesDiagram
-{
-    class DiagramItem;
-    class DiagramScene;
-    class DiagramView;
-}
-
-namespace CubesUnitTypes
-{
-    struct UnitParameters;
-}
-
-namespace CubeLog
-{
-    class LogTableModel;
-    class SortFilterModel;
-}
-
-namespace CubesFile
-{
-    class FileItemsManager;
-}
-
-namespace CubesProperties
-{
-    class PropertiesItemsManager;
-}
+namespace CubesTop { class ITopManager; }
+namespace CubesDiagram { class DiagramItem; }
+namespace CubesDiagram { class DiagramScene; }
+namespace CubesDiagram { class DiagramView; }
+namespace CubesUnitTypes { class UnitParameters; }
+namespace CubesLog { class LogTableModel; }
+namespace CubesLog { class SortFilterModel; }
+namespace CubesFile { class FileItemsManager; }
+namespace CubesProperties { class PropertiesItemsManager; }
 
 class QPlainTextEdit;
 class QGraphicsScene;
@@ -45,7 +27,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class ArrayWindow : public QMainWindow, ITopManager
+class ArrayWindow : public QMainWindow, CubesTop::ITopManager
 {
     Q_OBJECT
 
@@ -95,11 +77,12 @@ public:
     bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
     bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
-    bool GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd) override;
-    bool GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId) override;
-    bool CreateDiagramItem(uint32_t propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
-    bool EnshureVisible(uint32_t propertiesId) override;
+    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
+    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
+        CubesUnitTypes::UnitParameters& unitParameters) override;
+    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos) override;
+    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
     bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 

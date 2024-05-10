@@ -16,7 +16,7 @@
 
 using namespace CubesFile;
 
-FileItemsManager::FileItemsManager(ITopManager* topManager, CubesLog::ILogManager* logManager)
+FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager)
 {
 	topManager_ = topManager;
 	logManager_ = logManager;

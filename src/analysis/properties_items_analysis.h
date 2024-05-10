@@ -5,11 +5,8 @@
 #include "analysis_types.h"
 #include "../unit_types.h"
 
-class ITopManager;
-namespace CubesLog
-{
-    class ILogManager;
-}
+namespace CubesTop { class ITopManager; }
+namespace CubesLog { class ILogManager; }
 
 namespace CubesAnalysis
 {

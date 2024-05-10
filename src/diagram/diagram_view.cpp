@@ -9,7 +9,7 @@
 
 using namespace CubesDiagram;
 
-DiagramView::DiagramView(ITopManager* topManager, QGraphicsScene *scene, QWidget *parent):
+DiagramView::DiagramView(CubesTop::ITopManager* topManager, QGraphicsScene *scene, QWidget *parent):
     QGraphicsView(scene, parent)
 {
     topManager_ = topManager;
@@ -72,7 +72,7 @@ void DiagramView::dropEvent(QDropEvent *event)
                 qDebug() << "ERROR CreatePropetiesItem: " << unitId;
             }
 
-            PropertiesForDrawing pfd{};
+            CubesTop::PropertiesForDrawing pfd{};
             if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
