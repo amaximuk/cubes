@@ -176,25 +176,67 @@ bool ArrayWindow::GetPropetiesUnitId(const CubesUnitTypes::PropertiesId properti
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
-bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos)
+bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
 {
-    CubesDiagram::DiagramItem* di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    //TopManager::CreateDiagramItem(propertiesId);
 
-    scene_->InformItemCreated(di);
+    CubesTop::PropertiesForDrawing pfd{};
 
-    //QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+    const auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    if (pi == nullptr)
+        return false;
 
-    //int gridSize = 20;
-    //qreal xV = round(position.x() / gridSize) * gridSize;
-    //qreal yV = round(position.y() / gridSize) * gridSize;
-    //position = QPoint(xV, yV);
+    pfd.pixmap = pi->GetPixmap();
+    QString name;
+    if (!propertiesItemsManager_->GetName(propertiesId, name))
+        return false;
+    pfd.name = name;
+    pfd.fileName = pi->GetFileName();
+    pfd.includeName = pi->GetIncludeName();
 
+    pfd.color = Qt::white;
+
+    const auto pos = pi->GetPosition();
+    const auto z = pi->GetZOrder();
+
+    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    di->setX(pos.x());
+    di->setY(pos.y());
+    di->setZValue(z);
     scene_->addItem(di);
+
+    //scene_->clearSelection();
+    //propertiesItemsManager_->Select(0);
+    //DiagramAfterItemCreated(di);
     scene_->clearSelection();
     di->setPos(pos);
     scene_->InformItemPositionChanged(di);
 
     di->setSelected(true);
+    //???????????
+    //scene_->InformItemCreated(di);
+
+
+
+
+
+    //CubesDiagram::DiagramItem* di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+
+    //scene_->InformItemCreated(di);
+
+    ////QPoint position = mapToScene(event->pos() - QPoint(24, 24)).toPoint();
+
+    ////int gridSize = 20;
+    ////qreal xV = round(position.x() / gridSize) * gridSize;
+    ////qreal yV = round(position.y() / gridSize) * gridSize;
+    ////position = QPoint(xV, yV);
+
+    //scene_->addItem(di);
+    //scene_->clearSelection();
+    //di->setPos(pos);
+    //scene_->InformItemPositionChanged(di);
+
+    //di->setSelected(true);
 
     return true;
 }
@@ -1228,52 +1270,62 @@ CubesUnitTypes::UnitParameters* ArrayWindow::GetUnitParameters(const QString& id
 }
 
 // Files
-QStringList ArrayWindow::GetFileNames()
+CubesUnitTypes::FileIdNames ArrayWindow::GetFileNames()
 {
-    //return fileItemsManager_->GetFileNames();
     return {};
 }
 
-QString ArrayWindow::GetCurrentFileName()
+CubesUnitTypes::IncludeIdNames ArrayWindow::GetCurrentFileIncludeNames()
 {
-    //return fileItemsManager_->GetCurrentFileName();
     return {};
 }
-
-QStringList ArrayWindow::GetCurrentFileIncludeNames()
-{
-    //return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
-    return {};
-}
-
-//QColor ArrayWindow::GetFileColor(const QString& fileName)
+//
+//QStringList ArrayWindow::GetFileNames()
 //{
-//    return fileItemsManager_->GetFileColor(fileName);
+//    //return fileItemsManager_->GetFileNames();
+//    return {};
 //}
-
-QString ArrayWindow::GetDisplayName(const QString& baseName)
-{
-    //QList<QPair<QString, QString>> variables;
-    //for (const auto& item : scene_->items())
-    //{
-    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    //    if (pi->GetGroupName() != "<not selected>")
-    //    {
-    //        variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
-    //            pi->GetGroupName());
-    //    }
-    //}
-
-    QString realName = baseName;
-    //for (const auto& v : variables)
-    //{
-    //    QString replace = QString("@%1@").arg(v.first);
-    //    realName.replace(replace, v.second);
-    //}
-
-    return realName;
-}
+//
+//QString ArrayWindow::GetCurrentFileName()
+//{
+//    //return fileItemsManager_->GetCurrentFileName();
+//    return {};
+//}
+//
+//QStringList ArrayWindow::GetCurrentFileIncludeNames()
+//{
+//    //return fileItemsManager_->GetFileIncludeNames(fileItemsManager_->GetCurrentFileName(), true);
+//    return {};
+//}
+//
+////QColor ArrayWindow::GetFileColor(const QString& fileName)
+////{
+////    return fileItemsManager_->GetFileColor(fileName);
+////}
+//
+//QString ArrayWindow::GetDisplayName(const QString& baseName)
+//{
+//    //QList<QPair<QString, QString>> variables;
+//    //for (const auto& item : scene_->items())
+//    //{
+//    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
+//    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//    //    if (pi->GetGroupName() != "<not selected>")
+//    //    {
+//    //        variables = fileItemsManager_->GetFileIncludeVariables(pi->GetName(),
+//    //            pi->GetGroupName());
+//    //    }
+//    //}
+//
+//    QString realName = baseName;
+//    //for (const auto& v : variables)
+//    //{
+//    //    QString replace = QString("@%1@").arg(v.first);
+//    //    realName.replace(replace, v.second);
+//    //}
+//
+//    return realName;
+//}
 
 // DiagramScene (as manager)
 void ArrayWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)

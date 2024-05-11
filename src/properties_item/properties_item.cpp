@@ -956,6 +956,16 @@ void PropertiesItem::SetZOrder(double value)
     editor_->SetDoubleValue(GetProperty(pm->id), value);
 }
 
+double PropertiesItem::GetZOrder()
+{
+    const auto pmZ = GetParameterModel(ids_.editor + ids_.positionZ);
+    if (pmZ != nullptr)
+        return pmZ->value.toDouble();
+    else
+        return 0;
+
+}
+
 QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property).toString();

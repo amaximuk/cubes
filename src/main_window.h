@@ -31,55 +31,42 @@ class MainWindow : public QMainWindow, public CubesTop::TopManager
     Q_OBJECT
 
 private:
-    bool modified_;
-    QString path_;
-    uint32_t uniqueNumber_;
-
     QPointer<CubesDiagram::DiagramScene> scene_;
     QPointer<CubesDiagram::DiagramView> view_;
     QPointer<QTreeView> tree_view_;
     QPointer<QTableView> table_view_log_;
     QPointer<QTreeView> tree_;
     QPointer<QMenu> recentMenu_;
-    //QPointer<QPlainTextEdit> plainTextEditHint_;
-    QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
     QPointer<CubesLog::LogTableModel> log_table_model_;
     QPointer<CubesLog::SortFilterModel> sort_filter_model_;
-
-    QPointer<CubesFile::FileItemsManager> fileItemsManager_;
-    QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
-    QPointer<CubesAnalysis::AnalysisManager> analysisManager_;
-
-    // Значения имен параметров
-    CubesUnitTypes::ParameterModelIds ids_;
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;
 
-public:
-    // ITopManager
-    bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-    bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
-        QStringList& unitNames) override;
-    bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-    bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
-        CubesUnitTypes::VariableIdVariables& variables) override;
-    bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
-    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
-    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
-        CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-    bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
-    bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
-    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos) override;
-    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
-    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
-    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
-
-    // ILogManager
-    void AddMessage(const CubesLog::LogMessage& m) override;
+//public:
+//    // ITopManager
+//    bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
+//    bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+//        QStringList& unitNames) override;
+//    bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
+//    bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+//    bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+//        CubesUnitTypes::VariableIdVariables& variables) override;
+//    bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
+//    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
+//    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
+//        CubesUnitTypes::UnitParameters& unitParameters) override;
+//    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+//    bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
+//    bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
+    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
+//    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+//    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
+//    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
+//
+//    // ILogManager
+//    void AddMessage(const CubesLog::LogMessage& m) override;
 
 private:
     void closeEvent(QCloseEvent* event) override;
@@ -95,31 +82,27 @@ protected:
     void CreateView();
     void CreateTreeView();
     QWidget* CreatePropertiesPanelWidget();
-    //QWidget* CreateHintWidget();
     void FillTreeView();
-    void FillParametersInfo();
 
     // Units
-    bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
-    bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
-    bool SortUnits();
-    bool SortUnitsRectangular(bool check);
-    CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
-    bool Test();
+    bool AddMainFile(const CubesXml::File& file, const QString& zipFileName) override;
+    bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file) override;
+    bool SortUnits() override;
+    bool SortUnitsRectangular(bool check) override;
+    CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id) override;
+    bool Test() override;
 
     // Files
-    CubesUnitTypes::FileIdNames GetFileNames();
-    //QString GetCurrentFileName();
-    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
-    //QColor GetFileColor(const QString& fileName);
-    //QString GetDisplayName(const QString& baseName);
+    CubesUnitTypes::FileIdNames GetFileNames() override;
+    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames() override;
 
     // Modified
-    void UpdateFileState(const QString& path, bool modified);
-    bool SaveFileInternal(const QString& path);
-    bool SaveFolderInternal(const QString& path);
-    bool OpenFileInternal(const QString& path);
-    bool OpenFolderInternal(const QString& path);
+    void UpdateFileState(const QString& path, bool modified) override;
+    bool SaveFileInternal(const QString& path) override;
+    bool SaveFolderInternal(const QString& path) override;
+    bool OpenFileInternal(const QString& path) override;
+    bool OpenFolderInternal(const QString& path) override;
+    
     void UpdateRecent();
     void AddRecent(QString fileName);
     void RemoveRecent(QString fileName);

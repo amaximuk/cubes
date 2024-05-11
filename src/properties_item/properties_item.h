@@ -66,6 +66,7 @@ namespace CubesProperties
         void SetPosition(QPointF point);
         QPointF GetPosition();
         void SetZOrder(double value);
+        double GetZOrder();
 
         void SetFileIdNames(CubesUnitTypes::FileIdNames fileNames);
         void SetFileIdName(CubesUnitTypes::FileId fileId, QString fileName);

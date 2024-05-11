@@ -16,7 +16,7 @@ namespace CubesTop
 {
     class TopManager : public ITopManager, public CubesLog::ILogManager
     {
-    private:
+    protected:
         bool modified_;
         QString path_;
         uint32_t uniqueNumber_;
@@ -35,49 +35,49 @@ namespace CubesTop
 
     public:
         // ITopManager
-        bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-        bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+        virtual bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
+        virtual bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
             QStringList& unitNames) override;
-        bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-        bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-        bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+        virtual bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
+        virtual bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+        virtual bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
             CubesUnitTypes::VariableIdVariables& variables) override;
-        bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
-        bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
-        bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
+        virtual bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
+        virtual bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
+        virtual bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
             CubesUnitTypes::UnitParameters& unitParameters) override;
-        bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-        bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
-        bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
-        bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos) override;
-        bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
-        bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
-        bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
+        virtual bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+        virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
+        virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
+        virtual bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
+        virtual bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+        virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
+        virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
         // ILogManager
-        void AddMessage(const CubesLog::LogMessage& m) override;
+        virtual void AddMessage(const CubesLog::LogMessage& m) override;
 
     protected:
-        void FillParametersInfo();
+        virtual void FillParametersInfo();
 
         // Units
-        bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
-        bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
-        //bool SortUnits();
-        //bool SortUnitsRectangular(bool check);
-        CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
-        bool Test();
+        virtual bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
+        virtual bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
+        virtual bool SortUnits();
+        virtual bool SortUnitsRectangular(bool check);
+        virtual CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
+        virtual bool Test();
 
         // Files
-        CubesUnitTypes::FileIdNames GetFileNames();
-        CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
+        virtual CubesUnitTypes::FileIdNames GetFileNames();
+        virtual CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
 
         // Modified
-        void UpdateFileState(const QString& path, bool modified);
-        bool SaveFileInternal(const QString& path);
-        bool SaveFolderInternal(const QString& path);
-        bool OpenFileInternal(const QString& path);
-        bool OpenFolderInternal(const QString& path);
+        virtual void UpdateFileState(const QString& path, bool modified);
+        virtual bool SaveFileInternal(const QString& path);
+        virtual bool SaveFolderInternal(const QString& path);
+        virtual bool OpenFileInternal(const QString& path);
+        virtual bool OpenFolderInternal(const QString& path);
 
     public:
         //// DiagramScene (as manager)
@@ -110,7 +110,7 @@ namespace CubesTop
         void PropertiesConnectionChanged(const uint32_t propertiesId);
         void PropertiesPropertiesChanged();
 
-    private:
+    protected:
         // Кнопки
         void OnNewFileAction();
         void OnOpenFileAction();

@@ -178,7 +178,7 @@ QColor FileItemsManager::GetFileColor(const CubesUnitTypes::FileId fileId)
 	if (it != items_.end())
 		return (*it)->GetColor();
 
-	return QColor("Black");
+	return QColor("LightGray");
 }
 
 void FileItemsManager::AddFileInclude(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,

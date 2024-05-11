@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 }
-
+/*
 // ITopManager
 bool MainWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
 {
@@ -156,12 +156,43 @@ bool MainWindow::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
-
-bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos)
+*/
+bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
 {
+    TopManager::CreateDiagramItem(propertiesId);
+
+    CubesTop::PropertiesForDrawing pfd{};
+
+    const auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    if (pi == nullptr)
+        return false;
+
+    pfd.pixmap = pi->GetPixmap();
+    QString name;
+    if (!propertiesItemsManager_->GetName(propertiesId, name))
+        return false;
+    pfd.name = name;
+    pfd.fileName = pi->GetFileName();
+    pfd.includeName = pi->GetIncludeName();
+
+    pfd.color = fileItemsManager_->GetFileColor(pi->GetFileId());
+
+    const auto pos = pi->GetPosition();
+    const auto z = pi->GetZOrder();
+
+    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    di->setX(pos.x());
+    di->setY(pos.y());
+    di->setZValue(z);
+    scene_->addItem(di);
+
+    scene_->clearSelection();
+    propertiesItemsManager_->Select(0);
+    DiagramAfterItemCreated(di);
+
     return false;
 }
-
+/*
 bool MainWindow::EnshureVisible(uint32_t propertiesId)
 {
     for (const auto& item : scene_->items())
@@ -198,7 +229,7 @@ void MainWindow::AddMessage(const CubesLog::LogMessage& m)
     table_view_log_->horizontalHeader()->setStretchLastSection(true);
     table_view_log_->resizeRowsToContents();
 }
-
+*/
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (modified_)
@@ -521,126 +552,16 @@ void MainWindow::FillTreeView()
     tree_->expandAll();
 }
 
-void MainWindow::FillParametersInfo()
-{
-    QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
-    QStringList platformDirs;
-    QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-    while (directories.hasNext()) {
-        directories.next();
-        platformDirs << directories.filePath();
-    }
-
-    for (const auto& platformDir : platformDirs)
-    {
-        QString ymlPath = QDir(platformDir).filePath("yml");
-        if (QFileInfo(ymlPath).exists() && QFileInfo(ymlPath).isDir())
-        {
-            QStringList propFiles = QDir(ymlPath).entryList(QStringList() << "*.yml" << "*.json", QDir::Files);
-            foreach(QString filename, propFiles)
-            {
-                QString fullPath = QDir(ymlPath).filePath(filename);
-                parameters::file_info fi{};
-                if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
-                {
-                    CubesLog::LogMessage lm{};
-                    lm.type = CubesLog::MessageType::error;
-                    lm.tag = 0;
-                    lm.source = filename;
-                    lm.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    AddMessage(lm);
-                }
-
-                // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
-                // Принцип обработки такой же как и у остальных параметров
-                {
-                    parameters::parameter_info pi{};
-                    pi.type = QString::fromLocal8Bit("array<string>").toStdString();
-                    pi.name = ids_.dependencies.toString().toStdString();
-                    pi.display_name = QString::fromLocal8Bit("Зависимости").toStdString();
-                    pi.description = QString::fromLocal8Bit("Зависимости юнита от других юнитов").toStdString();
-                    pi.required = QString::fromLocal8Bit("false").toStdString();
-                    pi.default_ = QString::fromLocal8Bit("не задано").toStdString();
-                    fi.parameters.push_back(std::move(pi));
-                }
-
-                auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
-                up.fileInfo = fi;
-                up.platforms.insert(QFileInfo(platformDir).baseName());
-            }
-        }
-    }
-}
-
 // Units
 bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
 {
-    // Не очищаем, вдруг там уже что-то поменяно
-
-    CubesUnitTypes::FileId fileId{ CubesUnitTypes::InvalidFileId };
-    fileItemsManager_->Create(file, fileId);
-    fileItemsManager_->Select(fileId);
- 
-    if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeId, file))
-        return false;
-
-    if (zipFileName.isEmpty())
-    {
-        // Запрашиваем список из fileItemsManager_, чтобы получить includeId
-        CubesUnitTypes::IncludeIdNames includes;
-        if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
-            return false;
-        QDir dir = QFileInfo(file.fileName).absoluteDir();
-
-        for (const auto& includeId : includes.keys())
-        {
-            QString includePath;
-            if (!fileItemsManager_->GetFileIncludePath(fileId, includeId, includePath))
-                return false;
-
-            QString includeName = dir.filePath(includePath);
-            CubesXml::File includedFile{};
-            if (!CubesXml::Helper::Parse(includeName, includedFile, this))
-                return false;
-
-            if (!AddUnits(fileId, includeId, includedFile))
-                return false;
-        }
-    }
-    else
-    {
-        // Запрашиваем список из fileItemsManager_, чтобы получить includeId
-        CubesUnitTypes::IncludeIdNames includes;
-        if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
-            return false;
-
-        for (const auto& includeId : includes.keys())
-        {
-            QString includePath;
-            if (!fileItemsManager_->GetFileIncludePath(fileId, includeId, includePath))
-                return false;
-
-            QByteArray byteArray;
-            if (!CubesZip::UnZipFile(zipFileName, includePath, byteArray))
-                return false;
-
-            CubesXml::File includedFile{};
-            if (!CubesXml::Helper::Parse(byteArray, includePath, includedFile, this))
-                return false;
-
-            if (!AddUnits(fileId, includeId, includedFile))
-                return false;
-        }
-    }
-
-    if (!SortUnitsRectangular(true))
-        return false;
-
-    return true;
+    return TopManager::AddMainFile(file, zipFileName);
 }
 
 bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
 {
+    TopManager::AddUnits(fileId, includeId, file);
+
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
     {
@@ -651,15 +572,15 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             {
                 all_units.push_back(u);
             }
-            else
-            {
-                CubesLog::LogMessage lm{};
-                lm.type = CubesLog::MessageType::error;
-                lm.tag = 0;
-                lm.source = QFileInfo(file.fileName).fileName();
-                lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                AddMessage(lm);
-            }
+            //else
+            //{
+            //    CubesLog::LogMessage lm{};
+            //    lm.type = CubesLog::MessageType::error;
+            //    lm.tag = 0;
+            //    lm.source = QFileInfo(file.fileName).fileName();
+            //    lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+            //    AddMessage(lm);
+            //}
         }
     }
 

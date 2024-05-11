@@ -151,7 +151,7 @@ bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
-bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const PropertiesForDrawing& pfd, QPointF pos)
+bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
 {
     return false;
 }
@@ -232,72 +232,10 @@ void TopManager::FillParametersInfo()
 bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
 {
     // Не очищаем, вдруг там уже что-то поменяно
-    //if (scene_->items().size() == 0)
-    //    fileItemsManager_->Clear();
 
-    //QString fileName = QFileInfo(file.fileName).fileName();
-
-    //QString name = file.name;
     CubesUnitTypes::FileId fileId{ CubesUnitTypes::InvalidFileId };
     fileItemsManager_->Create(file, fileId);
     fileItemsManager_->Select(fileId);
-    //QString name;
-    //auto res = fileItemsManager_->GetName(fileId, name);
-
-    //for (const auto& include : file.includes)
-    //    fileItemsManager_->AddFileInclude(fileId, include.fileName, include.variables);
-
-    //for (int i = 0; i < file.includes.size(); i++)
-    //{
-    //    QList<QPair<QString, QString>> variables;
-    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
-    //        variables.push_back({ kvp.first, kvp.second });
-    //}
-
-    //QStringList fileNames = fileItemsManager_->GetFileNames();
-    //for (auto& item : scene_->items())
-    //{
-    //    CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
-    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-    //    pi->SetFileNames(fileNames);
-    //}
-
-    // Convert includes into unit
-    //CubesXml::Group g{};
-    //g.path = "service";
-    //for (int i = 0; i < file.includes.size(); i++)
-    //{
-    //    CubesXml::Unit u{};
-    //    u.id = "group";
-    //    u.name = QString::fromLocal8Bit("Группа %1").arg(i);
-    //    CubesXml::Param p{};
-    //    p.name = "FILE_PATH";
-    //    p.type = "str";
-    //    p.val = file.includes[i].fileName;
-    //    u.params.push_back(std::move(p));
-    //    CubesXml::Array a{};
-    //    a.name = "VARIABLES";
-    //    for (const auto& kvp : file.includes[i].variables.toStdMap())
-    //    {
-    //        CubesXml::Item i1{};
-    //        CubesXml::Param p1{};
-    //        p1.name = "NAME";
-    //        p1.type = "str";
-    //        p1.val = kvp.first;
-    //        i1.params.push_back(std::move(p1));
-    //        CubesXml::Param p2{};
-    //        p2.name = "VALUE";
-    //        p2.type = "str";
-    //        p2.val = kvp.second;
-    //        i1.params.push_back(std::move(p2));
-    //        a.items.push_back(std::move(i1));
-    //    }
-    //    u.arrays.push_back(std::move(a));
-    //    g.units.push_back(std::move(u));
-    //}
-
-    //if (file.includes.size() > 0)
-    //    file.config.groups.push_back(std::move(g));
 
     if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeId, file))
         return false;
@@ -324,16 +262,6 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
             if (!AddUnits(fileId, includeId, includedFile))
                 return false;
         }
-
-        //for (int i = 0; i < file.includes.size(); i++)
-        //{
-        //    QString includeFileName = dir.filePath(file.includes[i].fileName);
-        //    CubesXml::File includedFile{};
-        //    if (!CubesXml::Parser::Parse(includeFileName, includedFile))
-        //        return false;
-        //    if (!AddUnits(fileId, file.includes[i].fileName, includedFile))
-        //        return false;
-        //}
     }
     else
     {
@@ -359,26 +287,10 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
             if (!AddUnits(fileId, includeId, includedFile))
                 return false;
         }
-
-        //for (int i = 0; i < file.includes.size(); i++)
-        //{
-        //    QByteArray byteArray;
-        //    if (!CubesZip::UnZipFile(zipFileName, file.includes[i].fileName, byteArray))
-        //        return false;
-
-        //    CubesXml::File includedFile{};
-        //    CubesXml::Parser::Parse(byteArray, file.includes[i].fileName, includedFile);
-
-        //    if (!AddUnits(name, file.includes[i].fileName, includedFile))
-        //        return false;
-        //}
-
     }
 
-
-
-    //if (!SortUnitsRectangular(true))
-    //    return false;
+    if (!SortUnitsRectangular(true))
+        return false;
 
     return true;
 }
@@ -466,6 +378,121 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     //}
     //if (!SortUnitsRectangular())
     //    return false;
+
+    return true;
+}
+
+
+bool TopManager::SortUnits()
+{
+    //// Prepare sort
+    //int nextIndex = 0;
+    //QMap<QString, int> nameToIndex;
+    //QMap<int, QString> indexToName;
+    //QMap<QString, QSet<QString>> connectedNames;
+    //for (auto& item : scene_->items())
+    //{
+    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+
+    //    if (!nameToIndex.contains(di->name_))
+    //    {
+    //        nameToIndex[di->name_] = nextIndex;
+    //        indexToName[nextIndex] = di->name_;
+    //        nextIndex++;
+    //    }
+
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    auto connected = pi->GetConnectedNames();
+    //    connectedNames[di->name_].unite(QSet<QString>(connected.begin(), connected.end()));
+    //}
+
+    //// Sort
+    //std::vector<std::pair<int, int>> edges;
+
+    //for (const auto& kvp : connectedNames.toStdMap())
+    //{
+    //    for (const auto& se : kvp.second)
+    //    {
+    //        if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
+    //            edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
+    //    }
+    //}
+
+    //std::vector<std::pair<int, int>> coordinates;
+    //if (!CubesGraph::RearrangeGraph(nameToIndex.size(), edges, coordinates))
+    //{
+    //    return false;
+    //}
+
+    //auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
+    //for (auto& item : scene_->items())
+    //{
+    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+
+    //    int i = nameToIndex[di->name_];
+
+    //    int gridSize = 20;
+    //    QPoint position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
+
+    //    di->setPos(position);
+
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    pi->SetPosition(di->pos());
+    //}
+    //QPointF center = scene_->itemsBoundingRect().center();
+    //view_->centerOn(center);
+
+    //scene_->invalidate();
+    return true;
+}
+
+bool TopManager::SortUnitsRectangular(bool check)
+{
+    //if (scene_->items().size() == 0)
+    //    return true;
+
+    //bool sort = true;
+    //if (check)
+    //{
+    //    int count = 0;
+    //    for (auto& item : scene_->items())
+    //    {
+    //        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    //        QPointF p = di->pos();
+    //        if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+    //            ++count;
+    //    }
+
+    //    // Все нулевые, распределяем по сетке
+    //    if (count != scene_->items().size())
+    //        sort = false;
+    //}
+
+
+    //if (sort)
+    //{
+    //    int size = scene_->items().size();
+    //    int rows = std::sqrt(scene_->items().size());
+    //    int columns = (scene_->items().size() + rows - 1) / rows;
+
+    //    int c = 0;
+    //    int r = 0;
+    //    for (auto& item : scene_->items())
+    //    {
+    //        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    //        QPoint position(c * 200, r * 80);
+    //        di->setPos(position);
+
+    //        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //        pi->SetPosition(di->pos());
+
+    //        if (++c == columns) { ++r; c = 0; };
+    //    }
+    //    QPointF center = scene_->itemsBoundingRect().center();
+    //    view_->centerOn(center);
+
+    //    scene_->invalidate();
+    //}
 
     return true;
 }

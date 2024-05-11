@@ -124,6 +124,8 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 		logManager_->AddMessage({ CubesLog::MessageType::information, propertiesId, "Properties Manager",
 		   QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName()) });
 	}
+
+	topManager_->CreateDiagramItem(propertiesId);
 }
 
 void PropertiesItemsManager::Select(const CubesUnitTypes::PropertiesId propertiesId)
@@ -595,26 +597,33 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		uint32_t propertiesId{ 0 };
 		Create(unitId, propertiesId);
 
-		CubesTop::PropertiesForDrawing pfd{};
-
 		auto pi = GetItem(propertiesId);
-		if (pi == nullptr)
-			return;
-
-		pfd.pixmap = pi->GetPixmap();
-		QString name;
-		if (!GetName(propertiesId, name))
-			return;
-		pfd.name = name;
-		pfd.fileName = pi->GetFileName();
-		pfd.includeName = pi->GetIncludeName();
-		pfd.color = Qt::white;
-
-		const auto item = GetItem(currentPropertiesId);
-
-		QPointF pos = item->GetPosition();
+		const auto cpi = GetItem(currentPropertiesId);
+		QPointF pos = cpi->GetPosition();
 		pos += { 40, 20 };
-		topManager_->CreateDiagramItem(propertiesId, pfd, pos);
+		pi->SetPosition(pos);
+
+		topManager_->CreateDiagramItem(propertiesId);
+		//CubesTop::PropertiesForDrawing pfd{};
+
+		//auto pi = GetItem(propertiesId);
+		//if (pi == nullptr)
+		//	return;
+
+		//pfd.pixmap = pi->GetPixmap();
+		//QString name;
+		//if (!GetName(propertiesId, name))
+		//	return;
+		//pfd.name = name;
+		//pfd.fileName = pi->GetFileName();
+		//pfd.includeName = pi->GetIncludeName();
+		//pfd.color = Qt::white;
+
+		//const auto item = GetItem(currentPropertiesId);
+
+		//QPointF pos = item->GetPosition();
+		//pos += { 40, 20 };
+		//topManager_->CreateDiagramItem(propertiesId, pfd, pos);
 	}
 	else
 	{
@@ -626,23 +635,25 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		uint32_t propertiesId{ 0 };
 		Create(unitId, propertiesId);
 
-		CubesTop::PropertiesForDrawing pfd{};
+		topManager_->CreateDiagramItem(propertiesId);
 
-		auto pi = GetItem(propertiesId);
-		if (pi == nullptr)
-			return;
+		//CubesTop::PropertiesForDrawing pfd{};
 
-		pfd.pixmap = pi->GetPixmap();
-		QString name;
-		if (!GetName(propertiesId, name))
-			return;
-		pfd.name = name;
-		pfd.fileName = pi->GetFileName();
-		pfd.includeName = pi->GetIncludeName();
-		pfd.color = Qt::white;
+		//auto pi = GetItem(propertiesId);
+		//if (pi == nullptr)
+		//	return;
 
-		QPointF pos{ 0, 0 };
-		topManager_->CreateDiagramItem(propertiesId, pfd, pos);
+		//pfd.pixmap = pi->GetPixmap();
+		//QString name;
+		//if (!GetName(propertiesId, name))
+		//	return;
+		//pfd.name = name;
+		//pfd.fileName = pi->GetFileName();
+		//pfd.includeName = pi->GetIncludeName();
+		//pfd.color = Qt::white;
+
+		//QPointF pos{ 0, 0 };
+		//topManager_->CreateDiagramItem(propertiesId, pfd, pos);
 	}
 }
 

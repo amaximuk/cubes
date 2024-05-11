@@ -3,7 +3,7 @@
 #include <QMainWindow>
 #include <QPointer>
 #include "properties_item/properties_item.h" // !!!!!!!!!!!!!!! used directly not top_manager_interface
-#include "top/top_manager_interface.h"
+#include "top/top_manager.h"
 
 namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }
@@ -27,7 +27,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class ArrayWindow : public QMainWindow, CubesTop::ITopManager
+class ArrayWindow : public QMainWindow, public CubesTop::TopManager
 {
     Q_OBJECT
 
@@ -41,15 +41,15 @@ private:
     //QPointer<QTableView> table_view_log_;
     //QPointer<QTreeView> tree_;
     //QPointer<QPlainTextEdit> plainTextEditHint_;
-    QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
+    //QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
     //QPointer<CubeLog::LogTableModel> log_table_model_;
     //QPointer<CubeLog::SortFilterModel> sort_filter_model_;
 
     //QPointer<CubesFile::FileItemsManager> fileItemsManager_;
-    QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
+    //QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
 
     // Значения имен параметров
-    CubesUnitTypes::ParameterModelIds ids_;
+    //CubesUnitTypes::ParameterModelIds ids_;
 
 
 
@@ -81,7 +81,7 @@ public:
     bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
         CubesUnitTypes::UnitParameters& unitParameters) override;
     bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId, const CubesTop::PropertiesForDrawing& pfd, QPointF pos) override;
+    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
     bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
@@ -120,11 +120,13 @@ protected:
     CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
 
     // Files
-    QStringList GetFileNames();
-    QString GetCurrentFileName();
-    QStringList GetCurrentFileIncludeNames();
-    //QColor GetFileColor(const QString& fileName);
-    QString GetDisplayName(const QString& baseName);
+    virtual CubesUnitTypes::FileIdNames GetFileNames();
+    virtual CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
+    //QStringList GetFileNames();
+    //QString GetCurrentFileName();
+    //QStringList GetCurrentFileIncludeNames();
+    ////QColor GetFileColor(const QString& fileName);
+    //QString GetDisplayName(const QString& baseName);
 
 public slots:
     // DiagramScene (as manager)
