@@ -14,10 +14,8 @@ namespace CubesAnalysis { class AnalysisManager; }
 
 namespace CubesTop
 {
-    class TopManager : public QObject, ITopManager, CubesLog::ILogManager
+    class TopManager : public ITopManager, public CubesLog::ILogManager
     {
-        Q_OBJECT
-
     private:
         bool modified_;
         QString path_;
@@ -81,7 +79,7 @@ namespace CubesTop
         bool OpenFileInternal(const QString& path);
         bool OpenFolderInternal(const QString& path);
 
-    public slots:
+    public:
         //// DiagramScene (as manager)
         //void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
         //void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
@@ -112,7 +110,7 @@ namespace CubesTop
         void PropertiesConnectionChanged(const uint32_t propertiesId);
         void PropertiesPropertiesChanged();
 
-    private slots:
+    private:
         // Кнопки
         void OnNewFileAction();
         void OnOpenFileAction();

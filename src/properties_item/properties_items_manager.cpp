@@ -8,12 +8,12 @@
 #include <QLabel>
 #include "qttreepropertybrowser.h"
 #include "parameters.h"
-#include "../top_manager_interface.h"
+#include "../top/top_manager_interface.h"
 #include "../unit_types.h"
 #include "../xml/xml_parser.h"
+#include "../array_window.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
-#include <src/array_window.h>
 
 using namespace CubesProperties;
 
@@ -260,7 +260,8 @@ bool PropertiesItemsManager::InformVariableChanged()
 		auto fileId = item->GetFileId();
 		auto includeId = item->GetIncludeId();
 
-		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
+		if (basePropertiesChangedDelegate_)
+			basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 	}
 
 	return true;
@@ -316,7 +317,8 @@ bool PropertiesItemsManager::InformFileColorChanged(const CubesUnitTypes::FileId
 		auto fileId = item->GetFileId();
 		auto includeId = item->GetIncludeId();
 
-		emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
+		if (basePropertiesChangedDelegate_)
+			basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 	}
 
 	return true;
@@ -421,7 +423,8 @@ void PropertiesItemsManager::AfterNameChanged(const CubesUnitTypes::PropertiesId
 	auto fileId = item->GetFileId();
 	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
+	if (basePropertiesChangedDelegate_)
+		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId,
@@ -442,7 +445,8 @@ void PropertiesItemsManager::AfterFileNameChanged(const CubesUnitTypes::Properti
 	auto fileId = item->GetFileId();
 	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
+	if (basePropertiesChangedDelegate_)
+		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId)
@@ -458,12 +462,14 @@ void PropertiesItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::Prope
 	auto fileId = item->GetFileId();
 	auto includeId = item->GetIncludeId();
 
-	emit BasePropertiesChanged(item->GetPropertiesId(), name, fileId, includeId);
+	if (basePropertiesChangedDelegate_)
+		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
 void PropertiesItemsManager::AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
-	emit PositionChanged(propertiesId, posX, posY, posZ);
+	if (positionChangedDelegate_)
+		positionChangedDelegate_(propertiesId, posX, posY, posZ);
 }
 
 void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
@@ -476,12 +482,14 @@ void PropertiesItemsManager::AfterError(const CubesUnitTypes::PropertiesId prope
 
 void PropertiesItemsManager::AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId)
 {
-	emit ConnectionChanged(propertiesId);
+	if (connectionChangedDelegate_)
+		connectionChangedDelegate_(propertiesId);
 }
 
 void PropertiesItemsManager::AfterPropertiesChanged()
 {
-	emit PropertiesChanged();
+	if (propertiesChangedDelegate_)
+		propertiesChangedDelegate_();
 }
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
@@ -570,7 +578,8 @@ void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 {
 	uint32_t currentPropertiesId = GetCurrentPropertiesId();
 	Select(currentPropertiesId);
-	emit SelectedItemChanged(currentPropertiesId);
+	if (selectedItemChangedDelegate_)
+		selectedItemChangedDelegate_(currentPropertiesId);
 }
 
 void PropertiesItemsManager::OnAddUnitClicked()

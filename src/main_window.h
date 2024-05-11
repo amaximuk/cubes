@@ -1,9 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QPointer>
-#include "log_table/log_table_interface.h"
-#include "top/top_manager_interface.h"
+#include "top/top_manager.h"
 
 namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }
@@ -28,7 +26,7 @@ class QtTreePropertyBrowser;
 class QtBrowserItem;
 class QComboBox;
 
-class MainWindow : public QMainWindow, CubesTop::ITopManager, CubesLog::ILogManager
+class MainWindow : public QMainWindow, public CubesTop::TopManager
 {
     Q_OBJECT
 

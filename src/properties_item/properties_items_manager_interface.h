@@ -6,6 +6,13 @@ namespace CubesProperties { class PropertiesItem; }
 
 namespace CubesProperties
 {
+	using BasePropertiesChangedDelegate = std::function<void(CubesUnitTypes::PropertiesId, const QString&, CubesUnitTypes::FileId, CubesUnitTypes::IncludeId)>;
+	using PositionChangedDelegate = std::function<void(CubesUnitTypes::PropertiesId, double, double, double)>;
+	using SelectedItemChangedDelegate = std::function<void(CubesUnitTypes::PropertiesId)>;
+	using ErrorDelegate = std::function<void(CubesUnitTypes::PropertiesId, const QString&)>;
+	using ConnectionChangedDelegate = std::function<void(CubesUnitTypes::PropertiesId)>;
+	using PropertiesChangedDelegate = std::function<void(void)>;
+
 	class IPropertiesItemsManager
 	{
 	public:

@@ -68,17 +68,37 @@ namespace CubesFile
 		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);
 		bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files);
 
-	signals:
-		void FileNameChanged(const CubesUnitTypes::FileId fileId);
-		void FilesListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-		void IncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-		void IncludesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-		void VariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-			const QString& variableName, const QString& oldVariableName);
-		void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
-			const CubesUnitTypes::VariableIdVariables& variables);
-		void ColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color);
-		void PropertiesChanged();
+	private:
+		FileNameChangedDelegate fileNameChangedDelegate_;
+		FilesListChangedDelegate filesListChangedDelegate_;
+		IncludeNameChangedDelegate includeNameChangedDelegate_;
+		IncludesListChangedDelegate includesListChangedDelegate_;
+		VariableNameChangedDelegate variableNameChangedDelegate_;
+		VariablesListChangedDelegate variablesListChangedDelegate_;
+		ColorChangedDelegate colorChangedDelegate_;
+		PropertiesChangedDelegate propertiesChangedDelegate_;
+
+	public:
+		void SetFileNameChangedDelegate(FileNameChangedDelegate fileNameChangedDelegate) { fileNameChangedDelegate_ = fileNameChangedDelegate; };
+		void SetFilesListChangedDelegate(FilesListChangedDelegate filesListChangedDelegate) { filesListChangedDelegate_ = filesListChangedDelegate; };
+		void SetIncludeNameChangedDelegate(IncludeNameChangedDelegate includeNameChangedDelegate) { includeNameChangedDelegate_ = includeNameChangedDelegate; };
+		void SetIncludesListChangedDelegate(IncludesListChangedDelegate includesListChangedDelegate) { includesListChangedDelegate_ = includesListChangedDelegate; };
+		void SetVariableNameChangedDelegate(VariableNameChangedDelegate variableNameChangedDelegate) { variableNameChangedDelegate_ = variableNameChangedDelegate; };
+		void SetVariablesListChangedDelegate(VariablesListChangedDelegate variablesListChangedDelegate) { variablesListChangedDelegate_ = variablesListChangedDelegate; };
+		void SetColorChangedDelegate(ColorChangedDelegate colorChangedDelegate) { colorChangedDelegate_ = colorChangedDelegate; };
+		void SetPropertiesChangedDelegate(PropertiesChangedDelegate propertiesChangedDelegate) { propertiesChangedDelegate_ = propertiesChangedDelegate; };
+
+	//signals:
+	//	void FileNameChanged(const CubesUnitTypes::FileId fileId);
+	//	void FilesListChanged(const CubesUnitTypes::FileIdNames& fileNames);
+	//	void IncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
+	//	void IncludesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+	//	void VariableNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
+	//		const QString& variableName, const QString& oldVariableName);
+	//	void VariablesListChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
+	//		const CubesUnitTypes::VariableIdVariables& variables);
+	//	void ColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color);
+	//	void PropertiesChanged();
 
 	public:
 		// IFileItemsManager (для общения с FileItem)

@@ -4,6 +4,15 @@
 
 namespace CubesFile
 {
+	using FileNameChangedDelegate = std::function<void(CubesUnitTypes::FileId)>;
+	using FilesListChangedDelegate = std::function<void(const CubesUnitTypes::FileIdNames&)>;
+	using IncludeNameChangedDelegate = std::function<void(CubesUnitTypes::FileId, CubesUnitTypes::IncludeId)>;
+	using IncludesListChangedDelegate = std::function<void(CubesUnitTypes::FileId, const CubesUnitTypes::IncludeIdNames&)>;
+	using VariableNameChangedDelegate = std::function<void(CubesUnitTypes::FileId, CubesUnitTypes::IncludeId, const QString&, const QString&)>;
+	using VariablesListChangedDelegate = std::function<void(CubesUnitTypes::FileId, CubesUnitTypes::IncludeId, const CubesUnitTypes::VariableIdVariables&)>;
+	using ColorChangedDelegate = std::function<void(CubesUnitTypes::FileId, const QColor&)>;
+	using PropertiesChangedDelegate = std::function<void(void)>;
+
 	class IFileItemsManager
 	{
 	public:

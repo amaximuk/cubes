@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include "qttreepropertybrowser.h"
-#include "../top_manager_interface.h"
+#include "../top/top_manager_interface.h"
 #include "../unit_types.h"
 #include "../log_table/log_table_interface.h"
 #include "file_item.h"
@@ -96,7 +96,8 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	selector_->addItem(fileName, fileId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	emit FilesListChanged(GetFileNames());
+	if (filesListChangedDelegate_)
+		filesListChangedDelegate_(GetFileNames());
 
 	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName) });
@@ -112,7 +113,8 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	selector_->addItem(fi->GetName(), fileId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	emit FilesListChanged(GetFileNames());
+	if (filesListChangedDelegate_)
+		filesListChangedDelegate_(GetFileNames());
 
 	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item created, id = %1, name = %2").arg(fileId).arg(xmlFile.name) });
@@ -304,12 +306,14 @@ void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 	selected_ = fileId;
 
 	// Уведомляем о переименовании
-	emit FileNameChanged(fileId);
+	if (fileNameChangedDelegate_)
+		fileNameChangedDelegate_(fileId);
 }
 
 void FileItemsManager::AfterIncludeNameChanged(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::FileId includeId)
 {
-	emit IncludeNameChanged(fileId, includeId);
+	if (includeNameChangedDelegate_)
+		includeNameChangedDelegate_(fileId, includeId);
 }
 
 void FileItemsManager::BeforeIncludesAdd(const CubesUnitTypes::FileId fileId,
@@ -346,29 +350,34 @@ void FileItemsManager::AfterIncludesListChanged(const CubesUnitTypes::FileId fil
 	CubesUnitTypes::IncludeIdNames includes;
 	includes[CubesUnitTypes::InvalidIncludeId] = "<not selected>";
 	includes.insert(includeNames);
-	emit IncludesListChanged(fileId, includes);
+	if (includesListChangedDelegate_)
+		includesListChangedDelegate_(fileId, includes);
 }
 
 void FileItemsManager::AfterVariableNameChanged(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId includeId, const QString& variableName, const QString& oldVariableName)
 {
-	emit VariableNameChanged(fileId, includeId, variableName, oldVariableName);
+	if (variableNameChangedDelegate_)
+		variableNameChangedDelegate_(fileId, includeId, variableName, oldVariableName);
 }
 
 void FileItemsManager::AfterVariablesListChanged(const CubesUnitTypes::FileId fileId,
 	const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables)
 {
-	emit VariablesListChanged(fileId, includeId, variables);
+	if (variablesListChangedDelegate_)
+		variablesListChangedDelegate_(fileId, includeId, variables);
 }
 
 void FileItemsManager::AfterColorChanged(const CubesUnitTypes::FileId fileId, const QColor& color)
 {
-	emit ColorChanged(fileId, color);
+	if (colorChangedDelegate_)
+		colorChangedDelegate_(fileId, color);
 }
 
 void FileItemsManager::AfterPropertiesChanged()
 {
-	emit PropertiesChanged();
+	if (propertiesChangedDelegate_)
+		propertiesChangedDelegate_();
 }
 
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
@@ -481,7 +490,8 @@ void FileItemsManager::OnRemoveFileClicked()
 		fileNames[item->GetFileId()] = item->GetName();
 
 	// Сообщаяем об удалении
-	emit FilesListChanged(fileNames);
+	if (filesListChangedDelegate_)
+		filesListChangedDelegate_(fileNames);
 
 	logManager_->AddMessage({ CubesLog::MessageType::information, fileId, "Files Manager",
 		QString("Item removed, id = %1").arg(fileId) });

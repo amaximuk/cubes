@@ -58,11 +58,13 @@ ArrayWindow::ArrayWindow(QWidget *parent)
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &ArrayWindow::FileVariableNameChanged);
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &ArrayWindow::FileVariablesListChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, nullptr, true);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &ArrayWindow::PropertiesSelectedItemChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &ArrayWindow::PropertiesPositionChanged);
-    connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &ArrayWindow::PropertiesError);
+    //propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, nullptr, true);
+    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &ArrayWindow::PropertiesBasePropertiesChanged);
+    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &ArrayWindow::PropertiesSelectedItemChanged);
+    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &ArrayWindow::PropertiesPositionChanged);
+    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &ArrayWindow::PropertiesError);
+    
+    
     //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &ArrayWindow::PropertiesPropertiesChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FileNameChanged, this, &ArrayWindow::propertiesFileNameChanged);
     //connect(properties_items_manager_, &Properties::properties_items_manager::FilesListChanged, this, &ArrayWindow::fileListChanged);

@@ -75,14 +75,30 @@ namespace CubesProperties
 			const CubesUnitTypes::IncludeId& includeId = CubesUnitTypes::InvalidIncludeId);
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
 
-	signals:
-		void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-			const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-		void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-		void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
-		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
-		void ConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId);
-		void PropertiesChanged();
+	private:
+		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;
+		PositionChangedDelegate positionChangedDelegate_;
+		SelectedItemChangedDelegate selectedItemChangedDelegate_;
+		ErrorDelegate errorDelegate_;
+		ConnectionChangedDelegate connectionChangedDelegate_;
+		PropertiesChangedDelegate propertiesChangedDelegate_;
+
+	public:
+		void SetBasePropertiesChangedDelegate(BasePropertiesChangedDelegate basePropertiesChangedDelegate) { basePropertiesChangedDelegate_ = basePropertiesChangedDelegate; };
+		void SetPositionChangedDelegate(PositionChangedDelegate positionChangedDelegate) { positionChangedDelegate_ = positionChangedDelegate; };
+		void SetSelectedItemChangedDelegate(SelectedItemChangedDelegate selectedItemChangedDelegate) { selectedItemChangedDelegate_ = selectedItemChangedDelegate; };
+		void SetErrorDelegate(ErrorDelegate errorDelegate) { errorDelegate_ = errorDelegate; };
+		void SetConnectionChangedDelegate(ConnectionChangedDelegate connectionChangedDelegate) { connectionChangedDelegate_ = connectionChangedDelegate; };
+		void SetPropertiesChangedDelegate(PropertiesChangedDelegate propertiesChangedDelegate) { propertiesChangedDelegate_ = propertiesChangedDelegate; };
+
+	//signals:
+	//	void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+	//		const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
+	//	void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
+	//	void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
+	//	void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+	//	void ConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId);
+	//	void PropertiesChanged();
 
 	public:
 		// IPropertiesItemsManager (для общения с PropertiesItem)
