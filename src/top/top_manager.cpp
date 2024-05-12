@@ -81,7 +81,19 @@ bool TopManager::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
 
 bool TopManager::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
 {
-    unitParameters = unitParameters_[unitId];
+    // Для массивов - мы не знаем название, но у нас всего один элемент в списке
+    if (unitId.isEmpty() && unitParameters_.size() == 1)
+    {
+        unitParameters = *unitParameters_.begin();
+    }
+    else
+    {
+        const auto it = unitParameters_.find(unitId);
+        if (it == unitParameters_.end())
+            return false;
+        unitParameters = *it;
+    }
+    
     return true;
 }
 
