@@ -721,7 +721,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId p
     const auto fileName = fileItemsManager_->GetFileName(fileId);
     QString includeName;
     if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
-        return;
+        includeName = "";
     const auto color = fileItemsManager_->GetFileColor(fileId);
 
     scene_->InformBasePropertiesChanged(propertiesId, name, fileName, includeName, color);
