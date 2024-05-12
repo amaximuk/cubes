@@ -578,7 +578,7 @@ void PropertiesItemsManager::OnDeleteInclude(bool checked)
 
 void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 {
-	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 	Select(currentPropertiesId);
 	if (selectedItemChangedDelegate_)
 		selectedItemChangedDelegate_(currentPropertiesId);
@@ -586,7 +586,7 @@ void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 
 void PropertiesItemsManager::OnAddUnitClicked()
 {
-	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 	
 	if (currentPropertiesId != 0)
 	{
@@ -659,7 +659,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 
 void PropertiesItemsManager::OnAimUnitClicked()
 {
-	uint32_t currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 
 	if (currentPropertiesId != 0)
 	{

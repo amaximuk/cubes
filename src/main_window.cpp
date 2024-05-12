@@ -142,7 +142,7 @@ bool MainWindow::GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId p
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool MainWindow::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
+bool MainWindow::GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
@@ -193,7 +193,7 @@ bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     return true;
 }
 
-bool MainWindow::EnshureVisible(uint32_t propertiesId)
+bool MainWindow::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
 {
     TopManager::EnshureVisible(propertiesId);
 
@@ -354,7 +354,6 @@ void MainWindow::CreateMenu()
 QWidget* MainWindow::CreateMainWidget()
 {
     CreateTreeView();
-    FillParametersInfo();
     FillTreeView();
 
     CreateScene();

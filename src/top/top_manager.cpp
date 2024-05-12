@@ -59,10 +59,8 @@ TopManager::TopManager(bool isArray)
 
     analysisManager_ = new CubesAnalysis::AnalysisManager(this, this);
 
-    FillParametersInfo();
-
-    //uint32_t fileId{ 0 };
-    //fileItemsManager_->Create(QString::fromLocal8Bit("config.xml"), QString::fromLocal8Bit("ÀÐÌ"), QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
+    if (!isArray)
+        FillParametersInfo();
 }
 
 TopManager::~TopManager()

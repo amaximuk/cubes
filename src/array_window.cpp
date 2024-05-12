@@ -417,7 +417,6 @@ void ArrayWindow::CreateMenu()
 
 QWidget* ArrayWindow::CreateMainWidget()
 {
-    FillParametersInfo();
     CreateScene();
     CreateView();
 
