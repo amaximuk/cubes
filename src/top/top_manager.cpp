@@ -111,9 +111,6 @@ bool TopManager::CreatePropetiesItem(const QString& unitId, uint32_t& properties
 
 bool TopManager::GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
 {
-    //if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
-    //    return false;
-
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
         return false;
@@ -152,12 +149,12 @@ bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 
 bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
 {
-    return false;
+    return true;
 }
 
 bool TopManager::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
 {
-    return false;
+    return true;
 }
 
 bool TopManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)

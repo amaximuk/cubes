@@ -47,27 +47,11 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;
 
-//public:
-//    // ITopManager
-//    bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-//    bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
-//        QStringList& unitNames) override;
-//    bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-//    bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-//    bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
-//        CubesUnitTypes::VariableIdVariables& variables) override;
-//    bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
-//    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
-//    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
-//        CubesUnitTypes::UnitParameters& unitParameters) override;
-//    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
-//    bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
-//    bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
+public:
+    // ITopManager
     bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
-//    bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
-//    bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
-//
+
     // ILogManager
     void AddMessage(const CubesLog::LogMessage& m) override;
 

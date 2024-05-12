@@ -190,14 +190,12 @@ bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
     DiagramAfterItemCreated(di);
 
-    return false;
+    return true;
 }
 
 bool MainWindow::EnshureVisible(uint32_t propertiesId)
 {
-    //const auto item = propertiesItemsManager_->GetItem(propertiesId);
-    //if (item == nullptr)
-    //    return false;
+    TopManager::EnshureVisible(propertiesId);
 
     for (const auto& item : scene_->items())
     {
