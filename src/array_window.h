@@ -71,17 +71,17 @@ protected:
     QWidget* CreatePropertiesPanelWidget();
 
     // Заполнение параметров юнитов
-    void FillParametersInfo();
+    //void FillParametersInfo();
 
     // Units
-    bool AddMainFile(CubesXml::File& file);
-    bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);
-    bool SortUnits();
-    bool SortUnitsRectangular(bool check);
+    //bool AddMainFile(CubesXml::File& file);
+    //bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);
+    bool SortUnitsBoost() override;
+    bool SortUnitsRectangular(bool check) override;
 
     // Files
-    CubesUnitTypes::FileIdNames GetFileNames();
-    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
+    CubesUnitTypes::FileIdNames GetFileNames() override;
+    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames() override;
 
 public slots:
     // DiagramScene (as manager)
@@ -92,10 +92,10 @@ public slots:
 
     // PropertiesItemsManager
     void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-        CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
-    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+        CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId) override;
+    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId) override;
+    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
 
 private slots:
     // Кнопки

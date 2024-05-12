@@ -467,155 +467,179 @@ QWidget* ArrayWindow::CreatePropertiesPanelWidget()
     return propertiesPanelWidget;
 }
 
-void ArrayWindow::FillParametersInfo()
-{
-    // —пециально переопредилили, чтобы ничегоо не добавл€ть
-}
+//void ArrayWindow::FillParametersInfo()
+//{
+//    // —пециально переопредилили, чтобы ничего не добавл€ть
+//}
 
 // Units
-bool ArrayWindow::AddMainFile(CubesXml::File& file)
+//bool ArrayWindow::AddMainFile(CubesXml::File& file)
+//{
+//    // —пециально переопредилили, чтобы ничего не добавл€ть
+//    return true;
+//}
+//
+//bool ArrayWindow::AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file)
+//{
+//    // —пециально переопредилили, чтобы ничего не добавл€ть
+//    return true;
+//}
+//
+bool ArrayWindow::SortUnitsBoost()
 {
-    // —пециально переопредилили, чтобы ничегоо не добавл€ть
-    return true;
-}
-
-bool ArrayWindow::AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file)
-{
-    // —пециально переопредилили, чтобы ничегоо не добавл€ть
-    return true;
-}
-
-bool ArrayWindow::SortUnits()
-{
-    // Prepare sort
-    int nextIndex = 0;
-    QMap<QString, int> nameToIndex;
-    QMap<int, QString> indexToName;
-    QMap<QString, QSet<QString>> connectedNames;
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-
-        if (!nameToIndex.contains(di->name_))
-        {
-            nameToIndex[di->name_] = nextIndex;
-            indexToName[nextIndex] = di->name_;
-            nextIndex++;
-        }
-
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        auto connected = pi->GetConnectedNames();
-        connectedNames[di->name_].unite(QSet<QString>(connected.begin(), connected.end()));
-    }
-
-    // Sort
-    std::vector<std::pair<int, int>> edges;
-
-    for (const auto& kvp : connectedNames.toStdMap())
-    {
-        for (const auto& se : kvp.second)
-        {
-            if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
-                edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
-        }
-    }
-
-    std::vector<std::pair<int, int>> coordinates;
-    if (!CubesGraph::RearrangeGraph(nameToIndex.size(), edges, coordinates))
-    {
+    if (!TopManager::SortUnitsBoost())
         return false;
-    }
 
-    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-
-        int i = nameToIndex[di->name_];
-
-        //QPoint position(vr.left() + 60 + coordinates[i].first * 60,
-        //    vr.top() + 60 + coordinates[i].second * 60);
-
-        int gridSize = 20;
-        //qreal xV = round(position.x() / gridSize) * gridSize;
-        //qreal yV = round(position.y() / gridSize) * gridSize;
-
-        //QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
-        //position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
-
-
-
-
-        QPoint position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
-        //QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
-        di->setPos(position);
-
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetPosition(di->pos());
-
-
-        //di->setSelected(true);
-    }
     QPointF center = scene_->itemsBoundingRect().center();
-    //QPointF centerMapped = view_->mapFromScene(center);
     view_->centerOn(center);
-
     scene_->invalidate();
+
     return true;
 }
 
 bool ArrayWindow::SortUnitsRectangular(bool check)
 {
-    if (scene_->items().size() == 0)
-        return true;
-
-    bool sort = true;
-    if (check)
-    {
-        int count = 0;
-        for (auto& item : scene_->items())
-        {
-            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-            QPointF p = di->pos();
-            if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
-                ++count;
-        }
-
-        // ¬се нулевые, распредел€ем по сетке
-        if (count != scene_->items().size())
-            sort = false;
-    }
-
-
-    if (sort)
-    {
-        // ¬се нулевые, распредел€ем по сетке
-        int size = scene_->items().size();
-        int rows = std::sqrt(scene_->items().size());
-        int columns = (scene_->items().size() + rows - 1) / rows;
-
-        int c = 0;
-        int r = 0;
-        for (auto& item : scene_->items(Qt::AscendingOrder))
-        {
-            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-            QPoint position(c * 200, r * 80);
-            di->setPos(position);
-
-            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-            pi->SetPosition(di->pos());
-
-            if (++c == columns) { ++r; c = 0; };
-        }
-    }
+    if (!TopManager::SortUnitsRectangular(check))
+        return false;
 
     QPointF center = scene_->itemsBoundingRect().center();
     view_->centerOn(center);
-
     scene_->invalidate();
 
     return true;
 }
+
+//bool ArrayWindow::SortUnitsBoost()
+//{
+//    // Prepare sort
+//    int nextIndex = 0;
+//    QMap<QString, int> nameToIndex;
+//    QMap<int, QString> indexToName;
+//    QMap<QString, QSet<QString>> connectedNames;
+//    for (auto& item : scene_->items())
+//    {
+//        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+//
+//        if (!nameToIndex.contains(di->name_))
+//        {
+//            nameToIndex[di->name_] = nextIndex;
+//            indexToName[nextIndex] = di->name_;
+//            nextIndex++;
+//        }
+//
+//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//        auto connected = pi->GetConnectedNames();
+//        connectedNames[di->name_].unite(QSet<QString>(connected.begin(), connected.end()));
+//    }
+//
+//    // Sort
+//    std::vector<std::pair<int, int>> edges;
+//
+//    for (const auto& kvp : connectedNames.toStdMap())
+//    {
+//        for (const auto& se : kvp.second)
+//        {
+//            if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
+//                edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
+//        }
+//    }
+//
+//    std::vector<std::pair<int, int>> coordinates;
+//    if (!CubesGraph::RearrangeGraph(nameToIndex.size(), edges, coordinates))
+//    {
+//        return false;
+//    }
+//
+//    auto vr = view_->mapToScene(view_->viewport()->geometry()).boundingRect();
+//    for (auto& item : scene_->items())
+//    {
+//        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+//
+//        int i = nameToIndex[di->name_];
+//
+//        //QPoint position(vr.left() + 60 + coordinates[i].first * 60,
+//        //    vr.top() + 60 + coordinates[i].second * 60);
+//
+//        int gridSize = 20;
+//        //qreal xV = round(position.x() / gridSize) * gridSize;
+//        //qreal yV = round(position.y() / gridSize) * gridSize;
+//
+//        //QPoint position(round(vr.left() / gridSize) * gridSize, round(vr.top() / gridSize) * gridSize);
+//        //position += QPoint(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
+//
+//
+//
+//
+//        QPoint position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
+//        //QPoint position(60 + coordinates[i].first * 60, 60 + coordinates[i].second * 60);
+//        di->setPos(position);
+//
+//        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//        pi->SetPosition(di->pos());
+//
+//
+//        //di->setSelected(true);
+//    }
+//    QPointF center = scene_->itemsBoundingRect().center();
+//    //QPointF centerMapped = view_->mapFromScene(center);
+//    view_->centerOn(center);
+//
+//    scene_->invalidate();
+//    return true;
+//}
+//
+//bool ArrayWindow::SortUnitsRectangular(bool check)
+//{
+//    if (scene_->items().size() == 0)
+//        return true;
+//
+//    bool sort = true;
+//    if (check)
+//    {
+//        int count = 0;
+//        for (auto& item : scene_->items())
+//        {
+//            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+//            QPointF p = di->pos();
+//            if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+//                ++count;
+//        }
+//
+//        // ¬се нулевые, распредел€ем по сетке
+//        if (count != scene_->items().size())
+//            sort = false;
+//    }
+//
+//
+//    if (sort)
+//    {
+//        // ¬се нулевые, распредел€ем по сетке
+//        int size = scene_->items().size();
+//        int rows = std::sqrt(scene_->items().size());
+//        int columns = (scene_->items().size() + rows - 1) / rows;
+//
+//        int c = 0;
+//        int r = 0;
+//        for (auto& item : scene_->items(Qt::AscendingOrder))
+//        {
+//            CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+//            QPoint position(c * 200, r * 80);
+//            di->setPos(position);
+//
+//            auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+//            pi->SetPosition(di->pos());
+//
+//            if (++c == columns) { ++r; c = 0; };
+//        }
+//    }
+//
+//    QPointF center = scene_->itemsBoundingRect().center();
+//    view_->centerOn(center);
+//
+//    scene_->invalidate();
+//
+//    return true;
+//}
 
 //{
 //    if (scene_->items().size() == 0)
@@ -754,7 +778,7 @@ void ArrayWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, con
 //  нопки
 void ArrayWindow::OnSortBoostAction()
 {
-    SortUnits();
+    SortUnitsBoost();
 }
 
 void ArrayWindow::OnSortRectAction()

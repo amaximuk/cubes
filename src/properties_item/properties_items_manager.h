@@ -57,6 +57,8 @@ namespace CubesProperties
 		// TODO: переделать на PropertiesId
 		bool GetUnitsConnections(QMap<QString, QStringList>& connections);
 		bool GetDependsConnections(QMap<QString, QStringList>& connections);
+		bool SortUnitsBoost();
+		bool SortUnitsRectangular(bool check);
 
 		bool InformVariableChanged();
 		bool InformFileNameChanged(CubesUnitTypes::FileId fileId, const QString& fileName);

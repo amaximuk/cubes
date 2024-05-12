@@ -12,6 +12,7 @@
 #include "../unit_types.h"
 #include "../xml/xml_parser.h"
 #include "../array_window.h"
+#include "../graph.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 
@@ -245,6 +246,113 @@ bool PropertiesItemsManager::GetDependsConnections(QMap<QString, QStringList>& c
 		QStringList conn = item->GetDependentNames();
 		if (conn.size() > 0)
 			connections[name].append(conn);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::SortUnitsBoost()
+{
+	if (items_.empty())
+		return true;
+
+	// Prepare sort
+	int nextIndex = 0;
+	QMap<QString, int> nameToIndex;
+	QMap<int, QString> indexToName;
+	QMap<QString, QSet<QString>> connectedNames;
+	for (auto& item : items_)
+	{
+		QString name;
+		if (!GetName(item->GetPropertiesId(), name))
+			return false;
+
+		if (!nameToIndex.contains(name))
+		{
+			nameToIndex[name] = nextIndex;
+			indexToName[nextIndex] = name;
+			nextIndex++;
+		}
+
+		auto connected = item->GetConnectedNames();
+		connectedNames[name].unite(QSet<QString>(connected.begin(), connected.end()));
+	}
+
+	// Sort
+	std::vector<std::pair<int, int>> edges;
+
+	for (const auto& kvp : connectedNames.toStdMap())
+	{
+		for (const auto& se : kvp.second)
+		{
+			if (nameToIndex.contains(kvp.first) && nameToIndex.contains(se))
+				edges.push_back({ nameToIndex[kvp.first], nameToIndex[se] });
+		}
+	}
+
+	std::vector<std::pair<int, int>> coordinates;
+	if (!CubesGraph::RearrangeGraph(nameToIndex.size(), edges, coordinates))
+		return false;
+
+	// Update positions
+	for (auto& item : items_)
+	{
+		QString name;
+		if (!GetName(item->GetPropertiesId(), name))
+			return false;
+
+		int i = nameToIndex[name];
+
+		int gridSize = 20;
+		QPointF position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
+
+		item->SetPosition(position);
+		double z = item->GetZOrder();
+		AfterPositionChanged(item->GetPropertiesId(), position.x(), position.y(), z);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::SortUnitsRectangular(bool check)
+{
+	if (items_.empty())
+		return true;
+
+	bool sort = true;
+	if (check)
+	{
+		int count = 0;
+		for (auto& item : items_)
+		{
+			QPointF p = item->GetPosition();
+			if (qFuzzyIsNull(p.x()) && qFuzzyIsNull(p.y()))
+				++count;
+		}
+
+		// Все нулевые, распределяем по сетке
+		if (count != items_.size())
+			sort = false;
+	}
+
+	if (sort)
+	{
+		int size = items_.size();
+		int rows = std::sqrt(items_.size());
+		int columns = (items_.size() + rows - 1) / rows;
+
+		int c = 0;
+		int r = 0;
+		for (auto& item : items_)
+		{
+			QPoint position(c * 200, r * 80);
+
+			item->SetPosition(position);
+			double z = item->GetZOrder();
+			AfterPositionChanged(item->GetPropertiesId(), position.x(), position.y(), z);
+
+			if (++c == columns) { ++r; c = 0; };
+		}
 	}
 
 	return true;

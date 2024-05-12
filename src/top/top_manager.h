@@ -75,7 +75,7 @@ namespace CubesTop
         virtual bool OpenFile(const QString& path);
         virtual bool OpenFolder(const QString& path);
         virtual bool ImportXml(const QString& path);
-        virtual bool SortUnits();
+        virtual bool SortUnitsBoost();
         virtual bool SortUnitsRectangular(bool check);
         virtual bool Test();
 
