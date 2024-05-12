@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QGraphicsItem>
+#include "../unit_types.h"
 
 namespace CubesDiagram
 {
@@ -8,7 +9,7 @@ namespace CubesDiagram
     {
     public:
         // TODO: Убрать обратно в private
-        uint32_t propertiesId_;
+        CubesUnitTypes::PropertiesId propertiesId_;
         QPixmap pixmap_;
         QString name_;
         QString fileName_;
@@ -25,7 +26,7 @@ namespace CubesDiagram
         bool borderOnly_;
 
     public:
-        DiagramItem(uint32_t propertiesId, QPixmap pixmap, QString name, QString fileName,
+        DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QPixmap pixmap, QString name, QString fileName,
             QString includeName, QColor color, QGraphicsItem* parent = nullptr);
         DiagramItem(const DiagramItem& other);
         ~DiagramItem();

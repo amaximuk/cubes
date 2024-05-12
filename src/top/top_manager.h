@@ -35,18 +35,18 @@ namespace CubesTop
 
     public:
         // ITopManager
-        virtual bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-        virtual bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+        virtual bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames) override;
+        virtual bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             QStringList& unitNames) override;
         virtual bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-        virtual bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-        virtual bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+        virtual bool GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+        virtual bool GetFileIncludeVariableList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             CubesUnitTypes::VariableIdVariables& variables) override;
         virtual bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
-        virtual bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
-        virtual bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
+        virtual bool GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
+        virtual bool GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId,
             CubesUnitTypes::UnitParameters& unitParameters) override;
-        virtual bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+        virtual bool GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
         virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
@@ -90,24 +90,24 @@ namespace CubesTop
         //void selectionChanged(); // QGraphicsScene
 
         // FileItemsManager
-        void FileNameChanged(const CubesUnitTypes::FileId& fileId);
+        void FileNameChanged(CubesUnitTypes::FileId fileId);
         void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-        void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId);
-        void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-        void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+        void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
+        void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+        void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             const QString& variableName, const QString& oldVariableName);
-        void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+        void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             const CubesUnitTypes::VariableIdVariables& variables);
-        void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+        void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color);
         void FilePropertiesChanged();
 
         // PropertiesItemsManager
-        void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-            const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-        void PropertiesSelectedItemChanged(const uint32_t propertiesId);
-        void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
-        void PropertiesError(const uint32_t propertiesId, const QString& message);
-        void PropertiesConnectionChanged(const uint32_t propertiesId);
+        void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+            CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
+        void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
+        void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
+        void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+        void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
         void PropertiesPropertiesChanged();
 
     protected:

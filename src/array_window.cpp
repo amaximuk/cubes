@@ -81,12 +81,12 @@ ArrayWindow::~ArrayWindow()
 }
 
 // ITopManager
-bool ArrayWindow::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
+bool ArrayWindow::GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileList(fileId, unitNames);
 }
 
-bool ArrayWindow::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
+bool ArrayWindow::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
     const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileIncludeList(fileId, includeId, unitNames);
@@ -102,13 +102,13 @@ bool ArrayWindow::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitP
     return true;
 }
 
-bool ArrayWindow::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
+bool ArrayWindow::GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames)
 {
     return false;
 }
 
-bool ArrayWindow::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
+bool ArrayWindow::GetFileIncludeVariableList(CubesUnitTypes::FileId fileId,
+    CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
     return false;
 }
@@ -166,12 +166,12 @@ bool ArrayWindow::GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId prop
     return true;
 }
 
-bool ArrayWindow::GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool ArrayWindow::GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool ArrayWindow::GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
+bool ArrayWindow::GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
@@ -340,7 +340,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         CubesUnitTypes::ParametersModel m{};
         m.parameters = item.parameters;
 
-        uint32_t propertiesId{ 0 };
+        CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
         auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
@@ -1394,7 +1394,7 @@ void ArrayWindow::selectionChanged()
 }
 
 // FileItemsManager
-void ArrayWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::FileId& oldFileId)
+void ArrayWindow::FileNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::FileId oldFileId)
 {
     //QStringList fileNames = fileItemsManager_->GetFileNames();
     //QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
@@ -1438,8 +1438,8 @@ void ArrayWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     scene_->invalidate();
 }
 
-void ArrayWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
-    const CubesUnitTypes::IncludeId& oldIncludeId)
+void ArrayWindow::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+    CubesUnitTypes::IncludeId oldIncludeId)
 {
     //QStringList fileIncludeNames = fileItemsManager_->GetFileIncludeNames(fileName, true);
     //for (auto& item : scene_->items())
@@ -1465,7 +1465,7 @@ void ArrayWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, c
     scene_->invalidate();
 }
 
-void ArrayWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames)
+void ArrayWindow::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames)
 {
     //for (auto& item : scene_->items())
     //{
@@ -1481,19 +1481,19 @@ void ArrayWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, 
     scene_->invalidate();
 }
 
-void ArrayWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void ArrayWindow::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     propertiesItemsManager_->InformVariableChanged();
 }
 
-void ArrayWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void ArrayWindow::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
     propertiesItemsManager_->InformVariableChanged();
 }
 
-void ArrayWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+void ArrayWindow::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color)
 {
 
 }
@@ -1504,7 +1504,7 @@ void ArrayWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const Q
 //}
 
 // PropertiesItemsManager
-void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+void ArrayWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
     const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     for (auto& item : scene_->items())
@@ -1525,7 +1525,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, c
     scene_->invalidate();
 }
 
-void ArrayWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
+void ArrayWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
@@ -1548,7 +1548,7 @@ void ArrayWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
         item_to_select->setSelected(true);
 }
 
-void ArrayWindow::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+void ArrayWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
     for (auto& item : scene_->items())
     {
@@ -1562,7 +1562,7 @@ void ArrayWindow::PropertiesPositionChanged(const uint32_t propertiesId, double 
     }
 }
 
-void ArrayWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
+void ArrayWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
     //CubeLog::LogMessage m{};
     //m.type = CubeLog::MessageType::error;

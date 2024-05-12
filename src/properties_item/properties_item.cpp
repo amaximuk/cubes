@@ -14,7 +14,7 @@
 using namespace CubesProperties;
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, uint32_t propertiesId)
+    CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
@@ -28,7 +28,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, uint32_t propertiesId, CubesUnitTypes::ParametersModel pm)
+    CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParametersModel pm)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
@@ -42,7 +42,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, uint32_t propertiesId)
+    CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;

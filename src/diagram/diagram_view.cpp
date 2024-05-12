@@ -66,7 +66,7 @@ void DiagramView::dropEvent(QDropEvent *event)
         {
             DiagramScene* ds = qobject_cast<DiagramScene*>(this->scene());
 
-            uint32_t propertiesId{ 0 };
+            CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
             if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
             {
                 qDebug() << "ERROR CreatePropetiesItem: " << unitId;

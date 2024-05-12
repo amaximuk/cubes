@@ -67,20 +67,20 @@ public:
 
 public:
     // ITopManager
-    bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames) override;
-    bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+    bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames) override;
+    bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
         QStringList& unitNames) override;
     bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-    bool GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId includeId,
+    bool GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
+    bool GetFileIncludeVariableList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
         CubesUnitTypes::VariableIdVariables& variables) override;
     bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
     bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
     bool CreatePropetiesItem(const QString& unitId, uint32_t& propertiesId) override;
-    bool GetPropetiesForDrawing(const CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
-    bool GetPropetiesUnitParameters(const CubesUnitTypes::PropertiesId propertiesId,
+    bool GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, CubesTop::PropertiesForDrawing& pfd) override;
+    bool GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId,
         CubesUnitTypes::UnitParameters& unitParameters) override;
-    bool GetPropetiesUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+    bool GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
     bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
     bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
@@ -139,23 +139,23 @@ public slots:
     void selectionChanged(); // QGraphicsScene
 
     // FileItemsManager
-    void FileNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::FileId& oldFileId);
+    void FileNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::FileId oldFileId);
     void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-    void FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
-        const CubesUnitTypes::IncludeId& oldIncludeId);
-    void FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames);
-    void FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+    void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+        CubesUnitTypes::IncludeId oldIncludeId);
+    void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeIdNames);
+    void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
         const QString& variableName, const QString& oldVariableName);
-    void FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+    void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
         const CubesUnitTypes::VariableIdVariables& variables);
-    void FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color);
+    void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color);
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-        const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-    void PropertiesSelectedItemChanged(const uint32_t propertiesId);
-    void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
-    void PropertiesError(const uint32_t propertiesId, const QString& message);
+    void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+        CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
+    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
+    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
+    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
 
 private slots:
     // Кнопки

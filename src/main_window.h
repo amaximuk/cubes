@@ -130,12 +130,12 @@ public slots:
     void FilePropertiesChanged();
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-        const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-    void PropertiesSelectedItemChanged(const uint32_t propertiesId);
-    void PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ);
-    void PropertiesError(const uint32_t propertiesId, const QString& message);
-    void PropertiesConnectionChanged(const uint32_t propertiesId);
+    void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+        CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
+    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
+    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
+    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+    void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
     void PropertiesPropertiesChanged();
 
 private slots:

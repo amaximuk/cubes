@@ -382,13 +382,13 @@ void FileItemsManager::AfterPropertiesChanged()
 
 void FileItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
-	uint32_t propertiesId = GetCurrentFileId();
+	CubesUnitTypes::PropertiesId propertiesId = GetCurrentFileId();
 	SetPropertyExpanded(propertiesId, item->property(), false);
 }
 
 void FileItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
-	uint32_t propertiesId = GetCurrentFileId();
+	CubesUnitTypes::PropertiesId propertiesId = GetCurrentFileId();
 	SetPropertyExpanded(propertiesId, item->property(), true);
 }
 
@@ -446,7 +446,7 @@ void FileItemsManager::OnAddFileClicked()
 
 	QColor fileColor = defaultColorFileIndex_ < defaultColorsFile_.size() ?
 		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-	uint32_t fileId{ 0 };
+	CubesUnitTypes::FileId fileId{ CubesUnitTypes::InvalidFileId };
 	Create(QString::fromLocal8Bit("config_%1.xml"), fileName, QString::fromStdString(CubesUnitTypes::platform_names_[0]), fileId);
 }
 

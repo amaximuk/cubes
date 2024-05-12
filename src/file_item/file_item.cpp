@@ -12,7 +12,7 @@
 
 using namespace CubesFile;
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, uint32_t fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
@@ -27,7 +27,7 @@ FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor
     notifyManager_ = true;
 }
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, uint32_t fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnitTypes::FileId fileId)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;

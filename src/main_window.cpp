@@ -562,85 +562,85 @@ bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
 {
     TopManager::AddUnits(fileId, includeId, file);
 
-    QVector<CubesXml::Unit> all_units;
-    for (const auto& g : file.config.groups)
-    {
-        for (const auto& u : g.units)
-        {
-            auto up = GetUnitParameters(u.id);
-            if (up != nullptr)
-            {
-                all_units.push_back(u);
-            }
-            //else
-            //{
-            //    CubesLog::LogMessage lm{};
-            //    lm.type = CubesLog::MessageType::error;
-            //    lm.tag = 0;
-            //    lm.source = QFileInfo(file.fileName).fileName();
-            //    lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-            //    AddMessage(lm);
-            //}
-        }
-    }
+    //QVector<CubesXml::Unit> all_units;
+    //for (const auto& g : file.config.groups)
+    //{
+    //    for (const auto& u : g.units)
+    //    {
+    //        auto up = GetUnitParameters(u.id);
+    //        if (up != nullptr)
+    //        {
+    //            all_units.push_back(u);
+    //        }
+    //        //else
+    //        //{
+    //        //    CubesLog::LogMessage lm{};
+    //        //    lm.type = CubesLog::MessageType::error;
+    //        //    lm.tag = 0;
+    //        //    lm.source = QFileInfo(file.fileName).fileName();
+    //        //    lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+    //        //    AddMessage(lm);
+    //        //}
+    //    }
+    //}
 
-    // Get fileNames list
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    QString fileName = fileItemsManager_->GetFileName(fileId);
+    //// Get fileNames list
+    //CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    //QString fileName = fileItemsManager_->GetFileName(fileId);
 
-    // Transform
-    CubesDiagram::DiagramItem* di = nullptr;
-    for (int i = 0; i < all_units.size(); i++)
-    {
-        QString name = all_units[i].id;
-        auto up = GetUnitParameters(name);
+    //// Transform
+    //CubesDiagram::DiagramItem* di = nullptr;
+    //for (int i = 0; i < all_units.size(); i++)
+    //{
+    //    QString name = all_units[i].id;
+    //    auto up = GetUnitParameters(name);
 
-        if (up != nullptr)
-        {
-            uint32_t propertiesId{ 0 };
-            propertiesItemsManager_->Create(all_units[i], propertiesId);
-            auto pi = propertiesItemsManager_->GetItem(propertiesId);
+    //    if (up != nullptr)
+    //    {
+    //        uint32_t propertiesId{ 0 };
+    //        propertiesItemsManager_->Create(all_units[i], propertiesId);
+    //        auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
-            pi->SetFileIdNames(fileNames);
-            pi->SetFileIdName(fileId, fileName);
+    //        pi->SetFileIdNames(fileNames);
+    //        pi->SetFileIdName(fileId, fileName);
 
-            {
-                CubesUnitTypes::IncludeIdNames includes;
-                if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
-                    return false;
+    //        {
+    //            CubesUnitTypes::IncludeIdNames includes;
+    //            if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
+    //                return false;
 
-                QString includeName;
-                if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
-                    includeName = "<not selected>";
+    //            QString includeName;
+    //            if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
+    //                includeName = "<not selected>";
 
-                pi->SetIncludeIdNames(includes);
-                pi->SetIncludeIdName(includeId, includeName);
-            }
+    //            pi->SetIncludeIdNames(includes);
+    //            pi->SetIncludeIdName(includeId, includeName);
+    //        }
 
-            CubesTop::PropertiesForDrawing pfd{};
-            if (!GetPropetiesForDrawing(propertiesId, pfd))
-            {
-                qDebug() << "ERROR GetPropeties: " << propertiesId;
-            }
+    //        CubesTop::PropertiesForDrawing pfd{};
+    //        if (!GetPropetiesForDrawing(propertiesId, pfd))
+    //        {
+    //            qDebug() << "ERROR GetPropeties: " << propertiesId;
+    //        }
 
-            di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
-            di->setX(all_units[i].x);
-            di->setY(all_units[i].y);
-            di->setZValue(all_units[i].z);
-            scene_->addItem(di);
-        }
-        else
-        {
-            // error
-        }
-    }
+    //        di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    //        di->setX(all_units[i].x);
+    //        di->setY(all_units[i].y);
+    //        di->setZValue(all_units[i].z);
+    //        scene_->addItem(di);
+    //    }
+    //    else
+    //    {
+    //        // error
+    //    }
+    //}
 
-    if (all_units.size() > 0 && di != nullptr)
-    {
-        scene_->clearSelection();
-        propertiesItemsManager_->Select(0);
-        DiagramAfterItemCreated(di);
-    }
+    //if (all_units.size() > 0 && di != nullptr)
+    //{
+    //    scene_->clearSelection();
+    //    propertiesItemsManager_->Select(0);
+    //    DiagramAfterItemCreated(di);
+    //}
 
     return true;
 }
@@ -1267,7 +1267,7 @@ void MainWindow::FilePropertiesChanged()
 }
 
 // PropertiesItemsManager
-void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
+void MainWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
     const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
 {
     const auto fileName = fileItemsManager_->GetFileName(fileId);
@@ -1282,7 +1282,7 @@ void MainWindow::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
     scene_->invalidate();
 }
 
-void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
+void MainWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
@@ -1305,7 +1305,7 @@ void MainWindow::PropertiesSelectedItemChanged(const uint32_t propertiesId)
         item_to_select->setSelected(true);
 }
 
-void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+void MainWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
     for (auto& item : scene_->items())
     {
@@ -1321,7 +1321,7 @@ void MainWindow::PropertiesPositionChanged(const uint32_t propertiesId, double p
     UpdateFileState(path_, true);
 }
 
-void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& message)
+void MainWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
     CubesLog::LogMessage lm{};
     lm.type = CubesLog::MessageType::error;
@@ -1331,7 +1331,7 @@ void MainWindow::PropertiesError(const uint32_t propertiesId, const QString& mes
     AddMessage(lm);
 }
 
-void MainWindow::PropertiesConnectionChanged(const uint32_t propertiesId)
+void MainWindow::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
     scene_->invalidate();
 

@@ -71,13 +71,13 @@ TopManager::~TopManager()
 }
 
 // ITopManager
-bool TopManager::GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames)
+bool TopManager::GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileList(fileId, unitNames);
 }
 
-bool TopManager::GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
+bool TopManager::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
+    CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileIncludeList(fileId, includeId, unitNames);
 }
@@ -88,13 +88,13 @@ bool TopManager::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
     return true;
 }
 
-bool TopManager::GetFileIncludeList(const CubesUnitTypes::FileId& fileId, CubesUnitTypes::IncludeIdNames& includeNames)
+bool TopManager::GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames)
 {
     return fileItemsManager_->GetFileIncludeNames(fileId, true, includeNames);
 }
 
-bool TopManager::GetFileIncludeVariableList(const CubesUnitTypes::FileId& fileId,
-    const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
+bool TopManager::GetFileIncludeVariableList(CubesUnitTypes::FileId fileId,
+    CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
 {
     return fileItemsManager_->GetFileIncludeVariables(fileId, includeId, variables);
 }
@@ -110,7 +110,7 @@ bool TopManager::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool TopManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesForDrawing& pfd)
+bool TopManager::GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
 {
     //if (!propertiesItemsManager_->GetPropetiesForDrawing(propertiesId, pfd))
     //    return false;
@@ -131,12 +131,12 @@ bool TopManager::GetPropetiesForDrawing(const uint32_t propertiesId, PropertiesF
     return true;
 }
 
-bool TopManager::GetPropetiesUnitParameters(const uint32_t propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool TopManager::GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool TopManager::GetPropetiesUnitId(const uint32_t propertiesId, QString& unitId)
+bool TopManager::GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
@@ -156,7 +156,7 @@ bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     return false;
 }
 
-bool TopManager::EnshureVisible(uint32_t propertiesId)
+bool TopManager::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
 {
     return false;
 }
@@ -331,7 +331,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
 
         if (up != nullptr)
         {
-            uint32_t propertiesId{ 0 };
+            CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
             propertiesItemsManager_->Create(all_units[i], propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
@@ -847,7 +847,7 @@ bool TopManager::OpenFolderInternal(const QString& path)
 }
 
 // FileItemsManager
-void TopManager::FileNameChanged(const CubesUnitTypes::FileId& fileId)
+void TopManager::FileNameChanged(CubesUnitTypes::FileId fileId)
 {
     const auto fileName = fileItemsManager_->GetFileName(fileId);
     if (!propertiesItemsManager_->InformFileNameChanged(fileId, fileName))
@@ -880,7 +880,7 @@ void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     //scene_->invalidate();
 }
 
-void TopManager::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
+void TopManager::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
 {
     QString includeName;
     if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
@@ -894,7 +894,7 @@ void TopManager::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, co
     //scene_->invalidate();
 }
 
-void TopManager::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+void TopManager::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
 {
     if (!propertiesItemsManager_->InformIncludesListChanged(fileId, includeNames))
         return;
@@ -904,7 +904,7 @@ void TopManager::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, c
     //scene_->invalidate();
 }
 
-void TopManager::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void TopManager::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
@@ -913,7 +913,7 @@ void TopManager::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, c
     UpdateFileState(path_, true);
 }
 
-void TopManager::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void TopManager::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
@@ -922,7 +922,7 @@ void TopManager::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, 
     UpdateFileState(path_, true);
 }
 
-void TopManager::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+void TopManager::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color)
 {
     if (!propertiesItemsManager_->InformFileColorChanged(fileId))
         return;
@@ -938,8 +938,8 @@ void TopManager::FilePropertiesChanged()
 }
 
 // PropertiesItemsManager
-void TopManager::PropertiesBasePropertiesChanged(const uint32_t propertiesId, const QString& name,
-    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
+void TopManager::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+    CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
 {
     //for (auto& item : scene_->items())
     //{
@@ -961,11 +961,11 @@ void TopManager::PropertiesBasePropertiesChanged(const uint32_t propertiesId, co
     //scene_->invalidate();
 }
 
-void TopManager::PropertiesSelectedItemChanged(const uint32_t propertiesId)
+void TopManager::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
 }
 
-void TopManager::PropertiesPositionChanged(const uint32_t propertiesId, double posX, double posY, double posZ)
+void TopManager::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
     //for (auto& item : scene_->items())
     //{
@@ -981,7 +981,7 @@ void TopManager::PropertiesPositionChanged(const uint32_t propertiesId, double p
     //UpdateFileState(path_, true);
 }
 
-void TopManager::PropertiesError(const uint32_t propertiesId, const QString& message)
+void TopManager::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
     CubesLog::LogMessage lm{};
     lm.type = CubesLog::MessageType::error;
@@ -991,7 +991,7 @@ void TopManager::PropertiesError(const uint32_t propertiesId, const QString& mes
     AddMessage(lm);
 }
 
-void TopManager::PropertiesConnectionChanged(const uint32_t propertiesId)
+void TopManager::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
     UpdateFileState(path_, true);
 }

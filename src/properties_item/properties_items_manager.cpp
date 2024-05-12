@@ -496,13 +496,13 @@ void PropertiesItemsManager::AfterPropertiesChanged()
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
-	uint32_t propertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
 	SetPropertyExpanded(propertiesId, item->property(), false);
 }
 
 void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
-	uint32_t propertiesId = GetCurrentPropertiesId();
+	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
 	SetPropertyExpanded(propertiesId, item->property(), true);
 }
 
@@ -594,7 +594,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		if (!GetUnitId(currentPropertiesId, unitId))
 			return;
 
-		uint32_t propertiesId{ 0 };
+		CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
 		Create(unitId, propertiesId);
 
 		auto pi = GetItem(propertiesId);
@@ -632,7 +632,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 
 		const auto unitId = QString::fromStdString(unitParameters.fileInfo.info.id);
 
-		uint32_t propertiesId{ 0 };
+		CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
 		Create(unitId, propertiesId);
 
 		topManager_->CreateDiagramItem(propertiesId);
