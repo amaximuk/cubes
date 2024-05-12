@@ -44,35 +44,35 @@ namespace CubesProperties
 		void Create(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId);
 		void Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm, CubesUnitTypes::PropertiesId& propertiesId);
 		void Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId);
-		void Select(const CubesUnitTypes::PropertiesId propertiesId);
-		void Remove(const CubesUnitTypes::PropertiesId propertiesId);
-		QSharedPointer<PropertiesItem> GetItem(const CubesUnitTypes::PropertiesId propertiesId);
-		bool GetUnitsInFileList(const CubesUnitTypes::FileId& fileId, QStringList& unitNames);
-		bool GetUnitsInFileIncludeList(const CubesUnitTypes::FileId& fileId,
-			const CubesUnitTypes::IncludeId includeId, QStringList& unitNames);
+		void Select(CubesUnitTypes::PropertiesId propertiesId);
+		void Remove(CubesUnitTypes::PropertiesId propertiesId);
+		QSharedPointer<PropertiesItem> GetItem(CubesUnitTypes::PropertiesId propertiesId);
+		bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames);
+		bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
+			CubesUnitTypes::IncludeId includeId, QStringList& unitNames);
 
-		bool GetUnitParameters(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
-		bool GetUnitId(const CubesUnitTypes::PropertiesId propertiesId, QString& unitId);
+		bool GetUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
+		bool GetUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId);
 
 		// TODO: переделать на PropertiesId
 		bool GetUnitsConnections(QMap<QString, QStringList>& connections);
 		bool GetDependsConnections(QMap<QString, QStringList>& connections);
 
 		bool InformVariableChanged();
-		bool InformFileNameChanged(const CubesUnitTypes::FileId& fileId, const QString& fileName);
+		bool InformFileNameChanged(CubesUnitTypes::FileId fileId, const QString& fileName);
 		bool InformFileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-		bool InformIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+		bool InformIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
 			const QString& includeName);
-		bool InformIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-		bool InformFileColorChanged(const CubesUnitTypes::FileId& fileId);
+		bool InformIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+		bool InformFileColorChanged(CubesUnitTypes::FileId fileId);
 
 		void Clear();
-		bool GetName(const CubesUnitTypes::PropertiesId propertiesId, QString& name);
+		bool GetName(CubesUnitTypes::PropertiesId propertiesId, QString& name);
 
 		QList<uint32_t> GetPropertyIds();
 		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeName = "<not selected>");
-		QList<CubesXml::Group> GetXmlGroups(const CubesUnitTypes::FileId fileId,
-			const CubesUnitTypes::IncludeId& includeId = CubesUnitTypes::InvalidIncludeId);
+		QList<CubesXml::Group> GetXmlGroups(CubesUnitTypes::FileId fileId,
+			CubesUnitTypes::IncludeId includeId = CubesUnitTypes::InvalidIncludeId);
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
 
 	private:

@@ -364,7 +364,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
     if (di != nullptr)
     {
         scene_->clearSelection();
-        propertiesItemsManager_->Select(0);
+        propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
         DiagramAfterItemCreated(di);
     }
 
@@ -1389,7 +1389,7 @@ void ArrayWindow::selectionChanged()
     else
     {
         //plainTextEditHint_->setPlainText("");
-        propertiesItemsManager_->Select(0);
+        propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
     }
 }
 

@@ -187,14 +187,18 @@ bool MainWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     scene_->addItem(di);
 
     scene_->clearSelection();
-    propertiesItemsManager_->Select(0);
+    propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
     DiagramAfterItemCreated(di);
 
     return false;
 }
-/*
+
 bool MainWindow::EnshureVisible(uint32_t propertiesId)
 {
+    //const auto item = propertiesItemsManager_->GetItem(propertiesId);
+    //if (item == nullptr)
+    //    return false;
+
     for (const auto& item : scene_->items())
     {
         CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
@@ -208,7 +212,7 @@ bool MainWindow::EnshureVisible(uint32_t propertiesId)
 
     return true;
 }
-
+/*
 bool MainWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 {
     return fileItemsManager_->GetAnalysisFiles(files);
@@ -218,10 +222,12 @@ bool MainWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prope
 {
     return propertiesItemsManager_->GetAnalysisProperties(properties);
 }
-
+*/
 // ILogManager
 void MainWindow::AddMessage(const CubesLog::LogMessage& m)
 {
+    TopManager::AddMessage(m);
+
     log_table_model_->AddMessage(m);
 
     table_view_log_->resizeColumnsToContents();
@@ -229,7 +235,7 @@ void MainWindow::AddMessage(const CubesLog::LogMessage& m)
     table_view_log_->horizontalHeader()->setStretchLastSection(true);
     table_view_log_->resizeRowsToContents();
 }
-*/
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (modified_)
@@ -553,97 +559,6 @@ void MainWindow::FillTreeView()
 }
 
 // Units
-bool MainWindow::AddMainFile(const CubesXml::File& file, const QString& zipFileName)
-{
-    return TopManager::AddMainFile(file, zipFileName);
-}
-
-bool MainWindow::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
-{
-    TopManager::AddUnits(fileId, includeId, file);
-
-    //QVector<CubesXml::Unit> all_units;
-    //for (const auto& g : file.config.groups)
-    //{
-    //    for (const auto& u : g.units)
-    //    {
-    //        auto up = GetUnitParameters(u.id);
-    //        if (up != nullptr)
-    //        {
-    //            all_units.push_back(u);
-    //        }
-    //        //else
-    //        //{
-    //        //    CubesLog::LogMessage lm{};
-    //        //    lm.type = CubesLog::MessageType::error;
-    //        //    lm.tag = 0;
-    //        //    lm.source = QFileInfo(file.fileName).fileName();
-    //        //    lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-    //        //    AddMessage(lm);
-    //        //}
-    //    }
-    //}
-
-    //// Get fileNames list
-    //CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    //QString fileName = fileItemsManager_->GetFileName(fileId);
-
-    //// Transform
-    //CubesDiagram::DiagramItem* di = nullptr;
-    //for (int i = 0; i < all_units.size(); i++)
-    //{
-    //    QString name = all_units[i].id;
-    //    auto up = GetUnitParameters(name);
-
-    //    if (up != nullptr)
-    //    {
-    //        uint32_t propertiesId{ 0 };
-    //        propertiesItemsManager_->Create(all_units[i], propertiesId);
-    //        auto pi = propertiesItemsManager_->GetItem(propertiesId);
-
-    //        pi->SetFileIdNames(fileNames);
-    //        pi->SetFileIdName(fileId, fileName);
-
-    //        {
-    //            CubesUnitTypes::IncludeIdNames includes;
-    //            if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
-    //                return false;
-
-    //            QString includeName;
-    //            if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
-    //                includeName = "<not selected>";
-
-    //            pi->SetIncludeIdNames(includes);
-    //            pi->SetIncludeIdName(includeId, includeName);
-    //        }
-
-    //        CubesTop::PropertiesForDrawing pfd{};
-    //        if (!GetPropetiesForDrawing(propertiesId, pfd))
-    //        {
-    //            qDebug() << "ERROR GetPropeties: " << propertiesId;
-    //        }
-
-    //        di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
-    //        di->setX(all_units[i].x);
-    //        di->setY(all_units[i].y);
-    //        di->setZValue(all_units[i].z);
-    //        scene_->addItem(di);
-    //    }
-    //    else
-    //    {
-    //        // error
-    //    }
-    //}
-
-    //if (all_units.size() > 0 && di != nullptr)
-    //{
-    //    scene_->clearSelection();
-    //    propertiesItemsManager_->Select(0);
-    //    DiagramAfterItemCreated(di);
-    //}
-
-    return true;
-}
 
 bool MainWindow::SortUnits()
 {
@@ -759,39 +674,7 @@ bool MainWindow::SortUnitsRectangular(bool check)
     return true;
 }
 
-CubesUnitTypes::UnitParameters* MainWindow::GetUnitParameters(const QString& id)
-{
-    for (auto& up : unitParameters_)
-    {
-        if (QString::fromStdString(up.fileInfo.info.id) == id)
-            return &up;
-    }
-    return nullptr;
-}
-
-bool MainWindow::Test()
-{
-    log_table_model_->Clear();
-    analysisManager_->Test();
-    return true;
-}
-
 // Files
-CubesUnitTypes::FileIdNames MainWindow::GetFileNames()
-{
-    return fileItemsManager_->GetFileNames();
-}
-
-CubesUnitTypes::IncludeIdNames MainWindow::GetCurrentFileIncludeNames()
-{
-    auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
-    CubesUnitTypes::IncludeIdNames includes;
-    if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
-        return {};
-
-    return includes;
-}
-
 void MainWindow::UpdateFileState(const QString& path, bool modified)
 {
     QString title = path.isEmpty() ? "untitled" : path;
@@ -801,72 +684,20 @@ void MainWindow::UpdateFileState(const QString& path, bool modified)
     modified_ = modified;
 }
 
-bool MainWindow::SaveFileInternal(const QString& path)
+bool MainWindow::NewFile()
+{
+    if (!TopManager::NewFile())
+        return false;
+
+    return true;
+}
+
+bool MainWindow::SaveFile(const QString& path)
 {
     log_table_model_->Clear();
 
-    // Получаем список главных файлов
-    bool is_first = true;
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    for (const auto& kvpFile : fileNames.toStdMap())
-    {
-        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
-        QFileInfo xmlFileInfo(xmlFile.fileName);
-        const auto xmlFileName = xmlFileInfo.fileName();
-        const auto xmlZipFilePath = path;
-
-        {
-            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
-            xmlFile.config.groups = std::move(xmlGroups);
-
-            QByteArray byteArray;
-            if (!CubesXml::Helper::Write(byteArray, xmlFile))
-                return false;
-
-            if (is_first)
-            {
-                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
-                    return false;
-
-                is_first = false;
-            }
-            else
-            {
-                if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
-                    return false;
-            }
-        }
-
-        CubesUnitTypes::IncludeIdNames includes;
-        if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false, includes))
-            return false;
-
-        for (const auto& kvpInclude : includes.toStdMap())
-        {
-            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
-            CubesXml::File includeXmlFile{};
-
-            const auto item = fileItemsManager_->GetItem(kvpFile.first);
-            const auto includeName = item->GetIncludeName(kvpInclude.first);
-            const auto includePath = item->GetIncludePath(kvpInclude.first);
-
-            includeXmlFile.fileName = includePath;
-
-            includeXmlFile.config.logIsSet = false;
-            includeXmlFile.config.networkingIsSet = false;
-            includeXmlFile.config.groups = includeGroups;
-
-            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
-            const auto includeXmlFileName = includeXmlFileInfo.fileName();
-
-            QByteArray byteArray;
-            if (!CubesXml::Helper::Write(byteArray, includeXmlFile))
-                return false;
-
-            if (!CubesZip::ZipFile(byteArray, includeXmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
-                return false;
-        }
-    }
+    if (!TopManager::SaveFile(path))
+        return false;
 
     AddRecent(path);
     UpdateFileState(path, false);
@@ -874,108 +705,25 @@ bool MainWindow::SaveFileInternal(const QString& path)
     return true;
 }
 
-bool MainWindow::SaveFolderInternal(const QString& path)
+bool MainWindow::SaveFolder(const QString& path)
 {
     log_table_model_->Clear();
 
-    QFileInfo fi(path);
-    if (!fi.exists() || !fi.isDir())
+    if (!TopManager::SaveFolder(path))
         return false;
-
-    QDir dir(path);
-
-    // Получаем список главных файлов
-    bool is_first = true;
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    for (const auto& kvpFile : fileNames.toStdMap())
-    {
-        auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
-        QFileInfo xmlFileInfo(xmlFile.fileName);
-        const auto xmlFileName = xmlFileInfo.fileName();
-        const auto xmlZipFilePath = path;
-
-        {
-            auto xmlGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first);
-            xmlFile.config.groups = std::move(xmlGroups);
-
-            if (!CubesXml::Helper::Write(dir.filePath(xmlFileName), xmlFile))
-                return false;
-        }
-
-        CubesUnitTypes::IncludeIdNames includes;
-        if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false, includes))
-            return false;
-        for (const auto& kvpInclude : includes.toStdMap())
-        {
-            auto includeGroups = propertiesItemsManager_->GetXmlGroups(kvpFile.first, kvpInclude.first);
-            CubesXml::File includeXmlFile{};
-
-            const auto item = fileItemsManager_->GetItem(kvpFile.first);
-            const auto includeName = item->GetIncludeName(kvpInclude.first);
-            const auto includePath = item->GetIncludePath(kvpInclude.first);
-
-            includeXmlFile.fileName = includePath;
-
-            includeXmlFile.config.logIsSet = false;
-            includeXmlFile.config.networkingIsSet = false;
-            includeXmlFile.config.groups = includeGroups;
-
-            QFileInfo includeXmlFileInfo(includeXmlFile.fileName);
-            const auto includeXmlFileName = includeXmlFileInfo.fileName();
-
-            if (!CubesXml::Helper::Write(dir.filePath(includeXmlFileName), includeXmlFile))
-                return false;
-        }
-    }
 
     return true;
 }
 
-bool MainWindow::OpenFileInternal(const QString& path)
+bool MainWindow::OpenFile(const QString& path)
 {
     scene_->clear();
-    propertiesItemsManager_->Clear();
-    fileItemsManager_->Clear();
     log_table_model_->Clear();
 
     UpdateFileState("", false);
 
-    QFileInfo fi(path);
-    if (!fi.exists() || !fi.isFile())
+    if (!TopManager::OpenFile(path))
         return false;
-
-    QList<QString> fileNames;
-    if (!CubesZip::GetZippedFileNames(path, fileNames))
-        return false;
-
-    for (const auto& fileName : fileNames)
-    {
-        QByteArray byteArray;
-        if (!CubesZip::UnZipFile(path, fileName, byteArray))
-            return false;
-
-        CubesXml::File f{};
-        CubesXml::Helper::Parse(byteArray, fileName, f, this);
-
-        if (f.config.networkingIsSet)
-        {
-            if (!AddMainFile(f, path))
-                return false;
-        }
-        else
-        {
-            continue;
-        }
-    }
-
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        const auto position = pi->GetPosition();
-        di->setPos(position);
-    }
 
     AddRecent(path);
     UpdateFileState(path, false);
@@ -983,46 +731,30 @@ bool MainWindow::OpenFileInternal(const QString& path)
     return true;
 }
 
-bool MainWindow::OpenFolderInternal(const QString& path)
+bool MainWindow::OpenFolder(const QString& path)
 {
     scene_->clear();
-    propertiesItemsManager_->Clear();
-    fileItemsManager_->Clear();
     log_table_model_->Clear();
 
     UpdateFileState("", false);
 
-    QFileInfo fi(path);
-    if (!fi.exists() || !fi.isDir())
+    if (!TopManager::OpenFolder(path))
         return false;
 
-    QDir dir(path);
-    QStringList fileNames = dir.entryList({ "*.xml" }, QDir::Files);
+    UpdateFileState("", true);
 
-    for (const auto& fileName : fileNames)
-    {
-        CubesXml::File f{};
-        CubesXml::Helper::Parse(dir.filePath(fileName), f, this);
+    return true;
+}
 
-        if (f.config.networkingIsSet)
-        {
-            if (!AddMainFile(f, ""))
-                return false;
-        }
-        else
-        {
-            continue;
-        }
-    }
+bool MainWindow::ImportXml(const QString& path)
+{
+    scene_->clear();
+    log_table_model_->Clear();
 
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    UpdateFileState("", false);
 
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        const auto position = pi->GetPosition();
-        di->setPos(position);
-    }
+    if (!TopManager::ImportXml(path))
+        return false;
 
     UpdateFileState("", true);
 
@@ -1160,102 +892,80 @@ void MainWindow::selectionChanged()
     }
     else
     {
-        propertiesItemsManager_->Select(0);
+        propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
     }
 }
 
 // FileItemsManager
-void MainWindow::FileNameChanged(const CubesUnitTypes::FileId& fileId)
+void MainWindow::FileNameChanged(CubesUnitTypes::FileId fileId)
 {
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
-    auto fileName = fileItemsManager_->GetFileName(fileId);
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-
-        if (pi->GetFileId() == fileId)
-            pi->SetFileIdName(fileId, fileName);
-    }
+    TopManager::FileNameChanged(fileId);
 
     UpdateFileState(path_, true);
-
     scene_->invalidate();
 }
 
 void MainWindow::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
 {
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        pi->SetFileIdNames(fileNames);
+    TopManager::FileListChanged(fileNames);
 
-        // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
-        // После добавления, у них изменится имя файла и цвет
-        // TODO: возможно изменится имя - но не должно
-        const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
-        di->InformColorChanged(color);
-    }
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //! InformColorChanged
+    //! 
+    //! 
+    //! 
+    //for (auto& item : scene_->items())
+    //{
+    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+    //    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    //    pi->SetFileIdNames(fileNames);
+
+    //    // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
+    //    // После добавления, у них изменится имя файла и цвет
+    //    // TODO: возможно изменится имя - но не должно
+    //    const auto color = fileItemsManager_->GetFileColor(pi->GetFileId());
+    //    di->InformColorChanged(color);
+    //}
 
     UpdateFileState(path_, true);
-
     scene_->invalidate();
 }
 
-void MainWindow::FileIncludeNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId)
+void MainWindow::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
 {
-    QString includeName;
-    if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
-        return;
-
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId && pi->GetIncludeId() == includeId)
-            pi->SetIncludeIdName(includeId, includeName);
-    }
+    TopManager::FileIncludeNameChanged(fileId, includeId);
 
     UpdateFileState(path_, true);
-
     scene_->invalidate();
 }
 
-void MainWindow::FileIncludesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+void MainWindow::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
 {
-    for (auto& item : scene_->items())
-    {
-        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
-        if (pi->GetFileId() == fileId)
-            pi->SetIncludeIdNames(includeNames);
-    }
+    TopManager::FileIncludesListChanged(fileId, includeNames);
 
     UpdateFileState(path_, true);
-
     scene_->invalidate();
 }
 
-void MainWindow::FileVariableNameChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void MainWindow::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const QString& variableName, const QString& oldVariableName)
 {
-    propertiesItemsManager_->InformVariableChanged();
+    TopManager::FileVariableNameChanged(fileId, includeId, variableName, oldVariableName);
 
     UpdateFileState(path_, true);
 }
 
-void MainWindow::FileVariablesListChanged(const CubesUnitTypes::FileId& fileId, const CubesUnitTypes::IncludeId& includeId,
+void MainWindow::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
     const CubesUnitTypes::VariableIdVariables& variables)
 {
-    propertiesItemsManager_->InformVariableChanged();
+    TopManager::FileVariablesListChanged(fileId, includeId, variables);
 
     UpdateFileState(path_, true);
 }
 
-void MainWindow::FileColorChanged(const CubesUnitTypes::FileId& fileId, const QColor& color)
+void MainWindow::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color)
 {
-    propertiesItemsManager_->InformFileColorChanged(fileId);
+    TopManager::FileColorChanged(fileId, color);
 
     UpdateFileState(path_, true);
     scene_->invalidate();
@@ -1268,8 +978,10 @@ void MainWindow::FilePropertiesChanged()
 
 // PropertiesItemsManager
 void MainWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
+    CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
 {
+    TopManager::PropertiesBasePropertiesChanged(propertiesId, name, fileId, includeId);
+
     const auto fileName = fileItemsManager_->GetFileName(fileId);
     QString includeName;
     if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
@@ -1284,6 +996,8 @@ void MainWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId pr
 
 void MainWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
+    TopManager::PropertiesSelectedItemChanged(propertiesId);
+
     QGraphicsItem* item_to_select = nullptr;
     for (auto& item : scene_->items())
     {
@@ -1307,6 +1021,8 @@ void MainWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId prop
 
 void MainWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
+    TopManager::PropertiesPositionChanged(propertiesId, posX, posY, posZ);
+
     for (auto& item : scene_->items())
     {
         CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
@@ -1323,6 +1039,8 @@ void MainWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId properti
 
 void MainWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
+    TopManager::PropertiesError(propertiesId, message);
+
     CubesLog::LogMessage lm{};
     lm.type = CubesLog::MessageType::error;
     lm.tag = 0;
@@ -1333,13 +1051,16 @@ void MainWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, cons
 
 void MainWindow::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
-    scene_->invalidate();
+    TopManager::PropertiesConnectionChanged(propertiesId);
 
+    scene_->invalidate();
     UpdateFileState(path_, true);
 }
 
 void MainWindow::PropertiesPropertiesChanged()
 {
+    TopManager::PropertiesPropertiesChanged();
+
     UpdateFileState(path_, true);
 }
 
@@ -1355,10 +1076,14 @@ void MainWindow::OnNewFileAction()
     }
 
     scene_->clear();
-    propertiesItemsManager_->Clear();
-    fileItemsManager_->Clear();
-    log_table_model_->Clear();
 
+    if (!NewFile())
+    {
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка создания файла!"));
+        return;
+    }
+
+    log_table_model_->Clear();
     UpdateFileState("", false);
 }
 
@@ -1383,7 +1108,7 @@ void MainWindow::OnOpenFileAction()
     if (selectedFileNames.size() == 0)
         return;
 
-    if (!OpenFileInternal(selectedFileNames[0]))
+    if (!OpenFile(selectedFileNames[0]))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия файла!"));
         RemoveRecent(selectedFileNames[0]);
@@ -1405,7 +1130,7 @@ void MainWindow::OnOpenFolderAction()
     if (folderPath.isEmpty())
         return;
 
-    if (!OpenFolderInternal(folderPath))
+    if (!OpenFolder(folderPath))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия каталога!"));
         return;
@@ -1414,33 +1139,21 @@ void MainWindow::OnOpenFolderAction()
 
 void MainWindow::OnImportXmlFileAction()
 {
-    CubesXml::File f{};
+    QFileDialog dialog(this);
+    dialog.setNameFilter("Settings XML Files (*.xml)");
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QStringList fileNames;
+    if (dialog.exec())
+        fileNames = dialog.selectedFiles();
+
+    if (fileNames.size() == 0)
+        return;
+
+    if (!ImportXml(fileNames[0]))
     {
-        QFileDialog dialog(this);
-        dialog.setNameFilter("Settings XML Files (*.xml)");
-        dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-        QStringList fileNames;
-        if (dialog.exec())
-            fileNames = dialog.selectedFiles();
-
-        if (fileNames.size() == 0)
-            return;
-
-        CubesXml::Helper::Parse(fileNames[0], f, this);
-    }
-
-    if (f.config.networkingIsSet)
-    {
-        if (!AddMainFile(f, ""))
-        {
-            QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка импорта файла!"));
-            return;
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Это подключаемый файл, нельзя его импортировать."));
+        QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка импорта файла!"));
+        return;
     }
 }
 
@@ -1466,7 +1179,7 @@ void MainWindow::OnSaveFileAction()
         selectedFileName = selectedFileNames[0];
     }
 
-    if (!SaveFileInternal(selectedFileName))
+    if (!SaveFile(selectedFileName))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения файла!"));
         return;
@@ -1488,7 +1201,7 @@ void MainWindow::OnSaveAsFileAction()
 
     QString selectedFileName = selectedFileNames[0];
 
-    if (!SaveFileInternal(selectedFileName))
+    if (!SaveFile(selectedFileName))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения файла!"));
         return;
@@ -1501,7 +1214,7 @@ void MainWindow::OnSaveFolderAction()
     if (folderPath.isEmpty())
         return;
 
-    if (!SaveFolderInternal(folderPath))
+    if (!SaveFolder(folderPath))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка сохранения каталога!"));
         return;
@@ -1544,7 +1257,7 @@ void MainWindow::OnRecentAction()
     }
 
     QAction* act = qobject_cast<QAction*>(sender());
-    if (!OpenFileInternal(act->text()))
+    if (!OpenFile(act->text()))
     {
         QMessageBox::critical(this, "Error", QString::fromLocal8Bit("Ошибка открытия файла!"));
         RemoveRecent(act->text());

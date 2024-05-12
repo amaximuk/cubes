@@ -17,8 +17,6 @@ namespace CubesTop
     class TopManager : public ITopManager, public CubesLog::ILogManager
     {
     protected:
-        bool modified_;
-        QString path_;
         uint32_t uniqueNumber_;
 
         QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
@@ -58,77 +56,49 @@ namespace CubesTop
         virtual void AddMessage(const CubesLog::LogMessage& m) override;
 
     protected:
+        // Заполнение параметров юнитов
         virtual void FillParametersInfo();
 
-        // Units
+        // Добавление юнитов
         virtual bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
         virtual bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
-        virtual bool SortUnits();
-        virtual bool SortUnitsRectangular(bool check);
+        
+        // Получение информации
         virtual CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
-        virtual bool Test();
-
-        // Files
         virtual CubesUnitTypes::FileIdNames GetFileNames();
         virtual CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
 
-        // Modified
-        virtual void UpdateFileState(const QString& path, bool modified);
-        virtual bool SaveFileInternal(const QString& path);
-        virtual bool SaveFolderInternal(const QString& path);
-        virtual bool OpenFileInternal(const QString& path);
-        virtual bool OpenFolderInternal(const QString& path);
+        // External
+        virtual bool NewFile();
+        virtual bool SaveFile(const QString& path);
+        virtual bool SaveFolder(const QString& path);
+        virtual bool OpenFile(const QString& path);
+        virtual bool OpenFolder(const QString& path);
+        virtual bool ImportXml(const QString& path);
+        virtual bool SortUnits();
+        virtual bool SortUnitsRectangular(bool check);
+        virtual bool Test();
 
     public:
-        //// DiagramScene (as manager)
-        //void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
-        //void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
-        //void DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* item);
-        ////void DiagramItemNameChanged(CubeDiagram::DiagramItem* item, QString oldName);
-        ////void DiagramItemFileChanged(CubeDiagram::DiagramItem* item);
-        ////void DiagramItemGroupChanged(CubeDiagram::DiagramItem* item);
-        //void selectionChanged(); // QGraphicsScene
-
         // FileItemsManager
-        void FileNameChanged(CubesUnitTypes::FileId fileId);
-        void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-        void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
-        void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-        void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+        virtual void FileNameChanged(CubesUnitTypes::FileId fileId);
+        virtual void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
+        virtual void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
+        virtual void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
+        virtual void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             const QString& variableName, const QString& oldVariableName);
-        void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+        virtual void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
             const CubesUnitTypes::VariableIdVariables& variables);
-        void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color);
-        void FilePropertiesChanged();
+        virtual void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color);
+        virtual void FilePropertiesChanged();
 
         // PropertiesItemsManager
-        void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+        virtual void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
             CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
-        void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
-        void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-        void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
-        void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
-        void PropertiesPropertiesChanged();
-
-    protected:
-        // Кнопки
-        void OnNewFileAction();
-        void OnOpenFileAction();
-        void OnOpenFolderAction();
-        void OnImportXmlFileAction();
-        void OnSaveFileAction();
-        void OnSaveAsFileAction();
-        void OnSaveFolderAction();
-        //void OnQuitAction();
-        void OnSortBoostAction();
-        void OnSortRectAction();
-        //void OnRecentAction();
-        void OnTestAction();
-
-        // Лог
-        //void OnErrorButtonClicked(bool checked);
-        //void OnWarningButtonClicked(bool checked);
-        //void OnInformationButtonClicked(bool checked);
-        //void OnDoubleClicked(const QModelIndex& index);
+        virtual void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
+        virtual void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
+        virtual void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
+        virtual void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
+        virtual void PropertiesPropertiesChanged();
     };
 }

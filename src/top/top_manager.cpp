@@ -15,10 +15,9 @@ using namespace CubesTop;
 
 TopManager::TopManager(bool isArray)
 {
-    modified_ = false;
     uniqueNumber_ = 0;
 
-    UpdateFileState("", false);
+    //UpdateFileState("", false);
 
     using namespace std::placeholders;
 
@@ -560,16 +559,24 @@ CubesUnitTypes::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
 //    return realName;
 //}
 
-void TopManager::UpdateFileState(const QString& path, bool modified)
+//void TopManager::UpdateFileState(const QString& path, bool modified)
+//{
+//    QString title = path.isEmpty() ? "untitled" : path;
+//    if (modified) title += "*";
+//    //setWindowTitle(title);
+//    path_ = path;
+//    modified_ = modified;
+//}
+
+bool TopManager::NewFile()
 {
-    QString title = path.isEmpty() ? "untitled" : path;
-    if (modified) title += "*";
-    //setWindowTitle(title);
-    path_ = path;
-    modified_ = modified;
+    propertiesItemsManager_->Clear();
+    fileItemsManager_->Clear();
+
+    return true;
 }
 
-bool TopManager::SaveFileInternal(const QString& path)
+bool TopManager::SaveFile(const QString& path)
 {
     //log_table_model_->Clear();
 
@@ -646,12 +653,12 @@ bool TopManager::SaveFileInternal(const QString& path)
     }
 
     //AddRecent(path);
-    UpdateFileState(path, false);
+    //UpdateFileState(path, false);
 
     return true;
 }
 
-bool TopManager::SaveFolderInternal(const QString& path)
+bool TopManager::SaveFolder(const QString& path)
 {
     //log_table_model_->Clear();
 
@@ -745,14 +752,14 @@ bool TopManager::SaveFolderInternal(const QString& path)
     return true;
 }
 
-bool TopManager::OpenFileInternal(const QString& path)
+bool TopManager::OpenFile(const QString& path)
 {
     //scene_->clear();
     propertiesItemsManager_->Clear();
     fileItemsManager_->Clear();
     //log_table_model_->Clear();
 
-    UpdateFileState("", false);
+    //UpdateFileState("", false);
 
     QFileInfo fi(path);
     if (!fi.exists() || !fi.isFile())
@@ -792,19 +799,19 @@ bool TopManager::OpenFileInternal(const QString& path)
     //}
 
     //AddRecent(path);
-    UpdateFileState(path, false);
+    //UpdateFileState(path, false);
 
     return true;
 }
 
-bool TopManager::OpenFolderInternal(const QString& path)
+bool TopManager::OpenFolder(const QString& path)
 {
     //scene_->clear();
     propertiesItemsManager_->Clear();
     fileItemsManager_->Clear();
     //log_table_model_->Clear();
 
-    UpdateFileState("", false);
+    //UpdateFileState("", false);
 
     QFileInfo fi(path);
     if (!fi.exists() || !fi.isDir())
@@ -838,13 +845,27 @@ bool TopManager::OpenFolderInternal(const QString& path)
     //    di->setPos(position);
     //}
 
-    UpdateFileState("", true);
+    //UpdateFileState("", true);
 
     //AddRecent(path);
     //UpdateFileState(path, false);
 
     return true;
 }
+
+bool TopManager::ImportXml(const QString& path)
+{
+    CubesXml::File f{};
+
+    if (!CubesXml::Helper::Parse(path, f, this))
+        return false;
+
+    if (!AddMainFile(f, ""))
+        return false;
+
+    return true;
+}
+
 
 // FileItemsManager
 void TopManager::FileNameChanged(CubesUnitTypes::FileId fileId)
@@ -853,7 +874,7 @@ void TopManager::FileNameChanged(CubesUnitTypes::FileId fileId)
     if (!propertiesItemsManager_->InformFileNameChanged(fileId, fileName))
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
@@ -875,7 +896,7 @@ void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     //    di->InformColorChanged(color);
     //}
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
@@ -889,7 +910,7 @@ void TopManager::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnit
     if (!propertiesItemsManager_->InformIncludeNameChanged(fileId, includeId, includeName))
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
@@ -899,7 +920,7 @@ void TopManager::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const Cu
     if (!propertiesItemsManager_->InformIncludesListChanged(fileId, includeNames))
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
@@ -910,7 +931,7 @@ void TopManager::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUni
     if (!propertiesItemsManager_->InformVariableChanged())
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 }
 
 void TopManager::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
@@ -919,7 +940,7 @@ void TopManager::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUn
     if (!propertiesItemsManager_->InformVariableChanged())
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 }
 
 void TopManager::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color)
@@ -927,38 +948,20 @@ void TopManager::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& c
     if (!propertiesItemsManager_->InformFileColorChanged(fileId))
         return;
 
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 
     //scene_->invalidate();
 }
 
 void TopManager::FilePropertiesChanged()
 {
-    UpdateFileState(path_, true);
+    //UpdateFileState(path_, true);
 }
 
 // PropertiesItemsManager
 void TopManager::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
     CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
 {
-    //for (auto& item : scene_->items())
-    //{
-    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-    //    if (di->propertiesId_ == propertiesId)
-    //    {
-    //        di->name_ = name;
-    //        di->fileName_ = fileName;
-    //        di->includeName_ = includeName;
-    //        auto fileId = fileItemsManager_->GetFileId(fileName);
-    //        di->color_ = fileItemsManager_->GetFileColor(fileId);
-    //        di->InformNameChanged(name, "");
-    //        di->InformIncludeChanged();
-    //    }
-    //}
-
-    //UpdateFileState(path_, true);
-
-    //scene_->invalidate();
 }
 
 void TopManager::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
@@ -967,127 +970,22 @@ void TopManager::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId prop
 
 void TopManager::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
-    //for (auto& item : scene_->items())
-    //{
-    //    CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-    //    if (di->propertiesId_ == propertiesId)
-    //    {
-    //        di->setPos(QPointF(posX, posY));
-    //        di->setZValue(posZ);
-    //        break;
-    //    }
-    //}
-
-    //UpdateFileState(path_, true);
 }
 
 void TopManager::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
-    CubesLog::LogMessage lm{};
-    lm.type = CubesLog::MessageType::error;
-    lm.tag = 0;
-    lm.source = QString("%1").arg(propertiesId);
-    lm.description = message;
-    AddMessage(lm);
+    //CubesLog::LogMessage lm{};
+    //lm.type = CubesLog::MessageType::error;
+    //lm.tag = 0;
+    //lm.source = QString("%1").arg(propertiesId);
+    //lm.description = message;
+    //AddMessage(lm);
 }
 
 void TopManager::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
-    UpdateFileState(path_, true);
 }
 
 void TopManager::PropertiesPropertiesChanged()
 {
-    UpdateFileState(path_, true);
-}
-
-// Êíîïêè
-void TopManager::OnNewFileAction()
-{
-    //scene_->clear();
-    propertiesItemsManager_->Clear();
-    fileItemsManager_->Clear();
-    //log_table_model_->Clear();
-
-    UpdateFileState("", false);
-}
-
-void TopManager::OnOpenFileAction()
-{
-    //if (!OpenFileInternal(selectedFileNames[0]))
-    //{
-    //    return;
-    //}
-}
-
-void TopManager::OnOpenFolderAction()
-{
-    //if (!OpenFolderInternal(folderPath))
-    //{
-    //    return;
-    //}
-}
-
-void TopManager::OnImportXmlFileAction()
-{
-    CubesXml::File f{};
-    {
-        //CubesXml::Helper::Parse(fileNames[0], f, this);
-    }
-
-    if (f.config.networkingIsSet)
-    {
-        if (!AddMainFile(f, ""))
-        {
-            return;
-        }
-    }
-}
-
-void TopManager::OnSaveFileAction()
-{
-    if (!modified_ && !path_.isEmpty())
-        return;
-
-    QString selectedFileName = path_;
-    if (path_.isEmpty())
-    {
-        //selectedFileName = selectedFileNames[0];
-    }
-
-    if (!SaveFileInternal(selectedFileName))
-    {
-        return;
-    }
-}
-
-void TopManager::OnSaveAsFileAction()
-{
-    //if (!SaveFileInternal(selectedFileName))
-    //{
-    //    return;
-    //}
-}
-
-void TopManager::OnSaveFolderAction()
-{
-    //if (!SaveFolderInternal(folderPath))
-    //{
-    //    return;
-    //}
-}
-
-void TopManager::OnSortBoostAction()
-{
-    //SortUnits();
-}
-
-void TopManager::OnSortRectAction()
-{
-    //SortUnitsRectangular(false);
-}
-
-void TopManager::OnTestAction()
-{
-    Test();
 }
