@@ -13,7 +13,7 @@
 
 using namespace CubesTop;
 
-TopManager::TopManager()
+TopManager::TopManager(bool isArray)
 {
     modified_ = false;
     uniqueNumber_ = 0;
@@ -41,7 +41,7 @@ TopManager::TopManager()
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &TopManager::FileColorChanged);
     //connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &TopManager::FilePropertiesChanged);
     
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, false);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, isArray);
     propertiesItemsManager_->SetBasePropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesBasePropertiesChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetSelectedItemChangedDelegate(std::bind<void>(&TopManager::PropertiesSelectedItemChanged, this, _1));

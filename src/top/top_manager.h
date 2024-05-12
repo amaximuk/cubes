@@ -30,7 +30,7 @@ namespace CubesTop
         CubesUnitTypes::ParameterModelIds ids_;
 
     public:
-        explicit TopManager();
+        explicit TopManager(bool isArray);
         ~TopManager() override;
 
     public:

@@ -43,7 +43,7 @@
 #include "array_window.h"
 
 ArrayWindow::ArrayWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), TopManager(true)
 {
     modified_ = false;
     uniqueNumber_ = 0;

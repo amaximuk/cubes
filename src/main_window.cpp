@@ -44,7 +44,7 @@
 #include "main_window.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), TopManager(false)
 {
     modified_ = false;
     uniqueNumber_ = 0;
