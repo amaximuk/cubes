@@ -78,7 +78,7 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	}
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParametersModel& pm,
+void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParameterModels& pm,
 	CubesUnitTypes::PropertiesId& propertiesId)
 {
 	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
@@ -90,7 +90,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	propertiesId = ++uniqueNumber_;
 	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, pm));
 
-	QString propertiesName = pm.parameters[0].parameters[0].value.toString();
+	QString propertiesName = pm[0].parameters[0].value.toString();
 
 	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
@@ -515,6 +515,18 @@ bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Proper
 		itemProperties.unitId = item->GetUnitId();
 		itemProperties.name = GetName(item->GetPropertiesId());
 		properties.push_back(itemProperties);
+	}
+
+	return true;
+}
+
+bool PropertiesItemsManager::GetParameterModels(QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels>& models)
+{
+	for (const auto& item : items_)
+	{
+		const auto id = item->GetFileId();
+		const auto model = item->GetParameterModels();
+		models[id] = model;
 	}
 
 	return true;

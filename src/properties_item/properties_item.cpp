@@ -20,7 +20,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
-    model_ = {};
+    parameterModels_ = {};
     ignoreEvents_ = false;
 
     CreateParametersModel(nullptr, isArrayUnit);
@@ -28,16 +28,16 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-    CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParametersModel pm)
+    CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParameterModels pm)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
-    model_ = {};
+    parameterModels_ = {};
     ignoreEvents_ = false;
 
-    model_.parameters = pm.parameters;
+    parameterModels_ = pm;
     CreateProperties();
 }
 
@@ -48,7 +48,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
-    model_ = {};
+    parameterModels_ = {};
     ignoreEvents_ = false;
 
     CreateParametersModel(&xmlUnit, isArrayUnit);
@@ -139,7 +139,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             base_group.parameters.push_back(std::move(group));
         }
 
-        model_.parameters.push_back(std::move(base_group));
+        parameterModels_.push_back(std::move(base_group));
     }
 
     if (unitParameters_.fileInfo.parameters.size() > 0)
@@ -161,7 +161,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             properties_group.parameters.push_back(std::move(pm));
         }
 
-        model_.parameters.push_back(std::move(properties_group));
+        parameterModels_.push_back(std::move(properties_group));
     }
 
     {
@@ -207,14 +207,14 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             editor_group.parameters.push_back(std::move(pm));
         }
 
-        model_.parameters.push_back(std::move(editor_group));
+        parameterModels_.push_back(std::move(editor_group));
     }
 }
 
 void PropertiesItem::CreateProperties()
 {
     QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
-    for (auto& pm : model_.parameters)
+    for (auto& pm : parameterModels_)
         topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
@@ -815,7 +815,7 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 {
     xmlUnit.id = QString::fromStdString(unitParameters_.fileInfo.info.id);
     
-    for (auto& pmGroup : model_.parameters)
+    for (auto& pmGroup : parameterModels_)
     {
         if (pmGroup.id == ids_.base)
         {
@@ -906,7 +906,7 @@ CubesAnalysis::Properties PropertiesItem::GetAnalysisProperties()
     properties.dependencies = GetDependentNames().toVector();
 
     QVector<CubesAnalysis::UnitProperty> list;
-    for (const auto& pm : model_.parameters)
+    for (const auto& pm : parameterModels_)
     {
         if (pm.id == ids_.parameters)
             GetAnalysisPropertiesInternal(pm, list);
@@ -914,6 +914,11 @@ CubesAnalysis::Properties PropertiesItem::GetAnalysisProperties()
     properties.connections = list;
 
     return properties;
+}
+
+CubesUnitTypes::ParameterModels PropertiesItem::GetParameterModels()
+{
+    return parameterModels_;
 }
 
 QPixmap PropertiesItem::GetPixmap()
@@ -1132,7 +1137,7 @@ void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::Paramet
 QList<QString> PropertiesItem::GetConnectedNames()
 {
     QList<QString> list;
-    for (const auto& pm : model_.parameters)
+    for (const auto& pm : parameterModels_)
     {
         if (pm.id == ids_.parameters)
             GetConnectedNamesInternal(pm, list);
@@ -1143,7 +1148,7 @@ QList<QString> PropertiesItem::GetConnectedNames()
 QList<QString> PropertiesItem::GetDependentNames()
 {
     QList<QString> list;
-    for (const auto& pm : model_.parameters)
+    for (const auto& pm : parameterModels_)
     {
         if (pm.id == ids_.parameters)
             GetDependentNamesInternal(pm, list);
@@ -1735,7 +1740,7 @@ CubesUnitTypes::ParameterModel* PropertiesItem::GetParameterModel(const CubesUni
     CubesUnitTypes::ParameterModel* pm = nullptr;
 
     auto sl = id.split();
-    auto ql = &model_.parameters;
+    auto ql = &parameterModels_;
     CubesUnitTypes::ParameterModelId idt;
     while (sl.size() > 0)
     {

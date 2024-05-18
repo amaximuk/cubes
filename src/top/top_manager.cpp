@@ -9,6 +9,7 @@
 #include "../xml/xml_helper.h"
 #include "../graph.h"
 #include "../zip.h"
+#include "../unit_types.h"
 #include "top_manager.h"
 
 using namespace CubesTop;
@@ -412,6 +413,12 @@ CubesUnitTypes::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 bool TopManager::Test()
 {
     //log_table_model_->Clear();
+    QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels> fileModels;
+    if (!fileItemsManager_->GetParameterModels(fileModels))
+        return false;
+    QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels> propertiesModels;
+    if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
+        return false;
     analysisManager_->Test();
     return true;
 }

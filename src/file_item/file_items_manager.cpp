@@ -293,6 +293,18 @@ bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 	return true;
 }
 
+bool FileItemsManager::GetParameterModels(QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels>& models)
+{
+	for (const auto& item : items_)
+	{
+		const auto id = item->GetFileId();
+		const auto model = item->GetParameterModels();
+		models[id] = model;
+	}
+
+	return true;
+}
+
 void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 {
 	auto item = GetItem(fileId);

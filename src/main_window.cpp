@@ -1173,6 +1173,7 @@ void MainWindow::OnRecentAction()
 
 void MainWindow::OnTestAction()
 {
+    log_table_model_->Clear();
     Test();
 }
 

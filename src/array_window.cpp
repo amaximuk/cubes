@@ -162,7 +162,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         //auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
         //up.fileInfo = afi;
 
-        auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, const CubesUnitTypes::ParameterModelId to_remove, auto&& rename) -> void {
+        auto rename = [](CubesUnitTypes::ParameterModels& parameters, const CubesUnitTypes::ParameterModelId to_remove, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
                 parameter.id = parameter.id.mid(to_remove.size());
@@ -219,8 +219,8 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             }
         }
 
-        CubesUnitTypes::ParametersModel m{};
-        m.parameters = item.parameters;
+        CubesUnitTypes::ParameterModels m{};
+        m = item.parameters;
 
         CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
@@ -334,11 +334,11 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
     for (auto& id : ids)
     {
         auto item = propertiesItemsManager_->GetItem(id);
-        auto pm = item->GetParametersModel();
+        auto pm = item->GetParameterModels();
 
         const auto up = item->GetUnitParameters();
         const auto type = QString::fromStdString(up.fileInfo.info.id);
-        for (auto& group : pm.parameters)
+        for (auto& group : pm)
         {
             if (group.id == ids_.parameters)
             {
@@ -363,7 +363,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
             }
         }
 
-        auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, const CubesUnitTypes::ParameterModelId to_add, auto&& rename) -> void {
+        auto rename = [](CubesUnitTypes::ParameterModels& parameters, const CubesUnitTypes::ParameterModelId to_add, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
                 parameter.id = to_add + parameter.id;
@@ -371,14 +371,14 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
             }
         };
 
-        rename(pm.parameters, pm_.id + ids_.Item(item_index), rename); // !!!!!!!!!!!! item_index
+        rename(pm, pm_.id + ids_.Item(item_index), rename); // !!!!!!!!!!!! item_index
 
         CubesUnitTypes::ParameterModel itemPm{};
         itemPm.id = pm_.id + ids_.Item(item_index);
         itemPm.name = QString::fromLocal8Bit("Ёлемент %1").arg(item_index);
         itemPm.value = QVariant();
         itemPm.editorSettings.type = CubesUnitTypes::EditorType::None;
-        itemPm.parameters = pm.parameters;
+        itemPm.parameters = pm;
 
         pm_.parameters.push_back(itemPm);
 

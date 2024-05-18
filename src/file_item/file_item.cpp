@@ -17,7 +17,7 @@ FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
     fileId_ = fileId;
-    model_ = {};
+    parameterModels_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
     uniqueNumber_ = CubesUnitTypes::InvalidIncludeId;
@@ -32,7 +32,7 @@ FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
     fileId_ = fileId;
-    model_ = {};
+    parameterModels_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
     uniqueNumber_ = CubesUnitTypes::InvalidIncludeId;
@@ -121,7 +121,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
         file_path.editorSettings.type = CubesUnitTypes::EditorType::String;
         file_path.editorSettings.isExpanded = false;
         base_group.parameters.push_back(std::move(file_path));
-        model_.parameters.push_back(std::move(base_group));
+        parameterModels_.push_back(std::move(base_group));
     }
 
     {
@@ -142,7 +142,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             UpdateIncludesArrayModel(xmlFile, includes, xmlCount);
         }
 
-        model_.parameters.push_back(std::move(includes));
+        parameterModels_.push_back(std::move(includes));
     }
 
     {
@@ -336,7 +336,7 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             properties_group.parameters.push_back(pm_logging);
         }
 
-        model_.parameters.push_back(std::move(properties_group));
+        parameterModels_.push_back(std::move(properties_group));
     }
 
     {
@@ -369,14 +369,14 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
             editor_group.parameters.push_back(std::move(pm));
         }
 
-        model_.parameters.push_back(std::move(editor_group));
+        parameterModels_.push_back(std::move(editor_group));
     }
 }
 
 void FileItem::CreateProperties()
 {
     QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
-    for (auto& pm : model_.parameters)
+    for (auto& pm : parameterModels_)
         topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
@@ -1012,6 +1012,11 @@ QVector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
     return result;
 }
 
+CubesUnitTypes::ParameterModels FileItem::GetParameterModels()
+{
+    return parameterModels_;
+}
+
 void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count)
 {
     // Сначала добавляем
@@ -1349,7 +1354,7 @@ CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const CubesUnitTypes
 
     {
         auto sl = id.split();
-        auto ql = &model_.parameters;
+        auto ql = &parameterModels_;
         CubesUnitTypes::ParameterModelId idt;
         while (sl.size() > 0)
         {

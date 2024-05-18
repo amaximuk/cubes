@@ -22,7 +22,7 @@ namespace CubesProperties
         CubesUnitTypes::UnitParameters unitParameters_;
 
         // Модель параметров
-        CubesUnitTypes::ParametersModel model_;
+        CubesUnitTypes::ParameterModels parameterModels_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
@@ -41,7 +41,7 @@ namespace CubesProperties
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
-            CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParametersModel pm);
+            CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParameterModels pm);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId);
 
@@ -80,7 +80,6 @@ namespace CubesProperties
 
         // TODO: Надо от них избавиться
         CubesUnitTypes::UnitParameters GetUnitParameters() { return unitParameters_; };
-        CubesUnitTypes::ParametersModel GetParametersModel() { return model_; };
         QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
         QString GetUnitCategory() { return QString::fromStdString(unitParameters_.fileInfo.info.category); };
 
@@ -96,6 +95,7 @@ namespace CubesProperties
         void RemoveItems(const CubesUnitTypes::ParameterModelId& id);
         void AddItems(const CubesUnitTypes::ParameterModel& model);
         CubesAnalysis::Properties GetAnalysisProperties();
+        CubesUnitTypes::ParameterModels GetParameterModels();
 
     private:
         // TODO: move to private

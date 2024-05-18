@@ -737,6 +737,9 @@ namespace CubesUnitTypes
 		}
 	};
 
+	struct ParameterModel;
+	using ParameterModels = QVector<ParameterModel>;
+
 	struct ParameterModel
 	{
 		ParameterModelId id; // id path, separated by /
@@ -745,7 +748,7 @@ namespace CubesUnitTypes
 		QVariant value;
 		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;
-		QList<ParameterModel> parameters;
+		ParameterModels parameters;
 		bool readOnly;
 
 		ParameterModel()
@@ -873,12 +876,6 @@ namespace CubesUnitTypes
 			else
 				return std::distance(editorSettings.comboBoxValues.cbegin(), it);
 		}
-	};
-
-	struct ParametersModel
-	{
-	public:
-		QList<ParameterModel> parameters;
 	};
 
 	static QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames)

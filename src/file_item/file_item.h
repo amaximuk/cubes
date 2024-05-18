@@ -29,7 +29,7 @@ namespace CubesFile
         CubesUnitTypes::FileId fileId_;
 
         // Модель параметров
-        CubesUnitTypes::ParametersModel model_;
+        CubesUnitTypes::ParameterModels parameterModels_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
@@ -79,6 +79,7 @@ namespace CubesFile
         File GetFile();
         CubesXml::File GetXmlFile();
         QVector<CubesAnalysis::File> GetAnalysisFiles();
+        CubesUnitTypes::ParameterModels GetParameterModels();
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
