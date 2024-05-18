@@ -520,7 +520,7 @@ bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Proper
 	return true;
 }
 
-bool PropertiesItemsManager::GetParameterModels(QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels>& models)
+bool PropertiesItemsManager::GetParameterModels(CubesUnitTypes::FileIdParameterModels& models)
 {
 	for (const auto& item : items_)
 	{

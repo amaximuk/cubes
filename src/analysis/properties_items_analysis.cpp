@@ -68,7 +68,7 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(IAnalysisManager* analysisManag
 	// Имена элементов массива должны быть заданы
 }
 
-void PropertiesItemsAnalysis::SetProperties(const QVector<Properties>& properties)
+void PropertiesItemsAnalysis::SetProperties(const CubesUnitTypes::PropertiesIdParameterModels& properties)
 {
 	properties_ = properties;
 }
@@ -104,13 +104,13 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 	bool result = true;
 	for (const auto& properties : properties_)
 	{
-		if (properties.name.isEmpty())
-		{
-			QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").
-				arg(properties.unitId);
-			analysisManager_->AfterPropertiesError(properties.propertiesId, message);
-			result = false;
-		}
+		//if (properties.name.isEmpty())
+		//{
+		//	QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").
+		//		arg(properties.unitId);
+		//	analysisManager_->AfterPropertiesError(properties.propertiesId, message);
+		//	result = false;
+		//}
 	}
 
 	return result;

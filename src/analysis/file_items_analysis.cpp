@@ -47,7 +47,7 @@ FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
 	// Имена файлов не должны быть длинее 260 символов
 }
 
-void FileItemsAnalysis::SetFiles(const QVector<File>& files)
+void FileItemsAnalysis::SetFiles(const CubesUnitTypes::FileIdParameterModels& files)
 {
 	files_ = files;
 }
@@ -80,62 +80,64 @@ bool FileItemsAnalysis::RunAllTests()
 
 bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 {
-	for (const auto& file : files_)
-	{
-		if (!file.is_include)
-			return true;
-	}
+	//for (const auto& file : files_)
+	//{
+	//	if (!file.is_include)
+	//		return true;
+	//}
 
-	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
+	//analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
 
 	return false;
 }
 
 bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 {
-	QSet<QString> filenames;
-	bool result = true;
-	for (const auto& file : files_)
-	{
-		QFileInfo fi(file.path);
-		const auto fn = fi.fileName();
-		if (filenames.contains(fn))
-		{
-			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
-				arg(file.is_include ? file.include.name : file.main.name).arg(fn);
-			analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
-			result = false;
-		}
-		else
-		{
-			filenames.insert(fn);
-		}
-	}
+	//QSet<QString> filenames;
+	//bool result = true;
+	//for (const auto& file : files_)
+	//{
+	//	QFileInfo fi(file.path);
+	//	const auto fn = fi.fileName();
+	//	if (filenames.contains(fn))
+	//	{
+	//		QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
+	//			arg(file.is_include ? file.include.name : file.main.name).arg(fn);
+	//		analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
+	//		result = false;
+	//	}
+	//	else
+	//	{
+	//		filenames.insert(fn);
+	//	}
+	//}
 
-	return result;
+	//return result;
+	return false;
 }
 
 bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 {
-	QSet<int> fileIds;
-	bool result = true;
-	for (const auto& file : files_)
-	{
-		if (!file.is_include)
-		{
-			if (fileIds.contains(file.main.id))
-			{
-				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
-					arg(file.main.name).arg(file.main.id);
-				analysisManager_->AfterFileError(file.main.fileId, message);
-				result = false;
-			}
-			else
-			{
-				fileIds.insert(file.main.id);
-			}
-		}
-	}
+	//QSet<int> fileIds;
+	//bool result = true;
+	//for (const auto& file : files_)
+	//{
+	//	if (!file.is_include)
+	//	{
+	//		if (fileIds.contains(file.main.id))
+	//		{
+	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
+	//				arg(file.main.name).arg(file.main.id);
+	//			analysisManager_->AfterFileError(file.main.fileId, message);
+	//			result = false;
+	//		}
+	//		else
+	//		{
+	//			fileIds.insert(file.main.id);
+	//		}
+	//	}
+	//}
 
-	return result;
+	//return result;
+	return false;
 }

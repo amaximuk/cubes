@@ -58,7 +58,7 @@ TopManager::TopManager(bool isArray)
 
 
 
-    analysisManager_ = new CubesAnalysis::AnalysisManager(this, this);
+    analysisManager_ = new CubesAnalysis::AnalysisManager(this);
 
     if (!isArray)
         FillParametersInfo();
@@ -419,7 +419,7 @@ bool TopManager::Test()
     QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels> propertiesModels;
     if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
         return false;
-    analysisManager_->Test();
+    analysisManager_->Test(fileModels, propertiesModels);
     return true;
 }
 

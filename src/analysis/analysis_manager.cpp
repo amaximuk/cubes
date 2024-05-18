@@ -8,28 +8,19 @@
 
 using namespace CubesAnalysis;
 
-AnalysisManager::AnalysisManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager)
+AnalysisManager::AnalysisManager(CubesLog::ILogManager* logManager)
 {
-	topManager_ = topManager;
 	logManager_ = logManager;
 	fileItemsAnalysis_.reset(new FileItemsAnalysis(this));
 	propertiesItemsAnalysis_.reset(new PropertiesItemsAnalysis(this));
 }
-
-void AnalysisManager::Test()
+void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
+	const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels)
 {
-	QVector<File> files;
-	if (!topManager_->GetAnalysisFiles(files))
-		return;
-
-	fileItemsAnalysis_->SetFiles(files);
+	fileItemsAnalysis_->SetFiles(fileModels);
 	fileItemsAnalysis_->RunAllTests();
 
-	QVector<Properties> properties;
-	if (!topManager_->GetAnalysisProperties(properties))
-		return;
-
-	propertiesItemsAnalysis_->SetProperties(properties);
+	propertiesItemsAnalysis_->SetProperties(propertiesModels);
 	propertiesItemsAnalysis_->RunAllTests();
 }
 

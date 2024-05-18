@@ -16,16 +16,16 @@ namespace CubesAnalysis
 		Q_OBJECT
 
 	private:
-		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
 		QSharedPointer<FileItemsAnalysis> fileItemsAnalysis_;
 		QSharedPointer<PropertiesItemsAnalysis> propertiesItemsAnalysis_;
 
 	public:
-		AnalysisManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager);
+		AnalysisManager(CubesLog::ILogManager* logManager);
 
 	public:
-		void Test();
+		void Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
+			const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels);
 
 	signals:
 		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
