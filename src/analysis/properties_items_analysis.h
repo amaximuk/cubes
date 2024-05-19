@@ -18,13 +18,20 @@ namespace CubesAnalysis
         IAnalysisManager* analysisManager_;
         QVector<Rule> rules_;
         QMap<RuleId, std::function<bool()>> delegates_;
+        CubesUnitTypes::FileIdParameterModels fileModels_;
         CubesUnitTypes::PropertiesIdParameterModels propertiesModels_;
+        CubesUnitTypes::PropertiesIdUnitParameters unitParameters_;
+
+        // Значения имен параметров
+        CubesUnitTypes::ParameterModelIds ids_;
 
     public:
         PropertiesItemsAnalysis(IAnalysisManager* analysisManager);
 
     public:
-        void SetProperties(const CubesUnitTypes::PropertiesIdParameterModels& properties);
+        void SetProperties(const CubesUnitTypes::FileIdParameterModels& fileModels,
+            const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
+            const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(RuleId id);
         bool RunAllTests();

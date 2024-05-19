@@ -77,6 +77,7 @@ namespace CubesProperties
 			CubesUnitTypes::IncludeId includeId = CubesUnitTypes::InvalidIncludeId);
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
 		bool GetParameterModels(CubesUnitTypes::FileIdParameterModels& models);
+		bool GetUnitParameters(CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
 
 	private:
 		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;

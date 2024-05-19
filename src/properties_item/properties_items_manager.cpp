@@ -532,6 +532,18 @@ bool PropertiesItemsManager::GetParameterModels(CubesUnitTypes::FileIdParameterM
 	return true;
 }
 
+bool PropertiesItemsManager::GetUnitParameters(CubesUnitTypes::PropertiesIdUnitParameters& unitParameters)
+{
+	for (const auto& item : items_)
+	{
+		const auto id = item->GetFileId();
+		const auto parameters = item->GetUnitParameters();
+		unitParameters[id] = parameters;
+	}
+
+	return true;
+}
+
 void PropertiesItemsManager::AfterNameChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
 	QString name;

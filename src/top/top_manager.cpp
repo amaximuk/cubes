@@ -413,13 +413,16 @@ CubesUnitTypes::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 bool TopManager::Test()
 {
     //log_table_model_->Clear();
-    QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels> fileModels;
+    CubesUnitTypes::FileIdParameterModels fileModels;
     if (!fileItemsManager_->GetParameterModels(fileModels))
         return false;
-    QMap<CubesUnitTypes::FileId, CubesUnitTypes::ParameterModels> propertiesModels;
+    CubesUnitTypes::PropertiesIdParameterModels propertiesModels;
     if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
         return false;
-    analysisManager_->Test(fileModels, propertiesModels);
+    CubesUnitTypes::PropertiesIdUnitParameters unitParameters;
+    if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
+        return false;
+    analysisManager_->Test(fileModels, propertiesModels, unitParameters);
     return true;
 }
 

@@ -68,9 +68,13 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(IAnalysisManager* analysisManag
 	// Имена элементов массива должны быть заданы
 }
 
-void PropertiesItemsAnalysis::SetProperties(const CubesUnitTypes::PropertiesIdParameterModels& properties)
+void PropertiesItemsAnalysis::SetProperties(const CubesUnitTypes::FileIdParameterModels& fileModels,
+	const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
+	const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters)
 {
-	propertiesModels_ = properties;
+	fileModels_ = fileModels;
+	propertiesModels_ = propertiesModels;
+	unitParameters_ = unitParameters;
 }
 
 QVector<Rule> PropertiesItemsAnalysis::GetAllRules()
@@ -102,15 +106,19 @@ bool PropertiesItemsAnalysis::RunAllTests()
 bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 {
 	bool result = true;
-	for (const auto& properties : propertiesModels_)
+	for (auto& kvp : propertiesModels_.toStdMap())
 	{
-		//if (properties.name.isEmpty())
-		//{
-		//	QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").
-		//		arg(properties.unitId);
-		//	analysisManager_->AfterPropertiesError(properties.propertiesId, message);
-		//	result = false;
-		//}
+		auto& properties = kvp.second;
+		const auto name = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		const auto uinitId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		if (name.isEmpty())
+		{
+			const auto& unitParameters = unitParameters_[kvp.first];
+			QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").
+				arg(QString::fromStdString(unitParameters.fileInfo.info.id));
+			analysisManager_->AfterPropertiesError(kvp.first, message);
+			result = false;
+		}
 	}
 
 	return result;
