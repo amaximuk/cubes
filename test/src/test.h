@@ -9,9 +9,11 @@
 #include <fstream>
 #include <random>
 #include <chrono>
+#include "mock_window.h"
 
 TEST(PARAMETERS_COMPILER, Dummy)
 {
+	MockWindow mockWindow("aaaaaaaaaaa");
 	ASSERT_EQ(1, 1);
 }
 

@@ -15,8 +15,8 @@
 //#include "zip.h"
 #include "mock_window.h"
 
-MockWindow::MockWindow(QWidget *parent)
-    : TopManager(false)
+MockWindow::MockWindow(const QString& parametersPath)
+    : TopManager(false, parametersPath)
 {
     modified_ = false;
     uniqueNumber_ = 0;

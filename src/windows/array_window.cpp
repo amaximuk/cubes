@@ -465,11 +465,6 @@ QWidget* ArrayWindow::CreatePropertiesPanelWidget()
     return propertiesPanelWidget;
 }
 
-//void ArrayWindow::FillParametersInfo()
-//{
-//    // Специально переопредилили, чтобы ничего не добавлять
-//}
-
 // Units
 //bool ArrayWindow::AddMainFile(CubesXml::File& file)
 //{

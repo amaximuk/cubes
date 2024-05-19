@@ -17,7 +17,7 @@ private:
     QString path_;
 
 public:
-    explicit MockWindow(QWidget* parent = nullptr);
+    explicit MockWindow(const QString& parametersPath);
     ~MockWindow() override;
 
 public:

@@ -14,11 +14,9 @@
 
 using namespace CubesTop;
 
-TopManager::TopManager(bool isArray)
+TopManager::TopManager(bool isArray, QString path)
 {
     uniqueNumber_ = 0;
-
-    //UpdateFileState("", false);
 
     using namespace std::placeholders;
 
@@ -32,15 +30,6 @@ TopManager::TopManager(bool isArray)
     fileItemsManager_->SetColorChangedDelegate(std::bind<void>(&TopManager::FileColorChanged, this, _1, _2));
     fileItemsManager_->SetPropertiesChangedDelegate(std::bind<void>(&TopManager::FilePropertiesChanged, this));
 
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::FileNameChanged, this, &TopManager::FileNameChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::FilesListChanged, this, &TopManager::FileListChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludeNameChanged, this, &TopManager::FileIncludeNameChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::IncludesListChanged, this, &TopManager::FileIncludesListChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariableNameChanged, this, &TopManager::FileVariableNameChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::VariablesListChanged, this, &TopManager::FileVariablesListChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::ColorChanged, this, &TopManager::FileColorChanged);
-    //connect(fileItemsManager_, &CubesFile::FileItemsManager::PropertiesChanged, this, &TopManager::FilePropertiesChanged);
-    
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, isArray);
     propertiesItemsManager_->SetBasePropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesBasePropertiesChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
@@ -49,19 +38,10 @@ TopManager::TopManager(bool isArray)
     propertiesItemsManager_->SetConnectionChangedDelegate(std::bind<void>(&TopManager::PropertiesConnectionChanged, this, _1));
     propertiesItemsManager_->SetPropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesPropertiesChanged, this));
     
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::BasePropertiesChanged, this, &TopManager::PropertiesBasePropertiesChanged);
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::SelectedItemChanged, this, &TopManager::PropertiesSelectedItemChanged);
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PositionChanged, this, &TopManager::PropertiesPositionChanged);
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::Error, this, &TopManager::PropertiesError);
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::ConnectionChanged, this, &TopManager::PropertiesConnectionChanged);
-    //connect(propertiesItemsManager_, &CubesProperties::PropertiesItemsManager::PropertiesChanged, this, &TopManager::PropertiesPropertiesChanged);
-
-
-
     analysisManager_ = new CubesAnalysis::AnalysisManager(this);
 
     if (!isArray)
-        FillParametersInfo();
+        FillParametersInfo(path);
 }
 
 TopManager::~TopManager()
@@ -183,9 +163,11 @@ void TopManager::AddMessage(const CubesLog::LogMessage& m)
 {
 }
 
-void TopManager::FillParametersInfo()
+void TopManager::FillParametersInfo(const QString& parametersPath)
 {
-    QString directoryPath(QCoreApplication::applicationDirPath() + "/doc/all_units_solid");
+    QString path = parametersPath == "" ? QCoreApplication::applicationDirPath() + "/doc/all_units_solid" : parametersPath;
+
+    QString directoryPath(path);
     QStringList platformDirs;
     QDirIterator directories(directoryPath, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     while (directories.hasNext()) {

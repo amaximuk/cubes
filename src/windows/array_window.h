@@ -70,9 +70,6 @@ protected:
     void CreateView();
     QWidget* CreatePropertiesPanelWidget();
 
-    // Заполнение параметров юнитов
-    //void FillParametersInfo();
-
     // Units
     //bool AddMainFile(CubesXml::File& file);
     //bool AddUnits(const QString& fileName, const QString& includedFileName, const CubesXml::File& file);

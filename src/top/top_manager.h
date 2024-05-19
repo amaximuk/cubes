@@ -28,7 +28,7 @@ namespace CubesTop
         CubesUnitTypes::ParameterModelIds ids_;
 
     public:
-        explicit TopManager(bool isArray);
+        explicit TopManager(bool isArray, QString path = "");
         ~TopManager() override;
 
     public:
@@ -55,10 +55,11 @@ namespace CubesTop
         // ILogManager
         virtual void AddMessage(const CubesLog::LogMessage& m) override;
 
-    protected:
+    private:
         // Заполнение параметров юнитов
-        virtual void FillParametersInfo();
+        void FillParametersInfo(const QString& parametersPath);
 
+    protected:
         // Добавление юнитов
         virtual bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
         virtual bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
@@ -79,7 +80,7 @@ namespace CubesTop
         virtual bool SortUnitsRectangular(bool check);
         virtual bool Test();
 
-    public:
+    protected:
         // FileItemsManager
         virtual void FileNameChanged(CubesUnitTypes::FileId fileId);
         virtual void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
