@@ -49,7 +49,7 @@ FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
 
 void FileItemsAnalysis::SetFiles(const CubesUnitTypes::FileIdParameterModels& files)
 {
-	files_ = files;
+	fileModels_ = files;
 }
 
 QVector<Rule> FileItemsAnalysis::GetAllRules()
@@ -80,64 +80,96 @@ bool FileItemsAnalysis::RunAllTests()
 
 bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 {
-	//for (const auto& file : files_)
-	//{
-	//	if (!file.is_include)
-	//		return true;
-	//}
+	if (!fileModels_.empty())
+		return true;
 
-	//analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
+	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
 
 	return false;
 }
 
 bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 {
-	//QSet<QString> filenames;
-	//bool result = true;
-	//for (const auto& file : files_)
-	//{
-	//	QFileInfo fi(file.path);
-	//	const auto fn = fi.fileName();
-	//	if (filenames.contains(fn))
-	//	{
-	//		QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
-	//			arg(file.is_include ? file.include.name : file.main.name).arg(fn);
-	//		analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
-	//		result = false;
-	//	}
-	//	else
-	//	{
-	//		filenames.insert(fn);
-	//	}
-	//}
+	QSet<QString> filenames;
+	bool result = true;
+	for (auto& file : fileModels_)
+	{
+		// Проверяем главный файл
+		{
+			auto path = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.path)->value.toString();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
+			if (filenames.contains(fn))
+			{
+				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
+				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
+					arg(name).arg(fn);
+				analysisManager_->AfterFileError(id, message);
+				result = false;
+			}
+			else
+			{
+				filenames.insert(fn);
+			}
+		}
 
-	//return result;
-	return false;
+		// Проверяем включаемые файлы
+		{
+			const auto pm = GetParameterModel(file, ids_.includes);
+			if (pm == nullptr)
+				return result;
+
+			const auto count = pm->value.toInt();
+			for (int i = 0; i < count; i++)
+			{
+				auto path = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				QFileInfo fi(path);
+				const auto fn = fi.fileName();
+				if (filenames.contains(fn))
+				{
+					const auto name = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
+					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
+					QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
+						arg(name).arg(fn);
+					analysisManager_->AfterFileError(id, message);
+					result = false;
+				}
+				else
+				{
+					filenames.insert(fn);
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 {
-	//QSet<int> fileIds;
-	//bool result = true;
-	//for (const auto& file : files_)
-	//{
-	//	if (!file.is_include)
-	//	{
-	//		if (fileIds.contains(file.main.id))
-	//		{
-	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
-	//				arg(file.main.name).arg(file.main.id);
-	//			analysisManager_->AfterFileError(file.main.fileId, message);
-	//			result = false;
-	//		}
-	//		else
-	//		{
-	//			fileIds.insert(file.main.id);
-	//		}
-	//	}
-	//}
+	QSet<int> fileIds;
+	bool result = true;
+	for (auto& file : fileModels_)
+	{
+		// Проверяем только главные файлы
+		{
+			const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+			if (fileIds.contains(id))
+			{
+				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
+				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
+					arg(name).arg(id);
+				analysisManager_->AfterFileError(id, message);
+				result = false;
+			}
+			else
+			{
+				fileIds.insert(id);
+			}
+		}
+	}
 
-	//return result;
-	return false;
+	return result;
 }

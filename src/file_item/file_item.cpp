@@ -1350,36 +1350,38 @@ CubesUnitTypes::ParameterModelId FileItem::GetPropertyId(const QtProperty* prope
 
 CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const CubesUnitTypes::ParameterModelId& id)
 {
-    CubesUnitTypes::ParameterModel* pm = nullptr;
+    return CubesUnitTypes::GetParameterModel(parameterModels_, id);
 
-    {
-        auto sl = id.split();
-        auto ql = &parameterModels_;
-        CubesUnitTypes::ParameterModelId idt;
-        while (sl.size() > 0)
-        {
-            idt += sl[0];
-            bool found = false;
-            for (auto& x : *ql)
-            {
-                if (x.id == idt)
-                {
-                    pm = &x;
-                    ql = &x.parameters;
-                    sl.pop_front();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                pm = nullptr;
-                break;
-            }
-        }
-    }
+    //CubesUnitTypes::ParameterModel* pm = nullptr;
 
-    return pm;
+    //{
+    //    auto sl = id.split();
+    //    auto ql = &parameterModels_;
+    //    CubesUnitTypes::ParameterModelId idt;
+    //    while (sl.size() > 0)
+    //    {
+    //        idt += sl[0];
+    //        bool found = false;
+    //        for (auto& x : *ql)
+    //        {
+    //            if (x.id == idt)
+    //            {
+    //                pm = &x;
+    //                ql = &x.parameters;
+    //                sl.pop_front();
+    //                found = true;
+    //                break;
+    //            }
+    //        }
+    //        if (!found)
+    //        {
+    //            pm = nullptr;
+    //            break;
+    //        }
+    //    }
+    //}
+
+    //return pm;
 }
 
 CubesUnitTypes::ParameterModel* FileItem::GetParameterModel(const QtProperty* property)

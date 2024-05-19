@@ -881,12 +881,46 @@ namespace CubesUnitTypes
 	using FileIdParameterModels = QMap<FileId, ParameterModels>;
 	using PropertiesIdParameterModels = QMap<PropertiesId, ParameterModels>;
 
-	static QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames)
+	inline QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames)
 	{
 		QString name = baseName;
 		int counter = 0;
 		while (busyNames.contains(name))
 			name = QString("%1%2%3").arg(baseName, delimiter).arg(++counter);
 		return name;
+	}
+
+	inline CubesUnitTypes::ParameterModel* GetParameterModel(CubesUnitTypes::ParameterModels& models, const CubesUnitTypes::ParameterModelId& id)
+	{
+		CubesUnitTypes::ParameterModel* pm = nullptr;
+
+		{
+			auto sl = id.split();
+			auto ql = &models;
+			CubesUnitTypes::ParameterModelId idt;
+			while (sl.size() > 0)
+			{
+				idt += sl[0];
+				bool found = false;
+				for (auto& x : *ql)
+				{
+					if (x.id == idt)
+					{
+						pm = &x;
+						ql = &x.parameters;
+						sl.pop_front();
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					pm = nullptr;
+					break;
+				}
+			}
+		}
+
+		return pm;
 	}
 }

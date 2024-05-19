@@ -70,7 +70,7 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(IAnalysisManager* analysisManag
 
 void PropertiesItemsAnalysis::SetProperties(const CubesUnitTypes::PropertiesIdParameterModels& properties)
 {
-	properties_ = properties;
+	propertiesModels_ = properties;
 }
 
 QVector<Rule> PropertiesItemsAnalysis::GetAllRules()
@@ -102,7 +102,7 @@ bool PropertiesItemsAnalysis::RunAllTests()
 bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 {
 	bool result = true;
-	for (const auto& properties : properties_)
+	for (const auto& properties : propertiesModels_)
 	{
 		//if (properties.name.isEmpty())
 		//{
@@ -120,7 +120,7 @@ bool PropertiesItemsAnalysis::IsFileNamesUnique(Rule rule)
 {
 	QSet<QString> filenames;
 	bool result = true;
-	//for (const auto& file : files_)
+	//for (const auto& file : fileModels_)
 	//{
 	//	QFileInfo fi(file.path);
 	//	const auto fn = fi.fileName();
@@ -144,7 +144,7 @@ bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
 {
 	QSet<int> fileIds;
 	bool result = true;
-	//for (const auto& file : files_)
+	//for (const auto& file : fileModels_)
 	//{
 	//	if (!file.is_include)
 	//	{
