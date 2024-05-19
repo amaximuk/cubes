@@ -16,7 +16,7 @@
 #include "mock_window.h"
 
 MockWindow::MockWindow(const QString& parametersPath)
-    : TopManager(false, parametersPath)
+    : TopManager(false, true, parametersPath)
 {
     modified_ = false;
     uniqueNumber_ = 0;

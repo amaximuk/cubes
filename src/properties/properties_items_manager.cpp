@@ -18,7 +18,8 @@
 
 using namespace CubesProperties;
 
-PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray):
+PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager,
+	CubesLog::ILogManager* logManager, bool isArray, bool isMock):
 	isArray_(isArray)
 {
 	topManager_ = topManager;
@@ -30,7 +31,8 @@ PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager
 	for (auto& c : defaultColorsFile_)
 		c.setAlpha(0x20);
 
-	widget_ = CreateEditorWidget();
+	if (!isMock)
+		widget_ = CreateEditorWidget();
 }
 
 PropertiesEditor* PropertiesItemsManager::GetEditor()

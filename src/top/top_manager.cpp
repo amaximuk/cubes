@@ -14,13 +14,13 @@
 
 using namespace CubesTop;
 
-TopManager::TopManager(bool isArray, QString path)
+TopManager::TopManager(bool isArray, bool isMock, QString path)
 {
     uniqueNumber_ = 0;
 
     using namespace std::placeholders;
 
-    fileItemsManager_ = new CubesFile::FileItemsManager(this, this);
+    fileItemsManager_ = new CubesFile::FileItemsManager(this, this, isMock);
     fileItemsManager_->SetFileNameChangedDelegate(std::bind<void>(&TopManager::FileNameChanged, this, _1));
     fileItemsManager_->SetFilesListChangedDelegate(std::bind<void>(&TopManager::FileListChanged, this, _1));
     fileItemsManager_->SetIncludeNameChangedDelegate(std::bind<void>(&TopManager::FileIncludeNameChanged, this, _1, _2));
@@ -30,7 +30,7 @@ TopManager::TopManager(bool isArray, QString path)
     fileItemsManager_->SetColorChangedDelegate(std::bind<void>(&TopManager::FileColorChanged, this, _1, _2));
     fileItemsManager_->SetPropertiesChangedDelegate(std::bind<void>(&TopManager::FilePropertiesChanged, this));
 
-    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, isArray);
+    propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, isArray, isMock);
     propertiesItemsManager_->SetBasePropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesBasePropertiesChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetSelectedItemChangedDelegate(std::bind<void>(&TopManager::PropertiesSelectedItemChanged, this, _1));

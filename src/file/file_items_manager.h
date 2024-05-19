@@ -32,7 +32,7 @@ namespace CubesFile
 		CubesUnitTypes::FileId uniqueNumber_;
 
 	public:
-		FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager);
+		FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isMock = false);
 
 	public:
 		PropertiesEditor* GetEditor();

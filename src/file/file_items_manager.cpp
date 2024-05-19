@@ -16,7 +16,7 @@
 
 using namespace CubesFile;
 
-FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager)
+FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isMock)
 {
 	topManager_ = topManager;
 	logManager_ = logManager;
@@ -27,7 +27,8 @@ FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::
 	for (auto& c : defaultColorsFile_)
 		c.setAlpha(0x20);
 
-	widget_ = CreateEditorWidget();
+	if (!isMock)
+		widget_ = CreateEditorWidget();
 }
 
 PropertiesEditor* FileItemsManager::GetEditor()

@@ -34,7 +34,7 @@ namespace CubesProperties
 		CubesUnitTypes::PropertiesId uniqueNumber_;
 
 	public:
-		PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray);
+		PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray, bool isMock = false);
 
 	public:
 		PropertiesEditor* GetEditor();

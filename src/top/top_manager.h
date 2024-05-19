@@ -28,7 +28,7 @@ namespace CubesTop
         CubesUnitTypes::ParameterModelIds ids_;
 
     public:
-        explicit TopManager(bool isArray, QString path = "");
+        explicit TopManager(bool isArray, bool isMock = false, QString path = "");
         ~TopManager() override;
 
     public:
