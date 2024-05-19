@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QtXml>
-#include "../log_table/log_table_interface.h"
-#include "../unit_types.h"
+#include "../log/log_table_interface.h"
+#include "../unit/unit_types.h"
 #include "xml_types.h"
 
 namespace CubesXml

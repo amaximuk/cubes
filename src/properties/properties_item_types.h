@@ -2,7 +2,7 @@
 
 #include <QString>
 #include <QRegExp>
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 
 namespace CubesProperties
 {

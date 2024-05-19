@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QColor>
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 #include "../analysis/analysis_types.h"
 #include "file_items_manager_interface.h"
 

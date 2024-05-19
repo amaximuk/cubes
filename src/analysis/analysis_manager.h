@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QSharedPointer>
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 #include "analysis_manager_interface.h"
 
 namespace CubesTop { class ITopManager; }

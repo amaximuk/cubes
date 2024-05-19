@@ -2,8 +2,8 @@
 
 #include <QMainWindow>
 #include <QPointer>
-#include "properties_item/properties_item.h" // !!!!!!!!!!!!!!! used directly not top_manager_interface
-#include "top/top_manager.h"
+#include "../properties/properties_item.h" // !!!!!!!!!!!!!!! used directly not top_manager_interface
+#include "../top/top_manager.h"
 
 namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }

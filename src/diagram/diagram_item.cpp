@@ -1,7 +1,7 @@
 #include <QPainter>
 #include "diagram_scene.h"
 #include "diagram_item.h"
-#include "../properties_item/properties_item.h"
+#include "../properties/properties_item.h"
 
 using namespace CubesDiagram;
 

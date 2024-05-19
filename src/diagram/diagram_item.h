@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QGraphicsItem>
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 
 namespace CubesDiagram
 {

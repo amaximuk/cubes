@@ -3,7 +3,7 @@
 #include <QObject>
 #include "analysis_manager_interface.h"
 #include "analysis_types.h"
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 
 namespace CubesTop { class ITopManager; }
 namespace CubesLog { class ILogManager; }

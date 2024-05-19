@@ -3,10 +3,10 @@
 #include "qteditorfactory.h"
 #include "qttreepropertybrowser.h"
 #include "parameters.h"
-#include "../main_window.h"
+#include "../windows/main_window.h"
 #include "../diagram/diagram_scene.h"
 #include "../diagram/diagram_item.h"
-#include "../parameters_compiler/base64.h"
+#include "../parameters/base64.h"
 #include "file_item_types.h"
 #include "file_item.h"
 

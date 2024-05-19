@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-#include "top/top_manager.h"
+#include "../top/top_manager.h"
 
 namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }

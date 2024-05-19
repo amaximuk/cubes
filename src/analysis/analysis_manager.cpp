@@ -1,6 +1,6 @@
 #include "../top/top_manager_interface.h"
-#include "../unit_types.h"
-#include "../log_table/log_table_interface.h"
+#include "../unit/unit_types.h"
+#include "../log/log_table_interface.h"
 #include "file_items_analysis.h"
 #include "properties_items_analysis.h"
 #include "analysis_types.h"

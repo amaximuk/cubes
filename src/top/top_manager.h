@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QPointer>
-#include "../log_table/log_table_interface.h"
+#include "../log/log_table_interface.h"
 #include "top_manager_interface.h"
 
 namespace CubesUnitTypes { class UnitParameters; }

@@ -8,7 +8,7 @@
 #include "qteditorfactory.h"
 #include "qtexpropertymanager.h"
 #include "qtexeditorfactory.h"
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 #include "properties_editor.h"
 
 PropertiesEditor::PropertiesEditor()

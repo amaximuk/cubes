@@ -9,10 +9,10 @@
 #include "qttreepropertybrowser.h"
 #include "parameters.h"
 #include "../top/top_manager_interface.h"
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 #include "../xml/xml_parser.h"
-#include "../array_window.h"
-#include "../graph.h"
+#include "../windows/array_window.h"
+#include "../utils/graph.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 

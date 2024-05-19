@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 
 namespace CubesProperties { class PropertiesItem; }
 

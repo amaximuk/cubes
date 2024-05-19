@@ -4,9 +4,9 @@
 #include <chrono>
 #include <regex>
 #include <QTextStream>
-#include "../properties_item/properties_item_types.h"
-#include "../properties_item/properties_item.h"
-#include "../unit_types.h"
+#include "../properties/properties_item_types.h"
+#include "../properties/properties_item.h"
+#include "../unit/unit_types.h"
 #include "xml_parser.h"
 #include "xml_writer.h"
 #include "xml_helper.h"

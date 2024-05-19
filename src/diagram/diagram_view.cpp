@@ -2,9 +2,9 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 #include <QErrorMessage>
+//#include "../windows/main_window.h"
 #include "diagram_item.h"
 #include "diagram_scene.h"
-#include "../main_window.h"
 #include "diagram_view.h"
 
 using namespace CubesDiagram;

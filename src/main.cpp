@@ -1,6 +1,6 @@
 #include <QApplication>
-#include "main_window.h"
-#include "array_window.h"
+#include "windows/main_window.h"
+#include "windows/array_window.h"
 
 int main(int argc, char* argv[])
 {

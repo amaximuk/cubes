@@ -4,7 +4,7 @@
 #include "file_items_manager_interface.h"
 #include "../xml/xml_types.h"
 #include "../analysis/analysis_types.h"
-#include "../unit_types.h"
+#include "../unit/unit_types.h"
 #include "../property_browser/properties_editor.h"
 
 namespace CubesFile
