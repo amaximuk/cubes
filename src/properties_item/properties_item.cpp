@@ -90,6 +90,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
 {
     // BASE
     // BASE/NAME
+    // BASE/UNIT_ID
     // BASE/FILE
     // BASE/INCLUDE_NAME
     // PARAMETERS
@@ -106,6 +107,15 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         base_group.value = QVariant();
         base_group.editorSettings.type = CubesUnitTypes::EditorType::None;
         base_group.editorSettings.isExpanded = true;
+
+        CubesUnitTypes::ParameterModel unit_id;
+        unit_id.id = ids_.base + ids_.unitId;
+        unit_id.name = QString::fromLocal8Bit("ID юнита");
+        unit_id.value = QString::fromStdString(unitParameters_.fileInfo.info.id);
+        unit_id.editorSettings.type = CubesUnitTypes::EditorType::String;
+        unit_id.editorSettings.isExpanded = false;
+        unit_id.readOnly = true;
+        base_group.parameters.push_back(std::move(unit_id));
 
         CubesUnitTypes::ParameterModel instance_name;
         instance_name.id = ids_.base + ids_.name;

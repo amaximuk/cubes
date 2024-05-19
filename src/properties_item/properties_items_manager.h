@@ -76,7 +76,7 @@ namespace CubesProperties
 		QList<CubesXml::Group> GetXmlGroups(CubesUnitTypes::FileId fileId,
 			CubesUnitTypes::IncludeId includeId = CubesUnitTypes::InvalidIncludeId);
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
-		bool GetParameterModels(CubesUnitTypes::FileIdParameterModels& models);
+		bool GetParameterModels(CubesUnitTypes::PropertiesIdParameterModels& models);
 		bool GetUnitParameters(CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
 
 	private:

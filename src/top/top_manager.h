@@ -19,7 +19,7 @@ namespace CubesTop
     protected:
         uint32_t uniqueNumber_;
 
-        QMap<QString, CubesUnitTypes::UnitParameters> unitParameters_;
+        CubesUnitTypes::UnitIdUnitParameters unitParameters_;
         QPointer<CubesFile::FileItemsManager> fileItemsManager_;
         QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
         QPointer<CubesAnalysis::AnalysisManager> analysisManager_;

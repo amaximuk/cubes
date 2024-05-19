@@ -14,9 +14,10 @@ AnalysisManager::AnalysisManager(CubesLog::ILogManager* logManager)
 	fileItemsAnalysis_.reset(new FileItemsAnalysis(this));
 	propertiesItemsAnalysis_.reset(new PropertiesItemsAnalysis(this));
 }
+
 void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
 	const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-	const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters)
+	const CubesUnitTypes::UnitIdUnitParameters& unitParameters)
 {
 	fileItemsAnalysis_->SetFiles(fileModels);
 	fileItemsAnalysis_->RunAllTests();

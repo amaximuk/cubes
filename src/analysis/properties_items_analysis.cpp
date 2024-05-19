@@ -70,7 +70,7 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(IAnalysisManager* analysisManag
 
 void PropertiesItemsAnalysis::SetProperties(const CubesUnitTypes::FileIdParameterModels& fileModels,
 	const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-	const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters)
+	const CubesUnitTypes::UnitIdUnitParameters& unitParameters)
 {
 	fileModels_ = fileModels;
 	propertiesModels_ = propertiesModels;
@@ -110,12 +110,10 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 	{
 		auto& properties = kvp.second;
 		const auto name = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
-		const auto uinitId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		const auto unitId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
-			const auto& unitParameters = unitParameters_[kvp.first];
-			QString message = rule.description + QString::fromLocal8Bit("\nÒèï þíèòà: %1").
-				arg(QString::fromStdString(unitParameters.fileInfo.info.id));
+			QString message = rule.description + QString::fromLocal8Bit("\nÒèï þíèòà: %1").arg(unitId);
 			analysisManager_->AfterPropertiesError(kvp.first, message);
 			result = false;
 		}

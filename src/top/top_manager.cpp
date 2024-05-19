@@ -419,10 +419,10 @@ bool TopManager::Test()
     CubesUnitTypes::PropertiesIdParameterModels propertiesModels;
     if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
         return false;
-    CubesUnitTypes::PropertiesIdUnitParameters unitParameters;
-    if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
-        return false;
-    analysisManager_->Test(fileModels, propertiesModels, unitParameters);
+    //CubesUnitTypes::PropertiesIdUnitParameters unitParameters;
+    //if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
+    //    return false;
+    analysisManager_->Test(fileModels, propertiesModels, unitParameters_);
     return true;
 }
 

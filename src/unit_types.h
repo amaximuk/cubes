@@ -99,6 +99,8 @@ namespace CubesUnitTypes
 		QSet<QString> platforms;
 	};
 
+	using UnitIdUnitParameters = QMap<QString, CubesUnitTypes::UnitParameters>;
+
 	enum class EditorType
 	{
 		None,
@@ -577,6 +579,7 @@ namespace CubesUnitTypes
 
 		// BASE
 		// BASE/NAME
+		// BASE/UNIT_ID
 		// BASE/FILE_NAME
 		// BASE/INCLUDE_NAME
 		// PARAMETERS
@@ -592,6 +595,7 @@ namespace CubesUnitTypes
 		const CubesUnitTypes::ParameterModelId name;
 		const CubesUnitTypes::ParameterModelId platform;
 		const CubesUnitTypes::ParameterModelId path;
+		const CubesUnitTypes::ParameterModelId unitId;
 		const CubesUnitTypes::ParameterModelId fileName;
 		const CubesUnitTypes::ParameterModelId includeName;
 
@@ -636,6 +640,7 @@ namespace CubesUnitTypes
 			name("$NAME"),
 			platform("$PLATFORM"),
 			path("$PATH"),
+			unitId("$UNIT_ID"),
 			fileName("$FILE_NAME"),
 			includeName("$INCLUDE_NAME"),
 

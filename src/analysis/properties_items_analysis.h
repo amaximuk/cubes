@@ -20,7 +20,7 @@ namespace CubesAnalysis
         QMap<RuleId, std::function<bool()>> delegates_;
         CubesUnitTypes::FileIdParameterModels fileModels_;
         CubesUnitTypes::PropertiesIdParameterModels propertiesModels_;
-        CubesUnitTypes::PropertiesIdUnitParameters unitParameters_;
+        CubesUnitTypes::UnitIdUnitParameters unitParameters_;
 
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
@@ -31,7 +31,7 @@ namespace CubesAnalysis
     public:
         void SetProperties(const CubesUnitTypes::FileIdParameterModels& fileModels,
             const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-            const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
+            const CubesUnitTypes::UnitIdUnitParameters& unitParameters);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(RuleId id);
         bool RunAllTests();

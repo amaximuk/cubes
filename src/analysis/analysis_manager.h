@@ -26,7 +26,7 @@ namespace CubesAnalysis
 	public:
 		void Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
 			const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-			const CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
+			const CubesUnitTypes::UnitIdUnitParameters& unitParameters);
 
 	signals:
 		void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
