@@ -948,9 +948,9 @@ void MainWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, cons
 
     CubesLog::LogMessage lm{};
     lm.type = CubesLog::MessageType::error;
-    lm.tag = 0;
-    lm.source = QString("%1").arg(propertiesId);
+    lm.source = CubesLog::SourceType::propertiesManager;
     lm.description = message;
+    lm.tag = propertiesId;
     AddMessage(lm);
 }
 
@@ -1208,7 +1208,7 @@ void MainWindow::OnDoubleClicked(const QModelIndex& index)
     if (log_table_model_->GetMessage(mapped.row(), m))
     {
         // TODO: Properties Manager è ò.ï. â enum
-        if (m.source == "Properties Manager" || m.source == "Properties analysis")
+        if (m.source == CubesLog::SourceType::propertiesManager || m.source == CubesLog::SourceType::propertiesAnalysis)
         {
             CubesUnitTypes::PropertiesId propertiesId = m.tag;
             propertiesItemsManager_->Select(propertiesId);

@@ -18,7 +18,14 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager != nullptr)\
-			logManager->AddMessage({CubesLog::MessageType::error, 0, "Xml Helper", QString::fromStdString(ss.str())}); \
+		{\
+			CubesLog::LogMessage lm{};\
+			lm.type = CubesLog::MessageType::error;\
+			lm.source = CubesLog::SourceType::xmlHelper;\
+			lm.description = QString::fromStdString(ss.str());\
+			lm.tag = CubesUnitTypes::InvalidUniversalId;\
+			logManager->AddMessage(lm);\
+		}\
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
 

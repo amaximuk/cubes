@@ -189,9 +189,9 @@ void TopManager::FillParametersInfo(const QString& parametersPath)
                 {
                     CubesLog::LogMessage lm{};
                     lm.type = CubesLog::MessageType::error;
-                    lm.tag = 0;
-                    lm.source = filename;
+                    lm.source = CubesLog::SourceType::topManager;
                     lm.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
+                    lm.tag = 0;
                     AddMessage(lm);
                 }
 
@@ -300,9 +300,9 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             {
                 CubesLog::LogMessage lm{};
                 lm.type = CubesLog::MessageType::error;
-                lm.tag = 0;
-                lm.source = QFileInfo(file.fileName).fileName();
+                lm.source = CubesLog::SourceType::topManager;
                 lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
+                lm.tag = CubesUnitTypes::InvalidUniversalId;
                 AddMessage(lm);
             }
         }

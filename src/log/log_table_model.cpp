@@ -53,7 +53,7 @@ int LogTableModel::rowCount(const QModelIndex& parent) const
 
 int LogTableModel::columnCount(const QModelIndex& parent) const
 {
-    return 3;
+    return 4;
 }
 
 QVariant LogTableModel::data(const QModelIndex& index, int role) const
@@ -79,8 +79,10 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
     else if (role == Qt::DisplayRole)
     {
         if (index.column() == 1)
-            return log_messages_[index.row()].source;
+            return log_messages_[index.row()].code;
         else if (index.column() == 2)
+            return SourceTypeToStaring(log_messages_[index.row()].source);
+        else if (index.column() == 3)
             return log_messages_[index.row()].description;
     }
     else if (role == Qt::UserRole)
@@ -101,8 +103,10 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
                 return static_cast<uint32_t>(MessageType::error);
         }
         else if (index.column() == 1)
-            return log_messages_[index.row()].tag;
+            return log_messages_[index.row()].code;
         else if (index.column() == 2)
+            return SourceTypeToStaring(log_messages_[index.row()].source);
+        else if (index.column() == 3)
             return log_messages_[index.row()].description;
     }
     return QVariant();
@@ -117,8 +121,10 @@ QVariant LogTableModel::headerData(int section, Qt::Orientation orientation, int
             if (section == 0)
                 return "";
             else if (section == 1)
-                return QString::fromLocal8Bit("Источник");
+                return QString::fromLocal8Bit("Код");
             else if (section == 2)
+                return QString::fromLocal8Bit("Источник");
+            else if (section == 3)
                 return QString::fromLocal8Bit("Описание");
         }
     }

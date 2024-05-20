@@ -15,12 +15,17 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager_ != nullptr)\
-			logManager_->AddMessage({CubesLog::MessageType::error,\
-				0,\
-				QString("Xml Parser (%1)").arg(fi_.fileName),\
-				QString::fromStdString(ss.str())});\
+		{\
+			CubesLog::LogMessage lm{};\
+			lm.type = CubesLog::MessageType::error;\
+			lm.source = CubesLog::SourceType::xmlParser;\
+			lm.description = QString::fromStdString(ss.str());\
+			lm.tag = CubesUnitTypes::InvalidUniversalId;\
+			logManager_->AddMessage(lm);\
+		}\
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
+		//ss << "\nFile name = " << fi_.fileName;\
 
 Parser::Parser(CubesLog::ILogManager* logManager)
 {

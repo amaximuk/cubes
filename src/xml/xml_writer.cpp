@@ -13,20 +13,25 @@ using namespace CubesXml;
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager_ != nullptr)\
-			logManager_->AddMessage({CubesLog::MessageType::error,\
-				0,\
-				QString("Xml Writer (%1)").arg(fi_.fileName),\
-				QString::fromStdString(ss.str())}); \
+		{\
+			CubesLog::LogMessage lm{};\
+			lm.type = CubesLog::MessageType::error;\
+			lm.source = CubesLog::SourceType::xmlWriter;\
+			lm.description = QString::fromStdString(ss.str());\
+			lm.tag = CubesUnitTypes::InvalidUniversalId;\
+			logManager_->AddMessage(lm);\
+		}\
 		std::cout << ss.str() << std::endl; return code;\
 	} while(0)
+		//ss << "\nFile name = " << fi_.fileName;\
 
-#define ELRC_S(code, message) do {\
-		std::stringstream ss;\
-		ss << message;\
-		if (logManager != nullptr)\
-			logManager->AddMessage({CubesLog::MessageType::error, "Xml Writer", QString::fromStdString(ss.str())}); \
-		std::cout << ss.str() << std::endl; return code;\
-	} while(0)
+//#define ELRC_S(code, message) do {\
+//		std::stringstream ss;\
+//		ss << message;\
+//		if (logManager != nullptr)\
+//			logManager->AddMessage({CubesLog::MessageType::error, "Xml Writer", QString::fromStdString(ss.str())}); \
+//		std::cout << ss.str() << std::endl; return code;\
+//	} while(0)
 
 Writer::Writer(CubesLog::ILogManager* logManager)
 {

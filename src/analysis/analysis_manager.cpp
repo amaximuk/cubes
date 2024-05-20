@@ -32,9 +32,9 @@ void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const 
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
-		lm.tag = fileId;
-		lm.source = QString::fromLocal8Bit("File analysis");
+		lm.source = CubesLog::SourceType::fileAnalysis;
 		lm.description = message;
+		lm.tag = fileId;
 		logManager_->AddMessage(lm);
 	}
 }
@@ -45,9 +45,9 @@ void AnalysisManager::AfterPropertiesError(const CubesUnitTypes::PropertiesId pr
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
-		lm.tag = propertiesId;
-		lm.source = QString::fromLocal8Bit("Properties analysis");
+		lm.source = CubesLog::SourceType::propertiesAnalysis;
 		lm.description = message;
+		lm.tag = propertiesId;
 		logManager_->AddMessage(lm);
 	}
 }
