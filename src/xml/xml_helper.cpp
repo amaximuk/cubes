@@ -14,19 +14,20 @@
 using namespace CubesXml;
 //using namespace CubesXml::Helper;
 
-#define ELRC(code, message) do {\
+#define ELRC(retcode, message) do {\
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager != nullptr)\
 		{\
 			CubesLog::LogMessage lm{};\
 			lm.type = CubesLog::MessageType::error;\
+			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlHelper, 1000);\
 			lm.source = CubesLog::SourceType::xmlHelper;\
 			lm.description = QString::fromStdString(ss.str());\
 			lm.tag = CubesUnitTypes::InvalidUniversalId;\
 			logManager->AddMessage(lm);\
 		}\
-		std::cout << ss.str() << std::endl; return code;\
+		std::cout << ss.str() << std::endl; return retcode;\
 	} while(0)
 
 bool Helper::Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager)

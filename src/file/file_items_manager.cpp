@@ -104,6 +104,8 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::fileManager;
 		lm.description = QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName);
 		lm.tag = fileId;
@@ -128,6 +130,8 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::fileManager;
 		lm.description = QString("Item created, id = %1, name = %2").arg(fileId).arg(xmlFile.name);
 		lm.tag = fileId;
@@ -170,6 +174,8 @@ void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
+			static_cast<uint32_t>(MessageId::remove));
 		lm.source = CubesLog::SourceType::fileManager;
 		lm.description = QString("Item removed, id = %1").arg(fileId);
 		lm.tag = fileId;
@@ -279,6 +285,8 @@ void FileItemsManager::Clear()
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
+			static_cast<uint32_t>(MessageId::clear));
 		lm.source = CubesLog::SourceType::fileManager;
 		lm.description = QString("All items removed");
 		lm.tag = CubesUnitTypes::InvalidUniversalId;
@@ -538,6 +546,8 @@ void FileItemsManager::OnRemoveFileClicked()
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
+			static_cast<uint32_t>(MessageId::remove));
 		lm.source = CubesLog::SourceType::fileManager;
 		lm.description = QString("Item removed, id = %1").arg(fileId);
 		lm.tag = fileId;

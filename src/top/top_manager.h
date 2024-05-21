@@ -16,6 +16,14 @@ namespace CubesTop
 {
     class TopManager : public ITopManager, public CubesLog::ILogManager
     {
+    private:
+        enum class MessageId
+        {
+            unknown = 10000,
+            parametersFileInvalid,
+            noParametersFile
+        };
+
     protected:
         uint32_t uniqueNumber_;
 

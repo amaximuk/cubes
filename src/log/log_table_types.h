@@ -15,9 +15,9 @@ namespace CubesLog
         propertiesAnalysis
     };
 
-    inline QString SourceTypeToStaring(SourceType type)
+    inline QString SourceTypeToString(SourceType sourceType)
     {
-        switch (type)
+        switch (sourceType)
         {
         case SourceType::unknown:
             return "-";
@@ -36,7 +36,32 @@ namespace CubesLog
         case SourceType::propertiesAnalysis:
             return "Properties Analysis";
         default:
-            return QString("%1").arg(static_cast<int>(type));
+            return QString("%1").arg(static_cast<int>(sourceType));
+        }
+    }
+
+    inline QString GetSourceTypePrefix(SourceType sourceType)
+    {
+        switch (sourceType)
+        {
+        case SourceType::unknown:
+            return "U";
+        case SourceType::topManager:
+            return "TM";
+        case SourceType::fileManager:
+            return "FM";
+        case SourceType::propertiesManager:
+            return "PM";
+        case SourceType::xmlHelper:
+            return "XH";
+        case SourceType::xmlParser:
+            return "XP";
+        case SourceType::fileAnalysis:
+            return "FA";
+        case SourceType::propertiesAnalysis:
+            return "PA";
+        default:
+            return QString("%1").arg(static_cast<int>(sourceType));
         }
     }
 
@@ -51,6 +76,21 @@ namespace CubesLog
         warning,
         error
     };
+
+    inline QString GetMessageTypePrefix(MessageType messageType)
+    {
+        switch (messageType)
+        {
+        case MessageType::information:
+            return "I";
+        case MessageType::warning:
+            return "W";
+        case MessageType::error:
+            return "E";
+        default:
+            return QString("%1").arg(static_cast<int>(messageType));
+        }
+    }
 
     //enum class MessageType
     //{
@@ -69,6 +109,11 @@ namespace CubesLog
     inline uint qHash(MessageType key, uint seed)
     {
         return ::qHash(static_cast<uint>(key), seed);
+    }
+
+    inline QString CreateCode(MessageType messageType, SourceType sourceType, uint32_t id)
+    {
+        return QString("%1%2%3").arg(GetMessageTypePrefix(messageType)).arg(GetSourceTypePrefix(sourceType)).arg(id);
     }
 
     struct LogMessage

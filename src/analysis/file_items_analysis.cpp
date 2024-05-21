@@ -83,7 +83,7 @@ bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 	if (!fileModels_.empty())
 		return true;
 
-	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.description);
+	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.id, rule.description);
 
 	return false;
 }
@@ -105,7 +105,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
 					arg(name).arg(fn);
-				analysisManager_->AfterFileError(id, message);
+				analysisManager_->AfterFileError(id, rule.id, message);
 				result = false;
 			}
 			else
@@ -132,7 +132,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
 					QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
 						arg(name).arg(fn);
-					analysisManager_->AfterFileError(id, message);
+					analysisManager_->AfterFileError(id, rule.id, message);
 					result = false;
 				}
 				else
@@ -161,7 +161,7 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
 					arg(name).arg(id);
-				analysisManager_->AfterFileError(id, message);
+				analysisManager_->AfterFileError(id, rule.id, message);
 				result = false;
 			}
 			else

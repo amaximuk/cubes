@@ -19,6 +19,13 @@ namespace CubesFile
 	private:
 		QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"),
 			QColor("Orange"), QColor("Violet"), QColor("Yellow") };
+		enum class MessageId
+		{
+			unknown = 10000,
+			create,
+			remove,
+			clear
+		};
 		int defaultColorFileIndex_;
 
 	private:

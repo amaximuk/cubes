@@ -114,7 +114,7 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 		if (name.isEmpty())
 		{
 			QString message = rule.description + QString::fromLocal8Bit("\nÒèï þíèòà: %1").arg(unitId);
-			analysisManager_->AfterPropertiesError(kvp.first, message);
+			analysisManager_->AfterPropertiesError(kvp.first, rule.id, message);
 			result = false;
 		}
 	}

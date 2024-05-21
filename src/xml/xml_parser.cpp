@@ -7,23 +7,25 @@
 #include "../properties/properties_item_types.h"
 #include "../properties/properties_item.h"
 #include "../unit/unit_types.h"
+//#include "../log/log_table_types.h"
 #include "xml_parser.h"
 
 using namespace CubesXml;
 
-#define ELRC(code, message) do {\
+#define ELRC(retcode, message) do {\
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager_ != nullptr)\
 		{\
 			CubesLog::LogMessage lm{};\
 			lm.type = CubesLog::MessageType::error;\
+			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser, 1000);\
 			lm.source = CubesLog::SourceType::xmlParser;\
 			lm.description = QString::fromStdString(ss.str());\
 			lm.tag = CubesUnitTypes::InvalidUniversalId;\
 			logManager_->AddMessage(lm);\
 		}\
-		std::cout << ss.str() << std::endl; return code;\
+		std::cout << ss.str() << std::endl; return retcode;\
 	} while(0)
 		//ss << "\nFile name = " << fi_.fileName;\
 

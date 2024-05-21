@@ -26,12 +26,13 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 	propertiesItemsAnalysis_->RunAllTests();
 }
 
-void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const QString& message)
+void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message)
 {
 	if (logManager_ != nullptr)
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis, id);
 		lm.source = CubesLog::SourceType::fileAnalysis;
 		lm.description = message;
 		lm.tag = fileId;
@@ -39,12 +40,14 @@ void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, const 
 	}
 }
 
-void AnalysisManager::AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message)
+void AnalysisManager::AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId,
+	CubesAnalysis::RuleId id, const QString& message)
 {
 	if (logManager_ != nullptr)
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesAnalysis, id);
 		lm.source = CubesLog::SourceType::propertiesAnalysis;
 		lm.description = message;
 		lm.tag = propertiesId;

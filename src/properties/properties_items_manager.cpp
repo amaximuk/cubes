@@ -77,6 +77,8 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
 		lm.tag = propertiesId;
@@ -107,6 +109,8 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
 		lm.tag = propertiesId;
@@ -134,6 +138,8 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
 		lm.tag = propertiesId;
@@ -178,6 +184,8 @@ void PropertiesItemsManager::Remove(CubesUnitTypes::PropertiesId propertiesId)
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::remove));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("Item removed, id = %1").arg(propertiesId);
 		lm.tag = propertiesId;
@@ -468,6 +476,8 @@ void PropertiesItemsManager::Clear()
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::information;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::clear));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("All items removed");
 		lm.tag = CubesUnitTypes::InvalidUniversalId;
@@ -634,6 +644,8 @@ void PropertiesItemsManager::AfterError(CubesUnitTypes::PropertiesId propertiesI
 	{
 		CubesLog::LogMessage lm{};
 		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesManager,
+			static_cast<uint32_t>(MessageId::create));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = message;
 		lm.tag = propertiesId;

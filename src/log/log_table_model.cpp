@@ -81,7 +81,7 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
         if (index.column() == 1)
             return log_messages_[index.row()].code;
         else if (index.column() == 2)
-            return SourceTypeToStaring(log_messages_[index.row()].source);
+            return SourceTypeToString(log_messages_[index.row()].source);
         else if (index.column() == 3)
             return log_messages_[index.row()].description;
     }
@@ -105,7 +105,7 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
         else if (index.column() == 1)
             return log_messages_[index.row()].code;
         else if (index.column() == 2)
-            return SourceTypeToStaring(log_messages_[index.row()].source);
+            return SourceTypeToString(log_messages_[index.row()].source);
         else if (index.column() == 3)
             return log_messages_[index.row()].description;
     }
