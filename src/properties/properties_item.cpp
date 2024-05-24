@@ -223,11 +223,14 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
 
 void PropertiesItem::CreateProperties()
 {
-    QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
-    for (auto& pm : parameterModels_)
-        topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
-    for (const auto& kvp : idToProperty.toStdMap())
-        RegisterProperty(kvp.second, kvp.first);
+    if (editor_ != nullptr)
+    {
+        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
+        for (auto& pm : parameterModels_)
+            topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
+        for (const auto& kvp : idToProperty.toStdMap())
+            RegisterProperty(kvp.second, kvp.first);
+    }
 }
 
 void PropertiesItem::CreateParameterModel(const CubesUnitTypes::ParameterInfoId& parameterInfoId,
@@ -554,8 +557,11 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         // Блокируем сигналы, чтобы не сбрасывался выбранный включаемыый файл, т.к. по сигналу
         // изменения файла автоматически устанавливается значение <не установлено>,
         // даже если фактически файл остается тем же
-        editor_->blockSignals(true);
-        editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
+        if (editor_ != nullptr)
+        {
+            editor_->blockSignals(true);
+            editor_->SetEnumValues(GetProperty(pm->id), fileNames.values());
+        }
 
         // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
         // Возьмем нулевой элемент
@@ -565,12 +571,15 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
             pm->value = fileNames.values()[0];
         }
 
-        // При добавлении файлов необходимо восстановить выбранное значение
-        if (fileNames.keys().contains(pm->key.fileId))
-            editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
-        
-        // Разблокировка именно тут, если поднять выше, файл не устанавливается
-        editor_->blockSignals(false);
+        if (editor_ != nullptr)
+        {
+            // При добавлении файлов необходимо восстановить выбранное значение
+            if (fileNames.keys().contains(pm->key.fileId))
+                editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
+
+            // Разблокировка именно тут, если поднять выше, файл не устанавливается
+            editor_->blockSignals(false);
+        }
     }
 }
 
@@ -581,7 +590,8 @@ void PropertiesItem::SetFileIdName(CubesUnitTypes::FileId fileId, QString fileNa
     {
         pm->key = fileId;
         pm->value = QString(fileName);
-        editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
+        if (editor_ != nullptr)
+            editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
     }
 }
 
@@ -594,7 +604,8 @@ void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNam
     if (pm != nullptr)
     {
         pm->SetComboBoxIncludeNames(includeNames);
-        editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
+        if (editor_ != nullptr)
+            editor_->SetEnumValues(GetProperty(pm->id), includeNames.values());
     }
     const auto& includeName = includeNames[oldIncludeId];
     SetIncludeIdName(oldIncludeId, includeName);
@@ -607,7 +618,8 @@ void PropertiesItem::SetIncludeIdName(CubesUnitTypes::IncludeId includeId, QStri
     {
         pm->key = includeId;
         pm->value = QString(includeName);
-        editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
+        if (editor_ != nullptr)
+            editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
         propertiesItemsManager_->AfterIncludeNameChanged(propertiesId_);
     }
 }
@@ -655,8 +667,11 @@ void PropertiesItem::SetName(QString name)
         QString oldName = pm->value.toString();
         pm->value = name;
 
-        auto pr = GetProperty(pm->id);
-        editor_->SetStringValue(pr, name);
+        if (editor_ != nullptr)
+        {
+            auto pr = GetProperty(pm->id);
+            editor_->SetStringValue(pr, name);
+        }
     }
 }
 
@@ -931,9 +946,9 @@ CubesUnitTypes::ParameterModels PropertiesItem::GetParameterModels()
     return parameterModels_;
 }
 
-QPixmap PropertiesItem::GetPixmap()
+QImage PropertiesItem::GetPixmap()
 {
-    QPixmap px;
+    QImage px;
     bool loaded = false;
     if (unitParameters_.fileInfo.info.pictogram != "")
     {
@@ -957,18 +972,21 @@ void PropertiesItem::SetPosition(QPointF point)
 {
     auto pm_x = GetParameterModel(ids_.editor + ids_.positionX);
     pm_x->value = point.x();
-    editor_->SetDoubleValue(GetProperty(pm_x->id), point.x());
+    if (editor_ != nullptr)
+        editor_->SetDoubleValue(GetProperty(pm_x->id), point.x());
 
     auto pm_y = GetParameterModel(ids_.editor + ids_.positionY);
     pm_y->value = point.y();
-    editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
+    if (editor_ != nullptr)
+        editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
 }
 
 void PropertiesItem::SetZOrder(double value)
 {
     auto pm = GetParameterModel(ids_.editor + ids_.positionZ);
     pm->value = value;
-    editor_->SetDoubleValue(GetProperty(pm->id), value);
+    if (editor_ != nullptr)
+        editor_->SetDoubleValue(GetProperty(pm->id), value);
 }
 
 double PropertiesItem::GetZOrder()

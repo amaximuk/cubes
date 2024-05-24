@@ -375,11 +375,14 @@ void FileItem::CreateParametersModel(const CubesXml::File* xmlFile)
 
 void FileItem::CreateProperties()
 {
-    QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
-    for (auto& pm : parameterModels_)
-        topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
-    for (const auto& kvp : idToProperty.toStdMap())
-        RegisterProperty(kvp.second, kvp.first);
+    if (editor_ != nullptr)
+    {
+        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty;
+        for (auto& pm : parameterModels_)
+            topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
+        for (const auto& kvp : idToProperty.toStdMap())
+            RegisterProperty(kvp.second, kvp.first);
+    }
 }
 
 void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
@@ -643,17 +646,20 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
 
 void FileItem::Select()
 {
-    qDebug() << connect(editor_, &PropertiesEditor::ValueChanged, this, &FileItem::ValueChanged);
-    qDebug() << connect(editor_, &PropertiesEditor::StringEditingFinished, this, &FileItem::StringEditingFinished);
+    if (editor_ != nullptr)
+    {
+        qDebug() << connect(editor_, &PropertiesEditor::ValueChanged, this, &FileItem::ValueChanged);
+        qDebug() << connect(editor_, &PropertiesEditor::StringEditingFinished, this, &FileItem::StringEditingFinished);
 
-    auto pe = editor_->GetPropertyEditor();
-    pe->clear();
-    ignoreEvents_ = true;
-    for (auto& pr : topLevelProperties_)
-        pe->addProperty(pr);
-    ignoreEvents_ = false;
+        auto pe = editor_->GetPropertyEditor();
+        pe->clear();
+        ignoreEvents_ = true;
+        for (auto& pr : topLevelProperties_)
+            pe->addProperty(pr);
+        ignoreEvents_ = false;
 
-    ApplyExpandState();
+        ApplyExpandState();
+    }
 }
 
 void FileItem::UnSelect()

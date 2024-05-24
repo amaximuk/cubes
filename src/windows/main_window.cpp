@@ -1003,7 +1003,7 @@ void MainWindow::OnOpenFileAction()
     }
 
     QFileDialog dialog(this);
-    dialog.setNameFilter("Parameters Archive Files (*.xlmx)");
+    dialog.setNameFilter("Parameters Archive Files (*.xmlx)");
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
     QStringList selectedFileNames;
@@ -1071,7 +1071,7 @@ void MainWindow::OnSaveFileAction()
     if (path_.isEmpty())
     {
         QFileDialog dialog(this);
-        dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });
+        dialog.setNameFilters({ "Parameters Archive Files (*.xmlx)" });
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         dialog.setDefaultSuffix("xmlx");
 
@@ -1094,7 +1094,7 @@ void MainWindow::OnSaveFileAction()
 void MainWindow::OnSaveAsFileAction()
 {
     QFileDialog dialog(this);
-    dialog.setNameFilters({ "Parameters Archive Files (*.xlmx)" });
+    dialog.setNameFilters({ "Parameters Archive Files (*.xmlx)" });
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix("xmlx");
 

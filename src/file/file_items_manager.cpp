@@ -120,8 +120,11 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
 
 	items_[fileId] = fi;
-	selector_->addItem(fi->GetName(), fileId);
-	selector_->setCurrentIndex(selector_->count() - 1);
+	if (selector_ != nullptr)
+	{
+		selector_->addItem(fi->GetName(), fileId);
+		selector_->setCurrentIndex(selector_->count() - 1);
+	}
 
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(GetFileNames());
@@ -141,24 +144,27 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 
 void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
 {
-	if (selected_ != fileId)
+	if (selector_ != nullptr)
 	{
-		if (selected_ != 0)
+		if (selected_ != fileId)
 		{
-			GetItem(selected_)->UnSelect();
-			selected_ = 0;
-			auto pe = editor_->GetPropertyEditor();
-			pe->clear();
-		}
-		if (fileId != 0)
-		{
-			GetItem(fileId)->Select();
-			selected_ = fileId;
-		}
+			if (selected_ != 0)
+			{
+				GetItem(selected_)->UnSelect();
+				selected_ = 0;
+				auto pe = editor_->GetPropertyEditor();
+				pe->clear();
+			}
+			if (fileId != 0)
+			{
+				GetItem(fileId)->Select();
+				selected_ = fileId;
+			}
 
-		int index = selector_->findData(fileId);
-		if (index != -1)
-			selector_->setCurrentIndex(index);
+			int index = selector_->findData(fileId);
+			if (index != -1)
+				selector_->setCurrentIndex(index);
+		}
 	}
 }
 
@@ -277,8 +283,10 @@ bool FileItemsManager::GetFileIncludeVariables(const CubesUnitTypes::FileId file
 
 void FileItemsManager::Clear()
 {
-	editor_->GetPropertyEditor()->clear();
-	selector_->clear();
+	if (editor_ != nullptr)
+		editor_->GetPropertyEditor()->clear();
+	if (selector_ != nullptr)
+		selector_->clear();
 	items_.clear();
 
 	if (logManager_ != nullptr)

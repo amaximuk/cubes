@@ -11,10 +11,10 @@
 #include <chrono>
 #include "mock_window.h"
 
-TEST(PARAMETERS_COMPILER, Dummy)
+TEST(CUBES, XmlReaderTest1)
 {
-	MockWindow mockWindow("aaaaaaaaaaa");
-	ASSERT_EQ(1, 1);
+	MockWindow mockWindow("../../test/resources/test1/units");
+	ASSERT_FALSE(mockWindow.OpenFile("../../test/resources/test1/config1.xmlx"));
 }
 
 #endif // TEST_H_

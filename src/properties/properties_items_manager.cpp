@@ -131,8 +131,11 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 
 	items_[propertiesId] = pi;
 
-	selector_->addItem(pi->GetName(), propertiesId);
-	selector_->setCurrentIndex(selector_->count() - 1);
+	if (selector_ != nullptr)
+	{
+		selector_->addItem(pi->GetName(), propertiesId);
+		selector_->setCurrentIndex(selector_->count() - 1);
+	}
 
 	if (logManager_ != nullptr)
 	{
@@ -462,9 +465,13 @@ bool PropertiesItemsManager::InformFileColorChanged(CubesUnitTypes::FileId fileI
 
 void PropertiesItemsManager::Clear()
 {
-	editor_->GetPropertyEditor()->clear();
-	selector_->clear();
-	selector_->addItem("<not selected>", 0);
+	if (editor_ != nullptr)
+		editor_->GetPropertyEditor()->clear();
+	if (selector_ != nullptr)
+	{
+		selector_->clear();
+		selector_->addItem("<not selected>", 0);
+	}
 	items_.clear();
 
 	uniqueNumber_ = 0;
@@ -620,9 +627,12 @@ void PropertiesItemsManager::AfterIncludeNameChanged(CubesUnitTypes::PropertiesI
 	QString name;
 	GetName(propertiesId, name);
 
-	int index = selector_->findData(propertiesId);
-	if (index != -1)
-		selector_->setItemText(index, name);
+	if (selector_ != nullptr)
+	{
+		int index = selector_->findData(propertiesId);
+		if (index != -1)
+			selector_->setItemText(index, name);
+	}
 
 	auto item = GetItem(propertiesId);
 	auto fileId = item->GetFileId();

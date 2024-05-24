@@ -1,14 +1,14 @@
 #pragma once
 
 #include <QString>
-#include <QPixmap>
+#include <QImage>
 #include <QColor>
 
 namespace CubesTop
 {
     struct PropertiesForDrawing
     {
-        QPixmap pixmap;
+        QImage pixmap;
         QString name;
         QString fileName;
         QString includeName;

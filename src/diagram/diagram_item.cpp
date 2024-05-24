@@ -5,7 +5,7 @@
 
 using namespace CubesDiagram;
 
-DiagramItem::DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QPixmap pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
+DiagramItem::DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {
     propertiesId_ = propertiesId;
@@ -39,7 +39,7 @@ DiagramItem::DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QPixmap pixm
 DiagramItem::DiagramItem(const DiagramItem& other)
 {
     propertiesId_ = other.propertiesId_;
-    pixmap_ = QPixmap(other.pixmap_);
+    pixmap_ = QImage(other.pixmap_);
     name_ = other.name_;
     includeName_ = other.includeName_;
     color_ = QColor(other.color_);
@@ -93,7 +93,7 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             DiagramScene* ds = reinterpret_cast<DiagramScene*>(scene());
 
             painter->setRenderHint(QPainter::Antialiasing);
-            painter->drawPixmap(iconRect_, pixmap_);
+            painter->drawImage(iconRect_, pixmap_);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
             painter->drawText(textRect_, name_, Qt::AlignCenter | Qt::AlignHCenter);

@@ -20,11 +20,11 @@ public:
     explicit MockWindow(const QString& parametersPath);
     ~MockWindow() override;
 
-public:
+protected:
     // ILogManager
     void AddMessage(const CubesLog::LogMessage& m) override;
 
-protected:
+public:
     // Units
     bool SortUnitsBoost() override;
     bool SortUnitsRectangular(bool check) override;

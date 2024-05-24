@@ -61,7 +61,7 @@ namespace CubesProperties
         void SetName(QString name);
         QString GetName();
 
-        QPixmap GetPixmap();
+        QImage GetPixmap();
 
         void SetPosition(QPointF point);
         QPointF GetPosition();

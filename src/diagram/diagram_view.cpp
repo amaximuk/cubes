@@ -56,7 +56,7 @@ void DiagramView::dropEvent(QDropEvent *event)
         QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
         QDataStream dataStream(&itemData, QIODevice::ReadOnly);
 
-        QPixmap pixmap;
+        QImage pixmap;
         QPoint offset;
         QString unitId;
         dataStream >> unitId >> offset;

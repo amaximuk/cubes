@@ -10,7 +10,7 @@ namespace CubesDiagram
     public:
         // TODO: Убрать обратно в private
         CubesUnitTypes::PropertiesId propertiesId_;
-        QPixmap pixmap_;
+        QImage pixmap_;
         QString name_;
         QString fileName_;
         QString includeName_;
@@ -26,7 +26,7 @@ namespace CubesDiagram
         bool borderOnly_;
 
     public:
-        DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QPixmap pixmap, QString name, QString fileName,
+        DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName,
             QString includeName, QColor color, QGraphicsItem* parent = nullptr);
         DiagramItem(const DiagramItem& other);
         ~DiagramItem();
