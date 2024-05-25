@@ -1,12 +1,13 @@
 #include <QFileInfo>
+#include "../log/log_manager_interface.h"
 #include "analysis_types.h"
 #include "file_items_analysis.h"
 
 using namespace CubesAnalysis;
 
-FileItemsAnalysis::FileItemsAnalysis(IAnalysisManager* analysisManager)
+FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 {
-	analysisManager_ = analysisManager;
+	logManager_ = logManager;
 	
 	{
 		Rule rule{};
@@ -83,7 +84,7 @@ bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 	if (!fileModels_.empty())
 		return true;
 
-	analysisManager_->AfterFileError(CubesUnitTypes::InvalidFileId, rule.id, rule.description);
+	LogError(CubesUnitTypes::InvalidFileId, rule.id, rule.description);
 
 	return false;
 }
@@ -105,7 +106,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
 					arg(name).arg(fn);
-				analysisManager_->AfterFileError(id, rule.id, message);
+				LogError(id, rule.id, message);
 				result = false;
 			}
 			else
@@ -132,7 +133,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
 					QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
 						arg(name).arg(fn);
-					analysisManager_->AfterFileError(id, rule.id, message);
+					LogError(id, rule.id, message);
 					result = false;
 				}
 				else
@@ -161,7 +162,7 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
 					arg(name).arg(id);
-				analysisManager_->AfterFileError(id, rule.id, message);
+				LogError(id, rule.id, message);
 				result = false;
 			}
 			else
@@ -172,4 +173,18 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 	}
 
 	return result;
+}
+
+void FileItemsAnalysis::LogError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message)
+{
+	if (logManager_ != nullptr)
+	{
+		CubesLog::LogMessage lm{};
+		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis, id);
+		lm.source = CubesLog::SourceType::fileAnalysis;
+		lm.description = message;
+		lm.tag = fileId;
+		logManager_->AddMessage(lm);
+	}
 }

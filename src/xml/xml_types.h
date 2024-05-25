@@ -212,7 +212,7 @@ namespace CubesXml
 		}
 	};
 
-	enum class ParserErrorType
+	enum class ParserErrorCode
 	{
 		ok = 0,
 		fileParseFailed = 1000,
@@ -254,7 +254,7 @@ namespace CubesXml
 		unitDependsItemEmpty
 	};
 
-	enum class WriterErrorType
+	enum class WriterErrorCode
 	{
 		ok = 0,
 		fileSetFailed = 1000,
@@ -273,7 +273,7 @@ namespace CubesXml
 		setArrayFailed
 	};
 
-	enum class HelperErrorType
+	enum class HelperErrorCode
 	{
 		ok = 0,
 		fileParseFailed = 1000,

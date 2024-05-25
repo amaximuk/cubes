@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "log_table_interface.h"
+#include "log_manager_interface.h"
 
 class QDragEnterEvent;
 class QDropEvent;

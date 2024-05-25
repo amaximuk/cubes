@@ -10,7 +10,7 @@
 #include "qttreepropertybrowser.h"
 #include "../top/top_manager_interface.h"
 #include "../unit/unit_types.h"
-#include "../log/log_table_interface.h"
+#include "../log/log_manager_interface.h"
 #include "file_item.h"
 #include "file_items_manager.h"
 

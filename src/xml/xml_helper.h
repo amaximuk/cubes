@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtXml>
-#include "../log/log_table_interface.h"
+#include "../log/log_manager_interface.h"
 #include "../unit/unit_types.h"
 #include "xml_types.h"
 

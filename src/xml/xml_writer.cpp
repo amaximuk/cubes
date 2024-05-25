@@ -9,21 +9,7 @@
 
 using namespace CubesXml;
 
-#define ELRC(retcode, errcode, message) do {\
-		std::stringstream ss;\
-		ss << message;\
-		if (logManager_ != nullptr)\
-		{\
-			CubesLog::LogMessage lm{};\
-			lm.type = CubesLog::MessageType::error;\
-			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlWriter, static_cast<uint32_t>(errcode));\
-			lm.source = CubesLog::SourceType::xmlParser;\
-			lm.description = QString::fromStdString(ss.str());\
-			lm.tag = CubesUnitTypes::InvalidUniversalId;\
-			logManager_->AddMessage(lm);\
-		}\
-		std::cout << ss.str() << std::endl; return retcode;\
-	} while(0)
+#define CFRC(retcode, function) do { function; return retcode; } while(0)
 
 Writer::Writer(CubesLog::ILogManager* logManager)
 {
@@ -45,7 +31,7 @@ bool Writer::Write(QByteArray& byteArray, const File& fi)
 	xmlWriter.writeStartDocument();
 
 	if (!SetFile(fi, xmlWriter))
-		ELRC(false, WriterErrorType::fileSetFailed, "Buffer set failed");
+		CFRC(false, LogError( WriterErrorCode::fileSetFailed, "Buffer set failed"));
 
 	xmlWriter.writeEndDocument();
 
@@ -60,14 +46,14 @@ bool Writer::Write(const QString& filename, const File& fi)
 
 	QByteArray byteArray;
 	if (!Write(byteArray, fi))
-		ELRC(false, WriterErrorType::bufferWriteFailed, "File " << fi.fileName.toStdString() << " save failed");
+		CFRC(false, LogError( WriterErrorCode::bufferWriteFailed, "File save failed"" << fi.fileName.toStdString() << " ));
 
 	QFile xmlFile(filename);
 	if (!xmlFile.open(QIODevice::WriteOnly | QFile::Text))
-		ELRC(false, WriterErrorType::fileOpenFailed, "File " << filename.toStdString() << " create failed");
+		CFRC(false, LogError( WriterErrorCode::fileOpenFailed, "File create failed" " << filename.toStdString() << "));
 
 	if (xmlFile.write(byteArray) == -1)
-		ELRC(false, WriterErrorType::fileWriteFailed, "File " << filename.toStdString() << " create failed");
+		CFRC(false, LogError( WriterErrorCode::fileWriteFailed, "File create failed" " << filename.toStdString() << "));
 
 	xmlFile.close();
 
@@ -83,10 +69,10 @@ bool Writer::SetFile(const File& file, QXmlStreamWriter& xmlWriter)
 	//</Includes>
 	
 	if (!SetIncludes(file.includes, xmlWriter))
-		ELRC(false, WriterErrorType::setIncludesFailed, "Set Includes failed");
+		CFRC(false, LogError( WriterErrorCode::setIncludesFailed, "Set Includes failed"));
 
 	if (!SetConfig(file.config, file.name, file.platform, file.color, xmlWriter))
-		ELRC(false, WriterErrorType::setConfigFailed, "Set Config failed");
+		CFRC(false, LogError( WriterErrorCode::setConfigFailed, "Set Config failed"));
 
 	return true;
 }
@@ -131,17 +117,17 @@ bool Writer::SetConfig(const Config& config, const QString& name, const QString&
 	if (config.networkingIsSet)
 	{
 		if (!SetNetworking(config.networking, xmlWriter))
-			ELRC(false, WriterErrorType::setNetworkingFailed, "Set Networking failed");
+			CFRC(false, LogError( WriterErrorCode::setNetworkingFailed, "Set Networking failed"));
 	}
 
 	if (config.logIsSet)
 	{
 		if (!SetLog(config.log, xmlWriter))
-			ELRC(false, WriterErrorType::setLogFailed, "Set Log failed");
+			CFRC(false, LogError( WriterErrorCode::setLogFailed, "Set Log failed"));
 	}
 
 	if (!SetUnits(config.groups, xmlWriter))
-		ELRC(false, WriterErrorType::setLogFailed, "Set Log failed");
+		CFRC(false, LogError( WriterErrorCode::setLogFailed, "Set Log failed"));
 
 	xmlWriter.writeEndElement();
 
@@ -230,7 +216,7 @@ bool Writer::SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter)
 	for (const auto& group : groups)
 	{
 		if (!SetGroup(group, xmlWriter))
-			ELRC(false, WriterErrorType::setGroupFailed, "Set Group failed");
+			CFRC(false, LogError( WriterErrorCode::setGroupFailed, "Set Group failed"));
 	}
 
 	xmlWriter.writeEndElement();
@@ -251,7 +237,7 @@ bool Writer::SetGroup(const Group& group, QXmlStreamWriter& xmlWriter)
 	for (const auto& unit : group.units)
 	{
 		if (!SetUnit(unit, xmlWriter))
-			ELRC(false, WriterErrorType::setUnitFailed, "Set Unit failed");
+			CFRC(false, LogError( WriterErrorCode::setUnitFailed, "Set Unit failed"));
 	}
 
 	xmlWriter.writeEndElement();
@@ -280,7 +266,7 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 	for (const auto& param : unit.params)
 	{
 		if (!SetParam(param, xmlWriter))
-			ELRC(false, WriterErrorType::setParamFailed, "Set Param failed");
+			CFRC(false, LogError( WriterErrorCode::setParamFailed, "Set Param failed"));
 	}
 
 	for (const auto& array : unit.arrays)
@@ -288,7 +274,7 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 		if (array.name != ids_.dependencies.toString())
 		{
 			if (!SetArray(array, xmlWriter))
-				ELRC(false, WriterErrorType::setParamFailed, "Set Param failed");
+				CFRC(false, LogError( WriterErrorCode::setParamFailed, "Set Param failed"));
 		}
 	}
 
@@ -300,7 +286,7 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 			for (const auto& depend : array.items)
 				depends.push_back(depend.val);
 			if (!SetDepends(depends, xmlWriter))
-				ELRC(false, WriterErrorType::setDependsFailed, "Set Depends failed");
+				CFRC(false, LogError( WriterErrorCode::setDependsFailed, "Set Depends failed"));
 		}
 	}
 
@@ -341,7 +327,7 @@ bool Writer::SetArray(const Array& array, QXmlStreamWriter& xmlWriter)
 	for (const auto& item : array.items)
 	{
 		if (!SetItem(item, xmlWriter))
-			ELRC(false, WriterErrorType::setItemFailed, "Set Item failed");
+			CFRC(false, LogError( WriterErrorCode::setItemFailed, "Set Item failed"));
 	}
 
 	xmlWriter.writeEndElement();
@@ -397,17 +383,32 @@ bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 		for (const auto& param : item.params)
 		{
 			if (!SetParam(param, xmlWriter))
-				ELRC(false, WriterErrorType::setParamFailed, "Set Param failed");
+				CFRC(false, LogError( WriterErrorCode::setParamFailed, "Set Param failed"));
 		}
 
 		for (const auto& array : item.arrays)
 		{
 			if (!SetArray(array, xmlWriter))
-				ELRC(false, WriterErrorType::setArrayFailed, "Set Array failed");
+				CFRC(false, LogError( WriterErrorCode::setArrayFailed, "Set Array failed"));
 		}
 	}
 
 	xmlWriter.writeEndElement();
 
 	return true;
+}
+
+void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& message)
+{
+	if (logManager_ != nullptr)
+	{
+		CubesLog::LogMessage lm{};
+		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
+			CubesLog::SourceType::xmlWriter, static_cast<uint32_t>(errorCode));
+		lm.source = CubesLog::SourceType::xmlWriter;
+		lm.description = message;
+		lm.tag = CubesUnitTypes::InvalidUniversalId;
+		logManager_->AddMessage(lm);
+	}
 }

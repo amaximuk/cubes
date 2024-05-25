@@ -2,7 +2,7 @@
 
 #include <QtXml>
 #include "../unit/unit_types.h"
-#include "../log/log_table_interface.h"
+#include "../log/log_manager_interface.h"
 #include "xml_types.h"
 
 namespace CubesXml
@@ -37,5 +37,8 @@ namespace CubesXml
 		bool GetItem(const QDomElement& node, Item& item);
 
 		QList<QDomElement> ElementsByTagName(const QDomElement& node, const QString& tagname);
+
+	private:
+		void LogError(CubesXml::ParserErrorCode errorCode, const QString& message);
 	};
 }

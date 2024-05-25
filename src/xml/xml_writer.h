@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtXml>
-#include "../log/log_table_interface.h"
+#include "../log/log_manager_interface.h"
 #include "xml_types.h"
 
 namespace CubesXml
@@ -34,5 +34,8 @@ namespace CubesXml
 		bool SetArray(const Array& array, QXmlStreamWriter& xmlWriter);
 		bool SetDepends(const QList<QString>& depends, QXmlStreamWriter& xmlWriter);
 		bool SetItem(const Item& item, QXmlStreamWriter& xmlWriter);
+
+	private:
+		void LogError(CubesXml::WriterErrorCode errorCode, const QString& message);
 	};
 }

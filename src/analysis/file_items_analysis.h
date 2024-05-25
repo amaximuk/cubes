@@ -5,7 +5,6 @@
 #include "analysis_types.h"
 #include "../unit/unit_types.h"
 
-namespace CubesTop { class ITopManager; }
 namespace CubesLog { class ILogManager; }
 
 namespace CubesAnalysis
@@ -15,7 +14,7 @@ namespace CubesAnalysis
         Q_OBJECT
 
     private:
-        IAnalysisManager* analysisManager_;
+        CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
         QMap<RuleId, std::function<bool()>> delegates_;
         CubesUnitTypes::FileIdParameterModels fileModels_;
@@ -24,7 +23,7 @@ namespace CubesAnalysis
         CubesUnitTypes::ParameterModelIds ids_;
 
     public:
-        FileItemsAnalysis(IAnalysisManager* analysisManager);
+        FileItemsAnalysis(CubesLog::ILogManager* logManager);
 
     public:
         void SetFiles(const CubesUnitTypes::FileIdParameterModels& files);
@@ -36,5 +35,8 @@ namespace CubesAnalysis
         bool IsHaveAtLeastOneMainConfig(Rule rule);
         bool IsFileNamesUnique(Rule rule);
         bool IsFileIdUnique(Rule rule);
+
+    private:
+        void LogError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message);
     };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QString>
+
 namespace CubesLog
 {
     enum class SourceType
@@ -116,12 +118,20 @@ namespace CubesLog
         return QString("%1%2%3").arg(GetMessageTypePrefix(messageType)).arg(GetSourceTypePrefix(sourceType)).arg(id);
     }
 
+    struct LogVariable
+    {
+        QString variable;
+        QString value;
+    };
+
     struct LogMessage
     {
         MessageType type;
         QString code;
         SourceType source;
         QString description;
+        QString details;
+        QVector<LogVariable> variables;
         uint32_t tag;
     };
 }

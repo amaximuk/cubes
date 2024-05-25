@@ -1,6 +1,6 @@
 #pragma once
 
-#include "log_table_types.h"
+#include "log_types.h"
 
 namespace CubesLog
 {

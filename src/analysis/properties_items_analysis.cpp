@@ -1,12 +1,13 @@
 #include <QFileInfo>
+#include "../log/log_manager_interface.h"
 #include "analysis_types.h"
 #include "properties_items_analysis.h"
 
 using namespace CubesAnalysis;
 
-PropertiesItemsAnalysis::PropertiesItemsAnalysis(IAnalysisManager* analysisManager)
+PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManager)
 {
-	analysisManager_ = analysisManager;
+	logManager_ = logManager;
 
 	{
 		Rule rule{};
@@ -114,7 +115,7 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 		if (name.isEmpty())
 		{
 			QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").arg(unitId);
-			analysisManager_->AfterPropertiesError(kvp.first, rule.id, message);
+			LogError(kvp.first, rule.id, message);
 			result = false;
 		}
 	}
@@ -134,7 +135,7 @@ bool PropertiesItemsAnalysis::IsFileNamesUnique(Rule rule)
 	//	{
 	//		QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
 	//			arg(file.is_include ? file.include.name : file.main.name).arg(fn);
-	//		analysisManager_->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
+	//		LogError->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
 	//		result = false;
 	//	}
 	//	else
@@ -158,7 +159,7 @@ bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
 	//		{
 	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
 	//				arg(file.main.name).arg(file.main.id);
-	//			analysisManager_->AfterFileError(file.main.fileId, message);
+	//			LogError->AfterFileError(file.main.fileId, message);
 	//			result = false;
 	//		}
 	//		else
@@ -169,4 +170,19 @@ bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
 	//}
 
 	return result;
+}
+
+void PropertiesItemsAnalysis::LogError(const CubesUnitTypes::PropertiesId propertiesId,
+	CubesAnalysis::RuleId id, const QString& message)
+{
+	if (logManager_ != nullptr)
+	{
+		CubesLog::LogMessage lm{};
+		lm.type = CubesLog::MessageType::error;
+		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesAnalysis, id);
+		lm.source = CubesLog::SourceType::propertiesAnalysis;
+		lm.description = message;
+		lm.tag = propertiesId;
+		logManager_->AddMessage(lm);
+	}
 }

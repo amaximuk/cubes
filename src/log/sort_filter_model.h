@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
-#include "log_table_interface.h"
+#include "log_manager_interface.h"
 #include "log_table_model.h"
 
 namespace CubesLog
