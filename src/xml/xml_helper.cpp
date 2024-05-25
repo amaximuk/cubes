@@ -14,7 +14,9 @@
 using namespace CubesXml;
 
 #define CFRC(retcode, function) do { function; return retcode; } while(0)
-static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode, const QString& message)
+
+static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
+	const QString& details, const QVector<CubesLog::LogVariable>& variables)
 {
 	if (logManager != nullptr)
 	{
@@ -23,17 +25,36 @@ static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCod
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
 			CubesLog::SourceType::xmlHelper, static_cast<uint32_t>(errorCode));
 		lm.source = CubesLog::SourceType::xmlHelper;
-		lm.description = message;
+		lm.description = CubesXml::GetHelperErrorDescription(errorCode);
+		lm.details = details;
+		lm.variables = variables;
 		lm.tag = CubesUnitTypes::InvalidUniversalId;
 		logManager->AddMessage(lm);
 	}
+}
+
+static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode)
+{
+	LogError(logManager, errorCode, {}, {});
+}
+
+static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
+	const QString& details)
+{
+	LogError(logManager, errorCode, details, {});
+}
+
+static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
+	const QVector<CubesLog::LogVariable>& variables)
+{
+	LogError(logManager, errorCode, {}, variables);
 }
 
 bool Helper::Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager)
 {
 	Parser parser(logManager);
 	if (!parser.Parse(byteArray, fileName))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, "Parsing failed ()"" << fileName.toStdString() << "));
+		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, { { "File name", fileName } }));
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
@@ -42,7 +63,7 @@ bool Helper::Parse(const QString& fileName, File& fi, CubesLog::ILogManager* log
 {
 	Parser parser(logManager);
 	if (!parser.Parse(fileName))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, "Parsing failed ()"" << fileName.toStdString() << "));
+		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, { { "File name", fileName } }));
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
@@ -95,7 +116,8 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				arrays = &array->items[index].arrays;
 			}
 			else
-				CFRC(false, LogError(logManager, HelperErrorCode::arrayItemNotFound, "Array item not found"));
+				CFRC(false, LogError(logManager, HelperErrorCode::unitParametersMalformed,
+					"Array item not found", { {"Item", s.toString()} }));
 
 			array = nullptr;
 			inside_array = false;
@@ -112,7 +134,8 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				if (s == p.name)
 				{
 					if (ss.size() != 1)
-						CFRC(false, LogError(logManager, HelperErrorCode::unitParametersMalformed, "Not last part of id must be array"));
+						CFRC(false, LogError(logManager, HelperErrorCode::unitParametersMalformed,
+							"Not last part of id must be array", { {"Item", s.toString()} }));
 
 					// Нашли искомый параметр
 					element = {};
@@ -166,229 +189,11 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 	return true;
 }
 
-/*
-int Helper::GetItemsCount(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager)
-{
-	const static CubesUnitTypes::ParameterModelIds ids;
-
-	auto ss = id.split();
-	if (ss.size() < 2)
-		ELRC(-1, "ParameterModelId too short");
-	if (ss.front() != ids.parameters)
-		ELRC(-1, "Must be started with parameters");
-	ss.pop_front();
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			auto index = ids.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				ELRC(-1, "Part of id not found");
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					ELRC(-1, "Is not array");
-				}
-			}
-
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-
-	if (array == nullptr)
-		ELRC(-1, "Not found");
-
-	return array->items.size();
-}
-
-Param* Helper::GetParam(Unit& unit, const CubesUnitTypes::ParameterModelId& id, CubesLog::ILogManager* logManager)
-{
-	const static CubesUnitTypes::ParameterModelIds ids;
-
-	auto ss = id.split();
-	if (ss.size() < 2)
-		ELRC(nullptr, "ParameterModelId too short");
-	if (ss.front() != ids.parameters)
-		ELRC(nullptr, "Must be started with parameters");
-	ss.pop_front();
-
-	// Раскручиваем путь к параметру из id, внутри структуры Unit
-	// Ищем полное совпадение на каждом этапе с учетом массивов
-	// Путь должен начинаться с ${PARAMETERS}, а далее, из служебных
-	// составляющих, путь может содержать только ${ITEM_N} и ${PARAMETERS}
-	// Параметры не могут быть вложенными в другой параметр, только в массив
-	// Поэтому, имя параметра должно полностью совпасть только один раз в конце
-	// Вложенность возможна только через массивы
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			// Внутри массива элементы типа ${ITEM_N}
-			// Находим совпадающий с очередной частью пути в id и идем внутрь
-			auto index = ids.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				ELRC(nullptr, "Array item not found");
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			// Параметры не могут быть вложенными в другой параметр, только в массив
-			// Поэтому, имя параметра должно полностью совпасть только один раз в конце
-			// Вложенность возможна только через массивы
-
-			// Проверяем совпадение имени параметра с очередной частью пути в id
-			for (auto& p : *params)
-			{
-				if (s == p.name)
-				{
-					if (ss.size() != 1)
-						ELRC(nullptr, "Not last part of id must be array");
-
-					// Нашли искомый параметр
-					return &p;
-				}
-			}
-
-			// Проверяем совпадение имени массива с очередной частью пути в id
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					// Нашли массив, идем в него
-					array = &a;
-					inside_array = true;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-
-Item* Helper::GetItem(Unit& unit, const CubesUnitTypes::ParameterModelId& id, QString& type, CubesLog::ILogManager* logManager)
-{
-	const static CubesUnitTypes::ParameterModelIds ids;
-
-	auto ss = id.split();
-	if (ss.size() < 2)
-		ELRC(nullptr, "ParameterModelId too short");
-	if (ss.front() != ids.parameters)
-		ELRC(nullptr, "Must be started with parameters");
-	ss.pop_front();
-
-	// В отличие от GetParam ищем элемент массива и его тип
-
-	// Раскручиваем путь к параметру из id, внутри структуры Unit
-	// Ищем полное совпадение на каждом этапе с учетом массивов
-	// Путь должен начинаться с ${PARAMETERS}, а далее, из служебных
-	// составляющих, путь может содержать только ${ITEM_N} и ${PARAMETERS}
-	// Параметры не могут быть вложенными в другой параметр, только в массив
-	// Поэтому, имя параметра должно полностью совпасть только один раз в конце
-	// Вложенность возможна только через массивы
-
-	bool inside_array = false;
-	Array* array = nullptr;
-	QString array_type;
-	QList<Param>* params = &unit.params;
-	QList<Array>* arrays = &unit.arrays;
-	while (ss.size() > 0)
-	{
-		const auto& s = ss.front();
-		if (inside_array)
-		{
-			// Внутри массива элементы типа ${ITEM_N}
-			// Находим совпадающий с очередной частью пути в id и идем внутрь
-			auto index = ids.ItemIndex(s);
-			if (index != -1 && array->items.size() > index)
-			{
-				if (ss.size() == 1)
-				{
-					// Нашли искомый элемент массива
-					type = array_type;
-					return &array->items[index];
-				}
-
-				// Идем внутрь элемента
-				params = &array->items[index].params;
-				arrays = &array->items[index].arrays;
-			}
-			else
-				ELRC(nullptr, "Array item not found");
-
-			array = nullptr;
-			inside_array = false;
-		}
-		else
-		{
-			// Параметры не могут быть вложенными в другой параметр, только в массив
-			// Вложенность возможна только через массивы
-			// Поскольку мы ищем элемент массива, параметры не проверяем
-
-			// Проверяем совпадение имени массива с очередной частью пути в id
-			for (auto& a : *arrays)
-			{
-				if (s == a.name)
-				{
-					// Нашли массив, идем в него
-					array = &a;
-					inside_array = true;
-					array_type = a.type;
-					break;
-				}
-			}
-		}
-		ss.pop_front();
-	}
-	return nullptr;
-}
-*/
-
 bool Helper::Write(QByteArray& buffer, const File& fi, CubesLog::ILogManager* logManager)
 {
 	Writer writer(logManager);
 	if (!writer.Write(buffer, fi))
-		CFRC(false, LogError(logManager, HelperErrorCode::bufferWriteFailed, "Buffer write failed ()"" << fi.fileName.toStdString() << "));
+		CFRC(false, LogError(logManager, HelperErrorCode::bufferWriteFailed, { {"", fi.fileName} }));
 	return true;
 }
 
@@ -396,6 +201,6 @@ bool Helper::Write(const QString& filename, const File& fi, CubesLog::ILogManage
 {
 	Writer writer(logManager);
 	if (!writer.Write(filename, fi))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileWriteFailed, "File write failed ()"" << fi.fileName.toStdString() << "));
+		CFRC(false, LogError(logManager, HelperErrorCode::fileWriteFailed, { {"", fi.fileName} }));
 	return true;
 }

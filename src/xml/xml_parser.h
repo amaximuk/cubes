@@ -39,6 +39,10 @@ namespace CubesXml
 		QList<QDomElement> ElementsByTagName(const QDomElement& node, const QString& tagname);
 
 	private:
-		void LogError(CubesXml::ParserErrorCode errorCode, const QString& message);
+		void LogError(CubesXml::ParserErrorCode errorCode, const QString& details,
+			const QVector<CubesLog::LogVariable>& variables);
+		void LogError(CubesXml::ParserErrorCode errorCode);
+		void LogError(CubesXml::ParserErrorCode errorCode, const QString& details);
+		void LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::LogVariable>& variables);
 	};
 }

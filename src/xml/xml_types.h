@@ -234,7 +234,7 @@ namespace CubesXml
 		networkingKeepAliveSecEmpty, 
 		networkingChildUnknown,
 		networkingConnectPortEmpty,
-		networkingConnectPortIp,
+		networkingConnectIpEmpty,
 		logChildUnknown,
 		logParamUnknown,
 		unitsChildUnknown,
@@ -253,6 +253,52 @@ namespace CubesXml
 		getItemFailed,
 		unitDependsItemEmpty
 	};
+
+	inline QString GetParserErrorDescription(ParserErrorCode errorCode)
+	{
+		switch (errorCode)
+		{
+		case ParserErrorCode::ok: return "Ok";
+		case ParserErrorCode::fileParseFailed: return "Parsing failed";
+		case ParserErrorCode::fileOpenFailed: return "File open failed";
+		case ParserErrorCode::getIncludesFailed: return "Get Includes failed";
+		case ParserErrorCode::getConfigFailed: return "Get Config failed";
+		case ParserErrorCode::includesChildUnknown: return "Includes have unknown child";
+		case ParserErrorCode::includesIncludeValEmpty: return "Includes/Include val is empty";
+		case ParserErrorCode::includesIncludeChildUnknown: return "Includes/Include have unknown child";
+		case ParserErrorCode::includesIncludeVariableNameEmpty: return "Includes/Include/Variable name is empty";
+		case ParserErrorCode::includesIncludeVariableValEmpty: return "Includes/Include/Variable val is empty";
+		case ParserErrorCode::includesIncludeVariableNameDuplicate: return "Includes/Include/Variable name duplicate";
+		case ParserErrorCode::getNetworkFailed: return "Get Networking failed";
+		case ParserErrorCode::getLogFailed: return "Get Log failed";
+		case ParserErrorCode::getUnitsFailed: return "Get Units failed";
+		case ParserErrorCode::configChildUnknown: return "Config have unknown child";
+		case ParserErrorCode::networkingIdEmpty: return "Networking id is empty";
+		case ParserErrorCode::networkingAcceptPortEmpty: return "Networking accept_port is empty";
+		case ParserErrorCode::networkingKeepAliveSecEmpty: return "Networking keep_alive_sec is empty";
+		case ParserErrorCode::networkingChildUnknown: return "Networking have unknown child";
+		case ParserErrorCode::networkingConnectPortEmpty: return "Networking/connect port is empty";
+		case ParserErrorCode::networkingConnectIpEmpty: return "Networking/connect ip is empty";
+		case ParserErrorCode::logChildUnknown: return "Log have unknown child";
+		case ParserErrorCode::logParamUnknown: return "Log/Param is unknown";
+		case ParserErrorCode::unitsChildUnknown: return "Units have unknown child";
+		case ParserErrorCode::getGroupFailed: return "Get Group failed";
+		case ParserErrorCode::groupParamNotSingle: return "Group/Param not found or more then one";
+		case ParserErrorCode::groupParamUnknown: return "Group/Param is unknown";
+		case ParserErrorCode::getUnitFailed: return "Get Unit failed";
+		case ParserErrorCode::unitNameEmpty: return "Unit Name is empty";
+		case ParserErrorCode::unitIdEmpty: return "Unit Id is empty";
+		case ParserErrorCode::getParamFailed: return "Get Param failed";
+		case ParserErrorCode::getArrayFailed: return "Get Array failed";
+		case ParserErrorCode::getDependsFailed: return "Get Depends failed";
+		case ParserErrorCode::unitParamNameEmpty: return "Unit/Param name is empty";
+		case ParserErrorCode::unitParamTypeEmpty: return "Unit/Param type is empty";
+		case ParserErrorCode::unitParamValEmpty: return "Unit/Param val is empty";
+		case ParserErrorCode::getItemFailed: return "Get Item failed";
+		case ParserErrorCode::unitDependsItemEmpty: return "Unit/Depends/Item name is empty";
+		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
+		}
+	}
 
 	enum class WriterErrorCode
 	{
@@ -273,6 +319,29 @@ namespace CubesXml
 		setArrayFailed
 	};
 
+	inline QString GetWriterErrorDescription(WriterErrorCode errorCode)
+	{
+		switch (errorCode)
+		{
+		case WriterErrorCode::ok: return "Ok";
+		case WriterErrorCode::fileSetFailed: return "File set failed";
+		case WriterErrorCode::bufferWriteFailed: return "Buffer write failed";
+		case WriterErrorCode::fileOpenFailed: return "File open failed";
+		case WriterErrorCode::fileWriteFailed: return "File write failed";
+		case WriterErrorCode::setIncludesFailed: return "Set Includes failed";
+		case WriterErrorCode::setConfigFailed: return "Set Config failed";
+		case WriterErrorCode::setNetworkingFailed: return "Set Networking failed";
+		case WriterErrorCode::setLogFailed: return "Set Log failed";
+		case WriterErrorCode::setGroupFailed: return "Set Group failed";
+		case WriterErrorCode::setUnitFailed: return "Set Unit failed";
+		case WriterErrorCode::setParamFailed: return "Set Param failed";
+		case WriterErrorCode::setDependsFailed: return "Set Depends failed";
+		case WriterErrorCode::setItemFailed: return "Set Item failed";
+		case WriterErrorCode::setArrayFailed: return "Set Array failed";
+		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
+		}
+	}
+
 	enum class HelperErrorCode
 	{
 		ok = 0,
@@ -283,4 +352,18 @@ namespace CubesXml
 		bufferWriteFailed,
 		fileWriteFailed
 	};
+
+	inline QString GetHelperErrorDescription(HelperErrorCode errorCode)
+	{
+		switch (errorCode)
+		{
+		case HelperErrorCode::ok: return "Ok";
+		case HelperErrorCode::fileParseFailed: return "Parsing failed";
+		case HelperErrorCode::invalidArgument: return "Invalid argument";
+		case HelperErrorCode::unitParametersMalformed: return "Unit parameters malformed";
+		case HelperErrorCode::bufferWriteFailed: return "Buffer write failed";
+		case HelperErrorCode::fileWriteFailed: return "File write failed";
+		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
+		}
+	}
 }
