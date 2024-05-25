@@ -120,7 +120,7 @@ namespace CubesLog
 
     struct LogVariable
     {
-        QString variable;
+        QString name;
         QString value;
     };
 

@@ -83,7 +83,15 @@ QVariant LogTableModel::data(const QModelIndex& index, int role) const
         else if (index.column() == 2)
             return SourceTypeToString(log_messages_[index.row()].source);
         else if (index.column() == 3)
-            return log_messages_[index.row()].description;
+        {
+            QString s(log_messages_[index.row()].description);
+            if (!log_messages_[index.row()].details.isEmpty())
+                s += "\n" + log_messages_[index.row()].details;
+            for (size_t i = 0; i < log_messages_[index.row()].variables.size(); i++)
+                s += "\n" + log_messages_[index.row()].variables[i].name + ": " +
+                log_messages_[index.row()].variables[i].value;
+            return s;
+        }
     }
     else if (role == Qt::UserRole)
     {
