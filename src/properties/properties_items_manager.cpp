@@ -27,10 +27,6 @@ PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager
 	selected_ = CubesUnitTypes::InvalidPropertiesId;
 	uniqueNumber_ = CubesUnitTypes::InvalidPropertiesId;
 
-	defaultColorFileIndex_ = 0;
-	for (auto& c : defaultColorsFile_)
-		c.setAlpha(0x20);
-
 	if (!isMock)
 		widget_ = CreateEditorWidget();
 }
@@ -60,9 +56,6 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 
 void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId)
 {
-	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
@@ -89,9 +82,6 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParameterModels& pm,
 	CubesUnitTypes::PropertiesId& propertiesId)
 {
-	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
@@ -120,9 +110,6 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 
 void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId)
 {
-	const QColor color = defaultColorFileIndex_ < defaultColorsFile_.size() ?
-		defaultColorsFile_[defaultColorFileIndex_++] : QColor("White");
-
 	CubesUnitTypes::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
 
@@ -476,8 +463,6 @@ void PropertiesItemsManager::Clear()
 
 	uniqueNumber_ = 0;
 	selected_ = 0;
-
-	defaultColorFileIndex_ = 0;
 
 	if (logManager_ != nullptr)
 	{

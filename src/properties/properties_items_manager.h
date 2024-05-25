@@ -17,8 +17,6 @@ namespace CubesProperties
 		Q_OBJECT
 
 	private:
-		QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"), QColor("Orange"),
-			QColor("Violet"), QColor("Yellow") };
 		enum class MessageId
 		{
 			unknown = 10000,
@@ -26,7 +24,6 @@ namespace CubesProperties
 			remove,
 			clear
 		};
-		int defaultColorFileIndex_;
 
 	private:
 		CubesTop::ITopManager* topManager_;
