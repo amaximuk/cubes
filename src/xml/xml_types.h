@@ -211,4 +211,46 @@ namespace CubesXml
 			arrays = nullptr;
 		}
 	};
+
+	enum class ParserErrorType
+	{
+		ok = 0,
+		parseFailed = 1000,
+		fileOpenFailed,
+		getIncludesFailed,
+		getConfigFailed,
+		includesChildUnknown,
+		includesIncludeValEmpty,
+		includesIncludeChildUnknown,
+		includesIncludeVariableNameEmpty,
+		includesIncludeVariableValEmpty,
+		includesIncludeVariableNameDuplicate,
+		getNetworkFailed,
+		getLogFailed,
+		getUnitsFailed,
+		configChildUnknown,
+		networkingIdEmpty,
+		networkingAcceptPortEmpty,
+		networkingKeepAliveSecEmpty, 
+		networkingChildUnknown,
+		networkingConnectPortEmpty,
+		networkingConnectPortIp,
+		logChildUnknown,
+		logParamUnknown,
+		unitsChildUnknown,
+		getGroupFailed,
+		groupParamNotSingle,
+		groupParamUnknown,
+		getUnitFailed,
+		unitNameEmpty,
+		unitIdEmpty,
+		getParamFailed,
+		getArrayFailed,
+		getDependsFailed,
+		unitParamNameEmpty,
+		unitParamTypeEmpty,
+		unitParamValEmpty,
+		getItemFailed,
+		unitDependsItemEmpty
+	};
 }

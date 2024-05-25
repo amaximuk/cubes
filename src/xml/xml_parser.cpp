@@ -7,19 +7,19 @@
 #include "../properties/properties_item_types.h"
 #include "../properties/properties_item.h"
 #include "../unit/unit_types.h"
-//#include "../log/log_table_types.h"
+#include "xml_types.h"
 #include "xml_parser.h"
 
 using namespace CubesXml;
 
-#define ELRC(retcode, message) do {\
+#define ELRC(retcode, errcode, message) do {\
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager_ != nullptr)\
 		{\
 			CubesLog::LogMessage lm{};\
 			lm.type = CubesLog::MessageType::error;\
-			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser, 1000);\
+			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser, static_cast<uint32_t>(errcode));\
 			lm.source = CubesLog::SourceType::xmlParser;\
 			lm.description = QString::fromStdString(ss.str());\
 			lm.tag = CubesUnitTypes::InvalidUniversalId;\
@@ -27,7 +27,6 @@ using namespace CubesXml;
 		}\
 		std::cout << ss.str() << std::endl; return retcode;\
 	} while(0)
-		//ss << "\nFile name = " << fi_.fileName;\
 
 Parser::Parser(CubesLog::ILogManager* logManager)
 {
@@ -56,7 +55,7 @@ bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
 
 	QDomElement root = doc.documentElement();
 	if (!GetFile(root, fi_))
-		ELRC(false, "File info parse failed");
+		ELRC(false, ParserErrorType::parseFailed, "File parse failed");
 
 	return true;
 }
@@ -66,7 +65,7 @@ bool Parser::Parse(const QString& fileName)
 	QFile xmlFile(fileName);
 	if (!xmlFile.open(QIODevice::ReadOnly))
 	{
-		ELRC(false, "File " << fileName.toStdString() << " load failed");
+		ELRC(false, ParserErrorType::fileOpenFailed, "File " << fileName.toStdString() << " load failed");
 	}
 
 	QByteArray byteArray = xmlFile.readAll();
@@ -92,7 +91,7 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 			if (ne.tagName() == "Includes")
 			{
 				if (!GetIncludes(ne, fi.includes))
-					ELRC(false, "Get Includes failed");
+					ELRC(false, ParserErrorType::getIncludesFailed, "Get Includes failed");
 			}
 			else if (ne.tagName() == "Config")
 			{
@@ -100,7 +99,7 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 				QString platform;
 				QString color;
 				if (!GetConfig(ne, name, platform, color, fi.config))
-					ELRC(false, "Get Config failed");
+					ELRC(false, ParserErrorType::getConfigFailed, "Get Config failed");
 				fi.name = name;
 				fi.platform = platform;
 				fi.color = color;
@@ -121,13 +120,13 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Include")
-				ELRC(false, "Includes have unknown child");
+				ELRC(false, ParserErrorType::includesChildUnknown, "Includes have unknown child");
 
 			Include include{};
 
 			QString i_val = ei.attribute("val", "");
 			if (i_val == "")
-				ELRC(false, "Includes/Include val is empty");
+				ELRC(false, ParserErrorType::includesIncludeValEmpty, "Includes/Include val is empty");
 			include.fileName = i_val;
 
 			QString i_name = ei.attribute("_name", "");
@@ -141,18 +140,18 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 				if (!ev.isNull())
 				{
 					if (ev.tagName() != "Variable")
-						ELRC(false, "Includes/Include have unknown child");
+						ELRC(false, ParserErrorType::includesIncludeChildUnknown, "Includes/Include have unknown child");
 
 					QString v_name = ev.attribute("name", "");
 					QString v_val = ev.attribute("val", "");
 
 					if (v_name == "")
-						ELRC(false, "Includes/Include/Variable name is empty");
+						ELRC(false, ParserErrorType::includesIncludeVariableNameEmpty, "Includes/Include/Variable name is empty");
 					if (v_val == "")
-						ELRC(false, "Includes/Include/Variable val is empty");
+						ELRC(false, ParserErrorType::includesIncludeVariableValEmpty, "Includes/Include/Variable val is empty");
 
 					if (variables.contains(v_name))
-						ELRC(false, "Includes/Include/Variable name duplicate");
+						ELRC(false, ParserErrorType::includesIncludeVariableNameDuplicate, "Includes/Include/Variable name duplicate");
 
 					variables[v_name] = v_val;
 				}
@@ -184,21 +183,21 @@ bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform
 			{
 				config.networkingIsSet = true;
 				if (!GetNetworking(ei, config.networking))
-					ELRC(false, "Get Networking failed");
+					ELRC(false, ParserErrorType::getNetworkFailed, "Get Networking failed");
 			}
 			else if (ei.tagName() == "Log")
 			{
 				config.logIsSet = true;
 				if (!GetLog(ei, config.log))
-					ELRC(false, "Get Log failed");
+					ELRC(false, ParserErrorType::getLogFailed, "Get Log failed");
 			}
 			else if (ei.tagName() == "Units")
 			{
 				if (!GetUnits(ei, config.groups))
-					ELRC(false, "Get Units failed");
+					ELRC(false, ParserErrorType::getUnitsFailed, "Get Units failed");
 			}
 			else
-				ELRC(false, "Config have unknown child");
+				ELRC(false, ParserErrorType::configChildUnknown, "Config have unknown child");
 		}
 		i = i.nextSibling();
 	}
@@ -219,11 +218,11 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 	QString notify_ready_servers = node.attribute("notify_ready_servers", QString("%1").arg(CubesXml::Networking::Defaults().notifyReadyServers));
 
 	if (id == "")
-		ELRC(false, "Networking id is empty");
+		ELRC(false, ParserErrorType::networkingIdEmpty, "Networking id is empty");
 	if (accept_port == "")
-		ELRC(false, "Networking accept_port is empty");
+		ELRC(false, ParserErrorType::networkingAcceptPortEmpty, "Networking accept_port is empty");
 	if (keep_alive_sec == "")
-		ELRC(false, "Networking keep_alive_sec is empty");
+		ELRC(false, ParserErrorType::networkingKeepAliveSecEmpty, "Networking keep_alive_sec is empty");
 
 	networking.id = id.toInt();
 	networking.acceptPort = accept_port.toInt();
@@ -242,15 +241,15 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 		if (!ev.isNull())
 		{
 			if (ev.tagName() != "connect")
-				ELRC(false, "Networking have unknown child");
+				ELRC(false, ParserErrorType::networkingChildUnknown, "Networking have unknown child");
 
 			QString v_port = ev.attribute("port", "");
 			QString v_ip = ev.attribute("ip", "");
 
 			if (v_port == "")
-				ELRC(false, "Networking/connect port is empty");
+				ELRC(false, ParserErrorType::networkingConnectPortEmpty, "Networking/connect port is empty");
 			if (v_ip == "")
-				ELRC(false, "Networking/connect ip is empty");
+				ELRC(false, ParserErrorType::networkingConnectPortIp, "Networking/connect ip is empty");
 
 			Connect connect{};
 			connect.ip = v_ip;
@@ -273,7 +272,7 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Param")
-				ELRC(false, "Log have unknown child");
+				ELRC(false, ParserErrorType::logChildUnknown, "Log have unknown child");
 
 			QString name = ei.attribute("name", "");
 			QString type = ei.attribute("type", "");
@@ -294,7 +293,7 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 				log.logDir = val;
 			}
 			else
-				ELRC(false, "Log/Param is unknown");
+				ELRC(false, ParserErrorType::logParamUnknown, "Log/Param is unknown");
 		}
 		i = i.nextSibling();
 	}
@@ -311,11 +310,11 @@ bool Parser::GetUnits(const QDomElement& node, QList<Group>& groups)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Group")
-				ELRC(false, "Units have unknown child");
+				ELRC(false, ParserErrorType::unitsChildUnknown, "Units have unknown child");
 
 			Group group{};
 			if (!GetGroup(ei, group))
-				ELRC(false, "Get Group failed");
+				ELRC(false, ParserErrorType::getGroupFailed, "Get Group failed");
 
 			groups.push_back(std::move(group));
 		}
@@ -330,7 +329,7 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	auto paramNodes = ElementsByTagName(node, "Param");
 
 	if (paramNodes.size() != 1)
-		ELRC(false, "Group/Param not found or more then one");
+		ELRC(false, ParserErrorType::groupParamNotSingle, "Group/Param not found or more then one");
 
 	const auto& ep = paramNodes[0];
 	QString name = ep.attribute("name", "");
@@ -340,14 +339,14 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	if (name == "Path" && type == "str")
 		group.path = val;
 	else
-		ELRC(false, "Group/Param is unknown");
+		ELRC(false, ParserErrorType::groupParamUnknown, "Group/Param is unknown");
 
 	auto unitNodes = ElementsByTagName(node, "Unit");
 	for (const auto& eu : unitNodes)
 	{
 		Unit unit{};
 		if (!GetUnit(eu, unit))
-			ELRC(false, "Get Unit failed");
+			ELRC(false, ParserErrorType::getUnitFailed, "Get Unit failed");
 		group.units.push_back(std::move(unit));
 	}
 
@@ -363,9 +362,9 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	int32_t z = node.attribute("_z", "0").toInt();
 
 	if (name == "")
-		ELRC(false, "Unit Name is empty");
+		ELRC(false, ParserErrorType::unitNameEmpty, "Unit Name is empty");
 	if (id == "")
-		ELRC(false, "Unit Id is empty");
+		ELRC(false, ParserErrorType::unitIdEmpty, "Unit Id is empty");
 
 	unit.name = name;
 	unit.id = id;
@@ -378,7 +377,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			ELRC(false, "Get Param failed");
+			ELRC(false, ParserErrorType::getParamFailed, "Get Param failed");
 		unit.params.push_back(std::move(param));
 	}
 
@@ -387,7 +386,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			ELRC(false, "Get Array failed");
+			ELRC(false, ParserErrorType::getArrayFailed, "Get Array failed");
 		unit.arrays.push_back(std::move(array));
 	}
 
@@ -400,7 +399,7 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		QList<QString> depends;
 		if (!GetDepends(ed, depends))
-			ELRC(false, "Get Depends failed");
+			ELRC(false, ParserErrorType::getDependsFailed, "Get Depends failed");
 
 		Array array{};
 		array.name = ids_.dependencies.toString();
@@ -427,11 +426,11 @@ bool Parser::GetParam(const QDomElement& node, Param& param)
 	QString depends = node.attribute("depends", "");
 
 	if (name == "")
-		ELRC(false, "Unit/Param name is empty");
+		ELRC(false, ParserErrorType::unitParamNameEmpty, "Unit/Param name is empty");
 	if (type == "")
-		ELRC(false, "Unit/Param type is empty");
+		ELRC(false, ParserErrorType::unitParamTypeEmpty, "Unit/Param type is empty");
 	if (val == "")
-		ELRC(false, "Unit/Param val is empty");
+		ELRC(false, ParserErrorType::unitParamValEmpty, "Unit/Param val is empty");
 	// depends is optional
 
 	param.name = name;
@@ -448,7 +447,7 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	QString type = node.attribute("type", "");
 
 	if (name == "")
-		ELRC(false, "Unit/Param name is empty");
+		ELRC(false, ParserErrorType::unitParamNameEmpty, "Unit/Param name is empty");
 	// type is optional
 
 	array.name = name;
@@ -459,7 +458,7 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	{
 		Item item;
 		if (!GetItem(ei, item))
-			ELRC(false, "Get Item failed");
+			ELRC(false, ParserErrorType::getItemFailed, "Get Item failed");
 		array.items.push_back(std::move(item));
 	}
 
@@ -474,7 +473,7 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 		QString name = ei.attribute("name", "");
 
 		if (name == "")
-			ELRC(false, "Unit/Depends/Item name is empty");
+			ELRC(false, ParserErrorType::unitDependsItemEmpty, "Unit/Depends/Item name is empty");
 
 		depends.push_back(name);
 	}
@@ -502,7 +501,7 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			ELRC(false, "Get Param failed");
+			ELRC(false, ParserErrorType::getParamFailed, "Get Param failed");
 		item.params.push_back(std::move(param));
 	}
 
@@ -511,7 +510,7 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			ELRC(false, "Get Array failed");
+			ELRC(false, ParserErrorType::getArrayFailed, "Get Array failed");
 		item.arrays.push_back(std::move(array));
 	}
 
