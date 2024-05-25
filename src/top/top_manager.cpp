@@ -334,7 +334,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             //if (includedFileName != "")
             {
                 CubesUnitTypes::IncludeIdNames includes;
-                if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
+                if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
                     return false;
 
                 QString includeName;
@@ -427,7 +427,7 @@ CubesUnitTypes::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
 {
     auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
     CubesUnitTypes::IncludeIdNames includes;
-    if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
+    if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
         return {};
 
     return includes;
