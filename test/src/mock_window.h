@@ -10,11 +10,12 @@ namespace CubesFile { class FileItemsManager; }
 namespace CubesProperties { class PropertiesItemsManager; }
 namespace CubesAnalysis { class AnalysisManager; }
 
-class MockWindow : public CubesTop::TopManager
+class MockWindow : private CubesTop::TopManager
 {
 private:
     bool modified_;
     QString path_;
+    QVector<CubesLog::Message> messages_;
 
 public:
     explicit MockWindow(const QString& parametersPath);
@@ -22,7 +23,7 @@ public:
 
 protected:
     // ILogManager
-    void AddMessage(const CubesLog::LogMessage& m) override;
+    void AddMessage(const CubesLog::Message& m) override;
 
 public:
     // Units
@@ -36,4 +37,8 @@ public:
     bool OpenFile(const QString& path) override;
     bool OpenFolder(const QString& path) override;
     bool ImportXml(const QString& path) override;
+
+    // Message
+    QVector<CubesLog::Message> GetMessages();
+    void ClearMessages();
 };

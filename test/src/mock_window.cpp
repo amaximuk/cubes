@@ -11,8 +11,6 @@
 #include "xml/xml_parser.h"
 #include "xml/xml_writer.h"
 #include "xml/xml_helper.h"
-//#include "graph.h"
-//#include "zip.h"
 #include "mock_window.h"
 
 MockWindow::MockWindow(const QString& parametersPath)
@@ -27,9 +25,11 @@ MockWindow::~MockWindow()
 }
 
 // ILogManager
-void MockWindow::AddMessage(const CubesLog::LogMessage& m)
+void MockWindow::AddMessage(const CubesLog::Message& m)
 {
     TopManager::AddMessage(m);
+
+    messages_.push_back(m);
 }
 
 // Units
@@ -96,4 +96,14 @@ bool MockWindow::ImportXml(const QString& path)
         return false;
 
     return true;
+}
+
+QVector<CubesLog::Message> MockWindow::GetMessages()
+{
+    return messages_;
+}
+
+void MockWindow::ClearMessages()
+{
+    messages_.clear();
 }
