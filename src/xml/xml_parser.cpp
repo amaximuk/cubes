@@ -55,7 +55,7 @@ bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
 
 	QDomElement root = doc.documentElement();
 	if (!GetFile(root, fi_))
-		ELRC(false, ParserErrorType::parseFailed, "File parse failed");
+		ELRC(false, ParserErrorType::fileParseFailed, "File parse failed");
 
 	return true;
 }

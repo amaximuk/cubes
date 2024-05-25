@@ -215,7 +215,7 @@ namespace CubesXml
 	enum class ParserErrorType
 	{
 		ok = 0,
-		parseFailed = 1000,
+		fileParseFailed = 1000,
 		fileOpenFailed,
 		getIncludesFailed,
 		getConfigFailed,
@@ -252,5 +252,35 @@ namespace CubesXml
 		unitParamValEmpty,
 		getItemFailed,
 		unitDependsItemEmpty
+	};
+
+	enum class WriterErrorType
+	{
+		ok = 0,
+		fileSetFailed = 1000,
+		bufferWriteFailed,
+		fileOpenFailed,
+		fileWriteFailed,
+		setIncludesFailed,
+		setConfigFailed,
+		setNetworkingFailed,
+		setLogFailed,
+		setGroupFailed,
+		setUnitFailed,
+		setParamFailed,
+		setDependsFailed,
+		setItemFailed,
+		setArrayFailed
+	};
+
+	enum class HelperErrorType
+	{
+		ok = 0,
+		fileParseFailed = 1000,
+		invalidArgument,
+		arrayItemNotFound,
+		unitParametersMalformed,
+		bufferWriteFailed,
+		fileWriteFailed
 	};
 }

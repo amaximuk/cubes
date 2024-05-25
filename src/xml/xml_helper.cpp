@@ -12,17 +12,16 @@
 #include "xml_helper.h"
 
 using namespace CubesXml;
-//using namespace CubesXml::Helper;
 
-#define ELRC(retcode, message) do {\
+#define ELRC(retcode, errcode, message) do {\
 		std::stringstream ss;\
 		ss << message;\
 		if (logManager != nullptr)\
 		{\
 			CubesLog::LogMessage lm{};\
 			lm.type = CubesLog::MessageType::error;\
-			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlHelper, 1000);\
-			lm.source = CubesLog::SourceType::xmlHelper;\
+			lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlHelper, static_cast<uint32_t>(errcode));\
+			lm.source = CubesLog::SourceType::xmlParser;\
 			lm.description = QString::fromStdString(ss.str());\
 			lm.tag = CubesUnitTypes::InvalidUniversalId;\
 			logManager->AddMessage(lm);\
@@ -34,7 +33,7 @@ bool Helper::Parse(QByteArray& byteArray, const QString& fileName, File& fi, Cub
 {
 	Parser parser(logManager);
 	if (!parser.Parse(byteArray, fileName))
-		ELRC(false, "Parsing failed (" << fileName.toStdString() << ")");
+		ELRC(false, HelperErrorType::fileParseFailed, "Parsing failed (" << fileName.toStdString() << ")");
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
@@ -43,7 +42,7 @@ bool Helper::Parse(const QString& fileName, File& fi, CubesLog::ILogManager* log
 {
 	Parser parser(logManager);
 	if (!parser.Parse(fileName))
-		ELRC(false, "Parsing failed (" << fileName.toStdString() << ")");
+		ELRC(false, HelperErrorType::fileParseFailed, "Parsing failed (" << fileName.toStdString() << ")");
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
@@ -54,9 +53,9 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 
 	auto ss = id.split();
 	if (ss.isEmpty())
-		ELRC(false, "ParameterModelId is empty");
+		ELRC(false, HelperErrorType::invalidArgument, "ParameterModelId is empty");
 	if (ss.front() != ids.parameters)
-		ELRC(false, "Must be started with parameters");
+		ELRC(false, HelperErrorType::invalidArgument, "Must be started with parameters");
 	ss.pop_front();
 
 	// –аскручиваем путь к параметру из id, внутри структуры Unit
@@ -96,7 +95,7 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				arrays = &array->items[index].arrays;
 			}
 			else
-				ELRC(false, "Array item not found");
+				ELRC(false, HelperErrorType::arrayItemNotFound, "Array item not found");
 
 			array = nullptr;
 			inside_array = false;
@@ -113,7 +112,7 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				if (s == p.name)
 				{
 					if (ss.size() != 1)
-						ELRC(false, "Not last part of id must be array");
+						ELRC(false, HelperErrorType::unitParametersMalformed, "Not last part of id must be array");
 
 					// Ќашли искомый параметр
 					element = {};
@@ -389,7 +388,7 @@ bool Helper::Write(QByteArray& buffer, const File& fi, CubesLog::ILogManager* lo
 {
 	Writer writer(logManager);
 	if (!writer.Write(buffer, fi))
-		ELRC(false, "Write failed (" << fi.fileName.toStdString() << ")");
+		ELRC(false, HelperErrorType::bufferWriteFailed, "Buffer write failed (" << fi.fileName.toStdString() << ")");
 	return true;
 }
 
@@ -397,6 +396,6 @@ bool Helper::Write(const QString& filename, const File& fi, CubesLog::ILogManage
 {
 	Writer writer(logManager);
 	if (!writer.Write(filename, fi))
-		ELRC(false, "Write failed (" << fi.fileName.toStdString() << ")");
+		ELRC(false, HelperErrorType::fileWriteFailed, "File write failed (" << fi.fileName.toStdString() << ")");
 	return true;
 }
