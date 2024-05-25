@@ -12,14 +12,14 @@ namespace CubesLog
     class LogTableModel : public QAbstractTableModel
     {
     private:
-        QVector<LogMessage> log_messages_;
+        QVector<Message> log_messages_;
 
     public:
         explicit LogTableModel(QObject* parent = nullptr);
 
     public:
-        void AddMessage(const LogMessage& message);
-        bool GetMessage(int row, LogMessage& message);
+        void AddMessage(const Message& message);
+        bool GetMessage(int row, Message& message);
         void Clear();
 
     private:

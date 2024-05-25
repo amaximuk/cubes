@@ -16,11 +16,11 @@ using namespace CubesXml;
 #define CFRC(retcode, function) do { function; return retcode; } while(0)
 
 static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
-	const QString& details, const QVector<CubesLog::LogVariable>& variables)
+	const QString& details, const QVector<CubesLog::Variable>& variables)
 {
 	if (logManager != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
 			CubesLog::SourceType::xmlHelper, static_cast<uint32_t>(errorCode));
@@ -45,7 +45,7 @@ static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCod
 }
 
 static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
-	const QVector<CubesLog::LogVariable>& variables)
+	const QVector<CubesLog::Variable>& variables)
 {
 	LogError(logManager, errorCode, {}, variables);
 }

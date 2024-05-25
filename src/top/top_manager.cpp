@@ -159,7 +159,7 @@ bool TopManager::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prope
 }
 
 // ILogManager
-void TopManager::AddMessage(const CubesLog::LogMessage& m)
+void TopManager::AddMessage(const CubesLog::Message& m)
 {
 }
 
@@ -187,7 +187,7 @@ void TopManager::FillParametersInfo(const QString& parametersPath)
                 parameters::file_info fi{};
                 if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
                 {
-                    CubesLog::LogMessage lm{};
+                    CubesLog::Message lm{};
                     lm.type = CubesLog::MessageType::error;
                     lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::topManager,
                         static_cast<uint32_t>(MessageId::parametersFileInvalid));
@@ -300,7 +300,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             }
             else
             {
-                CubesLog::LogMessage lm{};
+                CubesLog::Message lm{};
                 lm.type = CubesLog::MessageType::error;
                 lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::topManager,
                     static_cast<uint32_t>(MessageId::noParametersFile));
@@ -873,7 +873,7 @@ void TopManager::PropertiesPositionChanged(CubesUnitTypes::PropertiesId properti
 
 void TopManager::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
-    //CubesLog::LogMessage lm{};
+    //CubesLog::Message lm{};
     //lm.type = CubesLog::MessageType::error;
     //lm.tag = 0;
     //lm.source = QString("%1").arg(propertiesId);

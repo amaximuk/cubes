@@ -61,7 +61,7 @@ namespace CubesTop
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
         // ILogManager
-        virtual void AddMessage(const CubesLog::LogMessage& m) override;
+        virtual void AddMessage(const CubesLog::Message& m) override;
 
     private:
         // Заполнение параметров юнитов

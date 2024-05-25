@@ -221,7 +221,7 @@ bool MainWindow::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prope
 }
 */
 // ILogManager
-void MainWindow::AddMessage(const CubesLog::LogMessage& m)
+void MainWindow::AddMessage(const CubesLog::Message& m)
 {
     TopManager::AddMessage(m);
 
@@ -946,7 +946,7 @@ void MainWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, cons
 {
     TopManager::PropertiesError(propertiesId, message);
 
-    CubesLog::LogMessage lm{};
+    CubesLog::Message lm{};
     lm.type = CubesLog::MessageType::error;
     lm.source = CubesLog::SourceType::propertiesManager;
     lm.description = message;
@@ -1203,7 +1203,7 @@ void MainWindow::OnInformationButtonClicked(bool checked)
 
 void MainWindow::OnDoubleClicked(const QModelIndex& index)
 {
-    CubesLog::LogMessage m{};
+    CubesLog::Message m{};
     const auto mapped = sort_filter_model_->mapToSource(index);
     if (log_table_model_->GetMessage(mapped.row(), m))
     {

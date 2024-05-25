@@ -177,7 +177,7 @@ void PropertiesItemsAnalysis::LogError(const CubesUnitTypes::PropertiesId proper
 {
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesAnalysis, id);
 		lm.source = CubesLog::SourceType::propertiesAnalysis;

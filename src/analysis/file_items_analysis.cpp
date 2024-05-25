@@ -179,7 +179,7 @@ void FileItemsAnalysis::LogError(const CubesUnitTypes::FileId fileId, CubesAnaly
 {
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis, id);
 		lm.source = CubesLog::SourceType::fileAnalysis;

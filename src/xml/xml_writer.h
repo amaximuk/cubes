@@ -37,9 +37,9 @@ namespace CubesXml
 
 	private:
 		void LogError(CubesXml::WriterErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::LogVariable>& variables);
+			const QVector<CubesLog::Variable>& variables);
 		void LogError(CubesXml::WriterErrorCode errorCode);
 		void LogError(CubesXml::WriterErrorCode errorCode, const QString& details);
-		void LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::LogVariable>& variables);
+		void LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::Variable>& variables);
 	};
 }

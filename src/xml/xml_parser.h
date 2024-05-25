@@ -40,9 +40,9 @@ namespace CubesXml
 
 	private:
 		void LogError(CubesXml::ParserErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::LogVariable>& variables);
+			const QVector<CubesLog::Variable>& variables);
 		void LogError(CubesXml::ParserErrorCode errorCode);
 		void LogError(CubesXml::ParserErrorCode errorCode, const QString& details);
-		void LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::LogVariable>& variables);
+		void LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::Variable>& variables);
 	};
 }

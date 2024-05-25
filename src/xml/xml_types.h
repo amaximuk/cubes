@@ -1,5 +1,9 @@
 #pragma once
 
+#include <QString>
+#include <QPair>
+#include <QList>
+
 namespace CubesXml
 {
 	/*<Includes>

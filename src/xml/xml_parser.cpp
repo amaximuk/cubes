@@ -528,11 +528,11 @@ QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QStr
 }
 
 void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::LogVariable>& variables)
+	const QVector<CubesLog::Variable>& variables)
 {
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
 			CubesLog::SourceType::xmlParser, static_cast<uint32_t>(errorCode));
@@ -555,7 +555,7 @@ void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QString& detail
 	LogError(errorCode, details, {});
 }
 
-void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::LogVariable>& variables)
+void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
 {
 	LogError(errorCode, {}, variables);
 }

@@ -30,7 +30,7 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 //{
 //	if (logManager_ != nullptr)
 //	{
-//		CubesLog::LogMessage lm{};
+//		CubesLog::Message lm{};
 //		lm.type = CubesLog::MessageType::error;
 //		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis, id);
 //		lm.source = CubesLog::SourceType::fileAnalysis;
@@ -45,7 +45,7 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 //{
 //	if (logManager_ != nullptr)
 //	{
-//		CubesLog::LogMessage lm{};
+//		CubesLog::Message lm{};
 //		lm.type = CubesLog::MessageType::error;
 //		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesAnalysis, id);
 //		lm.source = CubesLog::SourceType::propertiesAnalysis;

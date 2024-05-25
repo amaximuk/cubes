@@ -10,7 +10,7 @@ LogTableModel::LogTableModel(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
-void LogTableModel::AddMessage(const LogMessage& message)
+void LogTableModel::AddMessage(const Message& message)
 {
     beginInsertRows(QModelIndex(), log_messages_.size(), log_messages_.size());
     log_messages_.push_back(message);
@@ -26,7 +26,7 @@ void LogTableModel::AddMessage(const LogMessage& message)
     //log_messages[log_messages.size() - 1] = message;
 }
 
-bool LogTableModel::GetMessage(int row, LogMessage& message)
+bool LogTableModel::GetMessage(int row, Message& message)
 {
     if (row < log_messages_.size())
     {

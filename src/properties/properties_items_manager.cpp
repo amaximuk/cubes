@@ -68,7 +68,7 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::create));
@@ -97,7 +97,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::create));
@@ -126,7 +126,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::create));
@@ -172,7 +172,7 @@ void PropertiesItemsManager::Remove(CubesUnitTypes::PropertiesId propertiesId)
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::remove));
@@ -466,7 +466,7 @@ void PropertiesItemsManager::Clear()
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::clear));
@@ -637,7 +637,7 @@ void PropertiesItemsManager::AfterError(CubesUnitTypes::PropertiesId propertiesI
 {
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesManager,
 			static_cast<uint32_t>(MessageId::create));

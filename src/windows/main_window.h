@@ -53,7 +53,7 @@ public:
     bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
 
     // ILogManager
-    void AddMessage(const CubesLog::LogMessage& m) override;
+    void AddMessage(const CubesLog::Message& m) override;
 
 private:
     void closeEvent(QCloseEvent* event) override;

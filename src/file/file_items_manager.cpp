@@ -102,7 +102,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
 			static_cast<uint32_t>(MessageId::create));
@@ -131,7 +131,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
 			static_cast<uint32_t>(MessageId::create));
@@ -178,7 +178,7 @@ void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
 			static_cast<uint32_t>(MessageId::remove));
@@ -291,7 +291,7 @@ void FileItemsManager::Clear()
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
 			static_cast<uint32_t>(MessageId::clear));
@@ -552,7 +552,7 @@ void FileItemsManager::OnRemoveFileClicked()
 
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::information;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
 			static_cast<uint32_t>(MessageId::remove));

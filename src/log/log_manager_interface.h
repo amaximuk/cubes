@@ -10,6 +10,6 @@ namespace CubesLog
         virtual ~ILogManager() = default;
 
     public:
-        virtual void AddMessage(const LogMessage& m) = 0;
+        virtual void AddMessage(const Message& m) = 0;
     };
 }

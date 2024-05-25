@@ -399,11 +399,11 @@ bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 }
 
 void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::LogVariable>& variables)
+	const QVector<CubesLog::Variable>& variables)
 {
 	if (logManager_ != nullptr)
 	{
-		CubesLog::LogMessage lm{};
+		CubesLog::Message lm{};
 		lm.type = CubesLog::MessageType::error;
 		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
 			CubesLog::SourceType::xmlWriter, static_cast<uint32_t>(errorCode));
@@ -426,7 +426,7 @@ void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& detail
 	LogError(errorCode, details, {});
 }
 
-void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::LogVariable>& variables)
+void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
 {
 	LogError(errorCode, {}, variables);
 }
