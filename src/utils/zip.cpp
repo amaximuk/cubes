@@ -94,6 +94,7 @@ bool CubesZip::GetZippedFileNames(const QString& zipFilePath, QList<QString>& fi
 
 bool CubesZip::UnZipFile(const QString& zipFilePath, const QString& srcFileName, QByteArray& byteArray)
 {
+	bool result = false;
     zipFile zip = unzOpen(zipFilePath.toStdString().c_str());
     if (zip)
     {
@@ -117,10 +118,9 @@ bool CubesZip::UnZipFile(const QString& zipFilePath, const QString& srcFileName,
                         {
                             byteArray.resize(fileInfo.uncompressed_size);
                             int readBytes = unzReadCurrentFile(zip, byteArray.data(), byteArray.size());
-                            if (readBytes != fileInfo.uncompressed_size)
-                                return false;
-                            else
-                                return true;
+                            if (readBytes == fileInfo.uncompressed_size)
+								result = true;
+							break;
                         }
                     }
 
@@ -131,40 +131,5 @@ bool CubesZip::UnZipFile(const QString& zipFilePath, const QString& srcFileName,
         unzClose(zip);
     }
 
-    return false;
-
-
-    //zipFile zip = unzOpen(zipFilePath.toStdString().c_str());
-    //if (zip) {
-    //    if (unzGoToFirstFile(zip) == UNZ_OK) {
-    //        do {
-    //            if (unzOpenCurrentFile(zip) == UNZ_OK) {
-    //                unz_file_info fileInfo;
-    //                memset(&fileInfo, 0, sizeof(unz_file_info));
-
-    //                if (unzGetCurrentFileInfo(zip, &fileInfo, NULL, 0, NULL, 0, NULL, 0) == UNZ_OK) {
-    //                    char* filename = (char*)malloc(fileInfo.size_filename + 1);
-    //                    unzGetCurrentFileInfo(zip, &fileInfo, filename, fileInfo.size_filename + 1, NULL, 0, NULL, 0);
-    //                    filename[fileInfo.size_filename] = '\0';
-
-    //                    // At this point filename contains the full path of the file.
-    //                    // If you only want files from a particular folder then you should compare
-    //                    // against this filename and discards the files you don't want. 
-    //                    //if (matchFolder(filename)) {
-    //                    //    unsigned char buffer[4096];
-    //                    //    int readBytes = unzReadCurrentFile(zip, buffer, 4096);
-    //                    //    // Do the rest of your file reading and saving here.
-    //                    //}
-
-    //                    free(filename);
-    //                }
-
-    //                unzCloseCurrentFile(zip);
-    //            }
-    //        } while (unzGoToNextFile(zip) == UNZ_OK);
-    //    }
-    //    unzClose(zip);
-    //}
-
-    //return true;
+    return result;
 }
