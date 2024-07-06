@@ -18,6 +18,7 @@ private:
     QVector<CubesLog::Message> messages_;
 
 public:
+    explicit MockWindow();
     explicit MockWindow(const QString& parametersPath);
     ~MockWindow() override;
 

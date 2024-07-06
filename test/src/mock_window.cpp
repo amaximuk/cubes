@@ -13,6 +13,11 @@
 #include "xml/xml_helper.h"
 #include "mock_window.h"
 
+MockWindow::MockWindow()
+    : MockWindow("")
+{
+}
+
 MockWindow::MockWindow(const QString& parametersPath)
     : TopManager(false, true, parametersPath)
 {

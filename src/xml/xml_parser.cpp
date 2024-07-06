@@ -37,7 +37,8 @@ bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
 	}
 
 	QDomDocument doc;
-	doc.setContent(xmlText);
+	if (!doc.setContent(xmlText))
+		CFRC(false, LogError(ParserErrorCode::fileParseFailed, { {"File name", fi_.fileName} }));
 
 	QDomElement root = doc.documentElement();
 	if (!GetFile(root, fi_))
@@ -70,8 +71,6 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 		QDomElement ne = n.toElement();
 		if (!ne.isNull())
 		{
-			qDebug() << ne.tagName();
-
 			if (ne.tagName() == "Includes")
 			{
 				if (!GetIncludes(ne, fi.includes))
@@ -167,7 +166,7 @@ bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform
 			{
 				config.networkingIsSet = true;
 				if (!GetNetworking(ei, config.networking))
-					CFRC(false, LogError(ParserErrorCode::getNetworkFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, LogError(ParserErrorCode::getNetworkingFailed, { {"File name", fi_.fileName} }));
 			}
 			else if (ei.tagName() == "Log")
 			{

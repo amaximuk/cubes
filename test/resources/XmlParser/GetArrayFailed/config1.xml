@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Config>
+	<!--Remote transport config-->
+	<Networking id="1005" accept_port="62222" keep_alive_sec="30000">
+	</Networking>
+	<Log>
+		<!-- 
+		0 - LOG_TRACE  
+		1 - LOG_DEBUG  
+		2 - LOG_INFO   
+		3 - LOG_WARNING
+		4 - LOG_ERROR  
+		5 - LOG_FATAL  
+		-->
+		<Param name="LoggingLevel" type="int" val="0"/>
+		<Param name="TOTAL_LOG_LIMIT_MB" type="int" val="500"/>
+	</Log>
+	
+	<!--Units config-->
+	<Units>
+		<!--Tests-->
+		<Group>
+			<Param name="Path" type="str" val="Tests"/>
+
+			<Unit Name="Test1" Id="test1">
+				<Param name="PARAMETER1" type="str" val="Unit1" depends="true"/>
+				<Param name="PARAMETER2" type="str" val="Unit2" depends="true"/>
+				<Array name="ARRAY1">
+					<Item>
+						<Param type="str" val="Unit1" depends="true"/>
+					</Item>
+				</Array>
+			</Unit>
+		</Group>
+		<!--Tests-->
+	</Units>
+</Config>

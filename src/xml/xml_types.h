@@ -229,7 +229,7 @@ namespace CubesXml
 		includesIncludeVariableNameEmpty,
 		includesIncludeVariableValEmpty,
 		includesIncludeVariableNameDuplicate,
-		getNetworkFailed,
+		getNetworkingFailed,
 		getLogFailed,
 		getUnitsFailed,
 		configChildUnknown,
@@ -273,7 +273,7 @@ namespace CubesXml
 		case ParserErrorCode::includesIncludeVariableNameEmpty: return "Includes/Include/Variable name is empty";
 		case ParserErrorCode::includesIncludeVariableValEmpty: return "Includes/Include/Variable val is empty";
 		case ParserErrorCode::includesIncludeVariableNameDuplicate: return "Includes/Include/Variable name duplicate";
-		case ParserErrorCode::getNetworkFailed: return "Get Networking failed";
+		case ParserErrorCode::getNetworkingFailed: return "Get Networking failed";
 		case ParserErrorCode::getLogFailed: return "Get Log failed";
 		case ParserErrorCode::getUnitsFailed: return "Get Units failed";
 		case ParserErrorCode::configChildUnknown: return "Config have unknown child";

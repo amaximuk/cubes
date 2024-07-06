@@ -65,7 +65,7 @@ namespace CubesTop
 
     private:
         // Заполнение параметров юнитов
-        void FillParametersInfo(const QString& parametersPath);
+        void FillParametersInfo(const QString& parametersPath, bool isMock);
 
     protected:
         // Добавление юнитов

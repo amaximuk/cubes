@@ -23,7 +23,7 @@
 			<Param name="Path" type="str" val="Tests"/>
 
 			<Unit Name="Test1" Id="test1">
-				<Param name="PARAMETER1" type="str" val="Unit1" depends="true"/>
+				<Param name="PARAMETER1" type="str" val="" depends="true"/>
 				<Param name="PARAMETER2" type="str" val="Unit2" depends="true"/>
 			</Unit>
 		</Group>

@@ -41,7 +41,7 @@ TopManager::TopManager(bool isArray, bool isMock, QString path)
     analysisManager_ = new CubesAnalysis::AnalysisManager(this);
 
     if (!isArray)
-        FillParametersInfo(path);
+        FillParametersInfo(path, isMock);
 }
 
 TopManager::~TopManager()
@@ -163,9 +163,10 @@ void TopManager::AddMessage(const CubesLog::Message& m)
 {
 }
 
-void TopManager::FillParametersInfo(const QString& parametersPath)
+void TopManager::FillParametersInfo(const QString& parametersPath, bool isMock)
 {
-    QString path = parametersPath == "" ? QCoreApplication::applicationDirPath() + "/doc/all_units_solid" : parametersPath;
+    QString path = parametersPath == "" && !isMock ? QCoreApplication::applicationDirPath() + "/doc/all_units_solid" :
+        parametersPath == "" ? "units" : parametersPath;
 
     QString directoryPath(path);
     QStringList platformDirs;
