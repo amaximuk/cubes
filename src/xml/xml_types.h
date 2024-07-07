@@ -3,6 +3,7 @@
 #include <QString>
 #include <QPair>
 #include <QList>
+#include "../log/log_types.h"
 
 namespace CubesXml
 {
@@ -219,7 +220,7 @@ namespace CubesXml
 	enum class ParserErrorCode
 	{
 		ok = 0,
-		fileParseFailed = 1000,
+		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser),
 		fileOpenFailed,
 		getIncludesFailed,
 		getConfigFailed,
@@ -307,7 +308,7 @@ namespace CubesXml
 	enum class WriterErrorCode
 	{
 		ok = 0,
-		fileSetFailed = 1000,
+		fileSetFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter),
 		bufferWriteFailed,
 		fileOpenFailed,
 		fileWriteFailed,
@@ -349,7 +350,7 @@ namespace CubesXml
 	enum class HelperErrorCode
 	{
 		ok = 0,
-		fileParseFailed = 1000,
+		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper),
 		invalidArgument,
 		arrayItemNotFound,
 		unitParametersMalformed,

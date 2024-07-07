@@ -187,16 +187,7 @@ void TopManager::FillParametersInfo(const QString& parametersPath, bool isMock)
                 QString fullPath = QDir(ymlPath).filePath(filename);
                 parameters::file_info fi{};
                 if (!parameters::yaml::parser::parse(fullPath.toStdString(), false, fi))
-                {
-                    CubesLog::Message lm{};
-                    lm.type = CubesLog::MessageType::error;
-                    lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::topManager,
-                        static_cast<uint32_t>(MessageId::parametersFileInvalid));
-                    lm.source = CubesLog::SourceType::topManager;
-                    lm.description = QString::fromLocal8Bit("Файл параметров %1 не разобран. Параметры не добавлены.").arg(fullPath);
-                    lm.tag = 0;
-                    AddMessage(lm);
-                }
+                    LogError(TopManagerErrorCode::parametersFileInvalid, { {"File name", fullPath} });
 
                 // Добавляем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
                 // Принцип обработки такой же как и у остальных параметров
@@ -301,14 +292,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             }
             else
             {
-                CubesLog::Message lm{};
-                lm.type = CubesLog::MessageType::error;
-                lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::topManager,
-                    static_cast<uint32_t>(MessageId::noParametersFile));
-                lm.source = CubesLog::SourceType::topManager;
-                lm.description = QString::fromLocal8Bit("Нет файла параметров для юнита %1 (%2). Юнит не добавлен.").arg(u.name, u.id);
-                lm.tag = CubesUnitTypes::InvalidUniversalId;
-                AddMessage(lm);
+                LogError(TopManagerErrorCode::noParametersFile, { {"Unit name", u.name}, {"Unit id", u.id}});
             }
         }
     }
@@ -501,14 +485,20 @@ bool TopManager::SaveFile(const QString& path)
             if (is_first)
             {
                 if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Create))
+                {
+                    LogError(TopManagerErrorCode::zipFileError, { {"Xml file name", xmlFileName}, {"Zip file name", xmlZipFilePath} });
                     return false;
+                }
 
                 is_first = false;
             }
             else
             {
                 if (!CubesZip::ZipFile(byteArray, xmlFileName, xmlZipFilePath, CubesZip::ZipMethod::Append))
+                {
+                    LogError(TopManagerErrorCode::zipFileError, { {"Xml file name", xmlFileName}, {"Zip file name", xmlZipFilePath} });
                     return false;
+                }
             }
             //CubesXml::Writer::Write(xmlFileName, xmlFile);
             //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
@@ -888,4 +878,34 @@ void TopManager::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId proper
 
 void TopManager::PropertiesPropertiesChanged()
 {
+}
+
+void TopManager::LogError(TopManagerErrorCode errorCode, const QString& details,
+    const QVector<CubesLog::Variable>& variables)
+{
+    CubesLog::Message lm{};
+    lm.type = CubesLog::MessageType::error;
+    lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
+        CubesLog::SourceType::topManager, static_cast<uint32_t>(errorCode));
+    lm.source = CubesLog::SourceType::topManager;
+    lm.description = GetTopManagerErrorDescription(errorCode);
+    lm.details = details;
+    lm.variables = variables;
+    lm.tag = CubesUnitTypes::InvalidUniversalId;
+    AddMessage(lm);
+}
+
+void TopManager::LogError(TopManagerErrorCode errorCode)
+{
+    LogError(errorCode, {}, {});
+}
+
+void TopManager::LogError(TopManagerErrorCode errorCode, const QString& details)
+{
+    LogError(errorCode, details, {});
+}
+
+void TopManager::LogError(TopManagerErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
+{
+    LogError(errorCode, {}, variables);
 }

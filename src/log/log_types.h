@@ -33,6 +33,8 @@ namespace CubesLog
             return "XML Helper";
         case SourceType::xmlParser:
             return "XML Parser";
+        case SourceType::xmlWriter:
+            return "XML Writer";
         case SourceType::fileAnalysis:
             return "File Analysis";
         case SourceType::propertiesAnalysis:
@@ -58,6 +60,8 @@ namespace CubesLog
             return "XH";
         case SourceType::xmlParser:
             return "XP";
+        case SourceType::xmlWriter:
+            return "XW";
         case SourceType::fileAnalysis:
             return "FA";
         case SourceType::propertiesAnalysis:
@@ -65,6 +69,30 @@ namespace CubesLog
         default:
             return QString("%1").arg(static_cast<int>(sourceType));
         }
+    }
+
+    inline constexpr uint32_t GetSourceTypeCodeOffset(SourceType sourceType)
+    {
+        if (sourceType == SourceType::unknown)
+            return 0;
+        else if (sourceType == SourceType::topManager)
+            return 10000;
+        else if (sourceType == SourceType::fileManager)
+            return 20000;
+        else if (sourceType == SourceType::propertiesManager)
+            return 30000;
+        else if (sourceType == SourceType::xmlHelper)
+            return 40000;
+        else if (sourceType == SourceType::xmlParser)
+            return 50000;
+        else if (sourceType == SourceType::xmlWriter)
+            return 60000;
+        else if (sourceType == SourceType::fileAnalysis)
+            return 70000;
+        else if (sourceType == SourceType::propertiesAnalysis)
+            return 80000;
+        else
+            return 0;
     }
 
     inline uint qHash(SourceType key, uint seed)

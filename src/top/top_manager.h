@@ -16,14 +16,6 @@ namespace CubesTop
 {
     class TopManager : public ITopManager, public CubesLog::ILogManager
     {
-    private:
-        enum class MessageId
-        {
-            unknown = 10000,
-            parametersFileInvalid,
-            noParametersFile
-        };
-
     protected:
         uint32_t uniqueNumber_;
 
@@ -109,5 +101,12 @@ namespace CubesTop
         virtual void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
         virtual void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
         virtual void PropertiesPropertiesChanged();
+
+    private:
+        void LogError(TopManagerErrorCode errorCode, const QString& details,
+            const QVector<CubesLog::Variable>& variables);
+        void LogError(TopManagerErrorCode errorCode);
+        void LogError(TopManagerErrorCode errorCode, const QString& details);
+        void LogError(TopManagerErrorCode errorCode, const QVector<CubesLog::Variable>& variables);
     };
 }

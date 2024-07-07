@@ -103,6 +103,14 @@ bool MockWindow::ImportXml(const QString& path)
     return true;
 }
 
+bool MockWindow::Test()
+{
+    if (!TopManager::Test())
+        return false;
+
+    return true;
+}
+
 QVector<CubesLog::Message> MockWindow::GetMessages()
 {
     return messages_;

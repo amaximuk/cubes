@@ -8,39 +8,40 @@ using namespace CubesAnalysis;
 PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
+	//constexpr uint32_t start_id = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis);
 
 	{
 		Rule rule{};
-		rule.id = 2000;
-		rule.name = QString::fromLocal8Bit("Имена юнитов заданы");
-		rule.description = QString::fromLocal8Bit("Каждый юнит должен иметь имя");
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::noUnitName);
+		rule.description = QString::fromLocal8Bit("Имена юнитов заданы");
+		rule.detailes = QString::fromLocal8Bit("Каждый юнит должен иметь имя");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&PropertiesItemsAnalysis::IsAllUnitsHaveName, this, rule);
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsAllUnitsHaveName, this, rule);
 	}
 
-	{
-		Rule rule{};
-		rule.id = 2001;
-		rule.name = QString::fromLocal8Bit("Уникальность имен файлов");
-		rule.description = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
-		rule.isActive = true;
-		rules_.push_back(rule);
+	//{
+	//	Rule rule{};
+	//	rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
+	//	rule.description = QString::fromLocal8Bit("Уникальность имен файлов");
+	//	rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
+	//	rule.isActive = true;
+	//	rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&PropertiesItemsAnalysis::IsFileNamesUnique, this, rule);
-	}
+	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsFileNamesUnique, this, rule);
+	//}
 
-	{
-		Rule rule{};
-		rule.id = 2002;
-		rule.name = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
-		rule.description = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
-		rule.isActive = true;
-		rules_.push_back(rule);
+	//{
+	//	Rule rule{};
+	//	rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
+	//	rule.description = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
+	//	rule.detailes = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
+	//	rule.isActive = true;
+	//	rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&PropertiesItemsAnalysis::IsFileIdUnique, this, rule);
-	}
+	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsFileIdUnique, this, rule);
+	//}
 
 	// Имена юнитов должжны быть заданы
 	// Имя содержит только английские буквы, цифры, знак / и паременные в формате @xxx@
@@ -83,7 +84,7 @@ QVector<Rule> PropertiesItemsAnalysis::GetAllRules()
 	return rules_;
 }
 
-bool PropertiesItemsAnalysis::RunRuleTest(RuleId id)
+bool PropertiesItemsAnalysis::RunRuleTest(uint32_t id)
 {
 	const auto& delegate = delegates_.find(id);
 	if (delegate != delegates_.end())
@@ -97,7 +98,7 @@ bool PropertiesItemsAnalysis::RunAllTests()
 	bool result = true;
 	for (const auto& rule : rules_)
 	{
-		if (!RunRuleTest(rule.id))
+		if (!RunRuleTest(rule.errorCode))
 			result = false;
 	}
 
@@ -114,8 +115,7 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 		const auto unitId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
-			QString message = rule.description + QString::fromLocal8Bit("\nТип юнита: %1").arg(unitId);
-			LogError(kvp.first, rule.id, message);
+			LogError(rule, { {"Тип юнита", unitId} }, kvp.first);
 			result = false;
 		}
 	}
@@ -172,17 +172,21 @@ bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
 	return result;
 }
 
-void PropertiesItemsAnalysis::LogError(const CubesUnitTypes::PropertiesId propertiesId,
-	CubesAnalysis::RuleId id, const QString& message)
+void PropertiesItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
 {
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesAnalysis, id);
-		lm.source = CubesLog::SourceType::propertiesAnalysis;
-		lm.description = message;
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	CubesLog::Message lm{};
+	lm.type = CubesLog::MessageType::error;
+	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
+		CubesLog::SourceType::propertiesAnalysis, static_cast<uint32_t>(rule.errorCode));
+	lm.source = CubesLog::SourceType::propertiesAnalysis;
+	lm.description = rule.description;
+	lm.details = rule.detailes;
+	lm.variables = variables;
+	lm.tag = tag;
+	logManager_->AddMessage(lm);
+}
+
+void PropertiesItemsAnalysis::LogError(const Rule& rule)
+{
+	LogError(rule, {}, {});
 }

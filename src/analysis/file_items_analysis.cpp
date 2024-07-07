@@ -8,38 +8,39 @@ using namespace CubesAnalysis;
 FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
-	
+	//constexpr uint32_t start_id = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis);
+
 	{
 		Rule rule{};
-		rule.id = 1000;
-		rule.name = QString::fromLocal8Bit("Наличие основного конфигурационного файла");
-		rule.description = QString::fromLocal8Bit("В проекте должен быть как миинимум один файл");
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
+		rule.description = QString::fromLocal8Bit("Наличие основного конфигурационного файла");
+		rule.detailes = QString::fromLocal8Bit("В проекте должен быть как миинимум один файл");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsHaveAtLeastOneMainConfig, this, rule);
+		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsHaveAtLeastOneMainConfig, this, rule);
 	}
 
 	{
 		Rule rule{};
-		rule.id = 1001;
-		rule.name = QString::fromLocal8Bit("Уникальность имен файлов");
-		rule.description = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileNameNotUnique);
+		rule.description = QString::fromLocal8Bit("Уникальность имени файлов");
+		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsFileNamesUnique, this, rule);
+		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsFileNamesUnique, this, rule);
 	}
 
 	{
 		Rule rule{};
-		rule.id = 1002;
-		rule.name = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
-		rule.description = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileIdNotUnique);
+		rule.description = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
+		rule.detailes = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.id] = std::bind(&FileItemsAnalysis::IsFileIdUnique, this, rule);
+		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsFileIdUnique, this, rule);
 	}
 
 	// Проверка, что ip/port соединений указывает на существующий сервер с учетом 127.0.0.1
@@ -58,9 +59,9 @@ QVector<Rule> FileItemsAnalysis::GetAllRules()
 	return rules_;
 }
 
-bool FileItemsAnalysis::RunRuleTest(RuleId id)
+bool FileItemsAnalysis::RunRuleTest(uint32_t errorCode)
 {
-	const auto& delegate = delegates_.find(id);
+	const auto& delegate = delegates_.find(errorCode);
 	if (delegate != delegates_.end())
 		return (*delegate)();
 	
@@ -72,7 +73,7 @@ bool FileItemsAnalysis::RunAllTests()
 	bool result = true;
 	for(const auto& rule : rules_)
 	{
-		if (!RunRuleTest(rule.id))
+		if (!RunRuleTest(rule.errorCode))
 			result = false;
 	}
 
@@ -84,7 +85,7 @@ bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
 	if (!fileModels_.empty())
 		return true;
 
-	LogError(CubesUnitTypes::InvalidFileId, rule.id, rule.description);
+	LogError(rule);
 
 	return false;
 }
@@ -104,9 +105,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 			{
 				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
-					arg(name).arg(fn);
-				LogError(id, rule.id, message);
+				LogError(rule, { {"Имя файла", name}, {"Путь к файлу", fn} }, id);
 				result = false;
 			}
 			else
@@ -131,9 +130,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 				{
 					const auto name = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
-					QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
-						arg(name).arg(fn);
-					LogError(id, rule.id, message);
+					LogError(rule, { {"Имя файла", name}, {"Путь к файлу", fn} }, id);
 					result = false;
 				}
 				else
@@ -160,9 +157,7 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 			{
 				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
-					arg(name).arg(id);
-				LogError(id, rule.id, message);
+				LogError(rule, { {"Имя файла", name}, {"Id хоста", id} }, id);
 				result = false;
 			}
 			else
@@ -175,16 +170,21 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 	return result;
 }
 
-void FileItemsAnalysis::LogError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message)
+void FileItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
 {
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis, id);
-		lm.source = CubesLog::SourceType::fileAnalysis;
-		lm.description = message;
-		lm.tag = fileId;
-		logManager_->AddMessage(lm);
-	}
+	CubesLog::Message lm{};
+	lm.type = CubesLog::MessageType::error;
+	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
+		CubesLog::SourceType::fileAnalysis, static_cast<uint32_t>(rule.errorCode));
+	lm.source = CubesLog::SourceType::fileAnalysis;
+	lm.description = rule.description;
+	lm.details = rule.detailes;
+	lm.variables = variables;
+	lm.tag = tag;
+	logManager_->AddMessage(lm);
+}
+
+void FileItemsAnalysis::LogError(const Rule& rule)
+{
+	LogError(rule, {}, {});
 }

@@ -2,22 +2,37 @@
 
 #include <QString>
 #include "../unit/unit_types.h"
+#include "../log/log_types.h"
 
 namespace CubesAnalysis
 {
-	using RuleId = uint32_t;
-	constexpr RuleId InvalidRuleId = 0;
+	//using RuleId = uint32_t;
+	//constexpr RuleId InvalidRuleId = 0;
+	enum class FileAnalysisErrorCode
+	{
+		ok = 0,
+		noMainConfig = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis),
+		fileNameNotUnique,
+		fileIdNotUnique
+	};
+
+	enum class PropertiesAnalysisErrorCode
+	{
+		ok = 0,
+		noUnitName = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)
+	};
 
 	struct Rule
 	{
-		RuleId id;
-		QString name;
+		uint32_t errorCode;
+		//RuleId id; // errorCode
 		QString description;
+		QString detailes;
 		bool isActive;
 
 		Rule()
 		{
-			id = InvalidRuleId;
+			errorCode = 0;
 			isActive = true;
 		}
 	};

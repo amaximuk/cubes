@@ -38,6 +38,7 @@ public:
     bool OpenFile(const QString& path) override;
     bool OpenFolder(const QString& path) override;
     bool ImportXml(const QString& path) override;
+    bool Test() override;
 
     // Message
     QVector<CubesLog::Message> GetMessages();

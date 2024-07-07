@@ -3,6 +3,7 @@
 #include <QObject>
 #include "analysis_manager_interface.h"
 #include "analysis_types.h"
+#include "../log/log_types.h"
 #include "../unit/unit_types.h"
 
 namespace CubesLog { class ILogManager; }
@@ -16,7 +17,7 @@ namespace CubesAnalysis
     private:
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
-        QMap<RuleId, std::function<bool()>> delegates_;
+        QMap<uint32_t, std::function<bool()>> delegates_;
         CubesUnitTypes::FileIdParameterModels fileModels_;
 
         // Значения имен параметров
@@ -28,7 +29,7 @@ namespace CubesAnalysis
     public:
         void SetFiles(const CubesUnitTypes::FileIdParameterModels& files);
         QVector<Rule> GetAllRules();
-        bool RunRuleTest(RuleId id);
+        bool RunRuleTest(uint32_t errorCode);
         bool RunAllTests();
 
     public:
@@ -37,6 +38,7 @@ namespace CubesAnalysis
         bool IsFileIdUnique(Rule rule);
 
     private:
-        void LogError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message);
+        void LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t id);
+        void LogError(const Rule& rule);
     };
 }
