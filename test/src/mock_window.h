@@ -7,6 +7,7 @@ namespace CubesUnitTypes { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
 namespace CubesLog { class SortFilterModel; }
 namespace CubesFile { class FileItemsManager; }
+namespace CubesFile { class FileItem; }
 namespace CubesProperties { class PropertiesItemsManager; }
 namespace CubesAnalysis { class AnalysisManager; }
 
@@ -39,6 +40,9 @@ public:
     bool OpenFolder(const QString& path) override;
     bool ImportXml(const QString& path) override;
     bool Test() override;
+
+    // Debug
+    QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> GetFileItems();
 
     // Message
     QVector<CubesLog::Message> GetMessages();

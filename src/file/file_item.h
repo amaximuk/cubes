@@ -27,6 +27,7 @@ namespace CubesFile
         IFileItemsManager* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
         CubesUnitTypes::FileId fileId_;
+        bool isMock_;
 
         // Модель параметров
         CubesUnitTypes::ParameterModels parameterModels_;
@@ -51,8 +52,9 @@ namespace CubesFile
         CubesUnitTypes::IncludeId uniqueNumber_;
 
     public:
-        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId);
-        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnitTypes::FileId fileId);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId, bool isMock);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile,
+            CubesUnitTypes::FileId fileId, bool isMock);
 
     public:
         CubesUnitTypes::FileId GetFileId() { return fileId_; };

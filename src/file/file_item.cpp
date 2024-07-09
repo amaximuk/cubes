@@ -12,11 +12,12 @@
 
 using namespace CubesFile;
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId, bool isMock)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
     fileId_ = fileId;
+    isMock_ = isMock;
     parameterModels_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
@@ -27,11 +28,13 @@ FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor
     notifyManager_ = true;
 }
 
-FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnitTypes::FileId fileId)
+FileItem::FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile,
+    CubesUnitTypes::FileId fileId, bool isMock)
 {
     fileItemsManager_ = fileItemsManager;
     editor_ = editor;
     fileId_ = fileId;
+    isMock_ = isMock;
     parameterModels_ = {};
     ignoreEvents_ = false;
     notifyManager_ = false;
@@ -701,8 +704,11 @@ void FileItem::SetName(QString name, bool setOldName, QString oldName)
     auto pm = GetParameterModel(ids_.base + ids_.name);
     pm->value = name;
 
-    auto pr = GetProperty(pm->id);
-    editor_->SetStringValue(pr, name, setOldName, oldName);
+    if (!isMock_)
+    {
+        auto pr = GetProperty(pm->id);
+        editor_->SetStringValue(pr, name, setOldName, oldName);
+    }
 }
 
 void FileItem::SetPath(QString name, bool setOldName, QString oldName)

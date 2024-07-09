@@ -1,5 +1,6 @@
 #include <QFileInfo>
 #include "../log/log_manager_interface.h"
+#include "../file/file_item.h"
 #include "analysis_types.h"
 #include "file_items_analysis.h"
 
@@ -54,6 +55,11 @@ void FileItemsAnalysis::SetFiles(const CubesUnitTypes::FileIdParameterModels& fi
 	fileModels_ = files;
 }
 
+void FileItemsAnalysis::SetFileItems(QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> files)
+{
+	fileItems_ = files;
+}
+
 QVector<Rule> FileItemsAnalysis::GetAllRules()
 {
 	return rules_;
@@ -105,7 +111,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 			{
 				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				LogError(rule, { {"Имя файла", name}, {"Путь к файлу", fn} }, id);
+				LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Путь к файлу"), fn} }, id);
 				result = false;
 			}
 			else
@@ -130,7 +136,7 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 				{
 					const auto name = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
-					LogError(rule, { {"Имя файла", name}, {"Путь к файлу", fn} }, id);
+					LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Путь к файлу"), fn} }, id);
 					result = false;
 				}
 				else
@@ -157,7 +163,7 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 			{
 				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
 				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				LogError(rule, { {"Имя файла", name}, {"Id хоста", id} }, id);
+				LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Id хоста"), id} }, id);
 				result = false;
 			}
 			else

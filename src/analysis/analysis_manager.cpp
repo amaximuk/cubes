@@ -20,6 +20,7 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 	const CubesUnitTypes::UnitIdUnitParameters& unitParameters)
 {
 	fileItemsAnalysis_->SetFiles(fileModels);
+	//fileItemsAnalysis_->SetFileItems(fileModels);
 	fileItemsAnalysis_->RunAllTests();
 
 	propertiesItemsAnalysis_->SetProperties(fileModels, propertiesModels, unitParameters);

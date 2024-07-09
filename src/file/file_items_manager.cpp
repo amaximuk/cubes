@@ -20,6 +20,7 @@ FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::
 {
 	topManager_ = topManager;
 	logManager_ = logManager;
+	isMock_ = isMock;
 	selected_ = CubesUnitTypes::InvalidFileId;
 	uniqueNumber_ = CubesUnitTypes::InvalidFileId;
 
@@ -88,7 +89,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 		platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
 
 
-	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId));
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId, isMock_));
 	fi->SetName(fileName, true, fileName);
 	fi->SetPath(QString("config_%1.xml").arg(fileId));
 	fi->SetColor(color);
@@ -117,7 +118,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 {
 	fileId = ++uniqueNumber_;
 
-	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId, isMock_));
 
 	items_[fileId] = fi;
 	if (selector_ != nullptr)
@@ -300,6 +301,11 @@ void FileItemsManager::Clear()
 		lm.tag = CubesUnitTypes::InvalidUniversalId;
 		logManager_->AddMessage(lm);
 	}
+}
+
+QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> FileItemsManager::GetItems()
+{
+	return items_;
 }
 
 File FileItemsManager::GetFile(const CubesUnitTypes::FileId fileId)

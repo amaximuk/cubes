@@ -31,6 +31,7 @@ namespace CubesFile
 	private:
 		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
+		bool isMock_;
 		QPointer<QWidget> widget_;
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
@@ -71,6 +72,7 @@ namespace CubesFile
 		bool GetFileIncludeVariables(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId,
 			CubesUnitTypes::VariableIdVariables& variables);
 
+		QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> GetItems();
 		File GetFile(const CubesUnitTypes::FileId fileId);
 		CubesXml::File GetXmlFile(const CubesUnitTypes::FileId fileId);
 		bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files);

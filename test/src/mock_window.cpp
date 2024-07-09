@@ -111,6 +111,11 @@ bool MockWindow::Test()
     return true;
 }
 
+QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> MockWindow::GetFileItems()
+{
+    return fileItemsManager_->GetItems();
+}
+
 QVector<CubesLog::Message> MockWindow::GetMessages()
 {
     return messages_;
