@@ -34,9 +34,23 @@ TEST(CUBES, FileAnalysisFileNameNotUnique)
 	// ???????????????????????
 	// Переделать на набор model вместо объектов FileItem
 
-	ASSERT_EQ(fileItems.size(), 2);
-	for (auto item : fileItems)
-		item->SetName("FileName1");
+	// Значения имен параметров
+	CubesUnitTypes::ParameterModelIds ids_;
+
+	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
+	ASSERT_EQ(fileModels.size(), 2);
+	for (auto item : fileModels)
+	{
+		ASSERT_NE(item, nullptr);
+		CubesUnitTypes::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("FileName1");
+	}
+
+
+
+	//ASSERT_EQ(fileItems.size(), 2);
+	//for (auto item : fileItems)
+	//	item->SetName("FileName1");
+
 	ASSERT_TRUE(mockWindow.Test());
 	const auto messages = mockWindow.GetMessages();
 	QVector<QString> codes;

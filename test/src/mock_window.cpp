@@ -116,6 +116,15 @@ QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> MockWindow::Ge
     return fileItemsManager_->GetItems();
 }
 
+CubesUnitTypes::FileIdParameterModelsRef MockWindow::GetFileIdParameterModelsRef()
+{
+    CubesUnitTypes::FileIdParameterModelsRef models{};
+    if (fileItemsManager_->GetParameterModelsRef(models))
+        return models;
+
+    return {};
+}
+
 QVector<CubesLog::Message> MockWindow::GetMessages()
 {
     return messages_;

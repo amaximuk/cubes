@@ -89,7 +89,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 		platform = QString::fromStdString(CubesUnitTypes::platform_names_[0]);
 
 
-	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId, isMock_));
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_, fileId));
 	fi->SetName(fileName, true, fileName);
 	fi->SetPath(QString("config_%1.xml").arg(fileId));
 	fi->SetColor(color);
@@ -118,7 +118,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 {
 	fileId = ++uniqueNumber_;
 
-	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId, isMock_));
+	QSharedPointer<FileItem> fi(new FileItem(this, editor_, xmlFile, fileId));
 
 	items_[fileId] = fi;
 	if (selector_ != nullptr)
@@ -344,7 +344,7 @@ bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 	return true;
 }
 
-bool FileItemsManager::GetParameterModels(CubesUnitTypes::PropertiesIdParameterModels& models)
+bool FileItemsManager::GetParameterModels(CubesUnitTypes::FileIdParameterModels& models)
 {
 	for (const auto& item : items_)
 	{
@@ -356,6 +356,17 @@ bool FileItemsManager::GetParameterModels(CubesUnitTypes::PropertiesIdParameterM
 	return true;
 }
 
+bool FileItemsManager::GetParameterModelsRef(CubesUnitTypes::FileIdParameterModelsRef& models)
+{
+	for (const auto& item : items_)
+	{
+		const auto id = item->GetFileId();
+		const auto& model = item->GetParameterModelsRef();
+		models[id] = model;
+	}
+
+	return true;
+}
 void FileItemsManager::AfterFileNameChanged(const CubesUnitTypes::FileId fileId)
 {
 	auto item = GetItem(fileId);

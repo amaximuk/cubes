@@ -884,8 +884,10 @@ namespace CubesUnitTypes
 	};
 
 	using FileIdParameterModels = QMap<FileId, ParameterModels>;
+	using FileIdParameterModelsRef = QMap<FileId, ParameterModels*>;
 	using PropertiesIdParameterModels = QMap<PropertiesId, ParameterModels>;
 	using PropertiesIdUnitParameters = QMap<PropertiesId, UnitParameters>;
+	using PropertiesIdParameterModelsRef = QMap<PropertiesId, ParameterModels*>;
 
 	inline QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames)
 	{
