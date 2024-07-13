@@ -2,6 +2,7 @@
 
 #include <QString>
 #include "../unit/unit_types.h"
+#include "../log/log_types.h"
 
 namespace CubesFile
 {
@@ -58,4 +59,24 @@ namespace CubesFile
 		Log log;
 		QList<Include> includes;
 	};
+
+	enum class FileManagerErrorCode
+	{
+		ok = 0,
+		itemCreated = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager),
+		itemRemoved,
+		allItemsRemoved
+	};
+
+	inline QString GetFileManagerErrorDescription(FileManagerErrorCode errorCode)
+	{
+		switch (errorCode)
+		{
+		case FileManagerErrorCode::ok: return "Ok";
+		case FileManagerErrorCode::itemCreated: return "Item created";
+		case FileManagerErrorCode::itemRemoved: return "Item removed";
+		case FileManagerErrorCode::allItemsRemoved: return "All items removed";
+		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
+		}
+	}
 }

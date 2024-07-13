@@ -19,13 +19,6 @@ namespace CubesFile
 	private:
 		QVector<QColor> defaultColorsFile_ = { QColor("Red"), QColor("Green"), QColor("Blue"),
 			QColor("Orange"), QColor("Violet"), QColor("Yellow") };
-		enum class MessageId
-		{
-			unknown = 10000,
-			create,
-			remove,
-			clear
-		};
 		int defaultColorFileIndex_;
 
 	private:
@@ -144,5 +137,15 @@ namespace CubesFile
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
 		void SetPropertyExpanded(const CubesUnitTypes::FileId fileId, const QtProperty* property, bool is_expanded);
+
+	private:
+		void Log(CubesLog::MessageType messageType, FileManagerErrorCode errorCode, const QString& details,
+			const QVector<CubesLog::Variable>& variables, uint32_t id);
+		void LogInformation(FileManagerErrorCode errorCode, const QString& details,
+			const QVector<CubesLog::Variable>& variables, uint32_t id);
+		void LogInformation(FileManagerErrorCode errorCode, const QVector<CubesLog::Variable>& variables, uint32_t id);
+		void LogInformation(FileManagerErrorCode errorCode);
+		void LogError(FileManagerErrorCode errorCode, const QString& details,
+			const QVector<CubesLog::Variable>& variables, uint32_t id);
 	};
 }

@@ -101,17 +101,7 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(GetFileNames());
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = QString("Item created, id = %1, name = %2").arg(fileId).arg(fileName);
-		lm.tag = fileId;
-		logManager_->AddMessage(lm);
-	}
+	LogInformation(FileManagerErrorCode::itemCreated, { {QString::fromLocal8Bit("Имя"), fileName} }, fileId);
 }
 
 void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::FileId& fileId)
@@ -130,17 +120,7 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(GetFileNames());
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = QString("Item created, id = %1, name = %2").arg(fileId).arg(xmlFile.name);
-		lm.tag = fileId;
-		logManager_->AddMessage(lm);
-	}
+	LogInformation(FileManagerErrorCode::itemCreated, { {QString::fromLocal8Bit("Имя"), fi->GetName()} }, fileId);
 }
 
 void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
@@ -171,23 +151,16 @@ void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
 
 void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 {
+	// Получаем имя файла
+	QString name = GetFileName(fileId);
+
 	int index = selector_->findData(fileId);
 	if (index != -1)
 		selector_->removeItem(index);
 
 	items_.remove(fileId);
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
-			static_cast<uint32_t>(MessageId::remove));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = QString("Item removed, id = %1").arg(fileId);
-		lm.tag = fileId;
-		logManager_->AddMessage(lm);
-	}
+	LogInformation(FileManagerErrorCode::itemRemoved, { {QString::fromLocal8Bit("Имя"), name} }, fileId);
 }
 
 QSharedPointer<FileItem> FileItemsManager::GetItem(const CubesUnitTypes::FileId fileId)
@@ -290,17 +263,7 @@ void FileItemsManager::Clear()
 		selector_->clear();
 	items_.clear();
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
-			static_cast<uint32_t>(MessageId::clear));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = QString("All items removed");
-		lm.tag = CubesUnitTypes::InvalidUniversalId;
-		logManager_->AddMessage(lm);
-	}
+	LogInformation(FileManagerErrorCode::allItemsRemoved);
 }
 
 QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> FileItemsManager::GetItems()
@@ -548,6 +511,9 @@ void FileItemsManager::OnRemoveFileClicked()
 	// Сохраняем копию, после удаления selected_ изменится
 	uint32_t selected = selected_;
 
+	// Получаем имя файла
+	QString name = GetFileName(selected_);
+
 	// Удаляем из селектора, автоматически происходит UnSelect
 	selector_->removeItem(selector_->findData(selected_));
 
@@ -567,17 +533,7 @@ void FileItemsManager::OnRemoveFileClicked()
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(fileNames);
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::fileManager,
-			static_cast<uint32_t>(MessageId::remove));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = QString("Item removed, id = %1").arg(fileId);
-		lm.tag = fileId;
-		logManager_->AddMessage(lm);
-	}
+	LogInformation(FileManagerErrorCode::itemRemoved, { {QString::fromLocal8Bit("Имя"), name} }, fileId);
 }
 
 QWidget* FileItemsManager::CreateEditorWidget()
@@ -649,4 +605,43 @@ void FileItemsManager::SetPropertyExpanded(const CubesUnitTypes::FileId fileId, 
 	auto it = items_.find(fileId);
 	if (it != items_.end())
 		(*it)->ExpandedChanged(property, is_expanded);
+}
+void FileItemsManager::Log(CubesLog::MessageType messageType, FileManagerErrorCode errorCode, const QString& details,
+	const QVector<CubesLog::Variable>& variables, uint32_t id)
+{
+	if (logManager_ != nullptr)
+	{
+		CubesLog::Message lm{};
+		lm.type = messageType;
+		lm.code = CubesLog::CreateCode(messageType, CubesLog::SourceType::fileManager, static_cast<uint32_t>(errorCode));
+		lm.source = CubesLog::SourceType::fileManager;
+		lm.description = GetFileManagerErrorDescription(errorCode);
+		lm.details = details;
+		lm.variables = variables;
+		lm.tag = id;
+		logManager_->AddMessage(lm);
+	}
+}
+
+void FileItemsManager::LogInformation(FileManagerErrorCode errorCode, const QString& details,
+	const QVector<CubesLog::Variable>& variables, uint32_t id)
+{
+	Log(CubesLog::MessageType::information, errorCode, details, variables, id);
+}
+
+void FileItemsManager::LogInformation(FileManagerErrorCode errorCode,
+	const QVector<CubesLog::Variable>& variables, uint32_t id)
+{
+	Log(CubesLog::MessageType::information, errorCode, {}, variables, id);
+}
+
+void FileItemsManager::LogInformation(FileManagerErrorCode errorCode)
+{
+	Log(CubesLog::MessageType::information, errorCode, {}, {}, {});
+}
+
+void FileItemsManager::LogError(FileManagerErrorCode errorCode, const QString& details,
+	const QVector<CubesLog::Variable>& variables, uint32_t id)
+{
+	Log(CubesLog::MessageType::error, errorCode, details, variables, id);
 }

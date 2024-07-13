@@ -38,6 +38,7 @@ namespace CubesAnalysis
     public:
         bool IsHaveAtLeastOneMainConfig(Rule rule);
         bool IsFileNamesUnique(Rule rule);
+        bool IsFileFileNamesUnique(Rule rule);
         bool IsFileIdUnique(Rule rule);
 
     private:

@@ -12,8 +12,9 @@ namespace CubesAnalysis
 	{
 		ok = 0,
 		noMainConfig = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis),
+		nameNotUnique,
 		fileNameNotUnique,
-		fileIdNotUnique
+		connectionIdNotUnique
 	};
 
 	enum class PropertiesAnalysisErrorCode

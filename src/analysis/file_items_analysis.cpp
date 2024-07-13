@@ -24,9 +24,9 @@ FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileNameNotUnique);
-		rule.description = QString::fromLocal8Bit("Уникальность имени файлов");
-		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::nameNotUnique);
+		rule.description = QString::fromLocal8Bit("Уникальность имени");
+		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов должны быть уникальные имена");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -35,7 +35,18 @@ FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileIdNotUnique);
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileNameNotUnique);
+		rule.description = QString::fromLocal8Bit("Уникальность имени файла");
+		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена файлов");
+		rule.isActive = true;
+		rules_.push_back(rule);
+
+		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsFileFileNamesUnique, this, rule);
+	}
+
+	{
+		Rule rule{};
+		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::connectionIdNotUnique);
 		rule.description = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
 		rule.detailes = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
 		rule.isActive = true;
@@ -100,18 +111,44 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 {
 	QSet<QString> filenames;
 	bool result = true;
-	for (auto& file : fileModels_)
+	for (auto& file : fileModels_.toStdMap())
 	{
 		// Проверяем главный файл
 		{
-			auto path = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.path)->value.toString();
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
+			if (filenames.contains(name))
+			{
+				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
+				result = false;
+			}
+			else
+			{
+				filenames.insert(name);
+			}
+		}
+	}
+
+	return result;
+}
+
+bool FileItemsAnalysis::IsFileFileNamesUnique(Rule rule)
+{
+	QSet<QString> filenames;
+	bool result = true;
+	for (auto& file : fileModels_.toStdMap())
+	{
+		// Проверяем главный файл
+		{
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 			QFileInfo fi(path);
 			const auto fn = fi.fileName();
 			if (filenames.contains(fn))
 			{
-				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
-				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Путь к файлу"), fn} }, id);
+				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
 				result = false;
 			}
 			else
@@ -122,21 +159,20 @@ bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
 
 		// Проверяем включаемые файлы
 		{
-			const auto pm = GetParameterModel(file, ids_.includes);
+			const auto pm = GetParameterModel(file.second, ids_.includes);
 			if (pm == nullptr)
 				return result;
 
 			const auto count = pm->value.toInt();
 			for (int i = 0; i < count; i++)
 			{
-				auto path = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				QFileInfo fi(path);
 				const auto fn = fi.fileName();
 				if (filenames.contains(fn))
 				{
-					const auto name = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
-					const auto id = CubesUnitTypes::GetParameterModel(file, ids_.includes + ids_.Item(i))->key.includeId;
-					LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Путь к файлу"), fn} }, id);
+					LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
 					result = false;
 				}
 				else
@@ -154,16 +190,19 @@ bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
 {
 	QSet<int> fileIds;
 	bool result = true;
-	for (auto& file : fileModels_)
+	for (auto& file : fileModels_.toStdMap())
 	{
 		// Проверяем только главные файлы
 		{
-			const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			const auto id = CubesUnitTypes::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
 			if (fileIds.contains(id))
 			{
-				const auto name = CubesUnitTypes::GetParameterModel(file, ids_.base + ids_.name)->value.toString();
-				const auto id = CubesUnitTypes::GetParameterModel(file, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-				LogError(rule, { {QString::fromLocal8Bit("Имя файла"), name}, {QString::fromLocal8Bit("Id хоста"), id} }, id);
+				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn},
+					{QString::fromLocal8Bit("Id хоста"), id} }, file.first);
 				result = false;
 			}
 			else
