@@ -7,6 +7,7 @@
 
 namespace CubesUnitTypes { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
+namespace CubesLog { class LogHelper; }
 namespace CubesLog { class SortFilterModel; }
 namespace CubesFile { class FileItemsManager; }
 namespace CubesProperties { class PropertiesItemsManager; }
@@ -26,6 +27,9 @@ namespace CubesTop
 
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
+
+        // Log
+        QSharedPointer<CubesLog::LogHelper> logHelper_;
 
     public:
         explicit TopManager(bool isArray, bool isMock = false, QString path = "");
@@ -101,12 +105,5 @@ namespace CubesTop
         virtual void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
         virtual void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
         virtual void PropertiesPropertiesChanged();
-
-    private:
-        void LogError(TopManagerErrorCode errorCode, const QString& details,
-            const QVector<CubesLog::Variable>& variables);
-        void LogError(TopManagerErrorCode errorCode);
-        void LogError(TopManagerErrorCode errorCode, const QString& details);
-        void LogError(TopManagerErrorCode errorCode, const QVector<CubesLog::Variable>& variables);
     };
 }

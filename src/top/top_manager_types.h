@@ -15,23 +15,36 @@ namespace CubesTop
         QColor color;
     };
 
-	enum class TopManagerErrorCode
+	enum class TopManagerErrorCode : CubesLog::BaseErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		parametersFileInvalid = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::topManager),
 		noParametersFile,
-		zipFileError
+		zipFileError,
+		last
 	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetTopManagerErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::parametersFileInvalid)] = QString::fromLocal8Bit("Ошибка разбора файла параметров");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::noParametersFile)] = QString::fromLocal8Bit("Отсутствует файл параметров");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::zipFileError)] = QString::fromLocal8Bit("Ошибка сжатия файла");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::topManager) + 1) == descriptions.size());
+
+		return descriptions;
+	}
 
 	inline QString GetTopManagerErrorDescription(TopManagerErrorCode errorCode)
 	{
-		switch (errorCode)
-		{
-		case TopManagerErrorCode::ok: return "Ok";
-		case TopManagerErrorCode::parametersFileInvalid: return "Parameters file invalid";
-		case TopManagerErrorCode::noParametersFile: return "No parameters file";
-		case TopManagerErrorCode::zipFileError: return "Zip file error";
-		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
-		}
+		const auto& descriptions = GetTopManagerErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 }

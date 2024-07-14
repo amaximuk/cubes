@@ -4,6 +4,8 @@
 #include "../log/log_manager_interface.h"
 #include "xml_types.h"
 
+namespace CubesLog { class LogHelper; }
+
 namespace CubesXml
 {
 	class Writer
@@ -12,6 +14,9 @@ namespace CubesXml
 		const CubesUnitTypes::ParameterModelIds ids_;
 		CubesLog::ILogManager* logManager_;
 		File fi_;
+
+		// Log
+		QSharedPointer<CubesLog::LogHelper> logHelper_;
 
 	public:
 		Writer(CubesLog::ILogManager* logManager = nullptr);
@@ -34,12 +39,5 @@ namespace CubesXml
 		bool SetArray(const Array& array, QXmlStreamWriter& xmlWriter);
 		bool SetDepends(const QList<QString>& depends, QXmlStreamWriter& xmlWriter);
 		bool SetItem(const Item& item, QXmlStreamWriter& xmlWriter);
-
-	private:
-		void LogError(CubesXml::WriterErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::Variable>& variables);
-		void LogError(CubesXml::WriterErrorCode errorCode);
-		void LogError(CubesXml::WriterErrorCode errorCode, const QString& details);
-		void LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::Variable>& variables);
 	};
 }

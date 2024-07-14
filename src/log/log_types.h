@@ -144,6 +144,8 @@ namespace CubesLog
 
     using BaseErrorCode = uint32_t;
     constexpr BaseErrorCode SuccessErrorCode = 0;
+    constexpr char* DefaultDescription = "";
+    constexpr char* DefaultDetails = "";
 
     using BaseErrorCodeDescriptions = QMap<BaseErrorCode, QString>;
     using BaseErrorCodeDetails = QMap<BaseErrorCode, QString>;

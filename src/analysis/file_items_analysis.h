@@ -7,11 +7,8 @@
 #include "../log/log_types.h"
 #include "../unit/unit_types.h"
 
-namespace CubesLog
-{
-    class ILogManager;
-    class LogHelper;
-}
+namespace CubesLog { class ILogManager; }
+namespace CubesLog { class LogHelper; }
 namespace CubesFile { class FileItem; }
 
 namespace CubesAnalysis

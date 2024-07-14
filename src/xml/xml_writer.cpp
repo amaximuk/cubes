@@ -5,6 +5,7 @@
 #include <regex>
 #include <QTextStream>
 #include "../unit/unit_types.h"
+#include "../log/log_helper.h"
 #include "xml_writer.h"
 
 using namespace CubesXml;
@@ -14,6 +15,9 @@ using namespace CubesXml;
 Writer::Writer(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
+
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::xmlWriter,
+		CubesXml::GetWriterErrorDescriptions()));
 }
 
 bool Writer::Write(QByteArray& byteArray, const File& fi)
@@ -31,7 +35,8 @@ bool Writer::Write(QByteArray& byteArray, const File& fi)
 	xmlWriter.writeStartDocument();
 
 	if (!SetFile(fi, xmlWriter))
-		CFRC(false, LogError(WriterErrorCode::fileSetFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileSetFailed),
+			{ {"File name", fi_.fileName} }));
 
 	xmlWriter.writeEndDocument();
 
@@ -46,14 +51,17 @@ bool Writer::Write(const QString& filename, const File& fi)
 
 	QByteArray byteArray;
 	if (!Write(byteArray, fi))
-		CFRC(false, LogError( WriterErrorCode::bufferWriteFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::bufferWriteFailed),
+			{ {"File name", fi_.fileName} }));
 
 	QFile xmlFile(filename);
 	if (!xmlFile.open(QIODevice::WriteOnly | QFile::Text))
-		CFRC(false, LogError( WriterErrorCode::fileOpenFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::fileOpenFailed),
+			{ {"File name", fi_.fileName} }));
 
 	if (xmlFile.write(byteArray) == -1)
-		CFRC(false, LogError( WriterErrorCode::fileWriteFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::fileWriteFailed),
+			{ {"File name", fi_.fileName} }));
 
 	xmlFile.close();
 
@@ -69,10 +77,12 @@ bool Writer::SetFile(const File& file, QXmlStreamWriter& xmlWriter)
 	//</Includes>
 	
 	if (!SetIncludes(file.includes, xmlWriter))
-		CFRC(false, LogError( WriterErrorCode::setIncludesFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setIncludesFailed),
+			{ {"File name", fi_.fileName} }));
 
 	if (!SetConfig(file.config, file.name, file.platform, file.color, xmlWriter))
-		CFRC(false, LogError( WriterErrorCode::setConfigFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setConfigFailed),
+			{ {"File name", fi_.fileName} }));
 
 	return true;
 }
@@ -117,17 +127,20 @@ bool Writer::SetConfig(const Config& config, const QString& name, const QString&
 	if (config.networkingIsSet)
 	{
 		if (!SetNetworking(config.networking, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setNetworkingFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setNetworkingFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	if (config.logIsSet)
 	{
 		if (!SetLog(config.log, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setLogFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setLogFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	if (!SetUnits(config.groups, xmlWriter))
-		CFRC(false, LogError( WriterErrorCode::setLogFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setLogFailed),
+			{ {"File name", fi_.fileName} }));
 
 	xmlWriter.writeEndElement();
 
@@ -216,7 +229,8 @@ bool Writer::SetUnits(const QList<Group>& groups, QXmlStreamWriter& xmlWriter)
 	for (const auto& group : groups)
 	{
 		if (!SetGroup(group, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setGroupFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setGroupFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	xmlWriter.writeEndElement();
@@ -237,7 +251,8 @@ bool Writer::SetGroup(const Group& group, QXmlStreamWriter& xmlWriter)
 	for (const auto& unit : group.units)
 	{
 		if (!SetUnit(unit, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setUnitFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setUnitFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	xmlWriter.writeEndElement();
@@ -266,7 +281,8 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 	for (const auto& param : unit.params)
 	{
 		if (!SetParam(param, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setParamFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setParamFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	for (const auto& array : unit.arrays)
@@ -274,7 +290,8 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 		if (array.name != ids_.dependencies.toString())
 		{
 			if (!SetArray(array, xmlWriter))
-				CFRC(false, LogError( WriterErrorCode::setParamFailed, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setParamFailed),
+					{ {"File name", fi_.fileName} }));
 		}
 	}
 
@@ -286,7 +303,8 @@ bool Writer::SetUnit(const Unit& unit, QXmlStreamWriter& xmlWriter)
 			for (const auto& depend : array.items)
 				depends.push_back(depend.val);
 			if (!SetDepends(depends, xmlWriter))
-				CFRC(false, LogError( WriterErrorCode::setDependsFailed, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setDependsFailed),
+					{ {"File name", fi_.fileName} }));
 		}
 	}
 
@@ -327,7 +345,8 @@ bool Writer::SetArray(const Array& array, QXmlStreamWriter& xmlWriter)
 	for (const auto& item : array.items)
 	{
 		if (!SetItem(item, xmlWriter))
-			CFRC(false, LogError( WriterErrorCode::setItemFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setItemFailed),
+				{ {"File name", fi_.fileName} }));
 	}
 
 	xmlWriter.writeEndElement();
@@ -383,50 +402,19 @@ bool Writer::SetItem(const Item& item, QXmlStreamWriter& xmlWriter)
 		for (const auto& param : item.params)
 		{
 			if (!SetParam(param, xmlWriter))
-				CFRC(false, LogError( WriterErrorCode::setParamFailed, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setParamFailed),
+					{ {"File name", fi_.fileName} }));
 		}
 
 		for (const auto& array : item.arrays)
 		{
 			if (!SetArray(array, xmlWriter))
-				CFRC(false, LogError( WriterErrorCode::setArrayFailed, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>( WriterErrorCode::setArrayFailed),
+					{ {"File name", fi_.fileName} }));
 		}
 	}
 
 	xmlWriter.writeEndElement();
 
 	return true;
-}
-
-void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::Variable>& variables)
-{
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-			CubesLog::SourceType::xmlWriter, static_cast<uint32_t>(errorCode));
-		lm.source = CubesLog::SourceType::xmlWriter;
-		lm.description = CubesXml::GetWriterErrorDescription(errorCode);
-		lm.details = details;
-		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidBaseId;
-		logManager_->AddMessage(lm);
-	}
-}
-
-void Writer::LogError(CubesXml::WriterErrorCode errorCode)
-{
-	LogError(errorCode, {}, {});
-}
-
-void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& details)
-{
-	LogError(errorCode, details, {});
-}
-
-void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
-{
-	LogError(errorCode, {}, variables);
 }

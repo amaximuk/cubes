@@ -7,6 +7,7 @@
 #include "../properties/properties_item_types.h"
 #include "../properties/properties_item.h"
 #include "../unit/unit_types.h"
+#include "../log/log_helper.h"
 #include "xml_parser.h"
 #include "xml_writer.h"
 #include "xml_helper.h"
@@ -15,68 +16,42 @@ using namespace CubesXml;
 
 #define CFRC(retcode, function) do { function; return retcode; } while(0)
 
-static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
-	const QString& details, const QVector<CubesLog::Variable>& variables)
-{
-	if (logManager != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-			CubesLog::SourceType::xmlHelper, static_cast<uint32_t>(errorCode));
-		lm.source = CubesLog::SourceType::xmlHelper;
-		lm.description = CubesXml::GetHelperErrorDescription(errorCode);
-		lm.details = details;
-		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidBaseId;
-		logManager->AddMessage(lm);
-	}
-}
-
-static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode)
-{
-	LogError(logManager, errorCode, {}, {});
-}
-
-static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
-	const QString& details)
-{
-	LogError(logManager, errorCode, details, {});
-}
-
-static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCode errorCode,
-	const QVector<CubesLog::Variable>& variables)
-{
-	LogError(logManager, errorCode, {}, variables);
-}
-
 bool Helper::Parse(QByteArray& byteArray, const QString& fileName, File& fi, CubesLog::ILogManager* logManager)
 {
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
 	Parser parser(logManager);
 	if (!parser.Parse(byteArray, fileName))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, { { "File name", fileName } }));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileParseFailed),
+			{ { "File name", fileName } }));
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
 
 bool Helper::Parse(const QString& fileName, File& fi, CubesLog::ILogManager* logManager)
 {
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
 	Parser parser(logManager);
 	if (!parser.Parse(fileName))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileParseFailed, { { "File name", fileName } }));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileParseFailed),
+			{ { "File name", fileName } }));
 	fi = parser.GetFile(); // const& extends lifetime of object
 	return true;
 }
 
 bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, Element& element, CubesLog::ILogManager* logManager)
 {
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
 	const static CubesUnitTypes::ParameterModelIds ids;
 
 	auto ss = id.split();
 	if (ss.isEmpty())
-		CFRC(false, LogError(logManager, HelperErrorCode::invalidArgument, "ParameterModelId is empty"));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::invalidArgument),
+			CubesLog::DefaultDescription, "ParameterModelId is empty"));
+
 	if (ss.front() != ids.parameters)
-		CFRC(false, LogError(logManager, HelperErrorCode::invalidArgument, "Must be started with parameters"));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::invalidArgument),
+			CubesLog::DefaultDescription, "Must be started with parameters"));
+
 	ss.pop_front();
 
 	// –аскручиваем путь к параметру из id, внутри структуры Unit
@@ -116,8 +91,8 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				arrays = &array->items[index].arrays;
 			}
 			else
-				CFRC(false, LogError(logManager, HelperErrorCode::unitParametersMalformed,
-					"Array item not found", { {"Item", s.toString()} }));
+				CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitParametersMalformed),
+					CubesLog::DefaultDescription, "Array item not found", { {"Item", s.toString()} }));
 
 			array = nullptr;
 			inside_array = false;
@@ -134,8 +109,8 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 				if (s == p.name)
 				{
 					if (ss.size() != 1)
-						CFRC(false, LogError(logManager, HelperErrorCode::unitParametersMalformed,
-							"Not last part of id must be array", { {"Item", s.toString()} }));
+						CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitParametersMalformed),
+							CubesLog::DefaultDescription, "Not last part of id must be array", { {"Item", s.toString()} }));
 
 					// Ќашли искомый параметр
 					element = {};
@@ -191,16 +166,20 @@ bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, 
 
 bool Helper::Write(QByteArray& buffer, const File& fi, CubesLog::ILogManager* logManager)
 {
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
 	Writer writer(logManager);
 	if (!writer.Write(buffer, fi))
-		CFRC(false, LogError(logManager, HelperErrorCode::bufferWriteFailed, { {"", fi.fileName} }));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::bufferWriteFailed),
+			{ {"", fi.fileName} }));
 	return true;
 }
 
 bool Helper::Write(const QString& filename, const File& fi, CubesLog::ILogManager* logManager)
 {
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
 	Writer writer(logManager);
 	if (!writer.Write(filename, fi))
-		CFRC(false, LogError(logManager, HelperErrorCode::fileWriteFailed, { {"", fi.fileName} }));
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileWriteFailed),
+			{ {"", fi.fileName} }));
 	return true;
 }
