@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QMap>
 
 namespace CubesLog
 {
@@ -142,7 +143,10 @@ namespace CubesLog
     }
 
     using BaseErrorCode = uint32_t;
-    constexpr BaseErrorCode NoErrorCode = 0;
+    constexpr BaseErrorCode SuccessErrorCode = 0;
+
+    using BaseErrorCodeDescriptions = QMap<BaseErrorCode, QString>;
+    using BaseErrorCodeDetails = QMap<BaseErrorCode, QString>;
 
     inline QString CreateCode(MessageType messageType, SourceType sourceType, BaseErrorCode id)
     {

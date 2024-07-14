@@ -219,7 +219,7 @@ namespace CubesXml
 
 	enum class ParserErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser),
 		fileOpenFailed,
 		getIncludesFailed,
@@ -244,7 +244,8 @@ namespace CubesXml
 		logParamUnknown,
 		unitsChildUnknown,
 		getGroupFailed,
-		groupParamNotSingle,
+		groupParamNotFound,
+		groupParamDuplicate,
 		groupParamUnknown,
 		getUnitFailed,
 		unitNameEmpty,
@@ -256,58 +257,73 @@ namespace CubesXml
 		unitParamTypeEmpty,
 		unitParamValEmpty,
 		getItemFailed,
-		unitDependsItemEmpty
+		unitDependsItemEmpty,
+		last
 	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetParserErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileParseFailed)] = QString::fromLocal8Bit("Ошибка разбора файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileOpenFailed)] = QString::fromLocal8Bit("Ошибка открытия файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getIncludesFailed)] = QString::fromLocal8Bit("Ошибка получения включаемых файлов (Includes)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getConfigFailed)] = QString::fromLocal8Bit("Ошибка получения конфигурации (Config)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок включаемых файлов (Includes)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeValEmpty)] = QString::fromLocal8Bit("Значение включаемого файла не задано (Includes/Include val)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок включаемого файла (Includes/Include)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableNameEmpty)] = QString::fromLocal8Bit("Имя переменной включаемого файла не задано (Includes/Include/Variable name)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableValEmpty)] = QString::fromLocal8Bit("Значение переменной включаемого файла не задано (Includes/Include/Variable val)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableNameDuplicate)] = QString::fromLocal8Bit("Имя переменной включаемого файла уже используется (Includes/Include/Variable name)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getNetworkingFailed)] = QString::fromLocal8Bit("Ошибка получения сети (Networking)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getLogFailed)] = QString::fromLocal8Bit("Ошибка получения логгирования (Log)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getUnitsFailed)] = QString::fromLocal8Bit("Ошибка получения юнитов (Units)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::configChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок конфигурации (Config)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingIdEmpty)] = QString::fromLocal8Bit("Идентификатор сети не задан (Networking id)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingAcceptPortEmpty)] = QString::fromLocal8Bit("Порт сети не задан (Networking accept_port)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingKeepAliveSecEmpty)] = QString::fromLocal8Bit("Таймаут сети не задан (Networking keep_alive_sec)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок сети (Networking)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingConnectPortEmpty)] = QString::fromLocal8Bit("Порт соединения не задан (Networking/connect port)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingConnectIpEmpty)] = QString::fromLocal8Bit("Адрес соединения не задан (Networking/connect ip)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::logChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок логгирования (Log)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::logParamUnknown)] = QString::fromLocal8Bit("Неизвестный параметр логгирования (Log/Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitsChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок инитов (Units)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getGroupFailed)] = QString::fromLocal8Bit("Ошибка получения группы (Group)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamNotFound)] = QString::fromLocal8Bit("Параметр группы не найден (Group/Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamDuplicate)] = QString::fromLocal8Bit("Параметр группы уже используется (Group/Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamUnknown)] = QString::fromLocal8Bit("Неизвестный параметр группы (Group/Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getUnitFailed)] = QString::fromLocal8Bit("Ошибка получения юнита (Unit)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitNameEmpty)] = QString::fromLocal8Bit("Имя юнита не задано (Unit Name)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitIdEmpty)] = QString::fromLocal8Bit("Идентификатор юнита не задан (Unit Id)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitIdEmpty)] = QString::fromLocal8Bit("Идентификатор юнита не задан (Unit Id)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getParamFailed)] = QString::fromLocal8Bit("Ошибка получения параметра (Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getArrayFailed)] = QString::fromLocal8Bit("Ошибка получения массива (Array)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getDependsFailed)] = QString::fromLocal8Bit("Ошибка получения зависимостей (Depends)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamNameEmpty)] = QString::fromLocal8Bit("Имя параметра не задано (Unit/Param name)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamTypeEmpty)] = QString::fromLocal8Bit("Тип параметра не задан (Unit/Param type)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamValEmpty)] = QString::fromLocal8Bit("Значение параметра не задано (Unit/Param val)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getItemFailed)] = QString::fromLocal8Bit("Ошибка получения элемента (Item)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitDependsItemEmpty)] = QString::fromLocal8Bit("Имя элемента зависимости не задано (Unit/Depends/Item name)");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser) + 1) == descriptions.size());
+		
+		return descriptions;
+	}
 
 	inline QString GetParserErrorDescription(ParserErrorCode errorCode)
 	{
-		switch (errorCode)
-		{
-		case ParserErrorCode::ok: return "Ok";
-		case ParserErrorCode::fileParseFailed: return "Parsing failed";
-		case ParserErrorCode::fileOpenFailed: return "File open failed";
-		case ParserErrorCode::getIncludesFailed: return "Get Includes failed";
-		case ParserErrorCode::getConfigFailed: return "Get Config failed";
-		case ParserErrorCode::includesChildUnknown: return "Includes have unknown child";
-		case ParserErrorCode::includesIncludeValEmpty: return "Includes/Include val is empty";
-		case ParserErrorCode::includesIncludeChildUnknown: return "Includes/Include have unknown child";
-		case ParserErrorCode::includesIncludeVariableNameEmpty: return "Includes/Include/Variable name is empty";
-		case ParserErrorCode::includesIncludeVariableValEmpty: return "Includes/Include/Variable val is empty";
-		case ParserErrorCode::includesIncludeVariableNameDuplicate: return "Includes/Include/Variable name duplicate";
-		case ParserErrorCode::getNetworkingFailed: return "Get Networking failed";
-		case ParserErrorCode::getLogFailed: return "Get Log failed";
-		case ParserErrorCode::getUnitsFailed: return "Get Units failed";
-		case ParserErrorCode::configChildUnknown: return "Config have unknown child";
-		case ParserErrorCode::networkingIdEmpty: return "Networking id is empty";
-		case ParserErrorCode::networkingAcceptPortEmpty: return "Networking accept_port is empty";
-		case ParserErrorCode::networkingKeepAliveSecEmpty: return "Networking keep_alive_sec is empty";
-		case ParserErrorCode::networkingChildUnknown: return "Networking have unknown child";
-		case ParserErrorCode::networkingConnectPortEmpty: return "Networking/connect port is empty";
-		case ParserErrorCode::networkingConnectIpEmpty: return "Networking/connect ip is empty";
-		case ParserErrorCode::logChildUnknown: return "Log have unknown child";
-		case ParserErrorCode::logParamUnknown: return "Log/Param is unknown";
-		case ParserErrorCode::unitsChildUnknown: return "Units have unknown child";
-		case ParserErrorCode::getGroupFailed: return "Get Group failed";
-		case ParserErrorCode::groupParamNotSingle: return "Group/Param not found or more then one";
-		case ParserErrorCode::groupParamUnknown: return "Group/Param is unknown";
-		case ParserErrorCode::getUnitFailed: return "Get Unit failed";
-		case ParserErrorCode::unitNameEmpty: return "Unit Name is empty";
-		case ParserErrorCode::unitIdEmpty: return "Unit Id is empty";
-		case ParserErrorCode::getParamFailed: return "Get Param failed";
-		case ParserErrorCode::getArrayFailed: return "Get Array failed";
-		case ParserErrorCode::getDependsFailed: return "Get Depends failed";
-		case ParserErrorCode::unitParamNameEmpty: return "Unit/Param name is empty";
-		case ParserErrorCode::unitParamTypeEmpty: return "Unit/Param type is empty";
-		case ParserErrorCode::unitParamValEmpty: return "Unit/Param val is empty";
-		case ParserErrorCode::getItemFailed: return "Get Item failed";
-		case ParserErrorCode::unitDependsItemEmpty: return "Unit/Depends/Item name is empty";
-		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
-		}
+		const auto& descriptions = GetParserErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 
 	enum class WriterErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		fileSetFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter),
 		bufferWriteFailed,
 		fileOpenFailed,
@@ -321,54 +337,79 @@ namespace CubesXml
 		setParamFailed,
 		setDependsFailed,
 		setItemFailed,
-		setArrayFailed
+		setArrayFailed,
+		last
 	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetWriterErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileSetFailed)] = QString::fromLocal8Bit("Ошибка установки файла (File)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::bufferWriteFailed)] = QString::fromLocal8Bit("Ошибка записи буфера");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileOpenFailed)] = QString::fromLocal8Bit("Ошибка открытия файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileWriteFailed)] = QString::fromLocal8Bit("Ошибка записи файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setIncludesFailed)] = QString::fromLocal8Bit("Ошибка установки включаемых файлов (Includes)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setConfigFailed)] = QString::fromLocal8Bit("Ошибка установки конфигурации (Config)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setNetworkingFailed)] = QString::fromLocal8Bit("Ошибка установки файла (Networking)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setLogFailed)] = QString::fromLocal8Bit("Ошибка установки лога (Log)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setGroupFailed)] = QString::fromLocal8Bit("Ошибка установки группы (Group)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setUnitFailed)] = QString::fromLocal8Bit("Ошибка установки юнита (Unit)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setParamFailed)] = QString::fromLocal8Bit("Ошибка установки параметра (Param)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setDependsFailed)] = QString::fromLocal8Bit("Ошибка установки зависимостей (Depends)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setItemFailed)] = QString::fromLocal8Bit("Ошибка установки элемента (Item)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setArrayFailed)] = QString::fromLocal8Bit("Ошибка установки массива (Array)");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter) + 1) == descriptions.size());
+
+		return descriptions;
+	}
 
 	inline QString GetWriterErrorDescription(WriterErrorCode errorCode)
 	{
-		switch (errorCode)
-		{
-		case WriterErrorCode::ok: return "Ok";
-		case WriterErrorCode::fileSetFailed: return "File set failed";
-		case WriterErrorCode::bufferWriteFailed: return "Buffer write failed";
-		case WriterErrorCode::fileOpenFailed: return "File open failed";
-		case WriterErrorCode::fileWriteFailed: return "File write failed";
-		case WriterErrorCode::setIncludesFailed: return "Set Includes failed";
-		case WriterErrorCode::setConfigFailed: return "Set Config failed";
-		case WriterErrorCode::setNetworkingFailed: return "Set Networking failed";
-		case WriterErrorCode::setLogFailed: return "Set Log failed";
-		case WriterErrorCode::setGroupFailed: return "Set Group failed";
-		case WriterErrorCode::setUnitFailed: return "Set Unit failed";
-		case WriterErrorCode::setParamFailed: return "Set Param failed";
-		case WriterErrorCode::setDependsFailed: return "Set Depends failed";
-		case WriterErrorCode::setItemFailed: return "Set Item failed";
-		case WriterErrorCode::setArrayFailed: return "Set Array failed";
-		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
-		}
+		const auto& descriptions = GetWriterErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 
 	enum class HelperErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper),
 		invalidArgument,
-		arrayItemNotFound,
 		unitParametersMalformed,
 		bufferWriteFailed,
-		fileWriteFailed
+		fileWriteFailed,
+		last
 	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetHelperErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileParseFailed)] = QString::fromLocal8Bit("Ошибка разбора файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::invalidArgument)] = QString::fromLocal8Bit("Недопустимый параметр");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitParametersMalformed)] = QString::fromLocal8Bit("Параметры юнита плохо сформированы");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::bufferWriteFailed)] = QString::fromLocal8Bit("Ошибка записи буфера");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileWriteFailed)] = QString::fromLocal8Bit("Ошибка записи файла");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper) + 1) == descriptions.size());
+
+		return descriptions;
+	}
 
 	inline QString GetHelperErrorDescription(HelperErrorCode errorCode)
 	{
-		switch (errorCode)
-		{
-		case HelperErrorCode::ok: return "Ok";
-		case HelperErrorCode::fileParseFailed: return "Parsing failed";
-		case HelperErrorCode::invalidArgument: return "Invalid argument";
-		case HelperErrorCode::unitParametersMalformed: return "Unit parameters malformed";
-		case HelperErrorCode::bufferWriteFailed: return "Buffer write failed";
-		case HelperErrorCode::fileWriteFailed: return "File write failed";
-		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
-		}
+		const auto& descriptions = GetHelperErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 }

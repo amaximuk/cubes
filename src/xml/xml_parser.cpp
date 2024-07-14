@@ -7,6 +7,7 @@
 #include "../properties/properties_item_types.h"
 #include "../properties/properties_item.h"
 #include "../unit/unit_types.h"
+#include "../log/log_helper.h"
 #include "xml_types.h"
 #include "xml_parser.h"
 
@@ -17,6 +18,8 @@ using namespace CubesXml;
 Parser::Parser(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
+
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::xmlParser));
 }
 
 bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
@@ -317,8 +320,12 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 {
 	auto paramNodes = ElementsByTagName(node, "Param");
 
-	if (paramNodes.size() != 1)
-		CFRC(false, LogError(ParserErrorCode::groupParamNotSingle,
+	if (paramNodes.size() == 0)
+		CFRC(false, LogError(ParserErrorCode::groupParamNotFound,
+			{ {"File name", fi_.fileName}, {"Count", QString("%1").arg(paramNodes.size())} }));
+
+	if (paramNodes.size() > 1)
+		CFRC(false, LogError(ParserErrorCode::groupParamDuplicate,
 			{ {"File name", fi_.fileName}, {"Count", QString("%1").arg(paramNodes.size())} }));
 
 	const auto& ep = paramNodes[0];

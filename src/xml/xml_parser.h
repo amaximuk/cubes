@@ -5,6 +5,8 @@
 #include "../log/log_manager_interface.h"
 #include "xml_types.h"
 
+namespace CubesLog { class LogHelper; }
+
 namespace CubesXml
 {
 	class Parser
@@ -13,6 +15,9 @@ namespace CubesXml
 		const CubesUnitTypes::ParameterModelIds ids_;
 		CubesLog::ILogManager* logManager_;
 		File fi_;
+
+		// Log
+		QSharedPointer<CubesLog::LogHelper> logHelper_;
 
 	public:
 		Parser(CubesLog::ILogManager* logManager = nullptr);

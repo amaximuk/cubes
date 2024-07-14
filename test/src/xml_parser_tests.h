@@ -499,10 +499,10 @@ TEST(CUBES, XmlReaderGetGroupFailed)
 	ASSERT_TRUE(CheckAllCodes(messages, codes));
 }
 
-TEST(CUBES, XmlReaderGroupParamNotSingle)
+TEST(CUBES, XmlReaderGroupParamNotFound)
 {
 	MockWindow mockWindow;
-	ASSERT_FALSE(mockWindow.ImportXml("../../test/resources/XmlParser/GroupParamNotSingle/config1.xml"));
+	ASSERT_FALSE(mockWindow.ImportXml("../../test/resources/XmlParser/GroupParamNotFound/config1.xml"));
 	const auto messages = mockWindow.GetMessages();
 	ASSERT_FALSE(messages.isEmpty());
 	QVector<QString> codes;
@@ -511,7 +511,23 @@ TEST(CUBES, XmlReaderGroupParamNotSingle)
 	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser,
 		static_cast<uint32_t>(CubesXml::ParserErrorCode::getGroupFailed)));
 	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser,
-		static_cast<uint32_t>(CubesXml::ParserErrorCode::groupParamNotSingle)));
+		static_cast<uint32_t>(CubesXml::ParserErrorCode::groupParamNotFound)));
+	ASSERT_TRUE(CheckAllCodes(messages, codes));
+}
+
+TEST(CUBES, XmlReaderGroupParamDuplicate)
+{
+	MockWindow mockWindow;
+	ASSERT_FALSE(mockWindow.ImportXml("../../test/resources/XmlParser/GroupParamDuplicate/config1.xml"));
+	const auto messages = mockWindow.GetMessages();
+	ASSERT_FALSE(messages.isEmpty());
+	QVector<QString> codes;
+	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlHelper,
+		static_cast<uint32_t>(CubesXml::HelperErrorCode::fileParseFailed)));
+	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser,
+		static_cast<uint32_t>(CubesXml::ParserErrorCode::getGroupFailed)));
+	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::xmlParser,
+		static_cast<uint32_t>(CubesXml::ParserErrorCode::groupParamDuplicate)));
 	ASSERT_TRUE(CheckAllCodes(messages, codes));
 }
 
