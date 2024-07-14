@@ -16,72 +16,73 @@ namespace CubesUnitTypes
 	// "unit", "path", "string", "double", "int", "bool", "float", "int8_t",
 	// "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t"
 	
-	constexpr uint32_t InvalidUniversalId = 0;
+	using BaseId = uint32_t;
+	constexpr BaseId InvalidBaseId = 0;
 
-	using FileId = uint32_t;
-	constexpr FileId InvalidFileId = InvalidUniversalId;
+	using FileId = BaseId;
+	constexpr FileId InvalidFileId = InvalidBaseId;
 	using FileIdNames = QMap<FileId, QString>;
 	
-	using IncludeId = uint32_t;
-	constexpr IncludeId InvalidIncludeId = InvalidUniversalId;
+	using IncludeId = BaseId;
+	constexpr IncludeId InvalidIncludeId = InvalidBaseId;
 	using IncludeIdNames = QMap<IncludeId, QString>;
 
 	using Variable = QPair<QString, QString>;
-	using VariableId = uint32_t;
-	constexpr VariableId InvalidVariableId = InvalidUniversalId;
+	using VariableId = BaseId;
+	constexpr VariableId InvalidVariableId = InvalidBaseId;
 	using VariableIdVariables = QMap<VariableId, Variable>;
 
-	using PropertiesId = uint32_t;
-	constexpr PropertiesId InvalidPropertiesId = InvalidUniversalId;
+	using PropertiesId = BaseId;
+	constexpr PropertiesId InvalidPropertiesId = InvalidBaseId;
 
-	struct UniversalId
-	{
-		union
-		{
-			uint32_t raw;
-			FileId fileId;
-			IncludeId includeId;
-			VariableId variableId;
-			PropertiesId propertiesId;
-		};
+	//struct UniversalId
+	//{
+	//	union
+	//	{
+	//		uint32_t raw;
+	//		FileId fileId;
+	//		IncludeId includeId;
+	//		VariableId variableId;
+	//		PropertiesId propertiesId;
+	//	};
 
-		UniversalId()
-		{
-			raw = InvalidUniversalId;
-		}
+	//	UniversalId()
+	//	{
+	//		raw = InvalidBaseId;
+	//	}
 
-		UniversalId(uint32_t value)
-		{
-			raw = value;
-		}
+	//	UniversalId(uint32_t value)
+	//	{
+	//		raw = value;
+	//	}
 
-		UniversalId(int value)
-		{
-			raw = static_cast<uint32_t>(value);
-		}
+	//	UniversalId(int value)
+	//	{
+	//		raw = static_cast<uint32_t>(value);
+	//	}
 
-		bool operator==(const UniversalId& rhs) const
-		{
-			if (this == &rhs)
-				return true;
+	//	bool operator==(const UniversalId& rhs) const
+	//	{
+	//		if (this == &rhs)
+	//			return true;
 
-			return raw == rhs.raw;
-		}
+	//		return raw == rhs.raw;
+	//	}
 
-		bool operator!=(const UniversalId& rhs) const
-		{
-			return !(*this == rhs);
-		}
+	//	bool operator!=(const UniversalId& rhs) const
+	//	{
+	//		return !(*this == rhs);
+	//	}
 
-		friend bool operator<(const UniversalId& lhs, const UniversalId& rhs)
-		{
-			return lhs.raw < rhs.raw;
-		}
-	};
+	//	friend bool operator<(const UniversalId& lhs, const UniversalId& rhs)
+	//	{
+	//		return lhs.raw < rhs.raw;
+	//	}
+	//};
 
 	struct ComboBoxValue
 	{
-		UniversalId id;
+		BaseId id;
 		QString value;
 	};
 
@@ -749,7 +750,7 @@ namespace CubesUnitTypes
 	{
 		ParameterModelId id; // id path, separated by /
 		QString name;
-		UniversalId key; // Для хранения id списков и т.п.
+		BaseId key; // Для хранения id списков и т.п.
 		QVariant value;
 		ParameterInfoId parameterInfoId;
 		EditorSettings editorSettings;
@@ -775,7 +776,7 @@ namespace CubesUnitTypes
 				editorSettings.comboBoxValues.push_back({ kvp.first, kvp.second });
 		}
 
-		void SetComboBoxValue(UniversalId id, const QString& value)
+		void SetComboBoxValue(BaseId id, const QString& value)
 		{
 			if (editorSettings.comboBoxValues.empty())
 				return;
@@ -785,7 +786,7 @@ namespace CubesUnitTypes
 			if (it != editorSettings.comboBoxValues.end())
 			{
 				it->value = value;
-				this->key = it->id.raw;
+				this->key = it->id;
 				this->value = it->value;
 			}
 		}
@@ -795,11 +796,11 @@ namespace CubesUnitTypes
 			if (editorSettings.comboBoxValues.empty())
 				return;
 
-			key = editorSettings.comboBoxValues[0].id.raw;
+			key = editorSettings.comboBoxValues[0].id;
 			value = editorSettings.comboBoxValues[0].value;
 		}
 
-		void SetComboBoxValue(UniversalId id)
+		void SetComboBoxValue(BaseId id)
 		{
 			if (editorSettings.comboBoxValues.empty())
 				return;
@@ -808,12 +809,12 @@ namespace CubesUnitTypes
 				editorSettings.comboBoxValues.cend(), [&id](const auto& cbv) { return cbv.id == id; });
 			if (it == editorSettings.comboBoxValues.end())
 			{
-				key = editorSettings.comboBoxValues[0].id.raw;
+				key = editorSettings.comboBoxValues[0].id;
 				value = editorSettings.comboBoxValues[0].value;
 			}
 			else
 			{
-				key = it->id.raw;
+				key = it->id;
 				value = it->value;
 			}
 		}
@@ -827,12 +828,12 @@ namespace CubesUnitTypes
 				editorSettings.comboBoxValues.cend(), [&value](const auto& cbv) { return cbv.value == value; });
 			if (it == editorSettings.comboBoxValues.end())
 			{
-				this->key = editorSettings.comboBoxValues[0].id.raw;
+				this->key = editorSettings.comboBoxValues[0].id;
 				this->value = editorSettings.comboBoxValues[0].value;
 			}
 			else
 			{
-				this->key = it->id.raw;
+				this->key = it->id;
 				this->value = it->value;
 			}
 		}

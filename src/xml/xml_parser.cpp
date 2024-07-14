@@ -539,7 +539,7 @@ void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QString& detail
 		lm.description = CubesXml::GetParserErrorDescription(errorCode);
 		lm.details = details;
 		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidUniversalId;
+		lm.tag = CubesUnitTypes::InvalidBaseId;
 		logManager_->AddMessage(lm);
 	}
 }

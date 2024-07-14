@@ -411,7 +411,7 @@ void Writer::LogError(CubesXml::WriterErrorCode errorCode, const QString& detail
 		lm.description = CubesXml::GetWriterErrorDescription(errorCode);
 		lm.details = details;
 		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidUniversalId;
+		lm.tag = CubesUnitTypes::InvalidBaseId;
 		logManager_->AddMessage(lm);
 	}
 }

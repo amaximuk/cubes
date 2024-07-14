@@ -472,7 +472,7 @@ void PropertiesItemsManager::Clear()
 			static_cast<uint32_t>(MessageId::clear));
 		lm.source = CubesLog::SourceType::propertiesManager;
 		lm.description = QString("All items removed");
-		lm.tag = CubesUnitTypes::InvalidUniversalId;
+		lm.tag = CubesUnitTypes::InvalidBaseId;
 		logManager_->AddMessage(lm);
 	}
 }

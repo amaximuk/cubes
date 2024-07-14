@@ -28,7 +28,7 @@ static void LogError(CubesLog::ILogManager* logManager, CubesXml::HelperErrorCod
 		lm.description = CubesXml::GetHelperErrorDescription(errorCode);
 		lm.details = details;
 		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidUniversalId;
+		lm.tag = CubesUnitTypes::InvalidBaseId;
 		logManager->AddMessage(lm);
 	}
 }

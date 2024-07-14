@@ -891,7 +891,7 @@ void TopManager::LogError(TopManagerErrorCode errorCode, const QString& details,
     lm.description = GetTopManagerErrorDescription(errorCode);
     lm.details = details;
     lm.variables = variables;
-    lm.tag = CubesUnitTypes::InvalidUniversalId;
+    lm.tag = CubesUnitTypes::InvalidBaseId;
     AddMessage(lm);
 }
 

@@ -141,7 +141,10 @@ namespace CubesLog
         return ::qHash(static_cast<uint>(key), seed);
     }
 
-    inline QString CreateCode(MessageType messageType, SourceType sourceType, uint32_t id)
+    using BaseErrorCode = uint32_t;
+    constexpr BaseErrorCode NoErrorCode = 0;
+
+    inline QString CreateCode(MessageType messageType, SourceType sourceType, BaseErrorCode id)
     {
         return QString("%1%2%3").arg(GetMessageTypePrefix(messageType)).arg(GetSourceTypePrefix(sourceType)).arg(id);
     }

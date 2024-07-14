@@ -1,5 +1,6 @@
 #include <QFileInfo>
 #include "../log/log_manager_interface.h"
+#include "../log/log_helper.h"
 #include "../file/file_item.h"
 #include "analysis_types.h"
 #include "file_items_analysis.h"
@@ -9,8 +10,172 @@ using namespace CubesAnalysis;
 FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
-	//constexpr uint32_t start_id = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis);
 
+	CreateRules();
+
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::fileAnalysis,
+		GetRuleDescriptions(), GetRuleDetailes()));
+}
+
+void FileItemsAnalysis::SetFiles(const CubesUnitTypes::FileIdParameterModels& files)
+{
+	fileModels_ = files;
+}
+
+void FileItemsAnalysis::SetFileItems(QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> files)
+{
+	fileItems_ = files;
+}
+
+QVector<Rule> FileItemsAnalysis::GetAllRules()
+{
+	return rules_;
+}
+
+bool FileItemsAnalysis::RunRuleTest(uint32_t errorCode)
+{
+	const auto& delegate = delegates_.find(errorCode);
+	if (delegate != delegates_.end())
+		return (*delegate)();
+	
+	return false;
+}
+
+bool FileItemsAnalysis::RunAllTests()
+{
+	bool result = true;
+	for(const auto& rule : rules_)
+	{
+		if (!RunRuleTest(rule.errorCode))
+			result = false;
+	}
+
+	return result;
+}
+
+bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
+{
+	if (!fileModels_.empty())
+		return true;
+
+	logHelper_->LogError(rule.errorCode);
+
+	return false;
+}
+
+bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
+{
+	QSet<QString> filenames;
+	bool result = true;
+	for (auto& file : fileModels_.toStdMap())
+	{
+		// Проверяем главный файл
+		{
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
+			if (filenames.contains(name))
+			{
+				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), name},
+					{QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
+				result = false;
+			}
+			else
+			{
+				filenames.insert(name);
+			}
+		}
+	}
+
+	return result;
+}
+
+bool FileItemsAnalysis::IsFileFileNamesUnique(Rule rule)
+{
+	QSet<QString> filenames;
+	bool result = true;
+	for (auto& file : fileModels_.toStdMap())
+	{
+		// Проверяем главный файл
+		{
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
+			if (filenames.contains(fn))
+			{
+				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), name},
+					{QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
+				result = false;
+			}
+			else
+			{
+				filenames.insert(fn);
+			}
+		}
+
+		// Проверяем включаемые файлы
+		{
+			const auto pm = GetParameterModel(file.second, ids_.includes);
+			if (pm == nullptr)
+				return result;
+
+			const auto count = pm->value.toInt();
+			for (int i = 0; i < count; i++)
+			{
+				const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
+				QFileInfo fi(path);
+				const auto fn = fi.fileName();
+				if (filenames.contains(fn))
+				{
+					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), name},
+						{QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
+					result = false;
+				}
+				else
+				{
+					filenames.insert(fn);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
+{
+	QSet<int> fileIds;
+	bool result = true;
+	for (auto& file : fileModels_.toStdMap())
+	{
+		// Проверяем только главные файлы
+		{
+			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			const auto id = CubesUnitTypes::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+			QFileInfo fi(path);
+			const auto fn = fi.fileName();
+			if (fileIds.contains(id))
+			{
+				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), name},
+					{QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
+				result = false;
+			}
+			else
+			{
+				fileIds.insert(id);
+			}
+		}
+	}
+
+	return result;
+}
+
+void FileItemsAnalysis::CreateRules()
+{
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
@@ -61,175 +226,39 @@ FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 	// Имена файлов не должны быть длинее 260 символов
 }
 
-void FileItemsAnalysis::SetFiles(const CubesUnitTypes::FileIdParameterModels& files)
+QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDescriptions()
 {
-	fileModels_ = files;
-}
-
-void FileItemsAnalysis::SetFileItems(QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> files)
-{
-	fileItems_ = files;
-}
-
-QVector<Rule> FileItemsAnalysis::GetAllRules()
-{
-	return rules_;
-}
-
-bool FileItemsAnalysis::RunRuleTest(uint32_t errorCode)
-{
-	const auto& delegate = delegates_.find(errorCode);
-	if (delegate != delegates_.end())
-		return (*delegate)();
-	
-	return false;
-}
-
-bool FileItemsAnalysis::RunAllTests()
-{
-	bool result = true;
-	for(const auto& rule : rules_)
-	{
-		if (!RunRuleTest(rule.errorCode))
-			result = false;
-	}
+	QMap<CubesLog::BaseErrorCode, QString> result;
+	for (const auto& rule : rules_)
+		result[rule.errorCode] = rule.description;
 
 	return result;
 }
 
-bool FileItemsAnalysis::IsHaveAtLeastOneMainConfig(Rule rule)
+QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDetailes()
 {
-	if (!fileModels_.empty())
-		return true;
-
-	LogError(rule);
-
-	return false;
-}
-
-bool FileItemsAnalysis::IsFileNamesUnique(Rule rule)
-{
-	QSet<QString> filenames;
-	bool result = true;
-	for (auto& file : fileModels_.toStdMap())
-	{
-		// Проверяем главный файл
-		{
-			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
-			QFileInfo fi(path);
-			const auto fn = fi.fileName();
-			if (filenames.contains(name))
-			{
-				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
-				result = false;
-			}
-			else
-			{
-				filenames.insert(name);
-			}
-		}
-	}
+	QMap<CubesLog::BaseErrorCode, QString> result;
+	for (const auto& rule : rules_)
+		result[rule.errorCode] = rule.detailes;
 
 	return result;
 }
 
-bool FileItemsAnalysis::IsFileFileNamesUnique(Rule rule)
-{
-	QSet<QString> filenames;
-	bool result = true;
-	for (auto& file : fileModels_.toStdMap())
-	{
-		// Проверяем главный файл
-		{
-			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
-			QFileInfo fi(path);
-			const auto fn = fi.fileName();
-			if (filenames.contains(fn))
-			{
-				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
-				result = false;
-			}
-			else
-			{
-				filenames.insert(fn);
-			}
-		}
-
-		// Проверяем включаемые файлы
-		{
-			const auto pm = GetParameterModel(file.second, ids_.includes);
-			if (pm == nullptr)
-				return result;
-
-			const auto count = pm->value.toInt();
-			for (int i = 0; i < count; i++)
-			{
-				const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
-				const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
-				QFileInfo fi(path);
-				const auto fn = fi.fileName();
-				if (filenames.contains(fn))
-				{
-					LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn} }, file.first);
-					result = false;
-				}
-				else
-				{
-					filenames.insert(fn);
-				}
-			}
-		}
-	}
-
-	return result;
-}
-
-bool FileItemsAnalysis::IsFileIdUnique(Rule rule)
-{
-	QSet<int> fileIds;
-	bool result = true;
-	for (auto& file : fileModels_.toStdMap())
-	{
-		// Проверяем только главные файлы
-		{
-			const auto path = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-			const auto name = CubesUnitTypes::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
-			const auto id = CubesUnitTypes::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
-			QFileInfo fi(path);
-			const auto fn = fi.fileName();
-			if (fileIds.contains(id))
-			{
-				LogError(rule, { {QString::fromLocal8Bit("Имя"), name}, {QString::fromLocal8Bit("Имя файла"), fn},
-					{QString::fromLocal8Bit("Id хоста"), id} }, file.first);
-				result = false;
-			}
-			else
-			{
-				fileIds.insert(id);
-			}
-		}
-	}
-
-	return result;
-}
-
-void FileItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
-{
-	CubesLog::Message lm{};
-	lm.type = CubesLog::MessageType::error;
-	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-		CubesLog::SourceType::fileAnalysis, static_cast<uint32_t>(rule.errorCode));
-	lm.source = CubesLog::SourceType::fileAnalysis;
-	lm.description = rule.description;
-	lm.details = rule.detailes;
-	lm.variables = variables;
-	lm.tag = tag;
-	logManager_->AddMessage(lm);
-}
-
-void FileItemsAnalysis::LogError(const Rule& rule)
-{
-	LogError(rule, {}, {});
-}
+//void FileItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
+//{
+//	CubesLog::Message lm{};
+//	lm.type = CubesLog::MessageType::error;
+//	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
+//		CubesLog::SourceType::fileAnalysis, static_cast<uint32_t>(rule.errorCode));
+//	lm.source = CubesLog::SourceType::fileAnalysis;
+//	lm.description = rule.description;
+//	lm.details = rule.detailes;
+//	lm.variables = variables;
+//	lm.tag = tag;
+//	logManager_->AddMessage(lm);
+//}
+//
+//void FileItemsAnalysis::LogError(const Rule& rule)
+//{
+//	LogError(rule, {}, {});
+//}

@@ -397,7 +397,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
         // Заполняем допустимые значения из ограничений в yml файле
         for (int i = 0; i < pi.restrictions.set_.size(); ++i)
-            model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pi.restrictions.set_[i]) });
+        {
+            model.editorSettings.comboBoxValues.push_back({ static_cast<CubesUnitTypes::BaseId>(i),
+                QString::fromStdString(pi.restrictions.set_[i]) });
+        }
 
         // Проверяем допустимость значений из xml файла (параметра или элемента массива)
         if (haveXmlValue)
@@ -491,7 +494,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             if (pti->values.size() > 0)
             {
                 for (int i = 0; i < pti->values.size(); ++i)
-                    model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pti->values[i].first) });
+                {
+                    model.editorSettings.comboBoxValues.push_back({ static_cast<CubesUnitTypes::BaseId>(i),
+                        QString::fromStdString(pti->values[i].first) });
+                }
             }
 
             // Проверяем допустимость значений из xml файла
@@ -565,7 +571,7 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
 
         // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
         // Возьмем нулевой элемент
-        if (pm->key.fileId == CubesUnitTypes::InvalidFileId && !fileNames.empty())
+        if (pm->key == CubesUnitTypes::InvalidFileId && !fileNames.empty())
         {
             pm->key = fileNames.keys()[0];
             pm->value = fileNames.values()[0];
@@ -574,7 +580,7 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
         if (editor_ != nullptr)
         {
             // При добавлении файлов необходимо восстановить выбранное значение
-            if (fileNames.keys().contains(pm->key.fileId))
+            if (fileNames.keys().contains(pm->key))
                 editor_->SetEnumValue(GetProperty(pm->id), pm->GetComboBoxIndex());
 
             // Разблокировка именно тут, если поднять выше, файл не устанавливается
@@ -637,7 +643,7 @@ CubesUnitTypes::FileId PropertiesItem::GetFileId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.fileName);
     if (pm != nullptr)
-        return pm->key.fileId;
+        return pm->key;
     return 0;
 }
 
@@ -645,7 +651,7 @@ CubesUnitTypes::IncludeId PropertiesItem::GetIncludeId()
 {
     const auto pm = GetParameterModel(ids_.base + ids_.includeName);
     if (pm != nullptr)
-        return pm->key.includeId;
+        return pm->key;
     
     return CubesUnitTypes::InvalidIncludeId;
 }
@@ -1009,8 +1015,8 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 
     QStringList messageList;
     messageList.push_back(QString("id: %1").arg(id));
-    if (pm->key == CubesUnitTypes::InvalidUniversalId)
-        messageList.push_back(QString("key: %1").arg(pm->key.raw));
+    if (pm->key == CubesUnitTypes::InvalidBaseId)
+        messageList.push_back(QString("key: %1").arg(pm->key));
     if (pi != nullptr)
         messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
     if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
@@ -1210,8 +1216,11 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
     {
         model.editorSettings.type = CubesUnitTypes::EditorType::ComboBox;
         for (int i = 0; i < pi.restrictions.set_count.size(); ++i)
-            model.editorSettings.comboBoxValues.push_back({ i, QString::fromStdString(pi.restrictions.set_count[i]) });
-    
+        {
+            model.editorSettings.comboBoxValues.push_back({ static_cast<CubesUnitTypes::BaseId>(i),
+                QString::fromStdString(pi.restrictions.set_count[i]) });
+        }
+
         if (element.type == CubesXml::ElementType::Array)
         {
             if (!model.HaveComboBoxValue(QString("%1").arg(element.itemsCount)))

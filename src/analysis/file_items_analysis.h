@@ -1,12 +1,17 @@
 #pragma once
 
 #include <QObject>
+#include <QSharedPointer>
 #include "analysis_manager_interface.h"
 #include "analysis_types.h"
 #include "../log/log_types.h"
 #include "../unit/unit_types.h"
 
-namespace CubesLog { class ILogManager; }
+namespace CubesLog
+{
+    class ILogManager;
+    class LogHelper;
+}
 namespace CubesFile { class FileItem; }
 
 namespace CubesAnalysis
@@ -18,12 +23,15 @@ namespace CubesAnalysis
     private:
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
-        QMap<uint32_t, std::function<bool()>> delegates_;
+        QMap<CubesLog::BaseErrorCode, std::function<bool()>> delegates_;
         CubesUnitTypes::FileIdParameterModels fileModels_;
         QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> fileItems_;
 
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
+
+        // Log
+        QSharedPointer<CubesLog::LogHelper> logHelper_;
 
     public:
         FileItemsAnalysis(CubesLog::ILogManager* logManager);
@@ -42,7 +50,8 @@ namespace CubesAnalysis
         bool IsFileIdUnique(Rule rule);
 
     private:
-        void LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t id);
-        void LogError(const Rule& rule);
+        void CreateRules();
+        QMap<CubesLog::BaseErrorCode, QString> GetRuleDescriptions();
+        QMap<CubesLog::BaseErrorCode, QString> GetRuleDetailes();
     };
 }
