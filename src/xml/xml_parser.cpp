@@ -19,7 +19,8 @@ Parser::Parser(CubesLog::ILogManager* logManager)
 {
 	logManager_ = logManager;
 
-	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::xmlParser));
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::xmlParser,
+		CubesXml::GetParserErrorDescriptions()));
 }
 
 bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
@@ -41,11 +42,13 @@ bool Parser::Parse(QByteArray& byteArray, const QString& fileName)
 
 	QDomDocument doc;
 	if (!doc.setContent(xmlText))
-		CFRC(false, LogError(ParserErrorCode::fileParseFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileParseFailed),
+			{ {"File name", fi_.fileName} }));
 
 	QDomElement root = doc.documentElement();
 	if (!GetFile(root, fi_))
-		CFRC(false, LogError(ParserErrorCode::fileParseFailed, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileParseFailed),
+			{ {"File name", fi_.fileName} }));
 
 	return true;
 }
@@ -54,7 +57,8 @@ bool Parser::Parse(const QString& fileName)
 {
 	QFile xmlFile(fileName);
 	if (!xmlFile.open(QIODevice::ReadOnly))
-		CFRC(false, LogError(ParserErrorCode::fileOpenFailed, { {"File name", fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileOpenFailed),
+			{ {"File name", fileName} }));
 
 	QByteArray byteArray = xmlFile.readAll();
 
@@ -77,7 +81,8 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 			if (ne.tagName() == "Includes")
 			{
 				if (!GetIncludes(ne, fi.includes))
-					CFRC(false, LogError(ParserErrorCode::getIncludesFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getIncludesFailed),
+						{ {"File name", fi_.fileName} }));
 			}
 			else if (ne.tagName() == "Config")
 			{
@@ -85,7 +90,8 @@ bool Parser::GetFile(const QDomElement& node, File& fi)
 				QString platform;
 				QString color;
 				if (!GetConfig(ne, name, platform, color, fi.config))
-					CFRC(false, LogError(ParserErrorCode::getConfigFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getConfigFailed),
+						{ {"File name", fi_.fileName} }));
 				fi.name = name;
 				fi.platform = platform;
 				fi.color = color;
@@ -106,13 +112,15 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Include")
-				CFRC(false, LogError(ParserErrorCode::includesChildUnknown, { {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesChildUnknown),
+					{ {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
 
 			Include include{};
 
 			QString i_val = ei.attribute("val", "");
 			if (i_val == "")
-				CFRC(false, LogError(ParserErrorCode::includesIncludeValEmpty, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeValEmpty),
+					{ {"File name", fi_.fileName} }));
 			include.fileName = i_val;
 
 			QString i_name = ei.attribute("_name", "");
@@ -126,18 +134,22 @@ bool Parser::GetIncludes(const QDomElement& node, QList<Include>& includes)
 				if (!ev.isNull())
 				{
 					if (ev.tagName() != "Variable")
-						CFRC(false, LogError(ParserErrorCode::includesIncludeChildUnknown, { {"File name", fi_.fileName}, {"Name", ev.tagName()} }));
+						CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeChildUnknown),
+							{ {"File name", fi_.fileName}, {"Name", ev.tagName()} }));
 
 					QString v_name = ev.attribute("name", "");
 					QString v_val = ev.attribute("val", "");
 
 					if (v_name == "")
-						CFRC(false, LogError(ParserErrorCode::includesIncludeVariableNameEmpty, { {"File name", fi_.fileName} }));
+						CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableNameEmpty),
+							{ {"File name", fi_.fileName} }));
 					if (v_val == "")
-						CFRC(false, LogError(ParserErrorCode::includesIncludeVariableValEmpty, { {"File name", fi_.fileName}, {"Name", v_name} }));
+						CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableValEmpty),
+							{ {"File name", fi_.fileName}, {"Name", v_name} }));
 
 					if (variables.contains(v_name))
-						CFRC(false, LogError(ParserErrorCode::includesIncludeVariableNameDuplicate, { {"File name", fi_.fileName}, {"Name", v_name} }));
+						CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesIncludeVariableNameDuplicate),
+							{ {"File name", fi_.fileName}, {"Name", v_name} }));
 
 					variables[v_name] = v_val;
 				}
@@ -169,21 +181,25 @@ bool Parser::GetConfig(const QDomElement& node, QString& name, QString& platform
 			{
 				config.networkingIsSet = true;
 				if (!GetNetworking(ei, config.networking))
-					CFRC(false, LogError(ParserErrorCode::getNetworkingFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getNetworkingFailed),
+						{ {"File name", fi_.fileName} }));
 			}
 			else if (ei.tagName() == "Log")
 			{
 				config.logIsSet = true;
 				if (!GetLog(ei, config.log))
-					CFRC(false, LogError(ParserErrorCode::getLogFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getLogFailed),
+						{ {"File name", fi_.fileName} }));
 			}
 			else if (ei.tagName() == "Units")
 			{
 				if (!GetUnits(ei, config.groups))
-					CFRC(false, LogError(ParserErrorCode::getUnitsFailed, { {"File name", fi_.fileName} }));
+					CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getUnitsFailed),
+						{ {"File name", fi_.fileName} }));
 			}
 			else
-				CFRC(false, LogError(ParserErrorCode::configChildUnknown, { {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::configChildUnknown),
+					{ {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
 		}
 		i = i.nextSibling();
 	}
@@ -210,11 +226,14 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 		QString("%1").arg(CubesXml::Networking::Defaults().notifyReadyServers));
 
 	if (id == "")
-		CFRC(false, LogError(ParserErrorCode::networkingIdEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingIdEmpty),
+			{ {"File name", fi_.fileName} }));
 	if (accept_port == "")
-		CFRC(false, LogError(ParserErrorCode::networkingAcceptPortEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingAcceptPortEmpty),
+			{ {"File name", fi_.fileName} }));
 	if (keep_alive_sec == "")
-		CFRC(false, LogError(ParserErrorCode::networkingKeepAliveSecEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingKeepAliveSecEmpty),
+			{ {"File name", fi_.fileName} }));
 
 	networking.id = id.toInt();
 	networking.acceptPort = accept_port.toInt();
@@ -233,15 +252,18 @@ bool Parser::GetNetworking(const QDomElement& node, Networking& networking)
 		if (!ev.isNull())
 		{
 			if (ev.tagName() != "connect")
-				CFRC(false, LogError(ParserErrorCode::networkingChildUnknown, { {"File name", fi_.fileName}, {"Name",ev.tagName() } }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingChildUnknown),
+					{ {"File name", fi_.fileName}, {"Name",ev.tagName() } }));
 
 			QString v_port = ev.attribute("port", "");
 			QString v_ip = ev.attribute("ip", "");
 
 			if (v_port == "")
-				CFRC(false, LogError(ParserErrorCode::networkingConnectPortEmpty, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingConnectPortEmpty),
+					{ {"File name", fi_.fileName} }));
 			if (v_ip == "")
-				CFRC(false, LogError(ParserErrorCode::networkingConnectIpEmpty, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::networkingConnectIpEmpty),
+					{ {"File name", fi_.fileName} }));
 
 			Connect connect{};
 			connect.ip = v_ip;
@@ -264,7 +286,8 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Param")
-				CFRC(false, LogError(ParserErrorCode::logChildUnknown, { {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::logChildUnknown),
+					{ {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
 
 			QString name = ei.attribute("name", "");
 			QString type = ei.attribute("type", "");
@@ -285,7 +308,8 @@ bool Parser::GetLog(const QDomElement& node, Log& log)
 				log.logDir = val;
 			}
 			else
-				CFRC(false, LogError(ParserErrorCode::logParamUnknown, { {"File name", fi_.fileName}, {"Name", name} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::logParamUnknown),
+					{ {"File name", fi_.fileName}, {"Name", name} }));
 		}
 		i = i.nextSibling();
 	}
@@ -302,11 +326,13 @@ bool Parser::GetUnits(const QDomElement& node, QList<Group>& groups)
 		if (!ei.isNull())
 		{
 			if (ei.tagName() != "Group")
-				CFRC(false, LogError(ParserErrorCode::unitsChildUnknown, { {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitsChildUnknown),
+					{ {"File name", fi_.fileName}, {"Name", ei.tagName()} }));
 
 			Group group{};
 			if (!GetGroup(ei, group))
-				CFRC(false, LogError(ParserErrorCode::getGroupFailed, { {"File name", fi_.fileName} }));
+				CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getGroupFailed),
+					{ {"File name", fi_.fileName} }));
 
 			groups.push_back(std::move(group));
 		}
@@ -321,11 +347,11 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	auto paramNodes = ElementsByTagName(node, "Param");
 
 	if (paramNodes.size() == 0)
-		CFRC(false, LogError(ParserErrorCode::groupParamNotFound,
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamNotFound),
 			{ {"File name", fi_.fileName}, {"Count", QString("%1").arg(paramNodes.size())} }));
 
 	if (paramNodes.size() > 1)
-		CFRC(false, LogError(ParserErrorCode::groupParamDuplicate,
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamDuplicate),
 			{ {"File name", fi_.fileName}, {"Count", QString("%1").arg(paramNodes.size())} }));
 
 	const auto& ep = paramNodes[0];
@@ -336,14 +362,16 @@ bool Parser::GetGroup(const QDomElement& node, Group& group)
 	if (name == "Path" && type == "str")
 		group.path = val;
 	else
-		CFRC(false, LogError(ParserErrorCode::groupParamUnknown, { {"File name", fi_.fileName}, {"Name", name}, {"Type", type} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::groupParamUnknown),
+			{ {"File name", fi_.fileName}, {"Name", name}, {"Type", type} }));
 
 	auto unitNodes = ElementsByTagName(node, "Unit");
 	for (const auto& eu : unitNodes)
 	{
 		Unit unit{};
 		if (!GetUnit(eu, unit))
-			CFRC(false, LogError(ParserErrorCode::getUnitFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getUnitFailed),
+				{ {"File name", fi_.fileName} }));
 		group.units.push_back(std::move(unit));
 	}
 
@@ -359,9 +387,11 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	int32_t z = node.attribute("_z", "0").toInt();
 
 	if (name == "")
-		CFRC(false, LogError(ParserErrorCode::unitNameEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitNameEmpty),
+			{ {"File name", fi_.fileName} }));
 	if (id == "")
-		CFRC(false, LogError(ParserErrorCode::unitIdEmpty, { {"File name", fi_.fileName}, {"Name", name} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitIdEmpty),
+			{ {"File name", fi_.fileName}, {"Name", name} }));
 
 	unit.name = name;
 	unit.id = id;
@@ -374,7 +404,8 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			CFRC(false, LogError(ParserErrorCode::getParamFailed, { {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getParamFailed),
+				{ {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
 		unit.params.push_back(std::move(param));
 	}
 
@@ -383,7 +414,8 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			CFRC(false, LogError(ParserErrorCode::getArrayFailed, { {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getArrayFailed),
+				{ {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
 		unit.arrays.push_back(std::move(array));
 	}
 
@@ -396,7 +428,8 @@ bool Parser::GetUnit(const QDomElement& node, Unit& unit)
 	{
 		QList<QString> depends;
 		if (!GetDepends(ed, depends))
-			CFRC(false, LogError(ParserErrorCode::getDependsFailed, { {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getDependsFailed),
+				{ {"File name", fi_.fileName}, {"Name", name}, {"Id", id} }));
 
 		Array array{};
 		array.name = ids_.dependencies.toString();
@@ -423,11 +456,14 @@ bool Parser::GetParam(const QDomElement& node, Param& param)
 	QString depends = node.attribute("depends", "");
 
 	if (name == "")
-		CFRC(false, LogError(ParserErrorCode::unitParamNameEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamNameEmpty),
+			{ {"File name", fi_.fileName} }));
 	if (type == "")
-		CFRC(false, LogError(ParserErrorCode::unitParamTypeEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamTypeEmpty),
+			{ {"File name", fi_.fileName} }));
 	if (val == "")
-		CFRC(false, LogError(ParserErrorCode::unitParamValEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamValEmpty),
+			{ {"File name", fi_.fileName} }));
 	// depends is optional
 
 	param.name = name;
@@ -444,7 +480,8 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	QString type = node.attribute("type", "");
 
 	if (name == "")
-		CFRC(false, LogError(ParserErrorCode::unitParamNameEmpty, { {"File name", fi_.fileName} }));
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitParamNameEmpty),
+			{ {"File name", fi_.fileName} }));
 	// type is optional
 
 	array.name = name;
@@ -455,7 +492,8 @@ bool Parser::GetArray(const QDomElement& node, Array& array)
 	{
 		Item item;
 		if (!GetItem(ei, item))
-			CFRC(false, LogError(ParserErrorCode::getItemFailed, { {"File name", fi_.fileName}, {"Array name", name} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getItemFailed),
+				{ {"File name", fi_.fileName}, {"Array name", name} }));
 		array.items.push_back(std::move(item));
 	}
 
@@ -470,7 +508,8 @@ bool Parser::GetDepends(const QDomElement& node, QList<QString>& depends)
 		QString name = ei.attribute("name", "");
 
 		if (name == "")
-			CFRC(false, LogError(ParserErrorCode::unitDependsItemEmpty, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitDependsItemEmpty),
+				{ {"File name", fi_.fileName} }));
 
 		depends.push_back(name);
 	}
@@ -498,7 +537,8 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Param param{};
 		if (!GetParam(ep, param))
-			CFRC(false, LogError(ParserErrorCode::getParamFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getParamFailed),
+				{ {"File name", fi_.fileName} }));
 		item.params.push_back(std::move(param));
 	}
 
@@ -507,7 +547,8 @@ bool Parser::GetItem(const QDomElement& node, Item& item)
 	{
 		Array array{};
 		if (!GetArray(ea, array))
-			CFRC(false, LogError(ParserErrorCode::getArrayFailed, { {"File name", fi_.fileName} }));
+			CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getArrayFailed),
+				{ {"File name", fi_.fileName} }));
 		item.arrays.push_back(std::move(array));
 	}
 
@@ -531,37 +572,4 @@ QList<QDomElement> Parser::ElementsByTagName(const QDomElement& node, const QStr
 	}
 
 	return list;
-}
-
-void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::Variable>& variables)
-{
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-			CubesLog::SourceType::xmlParser, static_cast<uint32_t>(errorCode));
-		lm.source = CubesLog::SourceType::xmlParser;
-		lm.description = CubesXml::GetParserErrorDescription(errorCode);
-		lm.details = details;
-		lm.variables = variables;
-		lm.tag = CubesUnitTypes::InvalidBaseId;
-		logManager_->AddMessage(lm);
-	}
-}
-
-void Parser::LogError(CubesXml::ParserErrorCode errorCode)
-{
-	LogError(errorCode, {}, {});
-}
-
-void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QString& details)
-{
-	LogError(errorCode, details, {});
-}
-
-void Parser::LogError(CubesXml::ParserErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
-{
-	LogError(errorCode, {}, variables);
 }

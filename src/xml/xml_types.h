@@ -217,7 +217,7 @@ namespace CubesXml
 		}
 	};
 
-	enum class ParserErrorCode
+	enum class ParserErrorCode : CubesLog::BaseErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
 		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser),
@@ -321,7 +321,7 @@ namespace CubesXml
 		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 
-	enum class WriterErrorCode
+	enum class WriterErrorCode : CubesLog::BaseErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
 		fileSetFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter),
@@ -376,7 +376,7 @@ namespace CubesXml
 		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 
-	enum class HelperErrorCode
+	enum class HelperErrorCode : CubesLog::BaseErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
 		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper),
