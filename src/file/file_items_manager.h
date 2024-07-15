@@ -7,6 +7,7 @@
 
 namespace CubesTop { class ITopManager; }
 namespace CubesLog { class ILogManager; }
+namespace CubesLog { class LogHelper; }
 
 class QComboBox;
 
@@ -31,6 +32,9 @@ namespace CubesFile
 		QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> items_;
 		CubesUnitTypes::FileId selected_;
 		CubesUnitTypes::FileId uniqueNumber_;
+
+		// Log
+		QSharedPointer<CubesLog::LogHelper> logHelper_;
 
 	public:
 		FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isMock = false);
@@ -137,15 +141,5 @@ namespace CubesFile
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
 		void SetPropertyExpanded(const CubesUnitTypes::FileId fileId, const QtProperty* property, bool is_expanded);
-
-	private:
-		void Log(CubesLog::MessageType messageType, FileManagerErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::Variable>& variables, uint32_t id);
-		void LogInformation(FileManagerErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::Variable>& variables, uint32_t id);
-		void LogInformation(FileManagerErrorCode errorCode, const QVector<CubesLog::Variable>& variables, uint32_t id);
-		void LogInformation(FileManagerErrorCode errorCode);
-		void LogError(FileManagerErrorCode errorCode, const QString& details,
-			const QVector<CubesLog::Variable>& variables, uint32_t id);
 	};
 }

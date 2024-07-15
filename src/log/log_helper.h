@@ -36,6 +36,8 @@ namespace CubesLog
         {}
 
     public:
+        // Error
+
         void LogError(BaseErrorCode errorCode, const QString& description, const QString& details,
             const QVector<CubesLog::Variable>& variables, CubesUnitTypes::BaseId tag)
         {
@@ -95,6 +97,69 @@ namespace CubesLog
         void LogError(BaseErrorCode errorCode)
         {
             LogError(errorCode, {}, {}, {}, CubesUnitTypes::InvalidBaseId);
+        }
+
+        // Information
+
+        void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
+            const QVector<CubesLog::Variable>& variables, CubesUnitTypes::BaseId tag)
+        {
+            if (logManager_ != nullptr)
+            {
+                CubesLog::Message lm{};
+                lm.type = CubesLog::MessageType::information;
+                lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, sourceType_, errorCode);
+                lm.source = sourceType_;
+                if (description.isEmpty() && descriptions_.contains(errorCode))
+                    lm.description = descriptions_[errorCode];
+                else
+                    lm.description = description;
+                if (details.isEmpty() && details_.contains(errorCode))
+                    lm.details = details_[errorCode];
+                else
+                    lm.details = details;
+                lm.variables = variables;
+                lm.tag = tag;
+                logManager_->AddMessage(lm);
+            }
+        }
+
+        void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
+            const QVector<CubesLog::Variable>& variables)
+        {
+            LogInformation(errorCode, description, details, variables, CubesUnitTypes::InvalidBaseId);
+        }
+
+        void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
+            CubesUnitTypes::BaseId tag)
+        {
+            LogInformation(errorCode, description, details, {}, tag);
+        }
+
+        void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details)
+        {
+            LogInformation(errorCode, description, details, {}, CubesUnitTypes::InvalidBaseId);
+        }
+
+        void LogInformation(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables,
+            CubesUnitTypes::BaseId tag)
+        {
+            LogInformation(errorCode, {}, {}, variables, tag);
+        }
+
+        void LogInformation(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
+        {
+            LogInformation(errorCode, {}, {}, variables, CubesUnitTypes::InvalidBaseId);
+        }
+
+        void LogInformation(BaseErrorCode errorCode, CubesUnitTypes::BaseId tag)
+        {
+            LogInformation(errorCode, {}, {}, {}, tag);
+        }
+
+        void LogInformation(BaseErrorCode errorCode)
+        {
+            LogInformation(errorCode, {}, {}, {}, CubesUnitTypes::InvalidBaseId);
         }
     };
 }

@@ -60,23 +60,36 @@ namespace CubesFile
 		QList<Include> includes;
 	};
 
-	enum class FileManagerErrorCode
+	enum class FileManagerErrorCode : CubesLog::BaseErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		itemCreated = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager),
 		itemRemoved,
-		allItemsRemoved
+		allItemsRemoved,
+		last
 	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetFileManagerErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemCreated)] = QString::fromLocal8Bit("Файл создан (FileItem)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemRemoved)] = QString::fromLocal8Bit("Файл удален (FileItem)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::allItemsRemoved)] = QString::fromLocal8Bit("Все файлы удалены (FileItem)");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager) + 1) == descriptions.size());
+
+		return descriptions;
+	}
 
 	inline QString GetFileManagerErrorDescription(FileManagerErrorCode errorCode)
 	{
-		switch (errorCode)
-		{
-		case FileManagerErrorCode::ok: return "Ok";
-		case FileManagerErrorCode::itemCreated: return "Item created";
-		case FileManagerErrorCode::itemRemoved: return "Item removed";
-		case FileManagerErrorCode::allItemsRemoved: return "All items removed";
-		default: return QString("%1").arg(static_cast<uint32_t>(errorCode));
-		}
+		const auto& descriptions = GetFileManagerErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
 }

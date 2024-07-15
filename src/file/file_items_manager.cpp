@@ -11,6 +11,7 @@
 #include "../top/top_manager_interface.h"
 #include "../unit/unit_types.h"
 #include "../log/log_manager_interface.h"
+#include "../log/log_helper.h"
 #include "file_item.h"
 #include "file_items_manager.h"
 
@@ -27,6 +28,9 @@ FileItemsManager::FileItemsManager(CubesTop::ITopManager* topManager, CubesLog::
 	defaultColorFileIndex_ = 0;
 	for (auto& c : defaultColorsFile_)
 		c.setAlpha(0x20);
+
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::fileManager,
+		GetFileManagerErrorDescriptions()));
 
 	if (!isMock)
 		widget_ = CreateEditorWidget();
@@ -101,7 +105,8 @@ void FileItemsManager::Create(const QString& filePath, QString& fileName, QStrin
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(GetFileNames());
 
-	LogInformation(FileManagerErrorCode::itemCreated, { {QString::fromLocal8Bit("Èìÿ"), fileName} }, fileId);
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemCreated),
+		{ {QString::fromLocal8Bit("Èìÿ"), fileName} }, fileId);
 }
 
 void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::FileId& fileId)
@@ -120,7 +125,8 @@ void FileItemsManager::Create(const CubesXml::File& xmlFile, CubesUnitTypes::Fil
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(GetFileNames());
 
-	LogInformation(FileManagerErrorCode::itemCreated, { {QString::fromLocal8Bit("Èìÿ"), fi->GetName()} }, fileId);
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemCreated),
+		{ {QString::fromLocal8Bit("Èìÿ"), fi->GetName()} }, fileId);
 }
 
 void FileItemsManager::Select(const CubesUnitTypes::FileId fileId)
@@ -160,7 +166,8 @@ void FileItemsManager::Remove(const CubesUnitTypes::FileId fileId)
 
 	items_.remove(fileId);
 
-	LogInformation(FileManagerErrorCode::itemRemoved, { {QString::fromLocal8Bit("Èìÿ"), name} }, fileId);
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemRemoved),
+		{ {QString::fromLocal8Bit("Èìÿ"), name} }, fileId);
 }
 
 QSharedPointer<FileItem> FileItemsManager::GetItem(const CubesUnitTypes::FileId fileId)
@@ -263,7 +270,7 @@ void FileItemsManager::Clear()
 		selector_->clear();
 	items_.clear();
 
-	LogInformation(FileManagerErrorCode::allItemsRemoved);
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::allItemsRemoved));
 }
 
 QMap<CubesUnitTypes::FileId, QSharedPointer<FileItem>> FileItemsManager::GetItems()
@@ -533,7 +540,8 @@ void FileItemsManager::OnRemoveFileClicked()
 	if (filesListChangedDelegate_)
 		filesListChangedDelegate_(fileNames);
 
-	LogInformation(FileManagerErrorCode::itemRemoved, { {QString::fromLocal8Bit("Èìÿ"), name} }, fileId);
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::itemRemoved),
+		{ {QString::fromLocal8Bit("Èìÿ"), name} }, fileId);
 }
 
 QWidget* FileItemsManager::CreateEditorWidget()
@@ -605,43 +613,4 @@ void FileItemsManager::SetPropertyExpanded(const CubesUnitTypes::FileId fileId, 
 	auto it = items_.find(fileId);
 	if (it != items_.end())
 		(*it)->ExpandedChanged(property, is_expanded);
-}
-void FileItemsManager::Log(CubesLog::MessageType messageType, FileManagerErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::Variable>& variables, uint32_t id)
-{
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = messageType;
-		lm.code = CubesLog::CreateCode(messageType, CubesLog::SourceType::fileManager, static_cast<uint32_t>(errorCode));
-		lm.source = CubesLog::SourceType::fileManager;
-		lm.description = GetFileManagerErrorDescription(errorCode);
-		lm.details = details;
-		lm.variables = variables;
-		lm.tag = id;
-		logManager_->AddMessage(lm);
-	}
-}
-
-void FileItemsManager::LogInformation(FileManagerErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::Variable>& variables, uint32_t id)
-{
-	Log(CubesLog::MessageType::information, errorCode, details, variables, id);
-}
-
-void FileItemsManager::LogInformation(FileManagerErrorCode errorCode,
-	const QVector<CubesLog::Variable>& variables, uint32_t id)
-{
-	Log(CubesLog::MessageType::information, errorCode, {}, variables, id);
-}
-
-void FileItemsManager::LogInformation(FileManagerErrorCode errorCode)
-{
-	Log(CubesLog::MessageType::information, errorCode, {}, {}, {});
-}
-
-void FileItemsManager::LogError(FileManagerErrorCode errorCode, const QString& details,
-	const QVector<CubesLog::Variable>& variables, uint32_t id)
-{
-	Log(CubesLog::MessageType::error, errorCode, details, variables, id);
 }
