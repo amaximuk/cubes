@@ -46,7 +46,8 @@ namespace CubesAnalysis
         bool IsFileIdUnique(Rule rule);
 
     private:
-        void LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t id);
-        void LogError(const Rule& rule);
+        void CreateRules();
+        QMap<CubesLog::BaseErrorCode, QString> GetRuleDescriptions();
+        QMap<CubesLog::BaseErrorCode, QString> GetRuleDetailes();
     };
 }

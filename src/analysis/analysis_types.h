@@ -10,23 +10,24 @@ namespace CubesAnalysis
 	//constexpr RuleId InvalidRuleId = 0;
 	enum class FileAnalysisErrorCode
 	{
-		ok = 0,
+		success = CubesLog::SuccessErrorCode,
 		noMainConfig = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis),
 		nameNotUnique,
 		fileNameNotUnique,
-		connectionIdNotUnique
+		connectionIdNotUnique,
+		__last__
 	};
 
 	enum class PropertiesAnalysisErrorCode
 	{
-		ok = 0,
-		noUnitName = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)
+		success = CubesLog::SuccessErrorCode,
+		noUnitName = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis),
+		__last__
 	};
 
 	struct Rule
 	{
-		uint32_t errorCode;
-		//RuleId id; // errorCode
+		CubesLog::BaseErrorCode errorCode;
 		QString description;
 		QString detailes;
 		bool isActive;

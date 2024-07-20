@@ -178,8 +178,8 @@ void FileItemsAnalysis::CreateRules()
 {
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
-		rule.description = QString::fromLocal8Bit("Наличие основного конфигурационного файла");
+		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::noMainConfig);
+		rule.description = QString::fromLocal8Bit("Файлы отсутствуют");
 		rule.detailes = QString::fromLocal8Bit("В проекте должен быть как миинимум один файл");
 		rule.isActive = true;
 		rules_.push_back(rule);
@@ -189,8 +189,8 @@ void FileItemsAnalysis::CreateRules()
 
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::nameNotUnique);
-		rule.description = QString::fromLocal8Bit("Уникальность имени");
+		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::nameNotUnique);
+		rule.description = QString::fromLocal8Bit("Имя не уникально");
 		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов должны быть уникальные имена");
 		rule.isActive = true;
 		rules_.push_back(rule);
@@ -200,8 +200,8 @@ void FileItemsAnalysis::CreateRules()
 
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::fileNameNotUnique);
-		rule.description = QString::fromLocal8Bit("Уникальность имени файла");
+		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::fileNameNotUnique);
+		rule.description = QString::fromLocal8Bit("Имя файла не уникально");
 		rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена файлов");
 		rule.isActive = true;
 		rules_.push_back(rule);
@@ -211,14 +211,17 @@ void FileItemsAnalysis::CreateRules()
 
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::connectionIdNotUnique);
-		rule.description = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
+		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::connectionIdNotUnique);
+		rule.description = QString::fromLocal8Bit("Идентификатор хоста не уникален (соединение)");
 		rule.detailes = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
 		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsFileIdUnique, this, rule);
 	}
+
+	assert((static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::__last__) -
+		CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis)) == rules_.size());
 
 	// Проверка, что ip/port соединений указывает на существующий сервер с учетом 127.0.0.1
 	// Цвета файлов должны различаться
@@ -229,6 +232,7 @@ void FileItemsAnalysis::CreateRules()
 QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDescriptions()
 {
 	QMap<CubesLog::BaseErrorCode, QString> result;
+	result[CubesLog::SuccessErrorCode] = "Успех";
 	for (const auto& rule : rules_)
 		result[rule.errorCode] = rule.description;
 
@@ -238,27 +242,9 @@ QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDescriptions()
 QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDetailes()
 {
 	QMap<CubesLog::BaseErrorCode, QString> result;
+	result[CubesLog::SuccessErrorCode] = "Успех";
 	for (const auto& rule : rules_)
 		result[rule.errorCode] = rule.detailes;
 
 	return result;
 }
-
-//void FileItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
-//{
-//	CubesLog::Message lm{};
-//	lm.type = CubesLog::MessageType::error;
-//	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-//		CubesLog::SourceType::fileAnalysis, static_cast<uint32_t>(rule.errorCode));
-//	lm.source = CubesLog::SourceType::fileAnalysis;
-//	lm.description = rule.description;
-//	lm.details = rule.detailes;
-//	lm.variables = variables;
-//	lm.tag = tag;
-//	logManager_->AddMessage(lm);
-//}
-//
-//void FileItemsAnalysis::LogError(const Rule& rule)
-//{
-//	LogError(rule, {}, {});
-//}
