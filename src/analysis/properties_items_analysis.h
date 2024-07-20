@@ -41,9 +41,8 @@ namespace CubesAnalysis
         bool RunAllTests();
 
     public:
-        bool IsAllUnitsHaveName(Rule rule);
-        bool IsFileNamesUnique(Rule rule);
-        bool IsFileIdUnique(Rule rule);
+        bool TestNameIsEmpty(Rule rule);
+        bool TestNameNotUnique(Rule rule);
 
     private:
         void CreateRules();

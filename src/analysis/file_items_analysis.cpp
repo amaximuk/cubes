@@ -251,7 +251,7 @@ bool FileItemsAnalysis::TestFileNameNotUnique(Rule rule)
 	return result;
 }
 
-bool FileItemsAnalysis::IsConnectionIdUnique(Rule rule)
+bool FileItemsAnalysis::TestConnectionIdNotUnique(Rule rule)
 {
 	QMap<int, QString> fileIds;
 	bool result = true;
@@ -296,8 +296,8 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::nameIsEmpty);
-		rule.description = QString::fromLocal8Bit("Имя пустое");
-		rule.detailes = QString::fromLocal8Bit("Имя не должно быть пустым");
+		rule.description = QString::fromLocal8Bit("Имя не задано");
+		rule.detailes = QString::fromLocal8Bit("Имя должно быть задано");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -318,8 +318,8 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::includeNameIsEmpty);
-		rule.description = QString::fromLocal8Bit("Имя пустое");
-		rule.detailes = QString::fromLocal8Bit("Имя включаемого файла не должно быть пустым");
+		rule.description = QString::fromLocal8Bit("Имя не задано");
+		rule.detailes = QString::fromLocal8Bit("Имя включаемого файла должно быть задано");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -340,8 +340,8 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::fileNameIsEmpty);
-		rule.description = QString::fromLocal8Bit("Имя файла пустое");
-		rule.detailes = QString::fromLocal8Bit("Имя файла не должно быть пустым");
+		rule.description = QString::fromLocal8Bit("Имя файла не задано");
+		rule.detailes = QString::fromLocal8Bit("Имя файла должно быть задано");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -367,7 +367,7 @@ void FileItemsAnalysis::CreateRules()
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::IsConnectionIdUnique, this, rule);
+		delegates_[rule.errorCode] = std::bind(&FileItemsAnalysis::TestConnectionIdNotUnique, this, rule);
 	}
 
 	assert((static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::__last__) -

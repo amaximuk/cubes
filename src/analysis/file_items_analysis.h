@@ -48,9 +48,7 @@ namespace CubesAnalysis
         bool TestIncludeNameNotUnique(Rule rule);
         bool TestFileNameIsEmpty(Rule rule);
         bool TestFileNameNotUnique(Rule rule);
-        bool TestIncludeFileNameIsEmpty(Rule rule);
-        bool TestIncludeFileNameNotUnique(Rule rule);
-        bool IsConnectionIdUnique(Rule rule);
+        bool TestConnectionIdNotUnique(Rule rule);
 
     private:
         void CreateRules();

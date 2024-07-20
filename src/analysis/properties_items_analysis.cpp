@@ -51,7 +51,7 @@ bool PropertiesItemsAnalysis::RunAllTests()
 	return result;
 }
 
-bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
+bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 {
 	bool result = true;
 	for (auto& kvp : propertiesModels_.toStdMap())
@@ -69,7 +69,7 @@ bool PropertiesItemsAnalysis::IsAllUnitsHaveName(Rule rule)
 	return result;
 }
 
-bool PropertiesItemsAnalysis::IsFileNamesUnique(Rule rule)
+bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 {
 	QSet<QString> filenames;
 	bool result = true;
@@ -93,30 +93,30 @@ bool PropertiesItemsAnalysis::IsFileNamesUnique(Rule rule)
 	return result;
 }
 
-bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
-{
-	QSet<int> fileIds;
-	bool result = true;
-	//for (const auto& file : fileModels_)
-	//{
-	//	if (!file.is_include)
-	//	{
-	//		if (fileIds.contains(file.main.id))
-	//		{
-	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
-	//				arg(file.main.name).arg(file.main.id);
-	//			LogError->AfterFileError(file.main.fileId, message);
-	//			result = false;
-	//		}
-	//		else
-	//		{
-	//			fileIds.insert(file.main.id);
-	//		}
-	//	}
-	//}
-
-	return result;
-}
+//bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
+//{
+//	QSet<int> fileIds;
+//	bool result = true;
+//	//for (const auto& file : fileModels_)
+//	//{
+//	//	if (!file.is_include)
+//	//	{
+//	//		if (fileIds.contains(file.main.id))
+//	//		{
+//	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
+//	//				arg(file.main.name).arg(file.main.id);
+//	//			LogError->AfterFileError(file.main.fileId, message);
+//	//			result = false;
+//	//		}
+//	//		else
+//	//		{
+//	//			fileIds.insert(file.main.id);
+//	//		}
+//	//	}
+//	//}
+//
+//	return result;
+//}
 
 //void PropertiesItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
 //{
@@ -142,23 +142,23 @@ void PropertiesItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameIsEmpty);
-		rule.description = QString::fromLocal8Bit("Имя юнита не задано");
-		rule.detailes = QString::fromLocal8Bit("Каждый юнит должен иметь имя");
+		rule.description = QString::fromLocal8Bit("Имя не задано");
+		rule.detailes = QString::fromLocal8Bit("Имя должно быть задано");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsAllUnitsHaveName, this, rule);
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestNameIsEmpty, this, rule);
 	}
 
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameNotUnique);
-		rule.description = QString::fromLocal8Bit("Имя юнита не уникально");
-		rule.detailes = QString::fromLocal8Bit("Каждый юнит должен иметь уникальное имя, с учетом переменных");
+		rule.description = QString::fromLocal8Bit("Имя не уникально");
+		rule.detailes = QString::fromLocal8Bit("Имя должно быть уникальным, с учетом переменных");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsAllUnitsHaveName, this, rule);
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestNameNotUnique, this, rule);
 	}
 
 	//{
