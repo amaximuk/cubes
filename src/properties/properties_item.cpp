@@ -26,7 +26,7 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     ignoreEvents_ = false;
 
     logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesItem,
-        GetPropertiesManagerErrorDescriptions()));
+        GetPropertiesItemErrorDescriptions()));
 
     CreateParametersModel(nullptr, isArrayUnit);
     CreateProperties();
@@ -43,6 +43,9 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     parameterModels_ = {};
     ignoreEvents_ = false;
 
+    logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesItem,
+        GetPropertiesItemErrorDescriptions()));
+
     parameterModels_ = pm;
     CreateProperties();
 }
@@ -57,6 +60,9 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     propertiesId_ = propertiesId;
     parameterModels_ = {};
     ignoreEvents_ = false;
+
+    logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesItem,
+        GetPropertiesItemErrorDescriptions()));
 
     CreateParametersModel(&xmlUnit, isArrayUnit);
     CreateProperties();
@@ -334,14 +340,12 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
         if (xmlBaseType != baseItemType)
         {
-            propertiesItemsManager_->AfterError(propertiesId_,
-                QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не совместим с типом %5 параметра юнита").
-                arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
-                arg(QString::fromStdString(pi.type)));
-
-            //return;
-            // Ошибка! Тип данных в xml не совместим с типом параметра
-            // TODO: вернуть ошибку
+            logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::typeMismatch),
+                { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                {QString::fromLocal8Bit("Тип параметра юнита"), QString::fromStdString(pi.type)} }, propertiesId_);
         }
     }
 
@@ -361,10 +365,12 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             xmlValue = xmlValueString.toInt(&flag);
             if (!flag)
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
-                    arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
-                    arg(xmlValueString));
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::typeMismatch),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
 
                 xmlValue = int{ 0 };
             }
@@ -376,10 +382,12 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             xmlValue = xmlValueString.toDouble(&flag);
             if (!flag)
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не может быть конвертирован в int, значение %5").
-                    arg(element.param->name).arg(element.param->type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)).
-                    arg(xmlValueString));
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::typeMismatch),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
 
                 xmlValue = double{ 0.0 };
             }
@@ -415,10 +423,12 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             // Проверяем ограничения на список элементов
             if (!model.HaveComboBoxValue(xmlValue.toString()))
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
-                // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
-                // TODO: вернуть ошибку
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::restrictionFailed),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
             }
         }
     }
@@ -512,10 +522,12 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
             {
                 if (!model.HaveComboBoxValue(xmlValue.toString()))
                 {
-                    propertiesItemsManager_->AfterError(propertiesId_,
-                        QString::fromLocal8Bit("Значение параметра в xml не удовлетворяет ограничениям"));
-                    // Ошибка! Значение параметра в xml не удовлетворяет ограничениям
-                    // TODO: вернуть ошибку
+                    logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::restrictionFailed),
+                        { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                        {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                        {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                        {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                        {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
                 }
             }
         }
@@ -1232,10 +1244,12 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (!model.HaveComboBoxValue(QString("%1").arg(element.itemsCount)))
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
-                // Ошибка! Количество элементов в xml не соответствует ограничениям
-                // TODO: вернуть ошибку
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::restrictionFailed),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Значение"), QString("%1").arg(element.itemsCount)} }, propertiesId_);
             }
             else
                 model.value = QString("%1").arg(element.itemsCount);
@@ -1259,10 +1273,12 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnitType
         {
             if (element.itemsCount < model.editorSettings.spinIntergerMin || element.itemsCount > model.editorSettings.spinIntergerMax)
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Количество элементов %1 не соответствует ограничениям").arg(model.name));
-                // Ошибка! Количество элементов в xml не соответствует ограничениям
-                // TODO: вернуть ошибку
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::restrictionFailed),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Значение"), QString("%1").arg(element.itemsCount)} }, propertiesId_);
             }
             else
                 model.value = QString("%1").arg(element.itemsCount);
@@ -1871,9 +1887,11 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
 
             if (pi == nullptr)
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не найден в параметрах юнита").
-                    arg(xpi.name).arg(type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::notFound),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), xpi.name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)} }, propertiesId_);
             }
         }
     }
@@ -1886,9 +1904,11 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
 
             if (pi == nullptr)
             {
-                propertiesItemsManager_->AfterError(propertiesId_,
-                    QString::fromLocal8Bit("Параметр %1 типа %2 (из xml файла) юнита %3 (тип %4) не найден в параметрах юнита").
-                    arg(xai.name).arg(type).arg(GetName()).arg(QString::fromStdString(unitParameters_.fileInfo.info.id)));
+                logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::notFound),
+                    { {QString::fromLocal8Bit("Имя параметра xml"), xai.name},
+                    {QString::fromLocal8Bit("Тип параметра xml"), type},
+                    {QString::fromLocal8Bit("Имя юнита"), GetName()},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)} }, propertiesId_);
             }
         }
     }

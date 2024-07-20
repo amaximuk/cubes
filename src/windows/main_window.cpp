@@ -1183,6 +1183,11 @@ void MainWindow::OnErrorButtonClicked(bool checked)
         sort_filter_model_->AddToFilter(CubesLog::MessageType::error);
     else
         sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::error);
+
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->horizontalHeader()->setStretchLastSection(false);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->resizeRowsToContents();
 }
 
 void MainWindow::OnWarningButtonClicked(bool checked)
@@ -1191,6 +1196,11 @@ void MainWindow::OnWarningButtonClicked(bool checked)
         sort_filter_model_->AddToFilter(CubesLog::MessageType::warning);
     else
         sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::warning);
+
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->horizontalHeader()->setStretchLastSection(false);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->resizeRowsToContents();
 }
 
 void MainWindow::OnInformationButtonClicked(bool checked)
@@ -1199,6 +1209,11 @@ void MainWindow::OnInformationButtonClicked(bool checked)
         sort_filter_model_->AddToFilter(CubesLog::MessageType::information);
     else
         sort_filter_model_->RemoveFromFilter(CubesLog::MessageType::information);
+
+    table_view_log_->resizeColumnsToContents();
+    table_view_log_->horizontalHeader()->setStretchLastSection(false);
+    table_view_log_->horizontalHeader()->setStretchLastSection(true);
+    table_view_log_->resizeRowsToContents();
 }
 
 void MainWindow::OnDoubleClicked(const QModelIndex& index)
@@ -1208,7 +1223,9 @@ void MainWindow::OnDoubleClicked(const QModelIndex& index)
     if (log_table_model_->GetMessage(mapped.row(), m))
     {
         // TODO: Properties Manager è ò.ï. â enum
-        if (m.source == CubesLog::SourceType::propertiesManager || m.source == CubesLog::SourceType::propertiesAnalysis)
+        if (m.source == CubesLog::SourceType::propertiesManager ||
+            m.source == CubesLog::SourceType::propertiesAnalysis ||
+            m.source == CubesLog::SourceType::propertiesItem)
         {
             CubesUnitTypes::PropertiesId propertiesId = m.tag;
             propertiesItemsManager_->Select(propertiesId);

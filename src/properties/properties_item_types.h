@@ -41,4 +41,39 @@ namespace CubesProperties
 			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
 		return QString("%1").arg(static_cast<uint32_t>(errorCode));
 	}
+
+	enum class PropertiesItemErrorCode : CubesLog::BaseErrorCode
+	{
+		success = CubesLog::SuccessErrorCode,
+		typeMismatch = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileItem),
+		convertFailed,
+		restrictionFailed,
+		notFound,
+		__last__
+	};
+
+	inline const CubesLog::BaseErrorCodeDescriptions& GetPropertiesItemErrorDescriptions()
+	{
+		static CubesLog::BaseErrorCodeDescriptions descriptions;
+		if (descriptions.empty())
+		{
+			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::success)] = QString::fromLocal8Bit("Успех");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::typeMismatch)] = QString::fromLocal8Bit("Несовместимость типа параметра");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::convertFailed)] = QString::fromLocal8Bit("Ошибка конвертации значения");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::restrictionFailed)] = QString::fromLocal8Bit("Значение не удовлетворяет ограничениям");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::notFound)] = QString::fromLocal8Bit("Параметр не найден");
+		}
+
+		assert((static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileItem) + 1) == descriptions.size());
+
+		return descriptions;
+	}
+
+	inline QString GetPropertiesItemErrorDescription(PropertiesManagerErrorCode errorCode)
+	{
+		const auto& descriptions = GetPropertiesItemErrorDescriptions();
+		if (descriptions.contains(static_cast<CubesLog::BaseErrorCode>(errorCode)))
+			return descriptions[static_cast<CubesLog::BaseErrorCode>(errorCode)];
+		return QString("%1").arg(static_cast<uint32_t>(errorCode));
+	}
 }
