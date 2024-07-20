@@ -13,6 +13,8 @@
 #include "../xml/xml_parser.h"
 #include "../windows/array_window.h"
 #include "../utils/graph.h"
+#include "../log/log_helper.h"
+#include "properties_item_types.h"
 #include "properties_item.h"
 #include "properties_items_manager.h"
 
@@ -26,6 +28,9 @@ PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager
 	logManager_ = logManager;
 	selected_ = CubesUnitTypes::InvalidPropertiesId;
 	uniqueNumber_ = CubesUnitTypes::InvalidPropertiesId;
+
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesManager,
+		GetPropertiesManagerErrorDescriptions()));
 
 	if (!isMock)
 		widget_ = CreateEditorWidget();
@@ -66,17 +71,8 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	selector_->addItem(pi->GetName(), propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemCreated),
+		{ {QString::fromLocal8Bit("Имя"), pi->GetName()} }, propertiesId);
 }
 
 void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParameterModels& pm,
@@ -95,17 +91,8 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	selector_->addItem(propertiesName, propertiesId);
 	selector_->setCurrentIndex(selector_->count() - 1);
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemCreated),
+		{ {QString::fromLocal8Bit("Имя"), pi->GetName()} }, propertiesId);
 }
 
 void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId)
@@ -124,17 +111,8 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 		selector_->setCurrentIndex(selector_->count() - 1);
 	}
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = QString("Item created, id = %1, name = %2").arg(propertiesId).arg(pi->GetName());
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemCreated),
+		{ {QString::fromLocal8Bit("Имя"), pi->GetName()} }, propertiesId);
 
 	topManager_->CreateDiagramItem(propertiesId);
 }
@@ -164,23 +142,17 @@ void PropertiesItemsManager::Select(CubesUnitTypes::PropertiesId propertiesId)
 
 void PropertiesItemsManager::Remove(CubesUnitTypes::PropertiesId propertiesId)
 {
+	// Получаем имя файла
+	QString name = GetName(propertiesId);
+
 	int index = selector_->findData(propertiesId);
 	if (index != -1)
 		selector_->removeItem(index);
 
 	items_.remove(propertiesId);
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::remove));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = QString("Item removed, id = %1").arg(propertiesId);
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemRemoved),
+		{ {QString::fromLocal8Bit("Имя"), name} }, propertiesId);
 }
 
 QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(CubesUnitTypes::PropertiesId propertiesId)
@@ -464,17 +436,7 @@ void PropertiesItemsManager::Clear()
 	uniqueNumber_ = 0;
 	selected_ = 0;
 
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::information;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::information, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::clear));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = QString("All items removed");
-		lm.tag = CubesUnitTypes::InvalidBaseId;
-		logManager_->AddMessage(lm);
-	}
+	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::allItemsRemoved));
 }
 
 bool PropertiesItemsManager::GetName(CubesUnitTypes::PropertiesId propertiesId, QString& name)
@@ -635,17 +597,12 @@ void PropertiesItemsManager::AfterPositionChanged(CubesUnitTypes::PropertiesId p
 
 void PropertiesItemsManager::AfterError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
 {
-	if (logManager_ != nullptr)
-	{
-		CubesLog::Message lm{};
-		lm.type = CubesLog::MessageType::error;
-		lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::propertiesManager,
-			static_cast<uint32_t>(MessageId::create));
-		lm.source = CubesLog::SourceType::propertiesManager;
-		lm.description = message;
-		lm.tag = propertiesId;
-		logManager_->AddMessage(lm);
-	}
+	// Получаем имя файла - нельзя!!!
+	//QString name = GetName(propertiesId);
+
+	//logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemError), message, "",
+	//	{ {QString::fromLocal8Bit("Имя"), name} }, propertiesId);
+	logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemError), message, "", propertiesId);
 }
 
 void PropertiesItemsManager::AfterConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)

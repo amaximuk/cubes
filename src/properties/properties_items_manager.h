@@ -5,6 +5,7 @@
 
 namespace CubesTop { class ITopManager; }
 namespace CubesLog { class ILogManager; }
+namespace CubesLog { class LogHelper; }
 namespace CubesProperties { class PropertiesItem; }
 
 class QComboBox;
@@ -17,15 +18,6 @@ namespace CubesProperties
 		Q_OBJECT
 
 	private:
-		enum class MessageId
-		{
-			unknown = 10000,
-			create,
-			remove,
-			clear
-		};
-
-	private:
 		CubesTop::ITopManager* topManager_;
 		CubesLog::ILogManager* logManager_;
 		const bool isArray_;
@@ -36,6 +28,9 @@ namespace CubesProperties
 		QMap<CubesUnitTypes::PropertiesId, QSharedPointer<PropertiesItem>> items_;
 		CubesUnitTypes::PropertiesId selected_;
 		CubesUnitTypes::PropertiesId uniqueNumber_;
+
+		// Log
+		QSharedPointer<CubesLog::LogHelper> logHelper_;
 
 	public:
 		PropertiesItemsManager(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray, bool isMock = false);
