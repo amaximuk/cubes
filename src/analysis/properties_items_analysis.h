@@ -1,11 +1,13 @@
 #pragma once
 
 #include <QObject>
+#include <QSharedPointer>
 #include "analysis_manager_interface.h"
 #include "analysis_types.h"
 #include "../unit/unit_types.h"
 
 namespace CubesLog { class ILogManager; }
+namespace CubesLog { class LogHelper; }
 
 namespace CubesAnalysis
 {
@@ -23,6 +25,9 @@ namespace CubesAnalysis
 
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
+
+        // Log
+        QSharedPointer<CubesLog::LogHelper> logHelper_;
 
     public:
         PropertiesItemsAnalysis(CubesLog::ILogManager* logManager);

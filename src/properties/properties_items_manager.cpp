@@ -65,7 +65,7 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, isArray_, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, isArray_, propertiesId));
 
 	items_[propertiesId] = pi;
 	selector_->addItem(pi->GetName(), propertiesId);
@@ -82,7 +82,7 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, propertiesId, pm));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, propertiesId, pm));
 
 	QString propertiesName = pm[0].parameters[0].value.toString();
 
@@ -101,7 +101,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, editor_, unitParameters, xmlUnit, isArray_, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, xmlUnit, isArray_, propertiesId));
 
 	items_[propertiesId] = pi;
 

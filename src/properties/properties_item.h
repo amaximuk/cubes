@@ -8,6 +8,9 @@
 #include "../xml/xml_parser.h"
 #include "../property_browser/properties_editor.h"
 
+namespace CubesLog { class ILogManager; }
+namespace CubesLog { class LogHelper; }
+
 namespace CubesProperties
 {
     class PropertiesItem : public QObject
@@ -17,6 +20,7 @@ namespace CubesProperties
     private:
         // Params
         IPropertiesItemsManager* propertiesItemsManager_;
+        CubesLog::ILogManager* logManager_;
         QPointer<PropertiesEditor> editor_;
         CubesUnitTypes::PropertiesId propertiesId_;
         CubesUnitTypes::UnitParameters unitParameters_;
@@ -37,12 +41,15 @@ namespace CubesProperties
         // Значения имен параметров
         CubesUnitTypes::ParameterModelIds ids_;
 
+        // Log
+        QSharedPointer<CubesLog::LogHelper> logHelper_;
+
     public:
-        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId);
-        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParameterModels pm);
-        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+        PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
             CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId);
 
     public:

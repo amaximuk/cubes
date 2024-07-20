@@ -45,7 +45,7 @@ namespace CubesLog
             {
                 CubesLog::Message lm{};
                 lm.type = CubesLog::MessageType::error;
-                lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, sourceType_, errorCode);
+                lm.code = CubesLog::CreateCode(lm.type, sourceType_, errorCode);
                 lm.source = sourceType_;
                 if (description.isEmpty() && descriptions_.contains(errorCode))
                     lm.description = descriptions_[errorCode];
@@ -108,7 +108,7 @@ namespace CubesLog
             {
                 CubesLog::Message lm{};
                 lm.type = CubesLog::MessageType::information;
-                lm.code = CubesLog::CreateCode(CubesLog::MessageType::error, sourceType_, errorCode);
+                lm.code = CubesLog::CreateCode(lm.type, sourceType_, errorCode);
                 lm.source = sourceType_;
                 if (description.isEmpty() && descriptions_.contains(errorCode))
                     lm.description = descriptions_[errorCode];

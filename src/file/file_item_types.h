@@ -66,7 +66,7 @@ namespace CubesFile
 		itemCreated = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager),
 		itemRemoved,
 		allItemsRemoved,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetFileManagerErrorDescriptions()
@@ -80,7 +80,7 @@ namespace CubesFile
 			descriptions[static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::allItemsRemoved)] = QString::fromLocal8Bit("Все файлы удалены (FileItem)");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(FileManagerErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager) + 1) == descriptions.size());
 
 		return descriptions;
 	}

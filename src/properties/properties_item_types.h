@@ -7,22 +7,6 @@
 
 namespace CubesProperties
 {
-	//struct PropertiesForDrawing
-	//{
-	//	QPixmap pixmap;
-	//	QString name;
-	//	CubesUnitTypes::FileId fileId;
-	//	CubesUnitTypes::IncludeId includeId;
-	//};
-//private:
-//	enum class MessageId
-//	{
-//		unknown = 10000,
-//		create,
-//		remove,
-//		clear
-//	};
-
 	enum class PropertiesManagerErrorCode : CubesLog::BaseErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
@@ -30,7 +14,7 @@ namespace CubesProperties
 		itemRemoved,
 		allItemsRemoved,
 		itemError,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetPropertiesManagerErrorDescriptions()
@@ -45,7 +29,7 @@ namespace CubesProperties
 			descriptions[static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemError)] = QString::fromLocal8Bit("Ошибка в юните (PropertiesItem)");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileManager) + 1) == descriptions.size());
 
 		return descriptions;
 	}

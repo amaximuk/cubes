@@ -10,90 +10,74 @@ namespace CubesLog
         unknown = 0,
         topManager,
         fileManager,
+        fileItem,
         propertiesManager,
+        propertiesItem,
         xmlHelper,
         xmlParser,
         xmlWriter,
         fileAnalysis,
-        propertiesAnalysis
+        propertiesAnalysis,
+        __last__
     };
 
-    inline QString SourceTypeToString(SourceType sourceType)
-    {
-        switch (sourceType)
-        {
-        case SourceType::unknown:
-            return "-";
-        case SourceType::topManager:
-            return "Top Manager";
-        case SourceType::fileManager:
-            return "File Manager";
-        case SourceType::propertiesManager:
-            return "Properties Manager";
-        case SourceType::xmlHelper:
-            return "XML Helper";
-        case SourceType::xmlParser:
-            return "XML Parser";
-        case SourceType::xmlWriter:
-            return "XML Writer";
-        case SourceType::fileAnalysis:
-            return "File Analysis";
-        case SourceType::propertiesAnalysis:
-            return "Properties Analysis";
-        default:
-            return QString("%1").arg(static_cast<int>(sourceType));
-        }
-    }
 
-    inline QString GetSourceTypePrefix(SourceType sourceType)
+    struct SourceTypeDescription
     {
-        switch (sourceType)
-        {
-        case SourceType::unknown:
-            return "U";
-        case SourceType::topManager:
-            return "TM";
-        case SourceType::fileManager:
-            return "FM";
-        case SourceType::propertiesManager:
-            return "PM";
-        case SourceType::xmlHelper:
-            return "XH";
-        case SourceType::xmlParser:
-            return "XP";
-        case SourceType::xmlWriter:
-            return "XW";
-        case SourceType::fileAnalysis:
-            return "FA";
-        case SourceType::propertiesAnalysis:
-            return "PA";
-        default:
-            return QString("%1").arg(static_cast<int>(sourceType));
-        }
-    }
+        QString name;
+        QString prefix;
+        uint32_t offset;
+    };
+
+    using SourceTypeDescriptions = QMap<SourceType, SourceTypeDescription>;
 
     inline constexpr uint32_t GetSourceTypeCodeOffset(SourceType sourceType)
     {
         if (sourceType == SourceType::unknown)
             return 0;
-        else if (sourceType == SourceType::topManager)
-            return 10000;
-        else if (sourceType == SourceType::fileManager)
-            return 20000;
-        else if (sourceType == SourceType::propertiesManager)
-            return 30000;
-        else if (sourceType == SourceType::xmlHelper)
-            return 40000;
-        else if (sourceType == SourceType::xmlParser)
-            return 50000;
-        else if (sourceType == SourceType::xmlWriter)
-            return 60000;
-        else if (sourceType == SourceType::fileAnalysis)
-            return 70000;
-        else if (sourceType == SourceType::propertiesAnalysis)
-            return 80000;
         else
-            return 0;
+            return 10000 + 1000 * static_cast<uint32_t>(sourceType);
+    }
+
+    inline const SourceTypeDescriptions& GetSourceTypeDescriptions()
+    {
+        static CubesLog::SourceTypeDescriptions descriptions;
+        if (descriptions.empty())
+        {
+            descriptions[SourceType::unknown] = { QString::fromLocal8Bit("-"), QString::fromLocal8Bit("U"), GetSourceTypeCodeOffset(SourceType::unknown)};
+            descriptions[SourceType::topManager] = { QString::fromLocal8Bit("Top Manager"), QString::fromLocal8Bit("TM"), GetSourceTypeCodeOffset(SourceType::topManager) };
+            descriptions[SourceType::fileManager] = { QString::fromLocal8Bit("File Manager"), QString::fromLocal8Bit("FM"), GetSourceTypeCodeOffset(SourceType::fileManager) };
+            descriptions[SourceType::fileItem] = { QString::fromLocal8Bit("File Item"), QString::fromLocal8Bit("FI"), GetSourceTypeCodeOffset(SourceType::fileItem) };
+            descriptions[SourceType::propertiesManager] = { QString::fromLocal8Bit("Properties Manager"), QString::fromLocal8Bit("PM"), GetSourceTypeCodeOffset(SourceType::propertiesManager) };
+            descriptions[SourceType::propertiesItem] = { QString::fromLocal8Bit("Properties Item"), QString::fromLocal8Bit("PI"), GetSourceTypeCodeOffset(SourceType::propertiesItem) };
+            descriptions[SourceType::xmlHelper] = { QString::fromLocal8Bit("XML Helper"), QString::fromLocal8Bit("XH"), GetSourceTypeCodeOffset(SourceType::xmlHelper) };
+            descriptions[SourceType::xmlParser] = { QString::fromLocal8Bit("XML Parser"), QString::fromLocal8Bit("XP"), GetSourceTypeCodeOffset(SourceType::xmlParser) };
+            descriptions[SourceType::xmlWriter] = { QString::fromLocal8Bit("XML Writer"), QString::fromLocal8Bit("XW"), GetSourceTypeCodeOffset(SourceType::xmlWriter) };
+            descriptions[SourceType::fileAnalysis] = { QString::fromLocal8Bit("File Analysis"), QString::fromLocal8Bit("FA"), GetSourceTypeCodeOffset(SourceType::fileAnalysis) };
+            descriptions[SourceType::propertiesAnalysis] = { QString::fromLocal8Bit("Properties Analysis"), QString::fromLocal8Bit("PA"), GetSourceTypeCodeOffset(SourceType::propertiesAnalysis) };
+        }
+
+        assert((static_cast<uint32_t>(SourceType::__last__) - static_cast<uint32_t>(SourceType::unknown)) == descriptions.size());
+
+        return descriptions;
+    }
+
+    inline SourceTypeDescription GetSourceTypeDescription(SourceType sourceType)
+    {
+        const auto& descriptions = GetSourceTypeDescriptions();
+        if (descriptions.contains(sourceType))
+            return descriptions[sourceType];
+        return descriptions[SourceType::unknown];
+    }
+
+    inline QString SourceTypeToString(SourceType sourceType)
+    {
+        return GetSourceTypeDescription(sourceType).name;
+    }
+
+    inline QString GetSourceTypePrefix(SourceType sourceType)
+    {
+        return GetSourceTypeDescription(sourceType).prefix;
     }
 
     inline uint qHash(SourceType key, uint seed)

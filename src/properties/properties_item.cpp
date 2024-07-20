@@ -8,29 +8,35 @@
 #include "../parameters/variant_converter.h"
 #include "../parameters/base64.h"
 #include "../xml/xml_helper.h"
+#include "../log/log_helper.h"
 #include "properties_item_types.h"
 #include "properties_item.h"
 
 using namespace CubesProperties;
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
+    logManager_ = logManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
     parameterModels_ = {};
     ignoreEvents_ = false;
 
+    logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesItem,
+        GetPropertiesManagerErrorDescriptions()));
+
     CreateParametersModel(nullptr, isArrayUnit);
     CreateProperties();
 }
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::ParameterModels pm)
 {
     propertiesItemsManager_ = propertiesItemsManager;
+    logManager_ = logManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;
@@ -41,10 +47,11 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     CreateProperties();
 }
 
-PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, PropertiesEditor* editor,
+PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
     CubesUnitTypes::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnitTypes::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
+    logManager_ = logManager;
     editor_ = editor;
     unitParameters_ = unitParameters;
     propertiesId_ = propertiesId;

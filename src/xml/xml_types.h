@@ -258,7 +258,7 @@ namespace CubesXml
 		unitParamValEmpty,
 		getItemFailed,
 		unitDependsItemEmpty,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetParserErrorDescriptions()
@@ -308,7 +308,7 @@ namespace CubesXml
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitDependsItemEmpty)] = QString::fromLocal8Bit("Имя элемента зависимости не задано (Unit/Depends/Item name)");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser) + 1) == descriptions.size());
 		
 		return descriptions;
 	}
@@ -338,7 +338,7 @@ namespace CubesXml
 		setDependsFailed,
 		setItemFailed,
 		setArrayFailed,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetWriterErrorDescriptions()
@@ -363,7 +363,7 @@ namespace CubesXml
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::setArrayFailed)] = QString::fromLocal8Bit("Ошибка установки массива (Array)");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter) + 1) == descriptions.size());
 
 		return descriptions;
 	}
@@ -384,7 +384,7 @@ namespace CubesXml
 		unitParametersMalformed,
 		bufferWriteFailed,
 		fileWriteFailed,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetHelperErrorDescriptions()
@@ -400,7 +400,7 @@ namespace CubesXml
 			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileWriteFailed)] = QString::fromLocal8Bit("Ошибка записи файла");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper) + 1) == descriptions.size());
 
 		return descriptions;
 	}

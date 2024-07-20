@@ -21,7 +21,7 @@ namespace CubesTop
 		parametersFileInvalid = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::topManager),
 		noParametersFile,
 		zipFileError,
-		last
+		__last__
 	};
 
 	inline const CubesLog::BaseErrorCodeDescriptions& GetTopManagerErrorDescriptions()
@@ -35,7 +35,7 @@ namespace CubesTop
 			descriptions[static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::zipFileError)] = QString::fromLocal8Bit("Ошибка сжатия файла");
 		}
 
-		assert((static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::last) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::topManager) + 1) == descriptions.size());
+		assert((static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::topManager) + 1) == descriptions.size());
 
 		return descriptions;
 	}
