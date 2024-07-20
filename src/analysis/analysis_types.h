@@ -11,8 +11,12 @@ namespace CubesAnalysis
 	enum class FileAnalysisErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
-		noMainConfig = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis),
+		noFiles = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::fileAnalysis),
+		nameIsEmpty,
 		nameNotUnique,
+		includeNameIsEmpty,
+		includeNameNotUnique,
+		fileNameIsEmpty,
 		fileNameNotUnique,
 		connectionIdNotUnique,
 		__last__
@@ -21,7 +25,8 @@ namespace CubesAnalysis
 	enum class PropertiesAnalysisErrorCode
 	{
 		success = CubesLog::SuccessErrorCode,
-		noUnitName = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis),
+		nameIsEmpty = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis),
+		nameNotUnique,
 		__last__
 	};
 

@@ -41,10 +41,16 @@ namespace CubesAnalysis
         bool RunAllTests();
 
     public:
-        bool IsHaveAtLeastOneMainConfig(Rule rule);
-        bool IsFileNamesUnique(Rule rule);
-        bool IsFileFileNamesUnique(Rule rule);
-        bool IsFileIdUnique(Rule rule);
+        bool TestNoFiles(Rule rule);
+        bool TestNameIsEmpty(Rule rule);
+        bool TestNameNotUnique(Rule rule);
+        bool TestIncludeNameIsEmpty(Rule rule);
+        bool TestIncludeNameNotUnique(Rule rule);
+        bool TestFileNameIsEmpty(Rule rule);
+        bool TestFileNameNotUnique(Rule rule);
+        bool TestIncludeFileNameIsEmpty(Rule rule);
+        bool TestIncludeFileNameNotUnique(Rule rule);
+        bool IsConnectionIdUnique(Rule rule);
 
     private:
         void CreateRules();

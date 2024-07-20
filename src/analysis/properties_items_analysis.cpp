@@ -141,9 +141,20 @@ void PropertiesItemsAnalysis::CreateRules()
 {
 	{
 		Rule rule{};
-		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::noUnitName);
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameIsEmpty);
 		rule.description = QString::fromLocal8Bit("Имя юнита не задано");
 		rule.detailes = QString::fromLocal8Bit("Каждый юнит должен иметь имя");
+		rule.isActive = true;
+		rules_.push_back(rule);
+
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsAllUnitsHaveName, this, rule);
+	}
+
+	{
+		Rule rule{};
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameNotUnique);
+		rule.description = QString::fromLocal8Bit("Имя юнита не уникально");
+		rule.detailes = QString::fromLocal8Bit("Каждый юнит должен иметь уникальное имя, с учетом переменных");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -158,7 +169,7 @@ void PropertiesItemsAnalysis::CreateRules()
 	//	rule.isActive = true;
 	//	rules_.push_back(rule);
 
-	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsFileNamesUnique, this, rule);
+	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestFileNameNotUnique, this, rule);
 	//}
 
 	//{
@@ -176,8 +187,8 @@ void PropertiesItemsAnalysis::CreateRules()
 		CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)) == rules_.size());
 
 	// Имена юнитов должжны быть заданы
-	// Имя содержит только английские буквы, цифры, знак / и паременные в формате @xxx@
 	// Имена юнитов должны быть уникальны (с учетом переменных)
+	// Имя содержит только английские буквы, цифры, знак / и паременные в формате @xxx@
 	// Категория юнита должна соответствовать ограничениям
 	// Тип юнита должен соответствовать ограничениям
 	// Имя переменной допускается только во включаемых файлах

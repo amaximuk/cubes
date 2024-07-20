@@ -572,6 +572,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
 
     if (pm->id == ids_.base + ids_.name)
     {
+        pm->value = value;
         fileItemsManager_->AfterFileNameChanged(fileId_);
 
         //bool cancel = false;
@@ -599,6 +600,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         const auto pmItem = GetParameterModel(pm->id.left(2));
         const auto includeId = pmItem->key;
 
+        pm->value = value;
         fileItemsManager_->AfterIncludeNameChanged(fileId_, includeId);
         //bool cancel = false;
         //fileItemsManager_->BeforeIncludeNameChanged(fileId_, value, oldValue, cancel);
