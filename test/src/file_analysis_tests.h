@@ -13,14 +13,14 @@
 #include "mock_window.h"
 #include "test.h"
 
-TEST(CUBES, FileAnalysisNoMainConfig)
+TEST(CUBES, FileAnalysisNoFiles)
 {
 	MockWindow mockWindow;
 	ASSERT_TRUE(mockWindow.Test());
 	const auto messages = mockWindow.GetMessages();
 	QVector<QString> codes;
 	codes.push_back(CubesLog::CreateCode(CubesLog::MessageType::error, CubesLog::SourceType::fileAnalysis,
-		static_cast<uint32_t>(CubesAnalysis::FileAnalysisErrorCode::noMainConfig)));
+		static_cast<uint32_t>(CubesAnalysis::FileAnalysisErrorCode::noFiles)));
 	ASSERT_TRUE(CheckAllCodes(messages, codes));
 }
 
