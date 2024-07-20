@@ -25,7 +25,6 @@ namespace CubesProperties
 		virtual void AfterIncludeNameChanged(CubesUnitTypes::PropertiesId propertiesId) = 0;
 		virtual void AfterPositionChanged(CubesUnitTypes::PropertiesId propertiesId,
 			double posX, double posY, double posZ) = 0;
-		virtual void AfterError(CubesUnitTypes::PropertiesId propertiesId, const QString& message) = 0;
 		virtual void AfterConnectionChanged(CubesUnitTypes::PropertiesId propertiesId) = 0;
 		virtual void AfterPropertiesChanged() = 0;
 	};

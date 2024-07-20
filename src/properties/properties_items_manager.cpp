@@ -595,16 +595,6 @@ void PropertiesItemsManager::AfterPositionChanged(CubesUnitTypes::PropertiesId p
 		positionChangedDelegate_(propertiesId, posX, posY, posZ);
 }
 
-void PropertiesItemsManager::AfterError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
-{
-	// Получаем имя файла - нельзя!!!
-	//QString name = GetName(propertiesId);
-
-	//logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemError), message, "",
-	//	{ {QString::fromLocal8Bit("Имя"), name} }, propertiesId);
-	logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::itemError), message, "", propertiesId);
-}
-
 void PropertiesItemsManager::AfterConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
 {
 	if (connectionChangedDelegate_)

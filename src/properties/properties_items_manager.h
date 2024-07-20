@@ -109,7 +109,6 @@ namespace CubesProperties
 		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::IncludeIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
-		void AfterError(const CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
 		void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;
 
