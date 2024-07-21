@@ -744,7 +744,7 @@ void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit:
     // Установка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
-    const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1));
+    auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1));
     pmItem->key = includeId;
 
     auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.name);
@@ -787,105 +787,22 @@ void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit:
 
 CubesUnit::IncludeIdNames FileItem::GetIncludes()
 {
-    CubesUnit::IncludeIdNames includeNamesMap;
-
-    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
-    if (pm == nullptr)
-        return includeNamesMap;
-
-    for (int i = 0; i < pm->value.toInt(); i++)
-    {
-        const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
-        const auto includeId = pmItem->key;
-
-        const auto pmItemName = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
-        const auto includeName = pmItemName->value.toString();
-
-        includeNamesMap[includeId] = includeName;
-    }
-
-    return includeNamesMap;
+    return CubesUnit::Helper::File::GetIncludes(parameterModels_);
 }
 
 bool FileItem::GetIncludeVariables(const CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables)
 {
-    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
-    if (pm == nullptr)
-        return false;
-
-    for (int i = 0; i < pm->value.toInt(); i++)
-    {
-        const auto pmi = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
-        if (pmi->key == includeId)
-        {
-            const auto pmiv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables);
-            for (int j = 0; j < pmiv->value.toInt(); j++)
-            {
-                auto pmiv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j));
-                auto pmivn = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
-                auto pmivv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
-                variables[pmiv->key] = { pmivn->value.toString(), pmivv->value.toString() };
-            }
-            break;
-        }
-    }
-
-    return true;
-}
-
-QString FileItem::GetIncludeName(const QString& includePath)
-{
-    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
-    if (pm == nullptr)
-        return "";
-
-    for (int i = 0; i < pm->value.toInt(); i++)
-    {
-        const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.filePath);
-        if (pmif->value == includePath)
-        {
-            const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
-            return pmin->value.toString();
-        }
-    }
-    return "";
+    return CubesUnit::Helper::File::GetIncludeVariables(parameterModels_, includeId, variables);
 }
 
 QString FileItem::GetIncludeName(const CubesUnit::IncludeId includeId)
 {
-    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
-    if (pm == nullptr)
-        return "";
-
-    for (int i = 0; i < pm->value.toInt(); i++)
-    {
-        const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
-        if (pmin->key == includeId)
-        {
-            const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
-            return pmif->value.toString();
-        }
-    }
-
-    return "";
+    return CubesUnit::Helper::File::GetIncludeName(parameterModels_, includeId);
 }
 
 QString FileItem::GetIncludePath(const CubesUnit::IncludeId includeId)
 {
-    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
-    if (pm == nullptr)
-        return "";
-
-    for (int i = 0; i < pm->value.toInt(); i++)
-    {
-        const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
-        if (pmin->key == includeId)
-        {
-            const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.filePath);
-            return pmif->value.toString();
-        }
-    }
-    return "";
+    return CubesUnit::Helper::File::GetIncludePath(parameterModels_, includeId);
 }
 
 File FileItem::GetFile()

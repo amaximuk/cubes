@@ -1,8 +1,9 @@
 #pragma once
 
 #include "unit_types.h"
-#include "unit_parameter_model_id.h"
 #include "unit_parameter_model.h"
+#include "unit_parameter_model_id.h"
+#include "unit_parameter_model_ids.h"
 
 namespace CubesUnit
 {
@@ -17,14 +18,14 @@ namespace CubesUnit
 			return name;
 		}
 
-		inline CubesUnit::ParameterModel* GetParameterModel(CubesUnit::ParameterModels& models, const CubesUnit::ParameterModelId& id)
+		inline ParameterModel* GetParameterModel(ParameterModels& models, const ParameterModelId& id)
 		{
-			CubesUnit::ParameterModel* pm = nullptr;
+			ParameterModel* pm = nullptr;
 
 			{
 				auto sl = id.split();
 				auto ql = &models;
-				CubesUnit::ParameterModelId idt;
+				ParameterModelId idt;
 				while (sl.size() > 0)
 				{
 					idt += sl[0];
@@ -49,6 +50,148 @@ namespace CubesUnit
 			}
 
 			return pm;
+		}
+
+		inline const ParameterModel* GetParameterModel(const ParameterModels& models, const ParameterModelId& id)
+		{
+			return GetParameterModel(*const_cast<ParameterModels*>(&models), id);
+		}
+	}
+
+	// TODO: добавить cpp, перенести ids
+	namespace Helper
+	{
+		namespace File
+		{
+			inline bool GetIncludes(const ParameterModels& parameterModels, IncludeIdNames& includeIdNames)
+			{
+				const static ParameterModelIds ids;
+
+				const auto pm = GetParameterModel(parameterModels, ids.includes);
+				if (pm == nullptr)
+					return false;
+
+				for (int i = 0; i < pm->value.toInt(); i++)
+				{
+					const auto pmItem = GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+					const auto includeId = pmItem->key;
+
+					const auto pmItemName = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.name);
+					const auto includeName = pmItemName->value.toString();
+
+					includeIdNames[includeId] = includeName;
+				}
+
+				return true;
+			}
+
+			inline IncludeIdNames GetIncludes(const ParameterModels& parameterModels)
+			{
+				CubesUnit::IncludeIdNames includeIdNames;
+				if (!GetIncludes(parameterModels, includeIdNames))
+					return {};
+
+				return includeIdNames;
+			}
+
+			inline bool GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName)
+			{
+				const static ParameterModelIds ids;
+
+				const auto pm = GetParameterModel(parameterModels, ids.includes);
+				if (pm == nullptr)
+					return false;
+
+				for (int i = 0; i < pm->value.toInt(); i++)
+				{
+					const auto pmin = GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+					if (pmin->key == includeId)
+					{
+						const auto pmif = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.name);
+						includeName = pmif->value.toString();
+						return true;
+					}
+				}
+
+				return true;
+			}
+
+			inline QString GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId)
+			{
+				QString includeName;
+				if (!GetIncludeName(parameterModels, includeId, includeName))
+					return {};
+
+				return includeName;
+			}
+
+			inline bool GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName)
+			{
+				const static ParameterModelIds ids;
+
+				const auto pm = GetParameterModel(parameterModels, ids.includes);
+				if (pm == nullptr)
+					return false;
+
+				for (int i = 0; i < pm->value.toInt(); i++)
+				{
+					const auto pmin = GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+					if (pmin->key == includeId)
+					{
+						const auto pmif = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.filePath);
+						includeName = pmif->value.toString();
+						return true;
+					}
+				}
+
+				return true;
+			}
+
+			inline QString GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId)
+			{
+				QString includePath;
+				if (!GetIncludePath(parameterModels, includeId, includePath))
+					return {};
+
+				return includePath;
+			}
+
+			inline bool GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId, VariableIdVariables& variables)
+			{
+				const static ParameterModelIds ids;
+
+				const auto pm = GetParameterModel(parameterModels, ids.includes);
+				if (pm == nullptr)
+					return false;
+
+				for (int i = 0; i < pm->value.toInt(); i++)
+				{
+					const auto pmi = GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+					if (pmi->key == includeId)
+					{
+						const auto pmiv = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables);
+						for (int j = 0; j < pmiv->value.toInt(); j++)
+						{
+							auto pmiv = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j));
+							auto pmivn = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.name);
+							auto pmivv = GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.value);
+							variables[pmiv->key] = { pmivn->value.toString(), pmivv->value.toString() };
+						}
+						break;
+					}
+				}
+
+				return true;
+			}
+
+			inline VariableIdVariables GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId)
+			{
+				VariableIdVariables variableIdVariables;
+				if (!GetIncludeVariables(parameterModels, includeId, variableIdVariables))
+					return {};
+
+				return variableIdVariables;
+			}
 		}
 	}
 }
