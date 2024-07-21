@@ -71,8 +71,23 @@ bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 
 bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 {
-	QSet<QString> filenames;
 	bool result = true;
+	QSet<QString> names;
+
+	for (auto& kvp : propertiesModels_.toStdMap())
+	{
+		auto& properties = kvp.second;
+		const auto name = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+
+		const auto fileId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.fileName)->key;
+		const auto includeId = CubesUnitTypes::GetParameterModel(properties, ids_.base + ids_.includeName)->key;
+
+		if (fileId != CubesUnitTypes::InvalidFileId)
+		{
+
+		}
+	}
+
 	//for (const auto& file : fileModels_)
 	//{
 	//	QFileInfo fi(file.path);

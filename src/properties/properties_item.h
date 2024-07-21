@@ -140,7 +140,6 @@ namespace CubesProperties
         void ApplyExpandState(QtBrowserItem* index);
 
     public:
-        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
         CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
 
     private:

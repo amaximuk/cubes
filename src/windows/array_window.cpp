@@ -229,15 +229,13 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         {
             qDebug() << "ERROR GetPropeties: " << propertiesId;
         }
-
-        auto posX = pi->GetParameterModel(ids_.editor + ids_.positionX)->value.toDouble();
-        auto posY = pi->GetParameterModel(ids_.editor + ids_.positionY)->value.toDouble();
-        auto posZ = pi->GetParameterModel(ids_.editor + ids_.positionZ)->value.toDouble();
+        const auto position = pi->GetPosition();
+        const auto zOrder = pi->GetZOrder();
 
         di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
-        di->setX(posX);
-        di->setY(posY);
-        di->setZValue(posZ);
+        di->setX(position.x());
+        di->setY(position.y());
+        di->setZValue(zOrder);
         scene_->addItem(di);
     }
 

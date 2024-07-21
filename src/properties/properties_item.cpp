@@ -574,7 +574,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
 void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.fileName);
     if (pm != nullptr)
     {
         pm->SetComboBoxFileNames(fileNames);
@@ -610,7 +610,7 @@ void PropertiesItem::SetFileIdNames(CubesUnitTypes::FileIdNames fileNames)
 
 void PropertiesItem::SetFileIdName(CubesUnitTypes::FileId fileId, QString fileName)
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.fileName);
     if (pm != nullptr)
     {
         pm->key = fileId;
@@ -625,7 +625,7 @@ void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNam
     auto oldIncludeId = GetIncludeId();
     if (!includeNames.keys().contains(oldIncludeId))
         oldIncludeId = CubesUnitTypes::InvalidIncludeId; // <not selected>
-    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
         pm->SetComboBoxIncludeNames(includeNames);
@@ -638,7 +638,7 @@ void PropertiesItem::SetIncludeIdNames(CubesUnitTypes::IncludeIdNames includeNam
 
 void PropertiesItem::SetIncludeIdName(CubesUnitTypes::IncludeId includeId, QString includeName)
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.includeName);
     if (pm != nullptr)
     {
         pm->key = includeId;
@@ -651,7 +651,7 @@ void PropertiesItem::SetIncludeIdName(CubesUnitTypes::IncludeId includeId, QStri
 
 QString PropertiesItem::GetFileName()
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.fileName);
     if (pm != nullptr)
         return pm->value.toString();
     else
@@ -660,7 +660,7 @@ QString PropertiesItem::GetFileName()
 
 CubesUnitTypes::FileId PropertiesItem::GetFileId()
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.fileName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.fileName);
     if (pm != nullptr)
         return pm->key;
     return 0;
@@ -668,7 +668,7 @@ CubesUnitTypes::FileId PropertiesItem::GetFileId()
 
 CubesUnitTypes::IncludeId PropertiesItem::GetIncludeId()
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.includeName);
     if (pm != nullptr)
         return pm->key;
     
@@ -677,7 +677,7 @@ CubesUnitTypes::IncludeId PropertiesItem::GetIncludeId()
 
 QString PropertiesItem::GetIncludeName()
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.includeName);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.includeName);
     if (pm != nullptr)
         return pm->value.toString();
     else
@@ -686,7 +686,7 @@ QString PropertiesItem::GetIncludeName()
 
 void PropertiesItem::SetName(QString name)
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.name);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.name);
     if (pm != nullptr)
     {
         QString oldName = pm->value.toString();
@@ -702,7 +702,7 @@ void PropertiesItem::SetName(QString name)
 
 QString PropertiesItem::GetName()
 {
-    const auto pm = GetParameterModel(ids_.base + ids_.name);
+    const auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.base + ids_.name);
     if (pm != nullptr)
         return pm->value.toString();
     else
@@ -711,8 +711,8 @@ QString PropertiesItem::GetName()
 
 QPointF PropertiesItem::GetPosition()
 {
-    const auto pmX = GetParameterModel(ids_.editor + ids_.positionX);
-    const auto pmY = GetParameterModel(ids_.editor + ids_.positionY);
+    const auto pmX = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionX);
+    const auto pmY = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionY);
     if (pmX != nullptr && pmY != nullptr)
         return { pmX->value.toDouble(), pmY->value.toDouble() };
     else
@@ -913,7 +913,7 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 
 void PropertiesItem::RemoveItems(const CubesUnitTypes::ParameterModelId& id)
 {
-    auto pm = GetParameterModel(id);
+    auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, id);
     for (auto& item : pm->parameters)
     {
         auto pi = GetProperty(item.id);
@@ -933,7 +933,7 @@ void PropertiesItem::AddItems(const CubesUnitTypes::ParameterModel& model)
     for (const auto& kvp : idToProperty.toStdMap())
         RegisterProperty(kvp.second, kvp.first);
 
-    auto pm = GetParameterModel(model.id);
+    auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, model.id);
     QString s = QString("%1").arg(model.parameters.size());
     if (pm->editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
         pm->value = int{ model.parameters.size() }; // !!!!!!!!!!!!!!! restrictions
@@ -995,12 +995,12 @@ QImage PropertiesItem::GetPixmap()
 
 void PropertiesItem::SetPosition(QPointF point)
 {
-    auto pm_x = GetParameterModel(ids_.editor + ids_.positionX);
+    auto pm_x = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionX);
     pm_x->value = point.x();
     if (editor_ != nullptr)
         editor_->SetDoubleValue(GetProperty(pm_x->id), point.x());
 
-    auto pm_y = GetParameterModel(ids_.editor + ids_.positionY);
+    auto pm_y = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionY);
     pm_y->value = point.y();
     if (editor_ != nullptr)
         editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
@@ -1008,7 +1008,7 @@ void PropertiesItem::SetPosition(QPointF point)
 
 void PropertiesItem::SetZOrder(double value)
 {
-    auto pm = GetParameterModel(ids_.editor + ids_.positionZ);
+    auto pm = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionZ);
     pm->value = value;
     if (editor_ != nullptr)
         editor_->SetDoubleValue(GetProperty(pm->id), value);
@@ -1016,7 +1016,7 @@ void PropertiesItem::SetZOrder(double value)
 
 double PropertiesItem::GetZOrder()
 {
-    const auto pmZ = GetParameterModel(ids_.editor + ids_.positionZ);
+    const auto pmZ = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionZ);
     if (pmZ != nullptr)
         return pmZ->value.toDouble();
     else
@@ -1166,13 +1166,13 @@ void PropertiesItem::GetAnalysisPropertiesInternal(const CubesUnitTypes::Paramet
             CubesAnalysis::UnitProperty unit{};
             unit.id = QString::fromStdString(pi->name);
             unit.name = model.value.toString();
-            const auto pmDepends = GetParameterModel(model.id + ids_.depends);
+            const auto pmDepends = CubesUnitTypes::GetParameterModel(parameterModels_, model.id + ids_.depends);
             unit.depends = pmDepends->value.toBool();
             unit.dontSet = false;
             bool isOptional = parameters::helper::parameter::get_is_optional(*pi);
             if (isOptional)
             {
-                const auto pmOptional = GetParameterModel(model.id + ids_.optional);
+                const auto pmOptional = CubesUnitTypes::GetParameterModel(parameterModels_, model.id + ids_.optional);
                 unit.dontSet = pmOptional->value.toBool();
             }
             unit.category = QString::fromStdString(pi->restrictions.category);
@@ -1649,33 +1649,33 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
             pm->value = property->valueText().toDouble();
             double posX = property->valueText().toDouble();
 
-            auto pmY = GetParameterModel(ids_.editor + ids_.positionY);
+            auto pmY = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionY);
             double posY = pmY->value.toDouble();
 
-            auto pmZ = GetParameterModel(ids_.editor + ids_.positionZ);
+            auto pmZ = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionZ);
             double posZ = pmZ->value.toDouble();
 
             propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
         else if (pm->id == ids_.editor + ids_.positionY)
         {
-            auto pmX = GetParameterModel(ids_.editor + ids_.positionX);
+            auto pmX = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionX);
             double posX = pmX->value.toDouble();
 
             pm->value = property->valueText().toDouble();
             double posY = property->valueText().toDouble();
 
-            auto pmZ = GetParameterModel(ids_.editor + ids_.positionZ);
+            auto pmZ = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionZ);
             double posZ = pmZ->value.toDouble();
 
             propertiesItemsManager_->AfterPositionChanged(propertiesId_, posX, posY, posZ);
         }
         else if (pm->id == ids_.editor + ids_.positionZ)
         {
-            auto pmX = GetParameterModel(ids_.editor + ids_.positionX);
+            auto pmX = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionX);
             double posX = pmX->value.toDouble();
 
-            auto pmY = GetParameterModel(ids_.editor + ids_.positionY);
+            auto pmY = CubesUnitTypes::GetParameterModel(parameterModels_, ids_.editor + ids_.positionY);
             double posY = pmY->value.toDouble();
 
             pm->value = property->valueText().toDouble();
@@ -1795,46 +1795,13 @@ CubesUnitTypes::ParameterModelId PropertiesItem::GetPropertyId(const QtProperty*
     return {};
 }
 
-CubesUnitTypes::ParameterModel* PropertiesItem::GetParameterModel(const CubesUnitTypes::ParameterModelId& id)
-{
-    return CubesUnitTypes::GetParameterModel(parameterModels_, id);
-    //CubesUnitTypes::ParameterModel* pm = nullptr;
-
-    //auto sl = id.split();
-    //auto ql = &parameterModels_;
-    //CubesUnitTypes::ParameterModelId idt;
-    //while (sl.size() > 0)
-    //{
-    //    idt += sl[0];
-    //    bool found = false;
-    //    for (auto& x : *ql)
-    //    {
-    //        if (x.id == idt)
-    //        {
-    //            pm = &x;
-    //            ql = &x.parameters;
-    //            sl.pop_front();
-    //            found = true;
-    //            break;
-    //        }
-    //    }
-    //    if (!found)
-    //    {
-    //        pm = nullptr;
-    //        break;
-    //    }
-    //}
-
-    //return pm;
-}
-
 CubesUnitTypes::ParameterModel* PropertiesItem::GetParameterModel(const QtProperty* property)
 {
     auto id = GetPropertyId(property);
     if (id.empty())
         return nullptr;
 
-    return GetParameterModel(id);
+    return CubesUnitTypes::GetParameterModel(parameterModels_, id);
 }
 
 CubesUnitTypes::UnitParameters* GetPropertyUnitParameters(const QtProperty* property)
