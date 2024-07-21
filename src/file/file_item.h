@@ -56,7 +56,7 @@ namespace CubesFile
         FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnit::FileId fileId);
 
     public:
-        CubesUnit::FileId GetFileId() { return fileId_; };
+        CubesUnit::FileId GetFileId() const;
 
         void Select();
         void UnSelect();
@@ -99,7 +99,6 @@ namespace CubesFile
         void UnregisterProperty(const QtProperty* property);
         QtProperty* GetProperty(const CubesUnit::ParameterModelId& id);
         CubesUnit::ParameterModelId GetPropertyId(const QtProperty* property);
-        CubesUnit::ParameterModel* GetParameterModel(const CubesUnit::ParameterModelId& id);
         CubesUnit::ParameterModel* GetParameterModel(const QtProperty* property);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);

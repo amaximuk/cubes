@@ -459,7 +459,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
                 UpdateIncludesArrayModel(nullptr, *pm, count);
             else
             {
-                const auto pmItem = GetParameterModel(pm->id.left(2));
+                const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, pm->id.left(2));
                 const auto includeId = pmItem->key;
 
                 UpdateVariablesArrayModel(nullptr, includeId, *pm, count);
@@ -598,7 +598,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
     
-        const auto pmItem = GetParameterModel(pm->id.left(2));
+        const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, pm->id.left(2));
         const auto includeId = pmItem->key;
 
         pm->value = value;
@@ -626,7 +626,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/NAME
         // INCLUDES/ITEM_0/VARIABLES/ITEM_0/VALUE
 
-        const auto pmItem = GetParameterModel(pm->id.left(2));
+        const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, pm->id.left(2));
         const auto includeId = pmItem->key;
 
         QString oldName = pm->value.toString();
@@ -636,7 +636,7 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
     else if (pm->id.startsWith(ids_.includes) && pm->id.size() == 5 && ids_.IsItem(pm->id.mid(1, 1)) &&
         pm->id.mid(2, 1) == ids_.variables && ids_.IsItem(pm->id.mid(3, 1)) && pm->id.endsWith(ids_.value))
     {
-        const auto pmItem = GetParameterModel(pm->id.left(2));
+        const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, pm->id.left(2));
         const auto includeId = pmItem->key;
         
         QString oldName = pm->value.toString();
@@ -648,6 +648,11 @@ void FileItem::StringEditingFinished(QtProperty* property, const QString& value,
     }
 
     fileItemsManager_->AfterPropertiesChanged();
+}
+
+CubesUnit::FileId FileItem::GetFileId() const
+{
+    return fileId_;
 }
 
 void FileItem::Select()
@@ -676,7 +681,7 @@ void FileItem::UnSelect()
 
 QString FileItem::GetName()
 {
-    auto pm = GetParameterModel(ids_.base + ids_.name);
+    auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.name);
     if (pm == nullptr)
         return "";
 
@@ -685,7 +690,7 @@ QString FileItem::GetName()
 
 QColor FileItem::GetColor()
 {
-    auto pm = GetParameterModel(ids_.editor + ids_.color);
+    auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.editor + ids_.color);
     if (pm == nullptr)
         return "";
 
@@ -704,7 +709,7 @@ void FileItem::ExpandedChanged(const QtProperty* property, bool is_expanded)
 
 void FileItem::SetName(QString name, bool setOldName, QString oldName)
 {
-    auto pm = GetParameterModel(ids_.base + ids_.name);
+    auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.name);
     pm->value = name;
 
     auto pr = GetProperty(pm->id);
@@ -713,7 +718,7 @@ void FileItem::SetName(QString name, bool setOldName, QString oldName)
 
 void FileItem::SetPath(QString name, bool setOldName, QString oldName)
 {
-    auto pm = GetParameterModel(ids_.base + ids_.path);
+    auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.path);
     pm->value = name;
 
     auto pr = GetProperty(pm->id);
@@ -722,7 +727,7 @@ void FileItem::SetPath(QString name, bool setOldName, QString oldName)
 
 void FileItem::SetColor(QColor color)
 {
-    auto pm = GetParameterModel(ids_.editor + ids_.color);
+    auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.editor + ids_.color);
     pm->value = color.rgba();
 
     auto pr = GetProperty(pm->id);
@@ -731,7 +736,7 @@ void FileItem::SetColor(QColor color)
 
 void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit::VariableIdVariables& variables)
 {
-    auto pmi = GetParameterModel(ids_.includes);
+    auto pmi = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     int ci = pmi->value.toInt() + 1;
 
     auto pri = GetProperty(pmi->id);
@@ -739,10 +744,10 @@ void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit:
     // Установка количества элементов в Property Browser вызывает операцию по добавлению
     // необходимого количества заготовок через ValueChanged
 
-    const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(ci - 1));
+    const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1));
     pmItem->key = includeId;
 
-    auto pmin = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.name);
+    auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.name);
     pmin->value = QString::fromLocal8Bit("Включение%1").arg(ci);
 
     auto prin = GetProperty(pmin->id);
@@ -750,13 +755,13 @@ void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit:
 
     const auto includeName = GetIncludeName(includeId);
 
-    auto pmifn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.filePath);
+    auto pmifn = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.filePath);
     pmifn->value = includeName;
 
     auto prifn = GetProperty(pmifn->id);
     editor_->SetStringValue(prifn, includeName);
 
-    auto pmiv = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables);
+    auto pmiv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.variables);
 
     auto priv = GetProperty(pmiv->id);
     editor_->SetIntValue(priv, variables.size());
@@ -766,13 +771,13 @@ void FileItem::AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit:
     for (int i = 0; i < variables.values().size(); i++)
     {
         auto& v = variables.values().at(i);
-        auto pmivn = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.name);
+        auto pmivn = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.name);
         pmivn->value = v.first;
 
         auto privn = GetProperty(pmivn->id);
         editor_->SetStringValue(privn, v.first);
 
-        auto pmivv = GetParameterModel(ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.value);
+        auto pmivv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(ci - 1) + ids_.variables + ids_.Item(i) + ids_.value);
         pmivv->value = v.second;
 
         auto privv = GetProperty(pmivv->id);
@@ -784,16 +789,16 @@ CubesUnit::IncludeIdNames FileItem::GetIncludes()
 {
     CubesUnit::IncludeIdNames includeNamesMap;
 
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return includeNamesMap;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmItem = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto pmItem = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
         const auto includeId = pmItem->key;
 
-        const auto pmItemName = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
+        const auto pmItemName = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
         const auto includeName = pmItemName->value.toString();
 
         includeNamesMap[includeId] = includeName;
@@ -804,21 +809,21 @@ CubesUnit::IncludeIdNames FileItem::GetIncludes()
 
 bool FileItem::GetIncludeVariables(const CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables)
 {
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return false;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmi = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto pmi = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
         if (pmi->key == includeId)
         {
-            const auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables);
+            const auto pmiv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables);
             for (int j = 0; j < pmiv->value.toInt(); j++)
             {
-                auto pmiv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j));
-                auto pmivn = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
-                auto pmivv = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
+                auto pmiv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j));
+                auto pmivn = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.name);
+                auto pmivv = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.variables + ids_.Item(j) + ids_.value);
                 variables[pmiv->key] = { pmivn->value.toString(), pmivv->value.toString() };
             }
             break;
@@ -830,16 +835,16 @@ bool FileItem::GetIncludeVariables(const CubesUnit::IncludeId includeId, CubesUn
 
 QString FileItem::GetIncludeName(const QString& includePath)
 {
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath);
+        const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.filePath);
         if (pmif->value == includePath)
         {
-            const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
+            const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
             return pmin->value.toString();
         }
     }
@@ -848,16 +853,16 @@ QString FileItem::GetIncludeName(const QString& includePath)
 
 QString FileItem::GetIncludeName(const CubesUnit::IncludeId includeId)
 {
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
         if (pmin->key == includeId)
         {
-            const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.name);
+            const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.name);
             return pmif->value.toString();
         }
     }
@@ -867,16 +872,16 @@ QString FileItem::GetIncludeName(const CubesUnit::IncludeId includeId)
 
 QString FileItem::GetIncludePath(const CubesUnit::IncludeId includeId)
 {
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return "";
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
-        const auto pmin = GetParameterModel(ids_.includes + ids_.Item(i));
+        const auto pmin = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i));
         if (pmin->key == includeId)
         {
-            const auto pmif = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath);
+            const auto pmif = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.filePath);
             return pmif->value.toString();
         }
     }
@@ -886,32 +891,32 @@ QString FileItem::GetIncludePath(const CubesUnit::IncludeId includeId)
 File FileItem::GetFile()
 {
     File result{};
-    result.name = GetParameterModel(ids_.base + ids_.name)->value.toString();
-    result.platform = GetParameterModel(ids_.base + ids_.platform)->value.toString();
-    result.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
+    result.name = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.name)->value.toString();
+    result.platform = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.platform)->value.toString();
+    result.path = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.path)->value.toString();
 
-    result.network.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();
-    result.network.accept_port = GetParameterModel(ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
-    result.network.keep_alive_sec = GetParameterModel(ids_.parameters + ids_.networking + ids_.keepAliveSec)->value.toInt();
-    result.network.time_client = GetParameterModel(ids_.parameters + ids_.networking + ids_.timeClient)->value.toBool();
-    result.network.network_threads = GetParameterModel(ids_.parameters + ids_.networking + ids_.networkThreads)->value.toInt();
-    result.network.broadcast_threads = GetParameterModel(ids_.parameters + ids_.networking + ids_.broadcastThreads)->value.toInt();
-    result.network.clients_threads = GetParameterModel(ids_.parameters + ids_.networking + ids_.clientsThreads)->value.toInt();
-    result.network.notify_ready_clients = GetParameterModel(ids_.parameters + ids_.networking + ids_.notifyReadyClients)->value.toBool();
-    result.network.notify_ready_servers = GetParameterModel(ids_.parameters + ids_.networking + ids_.notifyReadyServers)->value.toBool();
+    result.network.id = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.id)->value.toInt();
+    result.network.accept_port = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
+    result.network.keep_alive_sec = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.keepAliveSec)->value.toInt();
+    result.network.time_client = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.timeClient)->value.toBool();
+    result.network.network_threads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.networkThreads)->value.toInt();
+    result.network.broadcast_threads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.broadcastThreads)->value.toInt();
+    result.network.clients_threads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.clientsThreads)->value.toInt();
+    result.network.notify_ready_clients = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.notifyReadyClients)->value.toBool();
+    result.network.notify_ready_servers = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.notifyReadyServers)->value.toBool();
 
-    int count = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
+    int count = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
     for (int i = 0; i < count; i++)
     {
         Connect connect{};
-        connect.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
-        connect.ip = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
+        connect.port = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
+        connect.ip = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
         result.network.connect.push_back(connect);
     }
 
-    result.log.level = static_cast<LoggingLevel>(GetParameterModel(ids_.parameters + ids_.log + ids_.loggingLevel)->value.toInt());
-    result.log.limit_mb = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
-    result.log.directory_path = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
+    result.log.level = static_cast<LoggingLevel>(CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.loggingLevel)->value.toInt());
+    result.log.limit_mb = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
+    result.log.directory_path = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
     const auto includes = GetIncludes();
     for (const auto& kvp : includes.toStdMap())
@@ -934,36 +939,36 @@ File FileItem::GetFile()
 CubesXml::File FileItem::GetXmlFile()
 {
     CubesXml::File result{};
-    result.name = GetParameterModel(ids_.base + ids_.name)->value.toString();
-    result.platform = GetParameterModel(ids_.base + ids_.platform)->value.toString();
-    result.fileName = GetParameterModel(ids_.base + ids_.path)->value.toString();
-    QColor color = QColor::fromRgba(GetParameterModel(ids_.editor + ids_.color)->value.toUInt());
+    result.name = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.name)->value.toString();
+    result.platform = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.platform)->value.toString();
+    result.fileName = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.path)->value.toString();
+    QColor color = QColor::fromRgba(CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.editor + ids_.color)->value.toUInt());
     result.color = QString("#%1").arg(color.rgba(), 8, 16, QLatin1Char('0'));
 
     result.config.networkingIsSet = true;
-    result.config.networking.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();
-    result.config.networking.acceptPort = GetParameterModel(ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
-    result.config.networking.keepAliveSec = GetParameterModel(ids_.parameters + ids_.networking + ids_.keepAliveSec)->value.toInt();
-    result.config.networking.timeClient = GetParameterModel(ids_.parameters + ids_.networking + ids_.timeClient)->value.toBool();
-    result.config.networking.networkThreads = GetParameterModel(ids_.parameters + ids_.networking + ids_.networkThreads)->value.toInt();
-    result.config.networking.broadcastThreads = GetParameterModel(ids_.parameters + ids_.networking + ids_.broadcastThreads)->value.toInt();
-    result.config.networking.clientsThreads = GetParameterModel(ids_.parameters + ids_.networking + ids_.clientsThreads)->value.toInt();
-    result.config.networking.notifyReadyClients = GetParameterModel(ids_.parameters + ids_.networking + ids_.notifyReadyClients)->value.toBool();
-    result.config.networking.notifyReadyServers = GetParameterModel(ids_.parameters + ids_.networking + ids_.notifyReadyServers)->value.toBool();
+    result.config.networking.id = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.id)->value.toInt();
+    result.config.networking.acceptPort = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
+    result.config.networking.keepAliveSec = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.keepAliveSec)->value.toInt();
+    result.config.networking.timeClient = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.timeClient)->value.toBool();
+    result.config.networking.networkThreads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.networkThreads)->value.toInt();
+    result.config.networking.broadcastThreads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.broadcastThreads)->value.toInt();
+    result.config.networking.clientsThreads = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.clientsThreads)->value.toInt();
+    result.config.networking.notifyReadyClients = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.notifyReadyClients)->value.toBool();
+    result.config.networking.notifyReadyServers = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.notifyReadyServers)->value.toBool();
 
-    int count = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
+    int count = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
     for (int i = 0; i < count; i++)
     {
         CubesXml::Connect connect{};
-        connect.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
-        connect.ip = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
+        connect.port = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
+        connect.ip = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
         result.config.networking.connects.push_back(connect);
     }
 
     result.config.logIsSet = true;
-    result.config.log.loggingLevel = static_cast<LoggingLevel>(GetParameterModel(ids_.parameters + ids_.log + ids_.loggingLevel)->value.toInt());
-    result.config.log.totalLogLimit = GetParameterModel(ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
-    result.config.log.logDir = GetParameterModel(ids_.parameters + ids_.log + ids_.logDir)->value.toString();
+    result.config.log.loggingLevel = static_cast<LoggingLevel>(CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.loggingLevel)->value.toInt());
+    result.config.log.totalLogLimit = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.totalLogLimitMb)->value.toInt();
+    result.config.log.logDir = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.log + ids_.logDir)->value.toString();
 
     const auto includes = GetIncludes();
     for (const auto& kvp : includes.toStdMap())
@@ -988,35 +993,35 @@ QVector<CubesAnalysis::File> FileItem::GetAnalysisFiles()
 
     {
         CubesAnalysis::File file;
-        file.path = GetParameterModel(ids_.base + ids_.path)->value.toString();
+        file.path = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.base + ids_.path)->value.toString();
         file.is_include = false;
         file.main.fileId = GetFileId();
         file.main.name = GetName();
-        file.main.id = GetParameterModel(ids_.parameters + ids_.networking + ids_.id)->value.toInt();
-        file.main.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
+        file.main.id = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.id)->value.toInt();
+        file.main.port = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.acceptPort)->value.toInt();
 
-        int count = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
+        int count = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect)->value.toInt();
         for (int i = 0; i < count; i++)
         {
             CubesAnalysis::Endpoint endpoint{};
-            endpoint.host = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
-            endpoint.port = GetParameterModel(ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
+            endpoint.host = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.ip)->value.toString();
+            endpoint.port = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.parameters + ids_.networking + ids_.connect + ids_.Item(i) + ids_.port)->value.toInt();
             file.main.connect.push_back(endpoint);
         }
 
         result.push_back(file);
     }
 
-    const auto pm = GetParameterModel(ids_.includes);
+    const auto pm = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes);
     if (pm == nullptr)
         return result;
 
     for (int i = 0; i < pm->value.toInt(); i++)
     {
         CubesAnalysis::File file;
-        file.path = GetParameterModel(ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+        file.path = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
         file.is_include = true;
-        file.include.includeId = GetParameterModel(ids_.includes + ids_.Item(i))->key;
+        file.include.includeId = CubesUnit::Helper::GetParameterModel(parameterModels_, ids_.includes + ids_.Item(i))->key;
         file.include.name = GetIncludeName(file.include.includeId);
         result.push_back(file);
     }
@@ -1365,49 +1370,13 @@ CubesUnit::ParameterModelId FileItem::GetPropertyId(const QtProperty* property)
     return QString();
 }
 
-CubesUnit::ParameterModel* FileItem::GetParameterModel(const CubesUnit::ParameterModelId& id)
-{
-    return CubesUnit::Helper::GetParameterModel(parameterModels_, id);
-
-    //CubesUnit::ParameterModel* pm = nullptr;
-
-    //{
-    //    auto sl = id.split();
-    //    auto ql = &parameterModels_;
-    //    CubesUnit::ParameterModelId idt;
-    //    while (sl.size() > 0)
-    //    {
-    //        idt += sl[0];
-    //        bool found = false;
-    //        for (auto& x : *ql)
-    //        {
-    //            if (x.id == idt)
-    //            {
-    //                pm = &x;
-    //                ql = &x.parameters;
-    //                sl.pop_front();
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        if (!found)
-    //        {
-    //            pm = nullptr;
-    //            break;
-    //        }
-    //    }
-    //}
-
-    //return pm;
-}
-
 CubesUnit::ParameterModel* FileItem::GetParameterModel(const QtProperty* property)
 {
     const auto id = GetPropertyId(property);
     if (id.empty())
         return nullptr;
 
-    return GetParameterModel(id);
+    return CubesUnit::Helper::GetParameterModel(parameterModels_, id);
 }
 
 void FileItem::ApplyExpandState(QtBrowserItem* index)
