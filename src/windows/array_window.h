@@ -9,7 +9,7 @@ namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }
 namespace CubesDiagram { class DiagramScene; }
 namespace CubesDiagram { class DiagramView; }
-namespace CubesUnitTypes { class UnitParameters; }
+namespace CubesUnit { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
 namespace CubesLog { class SortFilterModel; }
 namespace CubesFile { class FileItemsManager; }
@@ -38,7 +38,7 @@ private:
     QPointer<CubesDiagram::DiagramScene> scene_;
     QPointer<CubesDiagram::DiagramView> view_;
 
-    CubesUnitTypes::ParameterModel pm_{};
+    CubesUnit::ParameterModel pm_{};
     QSharedPointer<CubesProperties::PropertiesItem> pi_;
     parameters::restrictions_info ri_{};
 
@@ -48,18 +48,18 @@ public:
 
 public:
     // ITopManager
-    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
-    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+    bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;
+    bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
 
     // ArrayWindow
-    void SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
+    void SetItemModel(parameters::file_info afi, CubesUnit::ParameterModel pm,
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 public:
     void closeEvent(QCloseEvent* event) override;
 
 signals:
-    void BeforeClose(const bool result, CubesUnitTypes::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
+    void BeforeClose(const bool result, CubesUnit::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 protected:
     // UI
@@ -77,8 +77,8 @@ protected:
     bool SortUnitsRectangular(bool check) override;
 
     // Files
-    CubesUnitTypes::FileIdNames GetFileNames() override;
-    CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames() override;
+    CubesUnit::FileIdNames GetFileNames() override;
+    CubesUnit::IncludeIdNames GetCurrentFileIncludeNames() override;
 
 public slots:
     // DiagramScene (as manager)
@@ -88,11 +88,11 @@ public slots:
     void selectionChanged(); // QGraphicsScene
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-        CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId) override;
-    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId) override;
-    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
-    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
+    void PropertiesBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
+        CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId) override;
+    void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId) override;
+    void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+    void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message) override;
 
 private slots:
     // Кнопки

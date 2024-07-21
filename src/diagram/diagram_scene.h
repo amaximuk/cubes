@@ -26,8 +26,8 @@ namespace CubesDiagram
 
     public:
         // TODO: Это заготовка для функций интерфейса, чтобы напрямую не управлять diagram_item
-        //void InformItemPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-        void InformBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+        //void InformItemPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
+        void InformBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
             const QString& fileName, const QString& includeName, const QColor& color);
 
         void InformItemPositionChanged(DiagramItem* item);

@@ -56,7 +56,7 @@ ArrayWindow::~ArrayWindow()
 }
 
 // ITopManager
-bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
+bool ArrayWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::CreateDiagramItem(propertiesId);
 
@@ -86,7 +86,7 @@ bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     scene_->addItem(di);
 
     scene_->clearSelection();
-    propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
+    propertiesItemsManager_->Select(CubesUnit::InvalidPropertiesId);
     DiagramAfterItemCreated(di);
 
     //scene_->clearSelection();
@@ -122,7 +122,7 @@ bool ArrayWindow::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
     return true;
 }
 
-bool ArrayWindow::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
+bool ArrayWindow::EnshureVisible(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::EnshureVisible(propertiesId);
 
@@ -140,7 +140,7 @@ bool ArrayWindow::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
     return true;
 }
 
-void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::ParameterModel pm,
+void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterModel pm,
     parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
     pm_ = pm;
@@ -160,7 +160,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         //auto& up = unitParameters_[QString::fromStdString(afi.info.id)];
         //up.fileInfo = afi;
 
-        auto rename = [](CubesUnitTypes::ParameterModels& parameters, const CubesUnitTypes::ParameterModelId to_remove, auto&& rename) -> void {
+        auto rename = [](CubesUnit::ParameterModels& parameters, const CubesUnit::ParameterModelId to_remove, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
                 parameter.id = parameter.id.mid(to_remove.size());
@@ -169,7 +169,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             }
         };
 
-        //auto rename = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
+        //auto rename = [](QList<CubesUnit::ParameterModel>& parameters, QString to_remove, auto&& rename) -> void {
         //    for (auto& parameter : parameters)
         //    {
         //        parameter.id = parameter.id.mid(to_remove.length() + 1);
@@ -178,8 +178,8 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
         //    }
         //};
 
-        //auto id_renamer = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove)->void {
-        //    auto id_renamer_impl = [](QList<CubesUnitTypes::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
+        //auto id_renamer = [](QList<CubesUnit::ParameterModel>& parameters, QString to_remove)->void {
+        //    auto id_renamer_impl = [](QList<CubesUnit::ParameterModel>& parameters, QString to_remove, auto& id_renamer_ref)->void {
         //        for (auto& parameter : parameters)
         //        {
         //            parameter.id = "PARAMETERS/" + parameter.id.mid(to_remove.length() + 1);
@@ -217,10 +217,10 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
             }
         }
 
-        CubesUnitTypes::ParameterModels m{};
+        CubesUnit::ParameterModels m{};
         m = item.parameters;
 
-        CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
+        CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
         auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
@@ -242,7 +242,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnitTypes::Parame
     if (di != nullptr)
     {
         scene_->clearSelection();
-        propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
+        propertiesItemsManager_->Select(CubesUnit::InvalidPropertiesId);
         DiagramAfterItemCreated(di);
     }
 
@@ -359,7 +359,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
             }
         }
 
-        auto rename = [](CubesUnitTypes::ParameterModels& parameters, const CubesUnitTypes::ParameterModelId to_add, auto&& rename) -> void {
+        auto rename = [](CubesUnit::ParameterModels& parameters, const CubesUnit::ParameterModelId to_add, auto&& rename) -> void {
             for (auto& parameter : parameters)
             {
                 parameter.id = to_add + parameter.id;
@@ -369,11 +369,11 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
 
         rename(pm, pm_.id + ids_.Item(item_index), rename); // !!!!!!!!!!!! item_index
 
-        CubesUnitTypes::ParameterModel itemPm{};
+        CubesUnit::ParameterModel itemPm{};
         itemPm.id = pm_.id + ids_.Item(item_index);
         itemPm.name = QString::fromLocal8Bit("Ёлемент %1").arg(item_index);
         itemPm.value = QVariant();
-        itemPm.editorSettings.type = CubesUnitTypes::EditorType::None;
+        itemPm.editorSettings.type = CubesUnit::EditorType::None;
         itemPm.parameters = pm;
 
         pm_.parameters.push_back(itemPm);
@@ -657,12 +657,12 @@ bool ArrayWindow::SortUnitsRectangular(bool check)
 //}
 
 // Files
-CubesUnitTypes::FileIdNames ArrayWindow::GetFileNames()
+CubesUnit::FileIdNames ArrayWindow::GetFileNames()
 {
     return {};
 }
 
-CubesUnitTypes::IncludeIdNames ArrayWindow::GetCurrentFileIncludeNames()
+CubesUnit::IncludeIdNames ArrayWindow::GetCurrentFileIncludeNames()
 {
     return {};
 }
@@ -699,13 +699,13 @@ void ArrayWindow::selectionChanged()
     else
     {
         //plainTextEditHint_->setPlainText("");
-        propertiesItemsManager_->Select(CubesUnitTypes::InvalidPropertiesId);
+        propertiesItemsManager_->Select(CubesUnit::InvalidPropertiesId);
     }
 }
 
 // PropertiesItemsManager
-void ArrayWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-    const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId)
+void ArrayWindow::PropertiesBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
+    const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId)
 {
     TopManager::PropertiesBasePropertiesChanged(propertiesId, name, fileId, includeId);
 
@@ -720,7 +720,7 @@ void ArrayWindow::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId p
     scene_->invalidate();
 }
 
-void ArrayWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
+void ArrayWindow::PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::PropertiesSelectedItemChanged(propertiesId);
 
@@ -745,7 +745,7 @@ void ArrayWindow::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId pro
         item_to_select->setSelected(true);
 }
 
-void ArrayWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
+void ArrayWindow::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
     TopManager::PropertiesPositionChanged(propertiesId, posX, posY, posZ);
 
@@ -761,7 +761,7 @@ void ArrayWindow::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propert
     }
 }
 
-void ArrayWindow::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
+void ArrayWindow::PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message)
 {
     TopManager::PropertiesError(propertiesId, message);
 }

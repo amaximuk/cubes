@@ -6,6 +6,7 @@
 #include "../analysis/analysis_types.h"
 #include "../unit/unit_types.h"
 #include "../property_browser/properties_editor.h"
+#include "../unit/unit_parameter_model_ids.h"
 
 namespace CubesFile
 {
@@ -26,36 +27,36 @@ namespace CubesFile
         // Params
         IFileItemsManager* fileItemsManager_;
         QPointer<PropertiesEditor> editor_;
-        CubesUnitTypes::FileId fileId_;
+        CubesUnit::FileId fileId_;
 
         // Модель параметров
-        CubesUnitTypes::ParameterModels parameterModels_;
+        CubesUnit::ParameterModels parameterModels_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
 
         // Соответствие между свойствами и id модели
-        QMap<const QtProperty*, CubesUnitTypes::ParameterModelId> propertyToId_;
-        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*> idToProperty_;
+        QMap<const QtProperty*, CubesUnit::ParameterModelId> propertyToId_;
+        QMap<CubesUnit::ParameterModelId, const QtProperty*> idToProperty_;
 
         // При добавлении свойства приходит событие, что оно развернуто, надо его игнорировать
         bool ignoreEvents_;
 
         // Значения имен параметров
-        CubesUnitTypes::ParameterModelIds ids_;
+        CubesUnit::ParameterModelIds ids_;
 
         // Флаг, надо ли информировать менеджер о событиях
         bool notifyManager_;
 
         // Уникальное число для формирования id
-        CubesUnitTypes::IncludeId uniqueNumber_;
+        CubesUnit::IncludeId uniqueNumber_;
 
     public:
-        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnitTypes::FileId fileId);
-        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnitTypes::FileId fileId);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, CubesUnit::FileId fileId);
+        FileItem(IFileItemsManager* fileItemsManager, PropertiesEditor* editor, const CubesXml::File& xmlFile, CubesUnit::FileId fileId);
 
     public:
-        CubesUnitTypes::FileId GetFileId() { return fileId_; };
+        CubesUnit::FileId GetFileId() { return fileId_; };
 
         void Select();
         void UnSelect();
@@ -66,12 +67,12 @@ namespace CubesFile
 
         void SetPath(QString name, bool setOldName = false, QString oldName = "");
 
-        void AddInclude(const CubesUnitTypes::IncludeId includeId, const CubesUnitTypes::VariableIdVariables& variables);
-        CubesUnitTypes::IncludeIdNames GetIncludes();
-        bool GetIncludeVariables(const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables);
+        void AddInclude(const CubesUnit::IncludeId includeId, const CubesUnit::VariableIdVariables& variables);
+        CubesUnit::IncludeIdNames GetIncludes();
+        bool GetIncludeVariables(const CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables);
         QString GetIncludeName(const QString& includePath);
-        QString GetIncludeName(const CubesUnitTypes::IncludeId includeId);
-        QString GetIncludePath(const CubesUnitTypes::IncludeId includeId);
+        QString GetIncludeName(const CubesUnit::IncludeId includeId);
+        QString GetIncludePath(const CubesUnit::IncludeId includeId);
 
         void SetColor(QColor color);
         QColor GetColor();
@@ -79,8 +80,8 @@ namespace CubesFile
         File GetFile();
         CubesXml::File GetXmlFile();
         QVector<CubesAnalysis::File> GetAnalysisFiles();
-        CubesUnitTypes::ParameterModels GetParameterModels();
-        CubesUnitTypes::ParameterModels* GetParameterModelsRef();
+        CubesUnit::ParameterModels GetParameterModels();
+        CubesUnit::ParameterModels* GetParameterModelsRef();
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
@@ -89,17 +90,17 @@ namespace CubesFile
     private:
         void CreateParametersModel(const CubesXml::File* xmlFile);
         void CreateProperties();
-        void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnitTypes::ParameterModel& model, int& count);
-        void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnitTypes::IncludeId includeId,
-            CubesUnitTypes::ParameterModel& model, int& count);
-        void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnitTypes::ParameterModel& model, int& count);
-        void RegisterProperty(const QtProperty* property, const CubesUnitTypes::ParameterModelId& id);
-        void UnregisterProperty(const CubesUnitTypes::ParameterModelId& id);
+        void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit::ParameterModel& model, int& count);
+        void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnit::IncludeId includeId,
+            CubesUnit::ParameterModel& model, int& count);
+        void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnit::ParameterModel& model, int& count);
+        void RegisterProperty(const QtProperty* property, const CubesUnit::ParameterModelId& id);
+        void UnregisterProperty(const CubesUnit::ParameterModelId& id);
         void UnregisterProperty(const QtProperty* property);
-        QtProperty* GetProperty(const CubesUnitTypes::ParameterModelId& id);
-        CubesUnitTypes::ParameterModelId GetPropertyId(const QtProperty* property);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const CubesUnitTypes::ParameterModelId& id);
-        CubesUnitTypes::ParameterModel* GetParameterModel(const QtProperty* property);
+        QtProperty* GetProperty(const CubesUnit::ParameterModelId& id);
+        CubesUnit::ParameterModelId GetPropertyId(const QtProperty* property);
+        CubesUnit::ParameterModel* GetParameterModel(const CubesUnit::ParameterModelId& id);
+        CubesUnit::ParameterModel* GetParameterModel(const QtProperty* property);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);
     };

@@ -15,9 +15,9 @@ AnalysisManager::AnalysisManager(CubesLog::ILogManager* logManager)
 	propertiesItemsAnalysis_.reset(new PropertiesItemsAnalysis(logManager));
 }
 
-void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
-	const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-	const CubesUnitTypes::UnitIdUnitParameters& unitParameters)
+void AnalysisManager::Test(const CubesUnit::FileIdParameterModels& fileModels,
+	const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+	const CubesUnit::UnitIdUnitParameters& unitParameters)
 {
 	fileItemsAnalysis_->SetFiles(fileModels);
 	//fileItemsAnalysis_->SetFileItems(fileModels);
@@ -27,7 +27,7 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 	propertiesItemsAnalysis_->RunAllTests();
 }
 
-//void AnalysisManager::AfterFileError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message)
+//void AnalysisManager::AfterFileError(const CubesUnit::FileId fileId, CubesAnalysis::RuleId id, const QString& message)
 //{
 //	if (logManager_ != nullptr)
 //	{
@@ -41,7 +41,7 @@ void AnalysisManager::Test(const CubesUnitTypes::FileIdParameterModels& fileMode
 //	}
 //}
 //
-//void AnalysisManager::AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId,
+//void AnalysisManager::AfterPropertiesError(const CubesUnit::PropertiesId propertiesId,
 //	CubesAnalysis::RuleId id, const QString& message)
 //{
 //	if (logManager_ != nullptr)

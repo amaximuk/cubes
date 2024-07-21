@@ -7,7 +7,7 @@ namespace CubesTop { class ITopManager; }
 namespace CubesDiagram { class DiagramItem; }
 namespace CubesDiagram { class DiagramScene; }
 namespace CubesDiagram { class DiagramView; }
-namespace CubesUnitTypes { class UnitParameters; }
+namespace CubesUnit { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
 namespace CubesLog { class SortFilterModel; }
 namespace CubesFile { class FileItemsManager; }
@@ -49,8 +49,8 @@ public:
 
 public:
     // ITopManager
-    bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
-    bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+    bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;
+    bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
 
     // ILogManager
     void AddMessage(const CubesLog::Message& m) override;
@@ -99,24 +99,24 @@ public slots:
     void selectionChanged(); // QGraphicsScene
 
     // FileItemsManager
-    void FileNameChanged(CubesUnitTypes::FileId fileId) override;
-    void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames) override;
-    void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId) override;
-    void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames) override;
-    void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+    void FileNameChanged(CubesUnit::FileId fileId) override;
+    void FileListChanged(const CubesUnit::FileIdNames& fileIdNames) override;
+    void FileIncludeNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId) override;
+    void FileIncludesListChanged(CubesUnit::FileId fileId, const CubesUnit::IncludeIdNames& includeNames) override;
+    void FileVariableNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
         const QString& variableName, const QString& oldVariableName) override;
-    void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
-        const CubesUnitTypes::VariableIdVariables& variables) override;
-    void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color) override;
+    void FileVariablesListChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
+        const CubesUnit::VariableIdVariables& variables) override;
+    void FileColorChanged(CubesUnit::FileId fileId, const QColor& color) override;
     void FilePropertiesChanged() override;
 
     // PropertiesItemsManager
-    void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-        CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId) override;
-    void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId) override;
-    void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
-    void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message) override;
-    void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId) override;
+    void PropertiesBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
+        CubesUnit::FileId fileId, CubesUnit::IncludeId includeId) override;
+    void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId) override;
+    void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+    void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message) override;
+    void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPropertiesChanged() override;
 
 private slots:

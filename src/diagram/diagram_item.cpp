@@ -5,7 +5,7 @@
 
 using namespace CubesDiagram;
 
-DiagramItem::DiagramItem(CubesUnitTypes::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
+DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {
     propertiesId_ = propertiesId;

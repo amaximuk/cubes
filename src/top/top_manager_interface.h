@@ -13,23 +13,23 @@ namespace CubesTop
         virtual ~ITopManager() = default;
 
     public:
-        virtual bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames) = 0;
-        virtual bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
-            CubesUnitTypes::IncludeId includeId, QStringList& unitNames) = 0;
-        virtual bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) = 0;
+        virtual bool GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames) = 0;
+        virtual bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
+            CubesUnit::IncludeId includeId, QStringList& unitNames) = 0;
+        virtual bool GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters) = 0;
 
-        virtual bool GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames) = 0;
-        virtual bool GetFileIncludeVariableList(CubesUnitTypes::FileId fileId,
-            const CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables) = 0;
+        virtual bool GetFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeIdNames& includeNames) = 0;
+        virtual bool GetFileIncludeVariableList(CubesUnit::FileId fileId,
+            const CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables) = 0;
 
         virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
-        virtual bool GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) = 0;
-        virtual bool GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId,
-            CubesUnitTypes::UnitParameters& unitParameters) = 0;
-        virtual bool GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId) = 0;
+        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) = 0;
+        virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
+            CubesUnit::UnitParameters& unitParameters) = 0;
+        virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) = 0;
 
-        virtual bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) = 0;
-        virtual bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) = 0;
+        virtual bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) = 0;
+        virtual bool EnshureVisible(CubesUnit::PropertiesId propertiesId) = 0;
 
         virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) = 0;
         virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QPointer>
+#include "../unit/unit_parameter_model.h"
 
 class QtProperty;
 class QtBrowserItem;
@@ -33,9 +34,9 @@ public:
 
 public:
     QtTreePropertyBrowser* GetPropertyEditor();
-    QtProperty* CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model,
-        QMap<CubesUnitTypes::ParameterModelId, const QtProperty*>& idToProperty);
-    void SetPropertyValue(QtProperty* property, const CubesUnitTypes::ParameterModel& model);
+    QtProperty* CreatePropertyForModel(const CubesUnit::ParameterModel& model,
+        QMap<CubesUnit::ParameterModelId, const QtProperty*>& idToProperty);
+    void SetPropertyValue(QtProperty* property, const CubesUnit::ParameterModel& model);
     void SetIntValue(QtProperty* property, int value);
     void SetDoubleValue(QtProperty* property, double value);
     void SetStringValue(QtProperty* property, const QString& value, bool setOldValue = false, const QString& oldValue = "");

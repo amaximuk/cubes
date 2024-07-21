@@ -26,8 +26,8 @@ PropertiesItemsManager::PropertiesItemsManager(CubesTop::ITopManager* topManager
 {
 	topManager_ = topManager;
 	logManager_ = logManager;
-	selected_ = CubesUnitTypes::InvalidPropertiesId;
-	uniqueNumber_ = CubesUnitTypes::InvalidPropertiesId;
+	selected_ = CubesUnit::InvalidPropertiesId;
+	uniqueNumber_ = CubesUnit::InvalidPropertiesId;
 
 	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesManager,
 		GetPropertiesManagerErrorDescriptions()));
@@ -59,9 +59,9 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 		return 0;
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnitTypes::UnitParameters unitParameters{};
+	CubesUnit::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
@@ -75,10 +75,10 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnitTypes::Prope
 		{ {QString::fromLocal8Bit("Имя"), pi->GetName()} }, propertiesId);
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes::ParameterModels& pm,
-	CubesUnitTypes::PropertiesId& propertiesId)
+void PropertiesItemsManager::Create(const QString& unitId, const CubesUnit::ParameterModels& pm,
+	CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnitTypes::UnitParameters unitParameters{};
+	CubesUnit::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
@@ -95,9 +95,9 @@ void PropertiesItemsManager::Create(const QString& unitId, const CubesUnitTypes:
 		{ {QString::fromLocal8Bit("Имя"), pi->GetName()} }, propertiesId);
 }
 
-void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId)
+void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnitTypes::UnitParameters unitParameters{};
+	CubesUnit::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
@@ -117,7 +117,7 @@ void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnitType
 	topManager_->CreateDiagramItem(propertiesId);
 }
 
-void PropertiesItemsManager::Select(CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::Select(CubesUnit::PropertiesId propertiesId)
 {
 	if (selected_ != propertiesId)
 	{
@@ -140,7 +140,7 @@ void PropertiesItemsManager::Select(CubesUnitTypes::PropertiesId propertiesId)
 	}
 }
 
-void PropertiesItemsManager::Remove(CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::Remove(CubesUnit::PropertiesId propertiesId)
 {
 	// Получаем имя файла
 	QString name = GetName(propertiesId);
@@ -155,7 +155,7 @@ void PropertiesItemsManager::Remove(CubesUnitTypes::PropertiesId propertiesId)
 		{ {QString::fromLocal8Bit("Имя"), name} }, propertiesId);
 }
 
-QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(CubesUnitTypes::PropertiesId propertiesId)
+QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(CubesUnit::PropertiesId propertiesId)
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
@@ -164,7 +164,7 @@ QSharedPointer<PropertiesItem> PropertiesItemsManager::GetItem(CubesUnitTypes::P
 		return nullptr;
 }
 
-bool PropertiesItemsManager::GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames)
+bool PropertiesItemsManager::GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames)
 {
 	for (auto& item : items_)
 	{
@@ -175,8 +175,8 @@ bool PropertiesItemsManager::GetUnitsInFileList(CubesUnitTypes::FileId fileId, Q
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
-	const CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
+bool PropertiesItemsManager::GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
+	const CubesUnit::IncludeId includeId, QStringList& unitNames)
 {
 	for (auto& item : items_)
 	{
@@ -187,7 +187,7 @@ bool PropertiesItemsManager::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fi
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
@@ -197,7 +197,7 @@ bool PropertiesItemsManager::GetUnitParameters(CubesUnitTypes::PropertiesId prop
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
+bool PropertiesItemsManager::GetUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
@@ -365,7 +365,7 @@ bool PropertiesItemsManager::InformVariableChanged()
 	return true;
 }
 
-bool PropertiesItemsManager::InformFileNameChanged(CubesUnitTypes::FileId fileId, const QString& fileName)
+bool PropertiesItemsManager::InformFileNameChanged(CubesUnit::FileId fileId, const QString& fileName)
 {
 	for (auto& item : items_)
 	{
@@ -376,7 +376,7 @@ bool PropertiesItemsManager::InformFileNameChanged(CubesUnitTypes::FileId fileId
 	return true;
 }
 
-bool PropertiesItemsManager::InformFileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
+bool PropertiesItemsManager::InformFileListChanged(const CubesUnit::FileIdNames& fileNames)
 {
 	for (auto& item : items_)
 		item->SetFileIdNames(fileNames);
@@ -384,7 +384,7 @@ bool PropertiesItemsManager::InformFileListChanged(const CubesUnitTypes::FileIdN
 	return true;
 }
 
-bool PropertiesItemsManager::InformIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+bool PropertiesItemsManager::InformIncludeNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
 	const QString& includeName)
 {
 	for (auto& item : items_)
@@ -396,7 +396,7 @@ bool PropertiesItemsManager::InformIncludeNameChanged(CubesUnitTypes::FileId fil
 	return true;
 }
 
-bool PropertiesItemsManager::InformIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+bool PropertiesItemsManager::InformIncludesListChanged(CubesUnit::FileId fileId, const CubesUnit::IncludeIdNames& includeNames)
 {
 	for (auto& item : items_)
 	{
@@ -407,7 +407,7 @@ bool PropertiesItemsManager::InformIncludesListChanged(CubesUnitTypes::FileId fi
 	return true;
 }
 
-bool PropertiesItemsManager::InformFileColorChanged(CubesUnitTypes::FileId fileId)
+bool PropertiesItemsManager::InformFileColorChanged(CubesUnit::FileId fileId)
 {
 	for (auto& item : items_)
 	{
@@ -439,7 +439,7 @@ void PropertiesItemsManager::Clear()
 	logHelper_->LogInformation(static_cast<CubesLog::BaseErrorCode>(PropertiesManagerErrorCode::allItemsRemoved));
 }
 
-bool PropertiesItemsManager::GetName(CubesUnitTypes::PropertiesId propertiesId, QString& name)
+bool PropertiesItemsManager::GetName(CubesUnit::PropertiesId propertiesId, QString& name)
 {
 	name = GetName(propertiesId);
 	return true;
@@ -461,8 +461,8 @@ QList<uint32_t> PropertiesItemsManager::GetPropertyIdsByFileName(const QString& 
 	return result;
 }
 
-QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const CubesUnitTypes::FileId fileId,
-	CubesUnitTypes::IncludeId includeId)
+QList<CubesXml::Group> PropertiesItemsManager::GetXmlGroups(const CubesUnit::FileId fileId,
+	CubesUnit::IncludeId includeId)
 {
 	QMap<QString, CubesXml::Group> xmlGroups;
 	for (const auto& item : items_)
@@ -506,7 +506,7 @@ bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Proper
 	return true;
 }
 
-bool PropertiesItemsManager::GetParameterModels(CubesUnitTypes::PropertiesIdParameterModels& models)
+bool PropertiesItemsManager::GetParameterModels(CubesUnit::PropertiesIdParameterModels& models)
 {
 	for (const auto& item : items_)
 	{
@@ -518,7 +518,7 @@ bool PropertiesItemsManager::GetParameterModels(CubesUnitTypes::PropertiesIdPara
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitParameters(CubesUnitTypes::PropertiesIdUnitParameters& unitParameters)
+bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters)
 {
 	for (const auto& item : items_)
 	{
@@ -530,7 +530,7 @@ bool PropertiesItemsManager::GetUnitParameters(CubesUnitTypes::PropertiesIdUnitP
 	return true;
 }
 
-void PropertiesItemsManager::AfterNameChanged(CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::AfterNameChanged(CubesUnit::PropertiesId propertiesId)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -547,8 +547,8 @@ void PropertiesItemsManager::AfterNameChanged(CubesUnitTypes::PropertiesId prope
 		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
-void PropertiesItemsManager::AfterFileNameChanged(CubesUnitTypes::PropertiesId propertiesId,
-	CubesUnitTypes::IncludeIdNames& includeNames)
+void PropertiesItemsManager::AfterFileNameChanged(CubesUnit::PropertiesId propertiesId,
+	CubesUnit::IncludeIdNames& includeNames)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -569,7 +569,7 @@ void PropertiesItemsManager::AfterFileNameChanged(CubesUnitTypes::PropertiesId p
 		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
-void PropertiesItemsManager::AfterIncludeNameChanged(CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::AfterIncludeNameChanged(CubesUnit::PropertiesId propertiesId)
 {
 	QString name;
 	GetName(propertiesId, name);
@@ -589,13 +589,13 @@ void PropertiesItemsManager::AfterIncludeNameChanged(CubesUnitTypes::PropertiesI
 		basePropertiesChangedDelegate_(item->GetPropertiesId(), name, fileId, includeId);
 }
 
-void PropertiesItemsManager::AfterPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
+void PropertiesItemsManager::AfterPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
 	if (positionChangedDelegate_)
 		positionChangedDelegate_(propertiesId, posX, posY, posZ);
 }
 
-void PropertiesItemsManager::AfterConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
+void PropertiesItemsManager::AfterConnectionChanged(CubesUnit::PropertiesId propertiesId)
 {
 	if (connectionChangedDelegate_)
 		connectionChangedDelegate_(propertiesId);
@@ -609,13 +609,13 @@ void PropertiesItemsManager::AfterPropertiesChanged()
 
 void PropertiesItemsManager::OnEditorCollapsed(QtBrowserItem* item)
 {
-	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId propertiesId = GetCurrentPropertiesId();
 	SetPropertyExpanded(propertiesId, item->property(), false);
 }
 
 void PropertiesItemsManager::OnEditorExpanded(QtBrowserItem* item)
 {
-	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId propertiesId = GetCurrentPropertiesId();
 	SetPropertyExpanded(propertiesId, item->property(), true);
 }
 
@@ -675,7 +675,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 
 void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
 {
-	CubesUnitTypes::PropertiesId propertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId propertiesId = GetCurrentPropertiesId();
 	if (item != nullptr && items_.contains(propertiesId))
 	{
 		QString description = items_[propertiesId]->GetPropertyDescription(item->property());
@@ -691,7 +691,7 @@ void PropertiesItemsManager::OnDeleteInclude(bool checked)
 
 void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 {
-	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 	Select(currentPropertiesId);
 	if (selectedItemChangedDelegate_)
 		selectedItemChangedDelegate_(currentPropertiesId);
@@ -699,7 +699,7 @@ void PropertiesItemsManager::OnSelectorIndexChanged(int index)
 
 void PropertiesItemsManager::OnAddUnitClicked()
 {
-	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 	
 	if (currentPropertiesId != 0)
 	{
@@ -707,7 +707,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 		if (!GetUnitId(currentPropertiesId, unitId))
 			return;
 
-		CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
+		CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
 		Create(unitId, propertiesId);
 
 		auto pi = GetItem(propertiesId);
@@ -740,12 +740,12 @@ void PropertiesItemsManager::OnAddUnitClicked()
 	}
 	else
 	{
-		CubesUnitTypes::UnitParameters unitParameters;
+		CubesUnit::UnitParameters unitParameters;
 		topManager_->GetUnitParameters("", unitParameters);
 
 		const auto unitId = QString::fromStdString(unitParameters.fileInfo.info.id);
 
-		CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
+		CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
 		Create(unitId, propertiesId);
 
 		topManager_->CreateDiagramItem(propertiesId);
@@ -772,7 +772,7 @@ void PropertiesItemsManager::OnAddUnitClicked()
 
 void PropertiesItemsManager::OnAimUnitClicked()
 {
-	CubesUnitTypes::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
+	CubesUnit::PropertiesId currentPropertiesId = GetCurrentPropertiesId();
 
 	if (currentPropertiesId != 0)
 	{
@@ -873,18 +873,18 @@ QWidget* PropertiesItemsManager::CreateHintWidget()
 	return hintWidget;
 }
 
-void PropertiesItemsManager::SetPropertyExpanded(CubesUnitTypes::PropertiesId propertiesId, const QtProperty* property, bool is_expanded)
+void PropertiesItemsManager::SetPropertyExpanded(CubesUnit::PropertiesId propertiesId, const QtProperty* property, bool is_expanded)
 {
 	auto it = items_.find(propertiesId);
 	if (it != items_.end())
 		it.value()->ExpandedChanged(property, is_expanded);
 }
 
-QString PropertiesItemsManager::GetName(CubesUnitTypes::PropertiesId propertiesId)
+QString PropertiesItemsManager::GetName(CubesUnit::PropertiesId propertiesId)
 {
 	auto item = GetItem(propertiesId);
 
-	CubesUnitTypes::VariableIdVariables variables;
+	CubesUnit::VariableIdVariables variables;
 	topManager_->GetFileIncludeVariableList(item->GetFileId(), item->GetIncludeId(), variables);
 
 	QString name = item->GetName();
@@ -897,7 +897,7 @@ QString PropertiesItemsManager::GetName(CubesUnitTypes::PropertiesId propertiesI
 	return name;
 }
 
-void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result, CubesUnitTypes::ParameterModel pm,
+void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModel pm,
 	QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
 	pi->AddItems(pm);

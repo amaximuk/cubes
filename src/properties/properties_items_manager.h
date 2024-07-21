@@ -25,9 +25,9 @@ namespace CubesProperties
 		QPointer<PropertiesEditor> editor_;
 		QPointer<QComboBox> selector_;
 		QPointer<QPlainTextEdit> hint_;
-		QMap<CubesUnitTypes::PropertiesId, QSharedPointer<PropertiesItem>> items_;
-		CubesUnitTypes::PropertiesId selected_;
-		CubesUnitTypes::PropertiesId uniqueNumber_;
+		QMap<CubesUnit::PropertiesId, QSharedPointer<PropertiesItem>> items_;
+		CubesUnit::PropertiesId selected_;
+		CubesUnit::PropertiesId uniqueNumber_;
 
 		// Log
 		QSharedPointer<CubesLog::LogHelper> logHelper_;
@@ -40,18 +40,18 @@ namespace CubesProperties
 		QComboBox* GetSelector();
 		QWidget* GetWidget();
 		uint32_t GetCurrentPropertiesId();
-		void Create(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId);
-		void Create(const QString& unitId, const CubesUnitTypes::ParameterModels& pm, CubesUnitTypes::PropertiesId& propertiesId);
-		void Create(const CubesXml::Unit& xmlUnit, CubesUnitTypes::PropertiesId& propertiesId);
-		void Select(CubesUnitTypes::PropertiesId propertiesId);
-		void Remove(CubesUnitTypes::PropertiesId propertiesId);
-		QSharedPointer<PropertiesItem> GetItem(CubesUnitTypes::PropertiesId propertiesId);
-		bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames);
-		bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
-			CubesUnitTypes::IncludeId includeId, QStringList& unitNames);
+		void Create(const QString& unitId, CubesUnit::PropertiesId& propertiesId);
+		void Create(const QString& unitId, const CubesUnit::ParameterModels& pm, CubesUnit::PropertiesId& propertiesId);
+		void Create(const CubesXml::Unit& xmlUnit, CubesUnit::PropertiesId& propertiesId);
+		void Select(CubesUnit::PropertiesId propertiesId);
+		void Remove(CubesUnit::PropertiesId propertiesId);
+		QSharedPointer<PropertiesItem> GetItem(CubesUnit::PropertiesId propertiesId);
+		bool GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames);
+		bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
+			CubesUnit::IncludeId includeId, QStringList& unitNames);
 
-		bool GetUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters);
-		bool GetUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId);
+		bool GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters);
+		bool GetUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId);
 
 		// TODO: переделать на PropertiesId
 		bool GetUnitsConnections(QMap<QString, QStringList>& connections);
@@ -60,23 +60,23 @@ namespace CubesProperties
 		bool SortUnitsRectangular(bool check);
 
 		bool InformVariableChanged();
-		bool InformFileNameChanged(CubesUnitTypes::FileId fileId, const QString& fileName);
-		bool InformFileListChanged(const CubesUnitTypes::FileIdNames& fileNames);
-		bool InformIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+		bool InformFileNameChanged(CubesUnit::FileId fileId, const QString& fileName);
+		bool InformFileListChanged(const CubesUnit::FileIdNames& fileNames);
+		bool InformIncludeNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
 			const QString& includeName);
-		bool InformIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-		bool InformFileColorChanged(CubesUnitTypes::FileId fileId);
+		bool InformIncludesListChanged(CubesUnit::FileId fileId, const CubesUnit::IncludeIdNames& includeNames);
+		bool InformFileColorChanged(CubesUnit::FileId fileId);
 
 		void Clear();
-		bool GetName(CubesUnitTypes::PropertiesId propertiesId, QString& name);
+		bool GetName(CubesUnit::PropertiesId propertiesId, QString& name);
 
 		QList<uint32_t> GetPropertyIds();
 		QList<uint32_t> GetPropertyIdsByFileName(const QString& fileName, const QString& includeName = "<not selected>");
-		QList<CubesXml::Group> GetXmlGroups(CubesUnitTypes::FileId fileId,
-			CubesUnitTypes::IncludeId includeId = CubesUnitTypes::InvalidIncludeId);
+		QList<CubesXml::Group> GetXmlGroups(CubesUnit::FileId fileId,
+			CubesUnit::IncludeId includeId = CubesUnit::InvalidIncludeId);
 		bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties);
-		bool GetParameterModels(CubesUnitTypes::PropertiesIdParameterModels& models);
-		bool GetUnitParameters(CubesUnitTypes::PropertiesIdUnitParameters& unitParameters);
+		bool GetParameterModels(CubesUnit::PropertiesIdParameterModels& models);
+		bool GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters);
 
 	private:
 		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;
@@ -95,21 +95,21 @@ namespace CubesProperties
 		void SetPropertiesChangedDelegate(PropertiesChangedDelegate propertiesChangedDelegate) { propertiesChangedDelegate_ = propertiesChangedDelegate; };
 
 	//signals:
-	//	void BasePropertiesChanged(const CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-	//		const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId);
-	//	void PositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-	//	void SelectedItemChanged(const CubesUnitTypes::PropertiesId propertiesId);
-	//	void Error(const CubesUnitTypes::PropertiesId propertiesId, const QString& message);
-	//	void ConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId);
+	//	void BasePropertiesChanged(const CubesUnit::PropertiesId propertiesId, const QString& name,
+	//		const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId);
+	//	void PositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
+	//	void SelectedItemChanged(const CubesUnit::PropertiesId propertiesId);
+	//	void Error(const CubesUnit::PropertiesId propertiesId, const QString& message);
+	//	void ConnectionChanged(const CubesUnit::PropertiesId propertiesId);
 	//	void PropertiesChanged();
 
 	public:
 		// IPropertiesItemsManager (для общения с PropertiesItem)
-		void AfterNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
-		void AfterFileNameChanged(const CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-		void AfterIncludeNameChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
-		void AfterPositionChanged(const CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ) override;
-		void AfterConnectionChanged(const CubesUnitTypes::PropertiesId propertiesId) override;
+		void AfterNameChanged(const CubesUnit::PropertiesId propertiesId) override;
+		void AfterFileNameChanged(const CubesUnit::PropertiesId propertiesId, CubesUnit::IncludeIdNames& includeNames) override;
+		void AfterIncludeNameChanged(const CubesUnit::PropertiesId propertiesId) override;
+		void AfterPositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+		void AfterConnectionChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;
 
 	private:
@@ -126,10 +126,10 @@ namespace CubesProperties
 		QWidget* CreateEditorWidget();
 		QWidget* CreateSelectorWidget();
 		QWidget* CreateHintWidget();
-		void SetPropertyExpanded(const CubesUnitTypes::PropertiesId propertiesId, const QtProperty* property, bool is_expanded);
-		QString GetName(const CubesUnitTypes::PropertiesId propertiesId);
+		void SetPropertyExpanded(const CubesUnit::PropertiesId propertiesId, const QtProperty* property, bool is_expanded);
+		QString GetName(const CubesUnit::PropertiesId propertiesId);
 
-		void OnArrayWindowBeforeClose(const bool result, CubesUnitTypes::ParameterModel pm,
+		void OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModel pm,
 			QSharedPointer<CubesProperties::PropertiesItem> pi);
 	};
 }

@@ -18,7 +18,7 @@ DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, QObject *parent) :
     selectedWithCtrl_ = false;
 }
 
-void DiagramScene::InformBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
+void DiagramScene::InformBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
     const QString& fileName, const QString& includeName, const QColor& color)
 {
     for (auto& item : items())
@@ -148,7 +148,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
                     qDebug() << "ERROR GetPropetiesUnitParameters: " << pair.first->propertiesId_;
                 }
 
-                CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
+                CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
                 if (!topManager_->CreatePropetiesItem(unitId, propertiesId))
                 {
                     qDebug() << "ERROR CreatePropetiesItem: " << unitId;

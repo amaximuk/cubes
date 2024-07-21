@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QSharedPointer>
-#include "../unit/unit_types.h"
+#include "../unit/unit_parameter_model.h"
+
 #include "analysis_manager_interface.h"
 
 namespace CubesTop { class ITopManager; }
@@ -24,14 +25,14 @@ namespace CubesAnalysis
 		AnalysisManager(CubesLog::ILogManager* logManager);
 
 	public:
-		void Test(const CubesUnitTypes::FileIdParameterModels& fileModels,
-			const CubesUnitTypes::PropertiesIdParameterModels& propertiesModels,
-			const CubesUnitTypes::UnitIdUnitParameters& unitParameters);
+		void Test(const CubesUnit::FileIdParameterModels& fileModels,
+			const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+			const CubesUnit::UnitIdUnitParameters& unitParameters);
 
 	//public:
 	//	// IAnalysisManager
-	//	void AfterFileError(const CubesUnitTypes::FileId fileId, CubesAnalysis::RuleId id, const QString& message) override;
-	//	void AfterPropertiesError(const CubesUnitTypes::PropertiesId propertiesId,
+	//	void AfterFileError(const CubesUnit::FileId fileId, CubesAnalysis::RuleId id, const QString& message) override;
+	//	void AfterPropertiesError(const CubesUnit::PropertiesId propertiesId,
 	//		CubesAnalysis::RuleId id, const QString& message) override;
 	};
 }

@@ -39,7 +39,7 @@ namespace CubesLog
         // Error
 
         void LogError(BaseErrorCode errorCode, const QString& description, const QString& details,
-            const QVector<CubesLog::Variable>& variables, CubesUnitTypes::BaseId tag)
+            const QVector<CubesLog::Variable>& variables, CubesUnit::BaseId tag)
         {
             if (logManager_ != nullptr)
             {
@@ -64,45 +64,45 @@ namespace CubesLog
         void LogError(BaseErrorCode errorCode, const QString& description, const QString& details,
             const QVector<CubesLog::Variable>& variables)
         {
-            LogError(errorCode, description, details, variables, CubesUnitTypes::InvalidBaseId);
+            LogError(errorCode, description, details, variables, CubesUnit::InvalidBaseId);
         }
 
         void LogError(BaseErrorCode errorCode, const QString& description, const QString& details,
-            CubesUnitTypes::BaseId tag)
+            CubesUnit::BaseId tag)
         {
             LogError(errorCode, description, details, {}, tag);
         }
 
         void LogError(BaseErrorCode errorCode, const QString& description, const QString& details)
         {
-            LogError(errorCode, description, details, {}, CubesUnitTypes::InvalidBaseId);
+            LogError(errorCode, description, details, {}, CubesUnit::InvalidBaseId);
         }
 
         void LogError(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables,
-            CubesUnitTypes::BaseId tag)
+            CubesUnit::BaseId tag)
         {
             LogError(errorCode, {}, {}, variables, tag);
         }
 
         void LogError(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
         {
-            LogError(errorCode, {}, {}, variables, CubesUnitTypes::InvalidBaseId);
+            LogError(errorCode, {}, {}, variables, CubesUnit::InvalidBaseId);
         }
 
-        void LogError(BaseErrorCode errorCode, CubesUnitTypes::BaseId tag)
+        void LogError(BaseErrorCode errorCode, CubesUnit::BaseId tag)
         {
             LogError(errorCode, {}, {}, {}, tag);
         }
 
         void LogError(BaseErrorCode errorCode)
         {
-            LogError(errorCode, {}, {}, {}, CubesUnitTypes::InvalidBaseId);
+            LogError(errorCode, {}, {}, {}, CubesUnit::InvalidBaseId);
         }
 
         // Information
 
         void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
-            const QVector<CubesLog::Variable>& variables, CubesUnitTypes::BaseId tag)
+            const QVector<CubesLog::Variable>& variables, CubesUnit::BaseId tag)
         {
             if (logManager_ != nullptr)
             {
@@ -127,39 +127,39 @@ namespace CubesLog
         void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
             const QVector<CubesLog::Variable>& variables)
         {
-            LogInformation(errorCode, description, details, variables, CubesUnitTypes::InvalidBaseId);
+            LogInformation(errorCode, description, details, variables, CubesUnit::InvalidBaseId);
         }
 
         void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details,
-            CubesUnitTypes::BaseId tag)
+            CubesUnit::BaseId tag)
         {
             LogInformation(errorCode, description, details, {}, tag);
         }
 
         void LogInformation(BaseErrorCode errorCode, const QString& description, const QString& details)
         {
-            LogInformation(errorCode, description, details, {}, CubesUnitTypes::InvalidBaseId);
+            LogInformation(errorCode, description, details, {}, CubesUnit::InvalidBaseId);
         }
 
         void LogInformation(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables,
-            CubesUnitTypes::BaseId tag)
+            CubesUnit::BaseId tag)
         {
             LogInformation(errorCode, {}, {}, variables, tag);
         }
 
         void LogInformation(BaseErrorCode errorCode, const QVector<CubesLog::Variable>& variables)
         {
-            LogInformation(errorCode, {}, {}, variables, CubesUnitTypes::InvalidBaseId);
+            LogInformation(errorCode, {}, {}, variables, CubesUnit::InvalidBaseId);
         }
 
-        void LogInformation(BaseErrorCode errorCode, CubesUnitTypes::BaseId tag)
+        void LogInformation(BaseErrorCode errorCode, CubesUnit::BaseId tag)
         {
             LogInformation(errorCode, {}, {}, {}, tag);
         }
 
         void LogInformation(BaseErrorCode errorCode)
         {
-            LogInformation(errorCode, {}, {}, {}, CubesUnitTypes::InvalidBaseId);
+            LogInformation(errorCode, {}, {}, {}, CubesUnit::InvalidBaseId);
         }
     };
 }

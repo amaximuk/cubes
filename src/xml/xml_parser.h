@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtXml>
-#include "../unit/unit_types.h"
+#include "../unit/unit_parameter_model_ids.h"
 #include "../log/log_manager_interface.h"
 #include "xml_types.h"
 
@@ -12,7 +12,7 @@ namespace CubesXml
 	class Parser
 	{
 	private:
-		const CubesUnitTypes::ParameterModelIds ids_;
+		const CubesUnit::ParameterModelIds ids_;
 		CubesLog::ILogManager* logManager_;
 		File fi_;
 

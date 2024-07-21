@@ -56,7 +56,7 @@ namespace CubesAnalysis
 		bool is_include;
 		struct
 		{
-			CubesUnitTypes::FileId fileId;
+			CubesUnit::FileId fileId;
 			QString name;
 			int id;
 			int port;
@@ -64,7 +64,7 @@ namespace CubesAnalysis
 		} main;
 		struct
 		{
-			CubesUnitTypes::IncludeId includeId;
+			CubesUnit::IncludeId includeId;
 			QString name;
 		} include;
 	};
@@ -81,7 +81,7 @@ namespace CubesAnalysis
 
 	struct Properties
 	{
-		CubesUnitTypes::PropertiesId propertiesId;
+		CubesUnit::PropertiesId propertiesId;
 		QString unitId;
 		QString name;
 		QVector<UnitProperty> connections;

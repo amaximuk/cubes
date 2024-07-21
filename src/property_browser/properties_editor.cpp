@@ -58,19 +58,19 @@ QtTreePropertyBrowser* PropertiesEditor::GetPropertyEditor()
     return propertyEditor_;
 }
 
-QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::ParameterModel& model,
-    QMap<CubesUnitTypes::ParameterModelId, const QtProperty*>& idToProperty)
+QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnit::ParameterModel& model,
+    QMap<CubesUnit::ParameterModelId, const QtProperty*>& idToProperty)
 {
     // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
     QtProperty* pr = nullptr;
-    if (model.editorSettings.type == CubesUnitTypes::EditorType::None)
+    if (model.editorSettings.type == CubesUnit::EditorType::None)
     {
         pr = groupManager_->addProperty(model.name);
         groupManager_->blockSignals(true);
         groupManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::String)
+    else if (model.editorSettings.type == CubesUnit::EditorType::String)
     {
         pr = stringManager_->addProperty(model.name);
         stringManager_->blockSignals(true);
@@ -78,7 +78,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
         stringManager_->setValue(pr, model.value.toString());
         stringManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
+    else if (model.editorSettings.type == CubesUnit::EditorType::SpinInterger)
     {
         pr = intManager_->addProperty(model.name);
         intManager_->blockSignals(true);
@@ -86,7 +86,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
         intManager_->setValue(pr, model.value.toInt());
         intManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinDouble)
+    else if (model.editorSettings.type == CubesUnit::EditorType::SpinDouble)
     {
         pr = doubleManager_->addProperty(model.name);
         doubleManager_->blockSignals(true);
@@ -95,7 +95,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
         doubleManager_->setValue(pr, model.value.toDouble());
         doubleManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
+    else if (model.editorSettings.type == CubesUnit::EditorType::ComboBox)
     {
         pr = enumManager_->addProperty(model.name);
         enumManager_->blockSignals(true);
@@ -124,14 +124,14 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
         enumManager_->setValue(pr, model.GetComboBoxIndex());
         enumManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
+    else if (model.editorSettings.type == CubesUnit::EditorType::CheckBox)
     {
         pr = boolManager_->addProperty(model.name);
         boolManager_->blockSignals(true);
         boolManager_->setValue(pr, model.value.toBool());
         boolManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::Color)
+    else if (model.editorSettings.type == CubesUnit::EditorType::Color)
     {
         pr = colorManager_->addProperty(model.name);
         colorManager_->blockSignals(true);
@@ -153,28 +153,28 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnitTypes::Param
     return pr;
 }
 
-void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTypes::ParameterModel& model)
+void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnit::ParameterModel& model)
 {
     // None, String, SpinInterger, SpinDouble, ComboBox, CheckBox
 
-    if (model.editorSettings.type == CubesUnitTypes::EditorType::None)
+    if (model.editorSettings.type == CubesUnit::EditorType::None)
     {
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::String)
+    else if (model.editorSettings.type == CubesUnit::EditorType::String)
     {
         stringManager_->blockSignals(true);
         stringManager_->setOldValue(property, model.value.toString());
         stringManager_->setValue(property, model.value.toString());
         stringManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinInterger)
+    else if (model.editorSettings.type == CubesUnit::EditorType::SpinInterger)
     {
         intManager_->blockSignals(true);
         intManager_->setRange(property, model.editorSettings.spinIntergerMin, model.editorSettings.spinIntergerMax);
         intManager_->setValue(property, model.value.toInt());
         intManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::SpinDouble)
+    else if (model.editorSettings.type == CubesUnit::EditorType::SpinDouble)
     {
         doubleManager_->blockSignals(true);
         doubleManager_->setRange(property, model.editorSettings.spinDoubleMin, model.editorSettings.spinDoubleMax);
@@ -182,7 +182,7 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
         doubleManager_->setValue(property, model.value.toDouble());
         doubleManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::ComboBox)
+    else if (model.editorSettings.type == CubesUnit::EditorType::ComboBox)
     {
         enumManager_->blockSignals(true);
         enumManager_->setEnumNames(property, model.GetComboBoxValues());
@@ -210,13 +210,13 @@ void PropertiesEditor::SetPropertyValue(QtProperty* property, const CubesUnitTyp
         enumManager_->setValue(property, model.GetComboBoxIndex());
         enumManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::CheckBox)
+    else if (model.editorSettings.type == CubesUnit::EditorType::CheckBox)
     {
         boolManager_->blockSignals(true);
         boolManager_->setValue(property, model.value.toBool());
         boolManager_->blockSignals(false);
     }
-    else if (model.editorSettings.type == CubesUnitTypes::EditorType::Color)
+    else if (model.editorSettings.type == CubesUnit::EditorType::Color)
     {
         colorManager_->blockSignals(true);
         colorManager_->setValue(property, QColor::fromRgba(model.value.toUInt()));

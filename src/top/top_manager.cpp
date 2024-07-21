@@ -53,18 +53,18 @@ TopManager::~TopManager()
 }
 
 // ITopManager
-bool TopManager::GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames)
+bool TopManager::GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileList(fileId, unitNames);
 }
 
-bool TopManager::GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId,
-    CubesUnitTypes::IncludeId includeId, QStringList& unitNames)
+bool TopManager::GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
+    CubesUnit::IncludeId includeId, QStringList& unitNames)
 {
     return propertiesItemsManager_->GetUnitsInFileIncludeList(fileId, includeId, unitNames);
 }
 
-bool TopManager::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters)
+bool TopManager::GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters)
 {
     // Для массивов - мы не знаем название, но у нас всего один элемент в списке
     if (unitId.isEmpty() && unitParameters_.size() == 1)
@@ -82,13 +82,13 @@ bool TopManager::GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitPa
     return true;
 }
 
-bool TopManager::GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames)
+bool TopManager::GetFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeIdNames& includeNames)
 {
     return fileItemsManager_->GetFileIncludeNames(fileId, true, includeNames);
 }
 
-bool TopManager::GetFileIncludeVariableList(CubesUnitTypes::FileId fileId,
-    CubesUnitTypes::IncludeId includeId, CubesUnitTypes::VariableIdVariables& variables)
+bool TopManager::GetFileIncludeVariableList(CubesUnit::FileId fileId,
+    CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables)
 {
     return fileItemsManager_->GetFileIncludeVariables(fileId, includeId, variables);
 }
@@ -100,11 +100,11 @@ bool TopManager::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     pi->SetFileIdNames(GetFileNames());
     pi->SetFileIdName(fileItemsManager_->GetCurrentFileId(), fileItemsManager_->GetCurrentFileName());
     pi->SetIncludeIdNames(GetCurrentFileIncludeNames());
-    pi->SetIncludeIdName(CubesUnitTypes::InvalidIncludeId, "<not selected>");
+    pi->SetIncludeIdName(CubesUnit::InvalidIncludeId, "<not selected>");
     return true;
 }
 
-bool TopManager::GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd)
+bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd)
 {
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -122,12 +122,12 @@ bool TopManager::GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesI
     return true;
 }
 
-bool TopManager::GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId, CubesUnitTypes::UnitParameters& unitParameters)
+bool TopManager::GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters)
 {
     return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
 }
 
-bool TopManager::GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId)
+bool TopManager::GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId)
 {
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
@@ -142,12 +142,12 @@ bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
     return propertiesItemsManager_->GetDependsConnections(connections);
 }
 
-bool TopManager::CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId)
+bool TopManager::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
 {
     return true;
 }
 
-bool TopManager::EnshureVisible(CubesUnitTypes::PropertiesId propertiesId)
+bool TopManager::EnshureVisible(CubesUnit::PropertiesId propertiesId)
 {
     return true;
 }
@@ -221,17 +221,17 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
 {
     // Не очищаем, вдруг там уже что-то поменяно
 
-    CubesUnitTypes::FileId fileId{ CubesUnitTypes::InvalidFileId };
+    CubesUnit::FileId fileId{ CubesUnit::InvalidFileId };
     fileItemsManager_->Create(file, fileId);
     fileItemsManager_->Select(fileId);
 
-    if (!AddUnits(fileId, CubesUnitTypes::InvalidIncludeId, file))
+    if (!AddUnits(fileId, CubesUnit::InvalidIncludeId, file))
         return false;
 
     if (zipFileName.isEmpty())
     {
         // Запрашиваем список из fileItemsManager_, чтобы получить includeId
-        CubesUnitTypes::IncludeIdNames includes;
+        CubesUnit::IncludeIdNames includes;
         if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
             return false;
         QDir dir = QFileInfo(file.fileName).absoluteDir();
@@ -254,7 +254,7 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     else
     {
         // Запрашиваем список из fileItemsManager_, чтобы получить includeId
-        CubesUnitTypes::IncludeIdNames includes;
+        CubesUnit::IncludeIdNames includes;
         if (!fileItemsManager_->GetFileIncludeNames(fileId, false, includes))
             return false;
 
@@ -283,7 +283,7 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     return true;
 }
 
-bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file)
+bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId, const CubesXml::File& file)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : file.config.groups)
@@ -304,7 +304,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
     }
 
     // Get fileNames list
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    CubesUnit::FileIdNames fileNames = fileItemsManager_->GetFileNames();
     QString fileName = fileItemsManager_->GetFileName(fileId);
 
     // Transform
@@ -315,7 +315,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
 
         if (up != nullptr)
         {
-            CubesUnitTypes::PropertiesId propertiesId{ CubesUnitTypes::InvalidPropertiesId };
+            CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
             propertiesItemsManager_->Create(all_units[i], propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
@@ -324,7 +324,7 @@ bool TopManager::AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTy
             pi->SetFileIdName(fileId, fileName);
             //if (includedFileName != "")
             {
-                CubesUnitTypes::IncludeIdNames includes;
+                CubesUnit::IncludeIdNames includes;
                 if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
                     return false;
 
@@ -377,7 +377,7 @@ bool TopManager::SortUnitsRectangular(bool check)
     return propertiesItemsManager_->SortUnitsRectangular(check);
 }
 
-CubesUnitTypes::UnitParameters* TopManager::GetUnitParameters(const QString& id)
+CubesUnit::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 {
     for (auto& up : unitParameters_)
     {
@@ -390,13 +390,13 @@ CubesUnitTypes::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 bool TopManager::Test()
 {
     //log_table_model_->Clear();
-    CubesUnitTypes::FileIdParameterModels fileModels;
+    CubesUnit::FileIdParameterModels fileModels;
     if (!fileItemsManager_->GetParameterModels(fileModels))
         return false;
-    CubesUnitTypes::PropertiesIdParameterModels propertiesModels;
+    CubesUnit::PropertiesIdParameterModels propertiesModels;
     if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
         return false;
-    //CubesUnitTypes::PropertiesIdUnitParameters unitParameters;
+    //CubesUnit::PropertiesIdUnitParameters unitParameters;
     //if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
     //    return false;
     analysisManager_->Test(fileModels, propertiesModels, unitParameters_);
@@ -404,7 +404,7 @@ bool TopManager::Test()
 }
 
 // Files
-CubesUnitTypes::FileIdNames TopManager::GetFileNames()
+CubesUnit::FileIdNames TopManager::GetFileNames()
 {
     return fileItemsManager_->GetFileNames();
 }
@@ -414,10 +414,10 @@ CubesUnitTypes::FileIdNames TopManager::GetFileNames()
 //    return fileItemsManager_->GetCurrentFileName();
 //}
 
-CubesUnitTypes::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
+CubesUnit::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
 {
     auto fileId = fileItemsManager_->GetFileId(fileItemsManager_->GetCurrentFileName());
-    CubesUnitTypes::IncludeIdNames includes;
+    CubesUnit::IncludeIdNames includes;
     if (!fileItemsManager_->GetFileIncludeNames(fileId, true, includes))
         return {};
 
@@ -426,7 +426,7 @@ CubesUnitTypes::IncludeIdNames TopManager::GetCurrentFileIncludeNames()
 
 //QString TopManager::GetDisplayName(const QString& baseName)
 //{
-//    CubesUnitTypes::VariableIdVariables variables;
+//    CubesUnit::VariableIdVariables variables;
 //    for (const auto& item : scene_->items())
 //    {
 //        CubeDiagram::DiagramItem* di = reinterpret_cast<CubeDiagram::DiagramItem*>(item);
@@ -472,7 +472,7 @@ bool TopManager::SaveFile(const QString& path)
 
     // Получаем список главных файлов
     bool is_first = true;
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    CubesUnit::FileIdNames fileNames = fileItemsManager_->GetFileNames();
     for (const auto& kvpFile : fileNames.toStdMap())
     {
         auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
@@ -512,7 +512,7 @@ bool TopManager::SaveFile(const QString& path)
             //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
 
-        CubesUnitTypes::IncludeIdNames includes;
+        CubesUnit::IncludeIdNames includes;
         if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false, includes))
             return false;
 
@@ -568,7 +568,7 @@ bool TopManager::SaveFolder(const QString& path)
 
     // Получаем список главных файлов
     bool is_first = true;
-    CubesUnitTypes::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    CubesUnit::FileIdNames fileNames = fileItemsManager_->GetFileNames();
     for (const auto& kvpFile : fileNames.toStdMap())
     {
         auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
@@ -604,7 +604,7 @@ bool TopManager::SaveFolder(const QString& path)
             //CubesZip::ZipFile(xmlFileName, xmlZipFileName, CubesZip::ZipMethod::Create);
         }
 
-        CubesUnitTypes::IncludeIdNames includes;
+        CubesUnit::IncludeIdNames includes;
         if (!fileItemsManager_->GetFileIncludeNames(kvpFile.first, false, includes))
             return false;
         for (const auto& kvpInclude : includes.toStdMap())
@@ -766,7 +766,7 @@ bool TopManager::ImportXml(const QString& path)
 
 
 // FileItemsManager
-void TopManager::FileNameChanged(CubesUnitTypes::FileId fileId)
+void TopManager::FileNameChanged(CubesUnit::FileId fileId)
 {
     const auto fileName = fileItemsManager_->GetFileName(fileId);
     if (!propertiesItemsManager_->InformFileNameChanged(fileId, fileName))
@@ -777,7 +777,7 @@ void TopManager::FileNameChanged(CubesUnitTypes::FileId fileId)
     //scene_->invalidate();
 }
 
-void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
+void TopManager::FileListChanged(const CubesUnit::FileIdNames& fileNames)
 {
     if (!propertiesItemsManager_->InformFileListChanged(fileNames))
         return;
@@ -806,7 +806,7 @@ void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     //scene_->invalidate();
 }
 
-void TopManager::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
+void TopManager::FileIncludeNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId)
 {
     QString includeName;
     if (!fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName))
@@ -820,7 +820,7 @@ void TopManager::FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnit
     //scene_->invalidate();
 }
 
-void TopManager::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames)
+void TopManager::FileIncludesListChanged(CubesUnit::FileId fileId, const CubesUnit::IncludeIdNames& includeNames)
 {
     if (!propertiesItemsManager_->InformIncludesListChanged(fileId, includeNames))
         return;
@@ -830,7 +830,7 @@ void TopManager::FileIncludesListChanged(CubesUnitTypes::FileId fileId, const Cu
     //scene_->invalidate();
 }
 
-void TopManager::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+void TopManager::FileVariableNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
     const QString& variableName, const QString& oldVariableName)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
@@ -839,8 +839,8 @@ void TopManager::FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUni
     //UpdateFileState(path_, true);
 }
 
-void TopManager::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
-    const CubesUnitTypes::VariableIdVariables& variables)
+void TopManager::FileVariablesListChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
+    const CubesUnit::VariableIdVariables& variables)
 {
     if (!propertiesItemsManager_->InformVariableChanged())
         return;
@@ -848,7 +848,7 @@ void TopManager::FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUn
     //UpdateFileState(path_, true);
 }
 
-void TopManager::FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color)
+void TopManager::FileColorChanged(CubesUnit::FileId fileId, const QColor& color)
 {
     if (!propertiesItemsManager_->InformFileColorChanged(fileId))
         return;
@@ -864,20 +864,20 @@ void TopManager::FilePropertiesChanged()
 }
 
 // PropertiesItemsManager
-void TopManager::PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-    CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId)
+void TopManager::PropertiesBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
+    CubesUnit::FileId fileId, CubesUnit::IncludeId includeId)
 {
 }
 
-void TopManager::PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId)
+void TopManager::PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId)
 {
 }
 
-void TopManager::PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ)
+void TopManager::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ)
 {
 }
 
-void TopManager::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message)
+void TopManager::PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message)
 {
     //CubesLog::Message lm{};
     //lm.type = CubesLog::MessageType::error;
@@ -887,7 +887,7 @@ void TopManager::PropertiesError(CubesUnitTypes::PropertiesId propertiesId, cons
     //AddMessage(lm);
 }
 
-void TopManager::PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId)
+void TopManager::PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId)
 {
 }
 

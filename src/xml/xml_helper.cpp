@@ -38,10 +38,10 @@ bool Helper::Parse(const QString& fileName, File& fi, CubesLog::ILogManager* log
 	return true;
 }
 
-bool Helper::GetElement(Unit& unit, const CubesUnitTypes::ParameterModelId& id, Element& element, CubesLog::ILogManager* logManager)
+bool Helper::GetElement(Unit& unit, const CubesUnit::ParameterModelId& id, Element& element, CubesLog::ILogManager* logManager)
 {
 	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
-	const static CubesUnitTypes::ParameterModelIds ids;
+	const static CubesUnit::ParameterModelIds ids;
 
 	auto ss = id.split();
 	if (ss.isEmpty())

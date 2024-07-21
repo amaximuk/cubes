@@ -3,9 +3,10 @@
 #include <QObject>
 #include <QPointer>
 #include "../log/log_manager_interface.h"
+#include "../unit/unit_parameter_model_ids.h"
 #include "top_manager_interface.h"
 
-namespace CubesUnitTypes { class UnitParameters; }
+namespace CubesUnit { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
 namespace CubesLog { class LogHelper; }
 namespace CubesLog { class SortFilterModel; }
@@ -20,13 +21,13 @@ namespace CubesTop
     protected:
         uint32_t uniqueNumber_;
 
-        CubesUnitTypes::UnitIdUnitParameters unitParameters_;
+        CubesUnit::UnitIdUnitParameters unitParameters_;
         QPointer<CubesFile::FileItemsManager> fileItemsManager_;
         QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
         QPointer<CubesAnalysis::AnalysisManager> analysisManager_;
 
         // Значения имен параметров
-        CubesUnitTypes::ParameterModelIds ids_;
+        CubesUnit::ParameterModelIds ids_;
 
         // Log
         QSharedPointer<CubesLog::LogHelper> logHelper_;
@@ -37,22 +38,22 @@ namespace CubesTop
 
     public:
         // ITopManager
-        virtual bool GetUnitsInFileList(CubesUnitTypes::FileId fileId, QStringList& unitNames) override;
-        virtual bool GetUnitsInFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+        virtual bool GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames) override;
+        virtual bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
             QStringList& unitNames) override;
-        virtual bool GetUnitParameters(const QString& unitId, CubesUnitTypes::UnitParameters& unitParameters) override;
-        virtual bool GetFileIncludeList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeIdNames& includeNames) override;
-        virtual bool GetFileIncludeVariableList(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
-            CubesUnitTypes::VariableIdVariables& variables) override;
-        virtual bool CreatePropetiesItem(const QString& unitId, CubesUnitTypes::PropertiesId& propertiesId) override;
-        virtual bool GetPropetiesForDrawing(CubesUnitTypes::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
-        virtual bool GetPropetiesUnitParameters(CubesUnitTypes::PropertiesId propertiesId,
-            CubesUnitTypes::UnitParameters& unitParameters) override;
-        virtual bool GetPropetiesUnitId(CubesUnitTypes::PropertiesId propertiesId, QString& unitId) override;
+        virtual bool GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters) override;
+        virtual bool GetFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeIdNames& includeNames) override;
+        virtual bool GetFileIncludeVariableList(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
+            CubesUnit::VariableIdVariables& variables) override;
+        virtual bool CreatePropetiesItem(const QString& unitId, CubesUnit::PropertiesId& propertiesId) override;
+        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
+        virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
+            CubesUnit::UnitParameters& unitParameters) override;
+        virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) override;
         virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
-        virtual bool CreateDiagramItem(CubesUnitTypes::PropertiesId propertiesId) override;
-        virtual bool EnshureVisible(CubesUnitTypes::PropertiesId propertiesId) override;
+        virtual bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;
+        virtual bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
         virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
 
@@ -66,12 +67,12 @@ namespace CubesTop
     protected:
         // Добавление юнитов
         virtual bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
-        virtual bool AddUnits(const CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeId includeId, const CubesXml::File& file);
+        virtual bool AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId, const CubesXml::File& file);
         
         // Получение информации
-        virtual CubesUnitTypes::UnitParameters* GetUnitParameters(const QString& id);
-        virtual CubesUnitTypes::FileIdNames GetFileNames();
-        virtual CubesUnitTypes::IncludeIdNames GetCurrentFileIncludeNames();
+        virtual CubesUnit::UnitParameters* GetUnitParameters(const QString& id);
+        virtual CubesUnit::FileIdNames GetFileNames();
+        virtual CubesUnit::IncludeIdNames GetCurrentFileIncludeNames();
 
         // External
         virtual bool NewFile();
@@ -86,24 +87,24 @@ namespace CubesTop
 
     protected:
         // FileItemsManager
-        virtual void FileNameChanged(CubesUnitTypes::FileId fileId);
-        virtual void FileListChanged(const CubesUnitTypes::FileIdNames& fileIdNames);
-        virtual void FileIncludeNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
-        virtual void FileIncludesListChanged(CubesUnitTypes::FileId fileId, const CubesUnitTypes::IncludeIdNames& includeNames);
-        virtual void FileVariableNameChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
+        virtual void FileNameChanged(CubesUnit::FileId fileId);
+        virtual void FileListChanged(const CubesUnit::FileIdNames& fileIdNames);
+        virtual void FileIncludeNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId);
+        virtual void FileIncludesListChanged(CubesUnit::FileId fileId, const CubesUnit::IncludeIdNames& includeNames);
+        virtual void FileVariableNameChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
             const QString& variableName, const QString& oldVariableName);
-        virtual void FileVariablesListChanged(CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId,
-            const CubesUnitTypes::VariableIdVariables& variables);
-        virtual void FileColorChanged(CubesUnitTypes::FileId fileId, const QColor& color);
+        virtual void FileVariablesListChanged(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
+            const CubesUnit::VariableIdVariables& variables);
+        virtual void FileColorChanged(CubesUnit::FileId fileId, const QColor& color);
         virtual void FilePropertiesChanged();
 
         // PropertiesItemsManager
-        virtual void PropertiesBasePropertiesChanged(CubesUnitTypes::PropertiesId propertiesId, const QString& name,
-            CubesUnitTypes::FileId fileId, CubesUnitTypes::IncludeId includeId);
-        virtual void PropertiesSelectedItemChanged(CubesUnitTypes::PropertiesId propertiesId);
-        virtual void PropertiesPositionChanged(CubesUnitTypes::PropertiesId propertiesId, double posX, double posY, double posZ);
-        virtual void PropertiesError(CubesUnitTypes::PropertiesId propertiesId, const QString& message);
-        virtual void PropertiesConnectionChanged(CubesUnitTypes::PropertiesId propertiesId);
+        virtual void PropertiesBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
+            CubesUnit::FileId fileId, CubesUnit::IncludeId includeId);
+        virtual void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId);
+        virtual void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
+        virtual void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message);
+        virtual void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId);
         virtual void PropertiesPropertiesChanged();
     };
 }

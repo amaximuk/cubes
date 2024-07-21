@@ -2,6 +2,8 @@
 
 #include <QtXml>
 #include "../log/log_manager_interface.h"
+#include "../unit/unit_parameter_model.h"
+#include "../unit/unit_parameter_model_ids.h"
 #include "xml_types.h"
 
 namespace CubesLog { class LogHelper; }
@@ -11,7 +13,7 @@ namespace CubesXml
 	class Writer
 	{
 	private:
-		const CubesUnitTypes::ParameterModelIds ids_;
+		const CubesUnit::ParameterModelIds ids_;
 		CubesLog::ILogManager* logManager_;
 		File fi_;
 
