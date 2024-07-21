@@ -69,6 +69,11 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
     CreateProperties();
 }
 
+uint32_t PropertiesItem::GetPropertiesId() const
+{
+    return propertiesId_;
+};
+
 void PropertiesItem::Select()
 {
     qDebug() << connect(editor_, &PropertiesEditor::ValueChanged, this, &PropertiesItem::ValueChanged);

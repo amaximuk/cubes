@@ -53,7 +53,7 @@ namespace CubesProperties
             CubesUnit::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
 
     public:
-        uint32_t GetPropertiesId() { return propertiesId_; };
+        uint32_t GetPropertiesId() const;
 
         void Select();
         void UnSelect();

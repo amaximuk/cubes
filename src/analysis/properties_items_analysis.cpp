@@ -13,7 +13,7 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManag
 
 	CreateRules();
 
-	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::fileAnalysis,
+	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesAnalysis,
 		GetRuleDescriptions(), GetRuleDetailes()));
 }
 
@@ -77,34 +77,43 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 
 	for (auto& kvp : propertiesModels_.toStdMap())
 	{
-		auto& properties = kvp.second;
-		const auto name = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		auto& parameterModels = kvp.second;
+		const auto name = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.name)->value.toString();
+		const auto fileId = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.fileName)->key;
+		const auto includeId = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.includeName)->key;
 
-		const auto fileId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.fileName)->key;
-		const auto includeId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.includeName)->key;
-
+		QString realName = name;
 		if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
 		{
-
+			const auto it = fileModels_.find(fileId);
+			if (it == fileModels_.end())
+				continue;
+			const auto vars = CubesUnit::Helper::File::GetIncludeVariables(*it, includeId);
+			for (const auto& kvpVars : vars.toStdMap())
+				realName.replace(QString("@%1@").arg(kvpVars.second.first), kvpVars.second.second);
 		}
-	}
 
-	//for (const auto& file : fileModels_)
-	//{
-	//	QFileInfo fi(file.path);
-	//	const auto fn = fi.fileName();
-	//	if (filenames.contains(fn))
-	//	{
-	//		QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, путь к файлу: %2").
-	//			arg(file.is_include ? file.include.name : file.main.name).arg(fn);
-	//		LogError->AfterFileError(file.is_include ? file.include.includeId : file.main.fileId, message);
-	//		result = false;
-	//	}
-	//	else
-	//	{
-	//		filenames.insert(fn);
-	//	}
-	//}
+		if (names.contains(realName))
+		{
+			//QString fileName{};
+			//const auto it = fileModels_.find(fileId);
+			//if (it != fileModels_.end())
+			//	fileName = CubesUnit::Helper::GetParameterModel(*it, ids_.base + ids_.name)->value.toString();
+
+			if (name == realName)
+				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName} }, kvp.first);
+			else
+				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName},
+					{QString::fromLocal8Bit("Исходное имя"), name}}, kvp.first);
+
+			result = false;
+		}
+		else
+		{
+			names.insert(realName);
+		}
+
+	}
 
 	return result;
 }
