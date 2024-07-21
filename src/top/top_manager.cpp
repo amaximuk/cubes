@@ -782,6 +782,13 @@ void TopManager::FileListChanged(const CubesUnitTypes::FileIdNames& fileNames)
     if (!propertiesItemsManager_->InformFileListChanged(fileNames))
         return;
 
+    // Если это первый файл, надо перерисовать рамки
+    if (fileNames.size() == 1)
+    {
+        if (!propertiesItemsManager_->InformFileColorChanged(*fileNames.keyBegin()))
+            return;
+    }
+
     // Если item был добавлен, когда нет ни одного файла, pm->key будет не задан
     // После добавления, у них изменится имя файла и цвет
     // TODO: возможно изменится имя - но не должно
