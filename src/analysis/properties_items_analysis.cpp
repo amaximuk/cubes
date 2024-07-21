@@ -58,8 +58,8 @@ bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 	for (auto& kvp : propertiesModels_.toStdMap())
 	{
 		auto& properties = kvp.second;
-		const auto name = CubesUnit::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
-		const auto unitId = CubesUnit::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
+		const auto name = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		const auto unitId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
 			logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Тип юнита"), unitId} }, kvp.first);
@@ -78,10 +78,10 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 	for (auto& kvp : propertiesModels_.toStdMap())
 	{
 		auto& properties = kvp.second;
-		const auto name = CubesUnit::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		const auto name = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
 
-		const auto fileId = CubesUnit::GetParameterModel(properties, ids_.base + ids_.fileName)->key;
-		const auto includeId = CubesUnit::GetParameterModel(properties, ids_.base + ids_.includeName)->key;
+		const auto fileId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.fileName)->key;
+		const auto includeId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.includeName)->key;
 
 		if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
 		{

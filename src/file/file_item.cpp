@@ -1062,7 +1062,7 @@ void FileItem::UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit
             if (xmlFile != nullptr && i < xmlFile->includes.size() && !xmlFile->includes[i].name.isEmpty())
                 includeName = xmlFile->includes[i].name;
             else
-                includeName = CubesUnit::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
+                includeName = CubesUnit::Helper::GetUniqueName(QString::fromLocal8Bit("Файл"), " ", includeNames);
 
             // Добавляем в списки
             addingIncludeNames.push_back(includeName);
@@ -1367,7 +1367,7 @@ CubesUnit::ParameterModelId FileItem::GetPropertyId(const QtProperty* property)
 
 CubesUnit::ParameterModel* FileItem::GetParameterModel(const CubesUnit::ParameterModelId& id)
 {
-    return CubesUnit::GetParameterModel(parameterModels_, id);
+    return CubesUnit::Helper::GetParameterModel(parameterModels_, id);
 
     //CubesUnit::ParameterModel* pm = nullptr;
 

@@ -70,8 +70,8 @@ bool FileItemsAnalysis::TestNameIsEmpty(Rule rule)
 	{
 		// Проверяем главный файл
 		{
-			const auto path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-			const auto name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+			const auto path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+			const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 			if (name.isEmpty())
 			{
 				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), path} }, file.first);
@@ -89,8 +89,8 @@ bool FileItemsAnalysis::TestNameNotUnique(Rule rule)
 	bool result = true;
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 		
 		// Проверяем главный файл
 		{
@@ -114,20 +114,20 @@ bool FileItemsAnalysis::TestIncludeNameIsEmpty(Rule rule)
 {
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 
 		// Проверяем включаемые файлы
 		{
-			const auto pm = GetParameterModel(file.second, ids_.includes);
+			const auto pm = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes);
 			if (pm == nullptr)
 				continue;
 
 			const auto count = pm->value.toInt();
 			for (int i = 0; i < count; i++)
 			{
-				const auto path = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
-				const auto name = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
+				const auto path = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				if (name.isEmpty())
 				{
 					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name} }, file.first);
@@ -145,12 +145,12 @@ bool FileItemsAnalysis::TestIncludeNameNotUnique(Rule rule)
 	bool result = true;
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 
 		// Проверяем включаемые файлы
 		{
-			const auto pm = GetParameterModel(file.second, ids_.includes);
+			const auto pm = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes);
 			if (pm == nullptr)
 				continue;
 
@@ -158,8 +158,8 @@ bool FileItemsAnalysis::TestIncludeNameNotUnique(Rule rule)
 			const auto count = pm->value.toInt();
 			for (int i = 0; i < count; i++)
 			{
-				const auto path = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
-				const auto name = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
+				const auto path = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				if (includeNames.contains(name))
 				{
 					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name},
@@ -181,8 +181,8 @@ bool FileItemsAnalysis::TestFileNameIsEmpty(Rule rule)
 {
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 
 		// Проверяем главный файл
 		{
@@ -203,8 +203,8 @@ bool FileItemsAnalysis::TestFileNameNotUnique(Rule rule)
 	bool result = true;
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 
 		// Проверяем главный файл
 		{
@@ -224,15 +224,15 @@ bool FileItemsAnalysis::TestFileNameNotUnique(Rule rule)
 
 		// Проверяем включаемые файлы
 		{
-			const auto pm = GetParameterModel(file.second, ids_.includes);
+			const auto pm = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes);
 			if (pm == nullptr)
 				continue;
 
 			const auto count = pm->value.toInt();
 			for (int i = 0; i < count; i++)
 			{
-				const auto path = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
-				const auto name = CubesUnit::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
+				const auto path = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.filePath)->value.toString();
+				const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				const auto file_name = QFileInfo(path).fileName();
 				if (fileNames.contains(file_name))
 				{
@@ -258,12 +258,12 @@ bool FileItemsAnalysis::TestConnectionIdNotUnique(Rule rule)
 	bool result = true;
 	for (auto& file : fileModels_.toStdMap())
 	{
-		const auto main_path = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
-		const auto main_name = CubesUnit::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
+		const auto main_path = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.path)->value.toString();
+		const auto main_name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 
 		// Проверяем только главные файлы
 		{
-			const auto id = CubesUnit::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
+			const auto id = CubesUnit::Helper::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 			if (fileIds.contains(id))
 			{
 				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("ID соединения"), QString("%1").arg(id)},
