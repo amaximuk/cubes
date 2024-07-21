@@ -1,9 +1,10 @@
 #pragma once
 
+#include "unit/unit_parameter_model.h"
 #include "top/top_manager.h"
 
 namespace CubesTop { class ITopManager; }
-namespace CubesUnitTypes { class UnitParameters; }
+namespace CubesUnit { class UnitParameters; }
 namespace CubesLog { class LogTableModel; }
 namespace CubesLog { class SortFilterModel; }
 namespace CubesFile { class FileItemsManager; }
@@ -42,8 +43,8 @@ public:
     bool Test() override;
 
     // Debug
-    QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> GetFileItems();
-    CubesUnitTypes::FileIdParameterModelsRef GetFileIdParameterModelsRef();
+    QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> GetFileItems();
+    CubesUnit::FileIdParameterModelsRef GetFileIdParameterModelsRef();
 
     // Message
     QVector<CubesLog::Message> GetMessages();

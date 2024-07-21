@@ -10,6 +10,7 @@
 #include <chrono>
 #include "xml/xml_types.h"
 #include "file/file_item.h"
+#include "unit/unit_helper.h"
 #include "mock_window.h"
 #include "test.h"
 
@@ -44,14 +45,14 @@ TEST(CUBES, FileAnalysisNameNotUnique)
 	// Переделать на набор model вместо объектов FileItem
 
 	// Значения имен параметров
-	CubesUnitTypes::ParameterModelIds ids_;
+	CubesUnit::ParameterModelIds ids_;
 
 	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
 	ASSERT_EQ(fileModels.size(), 2);
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnitTypes::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
+		CubesUnit::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
 	}
 
 
@@ -79,14 +80,14 @@ TEST(CUBES, FileAnalysisFileNameNotUnique)
 	// Переделать на набор model вместо объектов FileItem
 
 	// Значения имен параметров
-	CubesUnitTypes::ParameterModelIds ids_;
+	CubesUnit::ParameterModelIds ids_;
 
 	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
 	ASSERT_EQ(fileModels.size(), 2);
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnitTypes::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		CubesUnit::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 
@@ -114,14 +115,14 @@ TEST(CUBES, FileAnalysisConnectionIdNotUnique)
 	// Переделать на набор model вместо объектов FileItem
 
 	// Значения имен параметров
-	CubesUnitTypes::ParameterModelIds ids_;
+	CubesUnit::ParameterModelIds ids_;
 
 	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
 	ASSERT_EQ(fileModels.size(), 2);
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnitTypes::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		CubesUnit::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 

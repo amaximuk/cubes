@@ -111,14 +111,14 @@ bool MockWindow::Test()
     return true;
 }
 
-QMap<CubesUnitTypes::FileId, QSharedPointer<CubesFile::FileItem>> MockWindow::GetFileItems()
+QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> MockWindow::GetFileItems()
 {
     return fileItemsManager_->GetItems();
 }
 
-CubesUnitTypes::FileIdParameterModelsRef MockWindow::GetFileIdParameterModelsRef()
+CubesUnit::FileIdParameterModelsRef MockWindow::GetFileIdParameterModelsRef()
 {
-    CubesUnitTypes::FileIdParameterModelsRef models{};
+    CubesUnit::FileIdParameterModelsRef models{};
     if (fileItemsManager_->GetParameterModelsRef(models))
         return models;
 
