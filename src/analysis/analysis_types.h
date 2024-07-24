@@ -27,12 +27,14 @@ namespace CubesAnalysis
 		success = CubesLog::SuccessErrorCode,
 		nameIsEmpty = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis),
 		nameNotUnique,
+		unitCategoryMismatch,
 		__last__
 	};
 
 	struct Rule
 	{
 		CubesLog::BaseErrorCode errorCode;
+		CubesLog::MessageType type;
 		QString description;
 		QString detailes;
 		bool isActive;
@@ -40,9 +42,40 @@ namespace CubesAnalysis
 		Rule()
 		{
 			errorCode = 0;
+			type = CubesLog::MessageType::information;
 			isActive = true;
 		}
 	};
+
+	inline QMap<CubesLog::BaseErrorCode, CubesLog::MessageType> GetRuleTypes(const QVector<Rule>& rules)
+	{
+		QMap<CubesLog::BaseErrorCode, CubesLog::MessageType> result;
+		result[CubesLog::SuccessErrorCode] = CubesLog::MessageType::information;
+		for (const auto& rule : rules)
+			result[rule.errorCode] = rule.type;
+
+		return result;
+	}
+
+	inline QMap<CubesLog::BaseErrorCode, QString> GetRuleDescriptions(const QVector<Rule>& rules)
+	{
+		QMap<CubesLog::BaseErrorCode, QString> result;
+		result[CubesLog::SuccessErrorCode] = "Успех";
+		for (const auto& rule : rules)
+			result[rule.errorCode] = rule.description;
+
+		return result;
+	}
+
+	inline QMap<CubesLog::BaseErrorCode, QString> GetRuleDetailes(const QVector<Rule>& rules)
+	{
+		QMap<CubesLog::BaseErrorCode, QString> result;
+		result[CubesLog::SuccessErrorCode] = "Успех";
+		for (const auto& rule : rules)
+			result[rule.errorCode] = rule.detailes;
+
+		return result;
+	}
 
 	struct Endpoint
 	{

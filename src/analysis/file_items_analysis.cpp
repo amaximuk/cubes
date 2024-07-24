@@ -15,7 +15,8 @@ FileItemsAnalysis::FileItemsAnalysis(CubesLog::ILogManager* logManager)
 	CreateRules();
 
 	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::fileAnalysis,
-		GetRuleDescriptions(), GetRuleDetailes()));
+		CubesAnalysis::GetRuleDescriptions(rules_), CubesAnalysis::GetRuleDetailes(rules_),
+		CubesAnalysis::GetRuleTypes(rules_)));
 }
 
 void FileItemsAnalysis::SetFiles(const CubesUnit::FileIdParameterModels& files)
@@ -59,7 +60,7 @@ bool FileItemsAnalysis::TestNoFiles(Rule rule)
 	if (!fileModels_.empty())
 		return true;
 
-	logHelper_->LogError(rule.errorCode);
+	logHelper_->Log(rule.errorCode);
 
 	return false;
 }
@@ -74,7 +75,7 @@ bool FileItemsAnalysis::TestNameIsEmpty(Rule rule)
 			const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.base + ids_.name)->value.toString();
 			if (name.isEmpty())
 			{
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), path} }, file.first);
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), path} }, file.first);
 				return false;
 			}
 		}
@@ -96,7 +97,7 @@ bool FileItemsAnalysis::TestNameNotUnique(Rule rule)
 		{
 			if (names.contains(main_name))
 			{
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name},
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name},
 					{QString::fromLocal8Bit("Имя файла"), main_path} }, file.first);
 				result = false;
 			}
@@ -130,7 +131,7 @@ bool FileItemsAnalysis::TestIncludeNameIsEmpty(Rule rule)
 				const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				if (name.isEmpty())
 				{
-					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name} }, file.first);
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name} }, file.first);
 					return false;
 				}
 			}
@@ -162,7 +163,7 @@ bool FileItemsAnalysis::TestIncludeNameNotUnique(Rule rule)
 				const auto name = CubesUnit::Helper::GetParameterModel(file.second, ids_.includes + ids_.Item(i) + ids_.name)->value.toString();
 				if (includeNames.contains(name))
 				{
-					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name},
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name + "/" + name},
 						{QString::fromLocal8Bit("Совпадение"), includeNames[name]} }, file.first);
 					result = false;
 				}
@@ -188,7 +189,7 @@ bool FileItemsAnalysis::TestFileNameIsEmpty(Rule rule)
 		{
 			if (main_path.isEmpty())
 			{
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name} }, file.first);
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), main_name} }, file.first);
 				return false;
 			}
 		}
@@ -211,7 +212,7 @@ bool FileItemsAnalysis::TestFileNameNotUnique(Rule rule)
 			const auto file_name = QFileInfo(main_path).fileName();
 			if (fileNames.contains(file_name))
 			{
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), main_path},
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), main_path},
 					{QString::fromLocal8Bit("Имя"), main_name},
 					{QString::fromLocal8Bit("Совпадение"), fileNames[file_name]} }, file.first);
 				result = false;
@@ -236,7 +237,7 @@ bool FileItemsAnalysis::TestFileNameNotUnique(Rule rule)
 				const auto file_name = QFileInfo(path).fileName();
 				if (fileNames.contains(file_name))
 				{
-					logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), path},
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя файла"), path},
 						{QString::fromLocal8Bit("Имя"), main_name + "/" + name},
 						{QString::fromLocal8Bit("Совпадение"), fileNames[file_name]} }, file.first);
 					result = false;
@@ -266,7 +267,7 @@ bool FileItemsAnalysis::TestConnectionIdNotUnique(Rule rule)
 			const auto id = CubesUnit::Helper::GetParameterModel(file.second, ids_.parameters + ids_.networking + ids_.id)->value.toUInt();
 			if (fileIds.contains(id))
 			{
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("ID соединения"), QString("%1").arg(id)},
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("ID соединения"), QString("%1").arg(id)},
 					{QString::fromLocal8Bit("Имя"), main_name},
 					{QString::fromLocal8Bit("Совпадение"), fileIds[id]} }, file.first);
 				result = false;
@@ -286,6 +287,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::noFiles);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Файлы отсутствуют");
 		rule.detailes = QString::fromLocal8Bit("В проекте должен быть как миинимум один файл");
 		rule.isActive = true;
@@ -297,6 +299,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::nameIsEmpty);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя не задано");
 		rule.detailes = QString::fromLocal8Bit("Имя должно быть задано");
 		rule.isActive = true;
@@ -308,6 +311,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::nameNotUnique);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя не уникально");
 		rule.detailes = QString::fromLocal8Bit("Имя должно быть уникальным");
 		rule.isActive = true;
@@ -330,6 +334,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::includeNameNotUnique);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя не уникально");
 		rule.detailes = QString::fromLocal8Bit("Имя включаемого файла должно быть уникальным в пределах основного файла");
 		rule.isActive = true;
@@ -341,6 +346,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::fileNameIsEmpty);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя файла не задано");
 		rule.detailes = QString::fromLocal8Bit("Имя файла должно быть задано");
 		rule.isActive = true;
@@ -352,6 +358,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::fileNameNotUnique);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя файла не уникально");
 		rule.detailes = QString::fromLocal8Bit("Имя файла должно быть уникальным");
 		rule.isActive = true;
@@ -363,6 +370,7 @@ void FileItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<CubesLog::BaseErrorCode>(FileAnalysisErrorCode::connectionIdNotUnique);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Идентификатор хоста не уникален");
 		rule.detailes = QString::fromLocal8Bit("Идентификатор хоста в параметрах соединения должен быть уникальным");
 		rule.isActive = true;
@@ -378,24 +386,4 @@ void FileItemsAnalysis::CreateRules()
 	// Цвета файлов должны различаться
 	// Имена файлов должны содержать только латинские буквы, цифры и знак .
 	// Имена файлов не должны быть длинее 260 символов
-}
-
-QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDescriptions()
-{
-	QMap<CubesLog::BaseErrorCode, QString> result;
-	result[CubesLog::SuccessErrorCode] = "Успех";
-	for (const auto& rule : rules_)
-		result[rule.errorCode] = rule.description;
-
-	return result;
-}
-
-QMap<CubesLog::BaseErrorCode, QString> FileItemsAnalysis::GetRuleDetailes()
-{
-	QMap<CubesLog::BaseErrorCode, QString> result;
-	result[CubesLog::SuccessErrorCode] = "Успех";
-	for (const auto& rule : rules_)
-		result[rule.errorCode] = rule.detailes;
-
-	return result;
 }

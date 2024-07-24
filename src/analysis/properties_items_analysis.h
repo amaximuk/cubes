@@ -47,7 +47,5 @@ namespace CubesAnalysis
 
     private:
         void CreateRules();
-        QMap<CubesLog::BaseErrorCode, QString> GetRuleDescriptions();
-        QMap<CubesLog::BaseErrorCode, QString> GetRuleDetailes();
     };
 }

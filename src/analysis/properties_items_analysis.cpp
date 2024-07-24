@@ -14,7 +14,8 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManag
 	CreateRules();
 
 	logHelper_.reset(new CubesLog::LogHelper(logManager_, CubesLog::SourceType::propertiesAnalysis,
-		GetRuleDescriptions(), GetRuleDetailes()));
+		CubesAnalysis::GetRuleDescriptions(rules_), CubesAnalysis::GetRuleDetailes(rules_),
+		CubesAnalysis::GetRuleTypes(rules_)));
 }
 
 void PropertiesItemsAnalysis::SetProperties(const CubesUnit::FileIdParameterModels& fileModels,
@@ -62,7 +63,7 @@ bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 		const auto unitId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
-			logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Тип юнита"), unitId} }, kvp.first);
+			logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Тип юнита"), unitId} }, kvp.first);
 			result = false;
 		}
 	}
@@ -101,9 +102,9 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 			//	fileName = CubesUnit::Helper::GetParameterModel(*it, ids_.base + ids_.name)->value.toString();
 
 			if (name == realName)
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName} }, kvp.first);
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName} }, kvp.first);
 			else
-				logHelper_->LogError(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName},
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName},
 					{QString::fromLocal8Bit("Исходное имя"), name}}, kvp.first);
 
 			result = false;
@@ -167,6 +168,7 @@ void PropertiesItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameIsEmpty);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя не задано");
 		rule.detailes = QString::fromLocal8Bit("Имя должно быть задано");
 		rule.isActive = true;
@@ -178,8 +180,21 @@ void PropertiesItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::nameNotUnique);
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Имя не уникально");
 		rule.detailes = QString::fromLocal8Bit("Имя должно быть уникальным, с учетом переменных");
+		rule.isActive = true;
+		rules_.push_back(rule);
+
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestNameNotUnique, this, rule);
+	}
+
+	{
+		Rule rule{};
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::unitCategoryMismatch);
+		rule.type = CubesLog::MessageType::warning;
+		rule.description = QString::fromLocal8Bit("Категория юнита не совпадает");
+		rule.detailes = QString::fromLocal8Bit("Категория юнита не совпадает с допустимой для данного параметра");
 		rule.isActive = true;
 		rules_.push_back(rule);
 
@@ -211,8 +226,8 @@ void PropertiesItemsAnalysis::CreateRules()
 	assert((static_cast<CubesLog::BaseErrorCode>(PropertiesAnalysisErrorCode::__last__) -
 		CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)) == rules_.size());
 
-	// Имена юнитов должжны быть заданы
-	// Имена юнитов должны быть уникальны (с учетом переменных)
+	// +Имена юнитов должжны быть заданы
+	// +Имена юнитов должны быть уникальны (с учетом переменных)
 	// Имя содержит только английские буквы, цифры, знак / и паременные в формате @xxx@
 	// Категория юнита должна соответствовать ограничениям
 	// Тип юнита должен соответствовать ограничениям
@@ -238,22 +253,3 @@ void PropertiesItemsAnalysis::CreateRules()
 	// Имена элементов массива должны быть заданы
 }
 
-QMap<CubesLog::BaseErrorCode, QString> PropertiesItemsAnalysis::GetRuleDescriptions()
-{
-	QMap<CubesLog::BaseErrorCode, QString> result;
-	result[CubesLog::SuccessErrorCode] = "Успех";
-	for (const auto& rule : rules_)
-		result[rule.errorCode] = rule.description;
-
-	return result;
-}
-
-QMap<CubesLog::BaseErrorCode, QString> PropertiesItemsAnalysis::GetRuleDetailes()
-{
-	QMap<CubesLog::BaseErrorCode, QString> result;
-	result[CubesLog::SuccessErrorCode] = "Успех";
-	for (const auto& rule : rules_)
-		result[rule.errorCode] = rule.detailes;
-
-	return result;
-}
