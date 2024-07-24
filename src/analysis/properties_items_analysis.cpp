@@ -74,94 +74,37 @@ bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 {
 	bool result = true;
+
+	const auto resolvedUnitNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesModels_, fileModels_);
+
 	QSet<QString> names;
-
-	for (auto& kvp : propertiesModels_.toStdMap())
+	for (const auto& kvp : resolvedUnitNames.toStdMap())
 	{
-		auto& parameterModels = kvp.second;
-		const auto name = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.name)->value.toString();
-		const auto fileId = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.fileName)->key;
-		const auto includeId = CubesUnit::Helper::GetParameterModel(parameterModels, ids_.base + ids_.includeName)->key;
-
-		QString realName = name;
-		if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
+		if (names.contains(kvp.second.resolved))
 		{
-			const auto it = fileModels_.find(fileId);
-			if (it == fileModels_.end())
-				continue;
-			const auto vars = CubesUnit::Helper::File::GetIncludeVariables(*it, includeId);
-			for (const auto& kvpVars : vars.toStdMap())
-				realName.replace(QString("@%1@").arg(kvpVars.second.first), kvpVars.second.second);
-		}
-
-		if (names.contains(realName))
-		{
-			//QString fileName{};
-			//const auto it = fileModels_.find(fileId);
-			//if (it != fileModels_.end())
-			//	fileName = CubesUnit::Helper::GetParameterModel(*it, ids_.base + ids_.name)->value.toString();
-
-			if (name == realName)
-				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName} }, kvp.first);
+			if (kvp.second.original == kvp.second.resolved)
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), kvp.second.resolved} }, kvp.first);
 			else
-				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), realName},
-					{QString::fromLocal8Bit("Исходное имя"), name}}, kvp.first);
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), kvp.second.resolved},
+					{QString::fromLocal8Bit("Исходное имя"), kvp.second.original}}, kvp.first);
 
 			result = false;
 		}
 		else
 		{
-			names.insert(realName);
+			names.insert(kvp.second.resolved);
 		}
-
 	}
 
 	return result;
 }
 
-//bool PropertiesItemsAnalysis::IsFileIdUnique(Rule rule)
-//{
-//	QSet<int> fileIds;
-//	bool result = true;
-//	//for (const auto& file : fileModels_)
-//	//{
-//	//	if (!file.is_include)
-//	//	{
-//	//		if (fileIds.contains(file.main.id))
-//	//		{
-//	//			QString message = rule.description + QString::fromLocal8Bit("\nИмя файла: %1, ID хоста: %2").
-//	//				arg(file.main.name).arg(file.main.id);
-//	//			LogError->AfterFileError(file.main.fileId, message);
-//	//			result = false;
-//	//		}
-//	//		else
-//	//		{
-//	//			fileIds.insert(file.main.id);
-//	//		}
-//	//	}
-//	//}
-//
-//	return result;
-//}
+bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
+{
+	bool result = true;
 
-//void PropertiesItemsAnalysis::LogError(const Rule& rule, const QVector<CubesLog::Variable>& variables, uint32_t tag)
-//{
-//	CubesLog::Message lm{};
-//	lm.type = CubesLog::MessageType::error;
-//	lm.code = CubesLog::CreateCode(CubesLog::MessageType::error,
-//		CubesLog::SourceType::propertiesAnalysis, static_cast<uint32_t>(rule.errorCode));
-//	lm.source = CubesLog::SourceType::propertiesAnalysis;
-//	lm.description = rule.description;
-//	lm.details = rule.detailes;
-//	lm.variables = variables;
-//	lm.tag = tag;
-//	logManager_->AddMessage(lm);
-//}
-//
-//void PropertiesItemsAnalysis::LogError(const Rule& rule)
-//{
-//	LogError(rule, {}, {});
-//}
+	return result;
+}
 
 void PropertiesItemsAnalysis::CreateRules()
 {

@@ -193,5 +193,95 @@ namespace CubesUnit
 				return variableIdVariables;
 			}
 		}
+
+		namespace Analyse
+		{
+			struct UnitName
+			{
+				QString original;
+				QString resolved;
+			};
+
+			using PropertiesIdUnitNames = QMap<PropertiesId, UnitName>;
+
+			struct Unit
+			{
+				UnitName name;
+				bool depends;
+			};
+
+			inline UnitName GetResolvedUnitName(const ParameterModels& parameterModels,
+				const FileIdParameterModels& fileModels)
+			{
+				const static ParameterModelIds ids;
+
+				const auto name = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.name)->value.toString();
+				const auto fileId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.fileName)->key;
+				const auto includeId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.includeName)->key;
+
+				QString realName = name;
+				if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
+				{
+					const auto it = fileModels.find(fileId);
+					if (it != fileModels.end())
+					{
+						const auto vars = CubesUnit::Helper::File::GetIncludeVariables(*it, includeId);
+						for (const auto& kvpVars : vars.toStdMap())
+							realName.replace(QString("@%1@").arg(kvpVars.second.first), kvpVars.second.second);
+					}
+				}
+
+				return { name, realName };
+			}
+
+			inline PropertiesIdUnitNames GetResolvedUnitNames(const PropertiesIdParameterModels& propertiesModels,
+				const FileIdParameterModels& fileModels)
+			{
+				PropertiesIdUnitNames result;
+				for (auto& kvp : propertiesModels.toStdMap())
+				{
+					auto& parameterModels = kvp.second;
+					result[kvp.first] = (GetResolvedUnitName(parameterModels, fileModels));
+				}
+
+				return result;
+			}
+
+			inline UnitName GetResolvedUnitName(const ParameterModels& parameterModels,
+				const FileIdParameterModels& fileModels, QString name)
+			{
+				const static ParameterModelIds ids;
+
+				const auto fileId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.fileName)->key;
+				const auto includeId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.includeName)->key;
+
+				QString realName = name;
+				if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
+				{
+					const auto it = fileModels.find(fileId);
+					if (it != fileModels.end())
+					{
+						const auto vars = CubesUnit::Helper::File::GetIncludeVariables(*it, includeId);
+						for (const auto& kvpVars : vars.toStdMap())
+							realName.replace(QString("@%1@").arg(kvpVars.second.first), kvpVars.second.second);
+					}
+				}
+
+				return { name, realName };
+			}
+
+			inline QVector<Unit> GetUnitUnitParameters(const ParameterModels& parameterModels,
+				const FileIdParameterModels& fileModels)
+			{
+				const static ParameterModelIds ids;
+
+				const auto name = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.name)->value.toString();
+				const auto fileId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.fileName)->key;
+				const auto includeId = CubesUnit::Helper::GetParameterModel(parameterModels, ids.base + ids.includeName)->key;
+
+				return {};
+			}
+
+		}
 	}
 }
