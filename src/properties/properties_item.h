@@ -26,7 +26,7 @@ namespace CubesProperties
         CubesUnit::UnitParameters unitParameters_;
 
         // Модель параметров
-        CubesUnit::ParameterModels parameterModels_;
+        CubesUnit::ParameterModelPtrs parameterModelPtrs_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
@@ -48,7 +48,7 @@ namespace CubesProperties
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
             CubesUnit::UnitParameters unitParameters, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-            CubesUnit::UnitParameters unitParameters, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModels pm);
+            CubesUnit::UnitParameters unitParameters, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModelPtrs parameterModelPtrs);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
             CubesUnit::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
 
@@ -100,14 +100,14 @@ namespace CubesProperties
 
         void GetXml(CubesXml::Unit& xmlUnit);
         void RemoveItems(const CubesUnit::ParameterModelId& id);
-        void AddItems(const CubesUnit::ParameterModel& model);
+        void AddItems(CubesUnit::ParameterModelPtr model);
         CubesAnalysis::Properties GetAnalysisProperties();
-        CubesUnit::ParameterModels GetParameterModels();
+        CubesUnit::ParameterModelPtrs GetParameterModelPtrs();
 
     private:
         // TODO: move to private
-        bool GetXmlParam(const CubesUnit::ParameterModel& pm, CubesXml::Param& param);
-        bool GetXmlArrray(const CubesUnit::ParameterModel& pm, CubesXml::Array& array);
+        bool GetXmlParam(CubesUnit::ParameterModelPtr pm, CubesXml::Param& param);
+        bool GetXmlArrray(CubesUnit::ParameterModelPtr pm, CubesXml::Array& array);
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
@@ -118,14 +118,14 @@ namespace CubesProperties
         void CreateProperties();
         void CreateParameterModel(const CubesUnit::ParameterInfoId& parameterInfoId,
             const CubesUnit::ParameterModelId& parentModelId, const CubesXml::Unit* xmlUnit,
-            CubesUnit::ParameterModel& model);
-        void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModel& model, bool isItem);
-        void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModel& model);
-        void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModel& model);
+            CubesUnit::ParameterModelPtr model);
+        void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model, bool isItem);
+        void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model);
+        void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model);
 
-        void GetConnectedNamesInternal(const CubesUnit::ParameterModel& model, QList<QString>& list);
-        void GetDependentNamesInternal(const CubesUnit::ParameterModel& model, QList<QString>& list);
-        void GetAnalysisPropertiesInternal(const CubesUnit::ParameterModel& model, QVector<CubesAnalysis::UnitProperty>& list);
+        void GetConnectedNamesInternal(CubesUnit::ParameterModelPtr model, QList<QString>& list);
+        void GetDependentNamesInternal(CubesUnit::ParameterModelPtr model, QList<QString>& list);
+        void GetAnalysisPropertiesInternal(CubesUnit::ParameterModelPtr model, QVector<CubesAnalysis::UnitProperty>& list);
 
         void RegisterProperty(const QtProperty* property, const CubesUnit::ParameterModelId& id);
         void UnregisterProperty(const CubesUnit::ParameterModelId& id);
@@ -140,7 +140,7 @@ namespace CubesProperties
         void ApplyExpandState(QtBrowserItem* index);
 
     public:
-        CubesUnit::ParameterModel* GetParameterModel(const QtProperty* property);
+        CubesUnit::ParameterModelPtr GetParameterModelPtr(const QtProperty* property);
 
     private:
         bool CheckParametersMatching(const CubesXml::Unit* xmlUnit, const QString& type, const CubesUnit::ParameterModelId& id);

@@ -15,15 +15,15 @@ AnalysisManager::AnalysisManager(CubesLog::ILogManager* logManager)
 	propertiesItemsAnalysis_.reset(new PropertiesItemsAnalysis(logManager));
 }
 
-void AnalysisManager::Test(const CubesUnit::FileIdParameterModels& fileModels,
-	const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+void AnalysisManager::Test(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
+	CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 	const CubesUnit::UnitIdUnitParameters& unitParameters)
 {
-	fileItemsAnalysis_->SetFiles(fileModels);
+	fileItemsAnalysis_->SetFiles(fileIdParameterModelPtrs);
 	//fileItemsAnalysis_->SetFileItems(fileModels);
 	fileItemsAnalysis_->RunAllTests();
 
-	propertiesItemsAnalysis_->SetProperties(fileModels, propertiesModels, unitParameters);
+	propertiesItemsAnalysis_->SetProperties(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitParameters);
 	propertiesItemsAnalysis_->RunAllTests();
 }
 

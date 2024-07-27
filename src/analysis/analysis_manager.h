@@ -25,8 +25,8 @@ namespace CubesAnalysis
 		AnalysisManager(CubesLog::ILogManager* logManager);
 
 	public:
-		void Test(const CubesUnit::FileIdParameterModels& fileModels,
-			const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+		void Test(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
+			CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 			const CubesUnit::UnitIdUnitParameters& unitParameters);
 
 	//public:

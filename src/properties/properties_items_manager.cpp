@@ -506,16 +506,18 @@ bool PropertiesItemsManager::GetAnalysisProperties(QVector<CubesAnalysis::Proper
 	return true;
 }
 
-bool PropertiesItemsManager::GetParameterModels(CubesUnit::PropertiesIdParameterModels& models)
+CubesUnit::PropertiesIdParameterModelPtrs PropertiesItemsManager::GetPropertiesIdParameterModelPtrs()
 {
+	CubesUnit::PropertiesIdParameterModelPtrs result;
+
 	for (const auto& item : items_)
 	{
 		const auto id = item->GetPropertiesId();
-		const auto model = item->GetParameterModels();
-		models[id] = model;
+		const auto model = item->GetParameterModelPtrs();
+		result[id] = model;
 	}
 
-	return true;
+	return result;
 }
 
 bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters)

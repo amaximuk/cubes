@@ -73,8 +73,7 @@ namespace CubesFile
 		File GetFile(const CubesUnit::FileId fileId);
 		CubesXml::File GetXmlFile(const CubesUnit::FileId fileId);
 		bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files);
-		bool GetParameterModels(CubesUnit::FileIdParameterModels& models);
-		bool GetParameterModelsRef(CubesUnit::FileIdParameterModelsRef& models);
+		CubesUnit::FileIdParameterModelPtrs GetFileIdParameterModelPtrs();
 
 	private:
 		FileNameChangedDelegate fileNameChangedDelegate_;

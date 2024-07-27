@@ -314,29 +314,20 @@ bool FileItemsManager::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 	return true;
 }
 
-bool FileItemsManager::GetParameterModels(CubesUnit::FileIdParameterModels& models)
+CubesUnit::FileIdParameterModelPtrs FileItemsManager::GetFileIdParameterModelPtrs()
 {
+	CubesUnit::FileIdParameterModelPtrs result;
+
 	for (const auto& item : items_)
 	{
 		const auto id = item->GetFileId();
-		const auto model = item->GetParameterModels();
-		models[id] = model;
+		const auto model = item->GetParameterModelPtrs();
+		result[id] = model;
 	}
 
-	return true;
+	return result;
 }
 
-bool FileItemsManager::GetParameterModelsRef(CubesUnit::FileIdParameterModelsRef& models)
-{
-	for (const auto& item : items_)
-	{
-		const auto id = item->GetFileId();
-		const auto& model = item->GetParameterModelsRef();
-		models[id] = model;
-	}
-
-	return true;
-}
 void FileItemsManager::AfterFileNameChanged(const CubesUnit::FileId fileId)
 {
 	auto item = GetItem(fileId);

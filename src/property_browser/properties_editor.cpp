@@ -145,7 +145,7 @@ QtProperty* PropertiesEditor::CreatePropertyForModel(const CubesUnit::ParameterM
 
     // »дем по дереву
     for (auto& sp : model.parameters)
-        pr->addSubProperty(CreatePropertyForModel(sp, idToProperty));
+        pr->addSubProperty(CreatePropertyForModel(*sp, idToProperty));
 
     if (model.readOnly)
         pr->setEnabled(false);

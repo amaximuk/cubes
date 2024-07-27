@@ -22,59 +22,62 @@ QString Common::GetUniqueName(QString baseName, QString delimiter, QStringList b
 	return name;
 }
 
-ParameterModel* Common::GetParameterModel(ParameterModels& parameterModels, const ParameterModelId& parameterModelId)
+ParameterModelPtr Common::GetParameterModelPtr(ParameterModelPtrs parameterModelPtrs,
+	const ParameterModelId& parameterModelId)
 {
-	ParameterModel* pm = nullptr;
+	ParameterModelPtr pm = nullptr;
 
+	auto sl = parameterModelId.split();
+	ParameterModelPtrs& ql = parameterModelPtrs;
+	ParameterModelId idt;
+	while (sl.size() > 0)
 	{
-		auto sl = parameterModelId.split();
-		auto ql = &parameterModels;
-		ParameterModelId idt;
-		while (sl.size() > 0)
+		idt += sl[0];
+		bool found = false;
+		for (auto& x : ql)
 		{
-			idt += sl[0];
-			bool found = false;
-			for (auto& x : *ql)
+			if (x->id == idt)
 			{
-				if (x.id == idt)
-				{
-					pm = &x;
-					ql = &x.parameters;
-					sl.pop_front();
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-			{
-				pm = nullptr;
+				pm = x;
+				ql = x->parameters;
+				sl.pop_front();
+				found = true;
 				break;
 			}
+		}
+		if (!found)
+		{
+			pm = nullptr;
+			break;
 		}
 	}
 
 	return pm;
 }
 
-const ParameterModel* Common::GetParameterModel(const ParameterModels& parameterModels, const ParameterModelId& id)
-{
-	return GetParameterModel(*const_cast<ParameterModels*>(&parameterModels), id);
-}
+//ParameterModelConstPtr Common::GetParameterModelPtr(ParameterModelConstPtrs parameterModelConstPtrs,
+//	const ParameterModelId& parameterModelId)
+//{
+//	ParameterModelPtrs parameterModelPtrs;
+//	for (const auto& item : parameterModelConstPtrs)
+//		parameterModelPtrs.push_back(QSharedPointer<ParameterModel>(const_cast<ParameterModel*>(item.get())));
+//	return GetParameterModelPtr(parameterModelPtrs, parameterModelId);
+//}
 
-bool File::GetIncludes(const ParameterModels& parameterModels, IncludeIdNames& includeIdNames)
+bool File::GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs, IncludeIdNames& includeIdNames)
 {
 	const static ParameterModelIds ids;
 
-	const auto pm = Common::GetParameterModel(parameterModels, ids.includes);
+	const auto pm = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes);
 	if (pm == nullptr)
 		return false;
 
 	for (int i = 0; i < pm->value.toInt(); i++)
 	{
-		const auto pmItem = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+		const auto pmItem = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i));
 		const auto includeId = pmItem->key;
 
-		const auto pmItemName = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.name);
+		const auto pmItemName = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.name);
 		const auto includeName = pmItemName->value.toString();
 
 		includeIdNames[includeId] = includeName;
@@ -83,29 +86,29 @@ bool File::GetIncludes(const ParameterModels& parameterModels, IncludeIdNames& i
 	return true;
 }
 
-IncludeIdNames File::GetIncludes(const ParameterModels& parameterModels)
+IncludeIdNames File::GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs)
 {
 	CubesUnit::IncludeIdNames includeIdNames;
-	if (!File::GetIncludes(parameterModels, includeIdNames))
+	if (!File::GetIncludes(parameterModelConstPtrs, includeIdNames))
 		return {};
 
 	return includeIdNames;
 }
 
-bool File::GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName)
+bool File::GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName)
 {
 	const static ParameterModelIds ids;
 
-	const auto pm = Common::GetParameterModel(parameterModels, ids.includes);
+	const auto pm = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes);
 	if (pm == nullptr)
 		return false;
 
 	for (int i = 0; i < pm->value.toInt(); i++)
 	{
-		const auto pmin = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+		const auto pmin = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i));
 		if (pmin->key == includeId)
 		{
-			const auto pmif = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.name);
+			const auto pmif = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.name);
 			includeName = pmif->value.toString();
 			return true;
 		}
@@ -114,29 +117,29 @@ bool File::GetIncludeName(const ParameterModels& parameterModels, const IncludeI
 	return true;
 }
 
-QString File::GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId)
+QString File::GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId)
 {
 	QString includeName;
-	if (!GetIncludeName(parameterModels, includeId, includeName))
+	if (!GetIncludeName(parameterModelConstPtrs, includeId, includeName))
 		return {};
 
 	return includeName;
 }
 
-bool File::GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName)
+bool File::GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName)
 {
 	const static ParameterModelIds ids;
 
-	const auto pm = Common::GetParameterModel(parameterModels, ids.includes);
+	const auto pm = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes);
 	if (pm == nullptr)
 		return false;
 
 	for (int i = 0; i < pm->value.toInt(); i++)
 	{
-		const auto pmin = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+		const auto pmin = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i));
 		if (pmin->key == includeId)
 		{
-			const auto pmif = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.filePath);
+			const auto pmif = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.filePath);
 			includeName = pmif->value.toString();
 			return true;
 		}
@@ -145,35 +148,35 @@ bool File::GetIncludePath(const ParameterModels& parameterModels, const IncludeI
 	return true;
 }
 
-QString File::GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId)
+QString File::GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId)
 {
 	QString includePath;
-	if (!GetIncludePath(parameterModels, includeId, includePath))
+	if (!GetIncludePath(parameterModelConstPtrs, includeId, includePath))
 		return {};
 
 	return includePath;
 }
 
-bool File::GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId,
+bool File::GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId,
 	VariableIdVariables& variablesIdVariables)
 {
 	const static ParameterModelIds ids;
 
-	const auto pm = Common::GetParameterModel(parameterModels, ids.includes);
+	const auto pm = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes);
 	if (pm == nullptr)
 		return false;
 
 	for (int i = 0; i < pm->value.toInt(); i++)
 	{
-		const auto pmi = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i));
+		const auto pmi = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i));
 		if (pmi->key == includeId)
 		{
-			const auto pmiv = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables);
+			const auto pmiv = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.variables);
 			for (int j = 0; j < pmiv->value.toInt(); j++)
 			{
-				auto pmiv = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j));
-				auto pmivn = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.name);
-				auto pmivv = Common::GetParameterModel(parameterModels, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.value);
+				auto pmiv = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.variables + ids.Item(j));
+				auto pmivn = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.name);
+				auto pmivv = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.includes + ids.Item(i) + ids.variables + ids.Item(j) + ids.value);
 				variablesIdVariables[pmiv->key] = { pmivn->value.toString(), pmivv->value.toString() };
 			}
 			break;
@@ -183,10 +186,10 @@ bool File::GetIncludeVariables(const ParameterModels& parameterModels, const Inc
 	return true;
 }
 
-VariableIdVariables File::GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId)
+VariableIdVariables File::GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId)
 {
 	VariableIdVariables variableIdVariables;
-	if (!GetIncludeVariables(parameterModels, includeId, variableIdVariables))
+	if (!GetIncludeVariables(parameterModelConstPtrs, includeId, variableIdVariables))
 		return {};
 
 	return variableIdVariables;
@@ -211,20 +214,20 @@ bool Unit::GetUnitParameters(const QString& unitId, const UnitIdUnitParameters& 
 	return true;
 }
 
-Analyse::UnitName Analyse::GetResolvedUnitName(const ParameterModels& parameterModels,
-	const FileIdParameterModels& fileIdParametersModels)
+Analyse::UnitName Analyse::GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+	FileIdParameterModelPtrs fileIdParametersModelPtrs)
 {
 	const static ParameterModelIds ids;
 
-	const auto name = Common::GetParameterModel(parameterModels, ids.base + ids.name)->value.toString();
-	const auto fileId = Common::GetParameterModel(parameterModels, ids.base + ids.fileName)->key;
-	const auto includeId = Common::GetParameterModel(parameterModels, ids.base + ids.includeName)->key;
+	const auto name = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.name)->value.toString();
+	const auto fileId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.fileName)->key;
+	const auto includeId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.includeName)->key;
 
 	QString realName = name;
 	if (fileId != CubesUnit::InvalidFileId && includeId != CubesUnit::InvalidIncludeId)
 	{
-		const auto it = fileIdParametersModels.find(fileId);
-		if (it != fileIdParametersModels.end())
+		const auto it = fileIdParametersModelPtrs.find(fileId);
+		if (it != fileIdParametersModelPtrs.end())
 		{
 			const auto vars = CubesUnit::Helper::File::GetIncludeVariables(*it, includeId);
 			for (const auto& kvpVars : vars.toStdMap())
@@ -235,32 +238,32 @@ Analyse::UnitName Analyse::GetResolvedUnitName(const ParameterModels& parameterM
 	return { name, realName };
 }
 
-Analyse::PropertiesIdUnitNames Analyse::GetResolvedUnitNames(const PropertiesIdParameterModels& propertiesModels,
-	const FileIdParameterModels& fileIdParametersModels)
+Analyse::PropertiesIdUnitNames Analyse::GetResolvedUnitNames(PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
+	FileIdParameterModelPtrs fileIdParametersModelPtrs)
 {
 	PropertiesIdUnitNames result;
-	for (auto& kvp : propertiesModels.toStdMap())
+	for (auto& kvp : propertiesIdParameterModelPtrs.toStdMap())
 	{
 		auto& parameterModels = kvp.second;
-		result[kvp.first] = (GetResolvedUnitName(parameterModels, fileIdParametersModels));
+		result[kvp.first] = (GetResolvedUnitName(parameterModels, fileIdParametersModelPtrs));
 	}
 
 	return result;
 }
 
-Analyse::UnitName Analyse::GetResolvedUnitName(const ParameterModels& parameterModels,
-	const FileIdParameterModels& fileIdParametersModels, QString name)
+Analyse::UnitName Analyse::GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+	FileIdParameterModelPtrs fileIdParametersModelPtrs, QString name)
 {
 	const static ParameterModelIds ids;
 
-	const auto fileId = Common::GetParameterModel(parameterModels, ids.base + ids.fileName)->key;
-	const auto includeId = Common::GetParameterModel(parameterModels, ids.base + ids.includeName)->key;
+	const auto fileId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.fileName)->key;
+	const auto includeId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.includeName)->key;
 
 	QString realName = name;
 	if (fileId != InvalidFileId && includeId != InvalidIncludeId)
 	{
-		const auto it = fileIdParametersModels.find(fileId);
-		if (it != fileIdParametersModels.end())
+		const auto it = fileIdParametersModelPtrs.find(fileId);
+		if (it != fileIdParametersModelPtrs.end())
 		{
 			const auto vars = File::GetIncludeVariables(*it, includeId);
 			for (const auto& kvpVars : vars.toStdMap())
@@ -271,21 +274,21 @@ Analyse::UnitName Analyse::GetResolvedUnitName(const ParameterModels& parameterM
 	return { name, realName };
 }
 
-QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(const ParameterModels& parameterModels,
+QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(ParameterModelConstPtrs parameterModelConstPtrs,
 	const UnitIdUnitParameters& unitIdUnitParameters)
 {
 	QVector<Analyse::UnitProperty> result;
 
-	const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+	const auto unitId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.unitId)->value.toString();
 
 	UnitParameters unitParameters{};
 	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
 
-	for (const auto& pm : parameterModels)
+	for (const auto& pm : parameterModelConstPtrs)
 	{
-		if (pm.id == ids.parameters)
+		if (pm->id == ids.parameters)
 		{
-			const auto list = GetParameterModelUnitProperties(pm, parameterModels, unitParameters);
+			const auto list = GetParameterModelUnitProperties(pm, parameterModelConstPtrs, unitParameters);
 			for (const auto& item : list)
 				result.push_back(item);
 		}
@@ -294,13 +297,13 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(const P
 	return result;
 }
 
-QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(const ParameterModel& parameterModel,
-	const ParameterModels& parameterModels, const UnitParameters& unitParameters)
+QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(ParameterModelPtr parameterModelPtr,
+	ParameterModelConstPtrs parameterModelConstPtrs, const UnitParameters& unitParameters)
 {
 	QVector<Analyse::UnitProperty> result;
 
 	auto pi = parameters::helper::parameter::get_parameter_info(unitParameters.fileInfo,
-		parameterModel.parameterInfoId.type.toStdString(), parameterModel.parameterInfoId.name.toStdString());
+		parameterModelPtr->parameterInfoId.type.toStdString(), parameterModelPtr->parameterInfoId.name.toStdString());
 
 	if (pi != nullptr)
 	{
@@ -319,21 +322,23 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(const Pa
 
 		// ѕри редактировании элемента типизированного массива (например, типа array<int>)
 		// pm->id = $PARAMETERS/CHANNELS/$ITEM_0/$PARAMETERS/BLOCKS/$ITEM_0
-		if (parameterModel.id.size() > 2 && ids.IsItem(parameterModel.id.right(1)))
+		if (parameterModelPtr->id.size() > 2 && ids.IsItem(parameterModelPtr->id.right(1)))
 			isArray = false;
 
 		if (isUnitType && !isArray)
 		{
 			UnitProperty unit{};
 			unit.id = QString::fromStdString(pi->name);
-			unit.name = parameterModel.value.toString();
-			const auto pmDepends = CubesUnit::Helper::Common::GetParameterModel(parameterModels, parameterModel.id + ids.depends);
+			unit.name = parameterModelPtr->value.toString();
+			const auto pmDepends = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelConstPtrs,
+				parameterModelPtr->id + ids.depends);
 			unit.depends = pmDepends->value.toBool();
 			unit.dontSet = false;
 			bool isOptional = parameters::helper::parameter::get_is_optional(*pi);
 			if (isOptional)
 			{
-				const auto pmOptional = CubesUnit::Helper::Common::GetParameterModel(parameterModels, parameterModel.id + ids.optional);
+				const auto pmOptional = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelConstPtrs,
+					parameterModelPtr->id + ids.optional);
 				unit.dontSet = pmOptional->value.toBool();
 			}
 			unit.category = QString::fromStdString(pi->restrictions.category);
@@ -344,9 +349,9 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(const Pa
 		}
 	}
 
-	for (const auto& pm : parameterModel.parameters)
+	for (const auto& pm : parameterModelPtr->parameters)
 	{
-		const auto list = GetParameterModelUnitProperties(pm, parameterModels, unitParameters);
+		const auto list = GetParameterModelUnitProperties(pm, parameterModelConstPtrs, unitParameters);
 		for (const auto& item : list)
 			result.push_back(item);
 	}
@@ -354,26 +359,26 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(const Pa
 	return result;
 }
 
-QString Analyse::GetUnitId(PropertiesId propertiesId, const PropertiesIdParameterModels& propertiesIdParameterModels,
+QString Analyse::GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 	const UnitIdUnitParameters& unitIdUnitParameters)
 {
-	if (propertiesIdParameterModels.contains(propertiesId))
+	if (propertiesIdParameterModelPtrs.contains(propertiesId))
 	{
-		const auto& parameterModels = propertiesIdParameterModels[propertiesId];
-		const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+		const auto& parameterModelPtrs = propertiesIdParameterModelPtrs[propertiesId];
+		const auto unitId = Common::GetParameterModelPtr(parameterModelPtrs, ids.base + ids.unitId)->value.toString();
 		return unitId;
 	}
 
 	return {};
 }
 
-QString Analyse::GetUnitCategory(PropertiesId propertiesId, const PropertiesIdParameterModels& propertiesIdParameterModels,
+QString Analyse::GetUnitCategory(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 	const UnitIdUnitParameters& unitIdUnitParameters)
 {
-	if (propertiesIdParameterModels.contains(propertiesId))
+	if (propertiesIdParameterModelPtrs.contains(propertiesId))
 	{
-		const auto& parameterModels = propertiesIdParameterModels[propertiesId];
-		const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+		const auto& parameterModelPtrs = propertiesIdParameterModelPtrs[propertiesId];
+		const auto unitId = Common::GetParameterModelPtr(parameterModelPtrs, ids.base + ids.unitId)->value.toString();
 
 		if (unitIdUnitParameters.contains(unitId))
 		{
@@ -385,12 +390,12 @@ QString Analyse::GetUnitCategory(PropertiesId propertiesId, const PropertiesIdPa
 	return {};
 }
 
-//QVector<Analyse::UnitProperty> Analyse::GetParameterModelsDependencies(const ParameterModels& parameterModels,
+//QVector<Analyse::UnitProperty> Analyse::GetParameterModelsDependencies(ParameterModelConstPtrs parameterModelConstPtrs,
 //	const UnitIdUnitParameters& unitIdUnitParameters)
 //{
 //	QVector<Analyse::UnitProperty> result;
 //
-//	const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+//	const auto unitId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.unitId)->value.toString();
 //
 //	UnitParameters unitParameters{};
 //	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
@@ -408,36 +413,36 @@ QString Analyse::GetUnitCategory(PropertiesId propertiesId, const PropertiesIdPa
 //	return result;
 //}
 
-QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(const ParameterModels& parameterModels,
-	const FileIdParameterModels& fileIdParametersModels, const UnitIdUnitParameters& unitIdUnitParameters)
+QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(ParameterModelConstPtrs parameterModelConstPtrs,
+	FileIdParameterModelPtrs fileIdParametersModelPtrs, const UnitIdUnitParameters& unitIdUnitParameters)
 {
 	QVector<Analyse::UnitDependency> result;
 
-	const auto pmDepends = Common::GetParameterModel(parameterModels, ids.parameters + ids.dependencies);
+	const auto pmDepends = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.parameters + ids.dependencies);
 	for (const auto& sub : pmDepends->parameters)
 	{
-		QString name = sub.value.toString();
+		QString name = sub->value.toString();
 
 		UnitDependency ud{};
-		ud.name = GetResolvedUnitName(parameterModels, fileIdParametersModels, name);
+		ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, name);
 		ud.isUnitLevel = true;
 		result.push_back(ud);
 	}
 
-	const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+	const auto unitId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.unitId)->value.toString();
 
 	UnitParameters unitParameters{};
 	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
 
-	for (const auto& pm : parameterModels)
+	for (const auto& pm : parameterModelConstPtrs)
 	{
-		const auto list = GetParameterModelUnitProperties(pm, parameterModels, unitParameters);
+		const auto list = GetParameterModelUnitProperties(pm, parameterModelConstPtrs, unitParameters);
 		for (const auto& item : list)
 		{
 			if (item.depends)
 			{
 				UnitDependency ud{};
-				ud.name = GetResolvedUnitName(parameterModels, fileIdParametersModels, item.name);
+				ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, item.name);
 				ud.isUnitLevel = false;
 				result.push_back(ud);
 			}

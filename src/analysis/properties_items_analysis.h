@@ -20,8 +20,8 @@ namespace CubesAnalysis
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
         QMap<uint32_t, std::function<bool()>> delegates_;
-        CubesUnit::FileIdParameterModels fileIdParameterModels_;
-        CubesUnit::PropertiesIdParameterModels propertiesIdParameterModels_;
+        CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs_;
+        CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs_;
         CubesUnit::UnitIdUnitParameters unitIdUnitParameters_;
 
         // Значения имен параметров
@@ -34,8 +34,8 @@ namespace CubesAnalysis
         PropertiesItemsAnalysis(CubesLog::ILogManager* logManager);
 
     public:
-        void SetProperties(const CubesUnit::FileIdParameterModels& fileModels,
-            const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+        void SetProperties(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
+            CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
             const CubesUnit::UnitIdUnitParameters& unitParameters);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(uint32_t id);

@@ -30,7 +30,7 @@ namespace CubesFile
         CubesUnit::FileId fileId_;
 
         // Модель параметров
-        CubesUnit::ParameterModels parameterModels_;
+        CubesUnit::ParameterModelPtrs parameterModelPtrs_;
 
         // Свойства верхнего уровня
         QList<QtProperty*> topLevelProperties_;
@@ -79,8 +79,7 @@ namespace CubesFile
         File GetFile();
         CubesXml::File GetXmlFile();
         QVector<CubesAnalysis::File> GetAnalysisFiles();
-        CubesUnit::ParameterModels GetParameterModels();
-        CubesUnit::ParameterModels* GetParameterModelsRef();
+        CubesUnit::ParameterModelPtrs GetParameterModelPtrs();
 
     private slots:
         void ValueChanged(QtProperty* property, const QVariant& value);
@@ -89,16 +88,16 @@ namespace CubesFile
     private:
         void CreateParametersModel(const CubesXml::File* xmlFile);
         void CreateProperties();
-        void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit::ParameterModel& model, int& count);
+        void UpdateIncludesArrayModel(const CubesXml::File* xmlFile, CubesUnit::ParameterModelPtr model, int& count);
         void UpdateVariablesArrayModel(const CubesXml::Include* xmlInclude, CubesUnit::IncludeId includeId,
-            CubesUnit::ParameterModel& model, int& count);
-        void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnit::ParameterModel& model, int& count);
+            CubesUnit::ParameterModelPtr model, int& count);
+        void UpdateConnectArrayModel(const CubesXml::Networking* xmlNetworking, CubesUnit::ParameterModelPtr model, int& count);
         void RegisterProperty(const QtProperty* property, const CubesUnit::ParameterModelId& id);
         void UnregisterProperty(const CubesUnit::ParameterModelId& id);
         void UnregisterProperty(const QtProperty* property);
         QtProperty* GetProperty(const CubesUnit::ParameterModelId& id);
         CubesUnit::ParameterModelId GetPropertyId(const QtProperty* property);
-        CubesUnit::ParameterModel* GetParameterModel(const QtProperty* property);
+        CubesUnit::ParameterModelPtr GetParameterModelPtr(const QtProperty* property);
         void ApplyExpandState();
         void ApplyExpandState(QtBrowserItem* index);
     };

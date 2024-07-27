@@ -141,12 +141,8 @@ bool TopManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
 bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
     // TODO: REF!!! не копировать параметры
-    CubesUnit::FileIdParameterModels fileIdParameterModels;
-    if (!fileItemsManager_->GetParameterModels(fileIdParameterModels))
-        return false;
-    CubesUnit::PropertiesIdParameterModels propertiesIdParameterModels;
-    if (!propertiesItemsManager_->GetParameterModels(propertiesIdParameterModels))
-        return false;
+    const auto fileIdParameterModelPtrs = fileItemsManager_->GetFileIdParameterModelPtrs();
+    const auto propertiesIdParameterModelPtrs = propertiesItemsManager_->GetFileIdParameterModelPtrs();
 
     for (auto& kvp : propertiesIdParameterModels.toStdMap())
     {

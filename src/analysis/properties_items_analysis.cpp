@@ -18,12 +18,12 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManag
 		CubesAnalysis::GetRuleTypes(rules_)));
 }
 
-void PropertiesItemsAnalysis::SetProperties(const CubesUnit::FileIdParameterModels& fileModels,
-	const CubesUnit::PropertiesIdParameterModels& propertiesModels,
+void PropertiesItemsAnalysis::SetProperties(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
+	CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 	const CubesUnit::UnitIdUnitParameters& unitParameters)
 {
-	fileIdParameterModels_ = fileModels;
-	propertiesIdParameterModels_ = propertiesModels;
+	fileIdParameterModelPtrs_ = fileIdParameterModelPtrs;
+	propertiesIdParameterModelPtrs_ = propertiesIdParameterModelPtrs;
 	unitIdUnitParameters_ = unitParameters;
 }
 
@@ -56,11 +56,11 @@ bool PropertiesItemsAnalysis::RunAllTests()
 bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 {
 	bool result = true;
-	for (auto& kvp : propertiesIdParameterModels_.toStdMap())
+	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
 	{
 		auto& properties = kvp.second;
-		const auto name = CubesUnit::Helper::Common::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
-		const auto unitId = CubesUnit::Helper::Common::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
+		const auto name = CubesUnit::Helper::Common::GetParameterModelPtr(properties, ids_.base + ids_.name)->value.toString();
+		const auto unitId = CubesUnit::Helper::Common::GetParameterModelPtr(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
 			logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Тип юнита"), unitId} }, kvp.first);
@@ -75,7 +75,7 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 {
 	bool result = true;
 
-	const auto resolvedUnitNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModels_, fileIdParameterModels_);
+	const auto resolvedUnitNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
 
 	QSet<QString> names;
 	for (const auto& kvp : resolvedUnitNames.toStdMap())
@@ -103,8 +103,8 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 {
 	bool result = true;
 
-	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModels_, fileIdParameterModels_);
-	for (auto& kvp : propertiesIdParameterModels_.toStdMap())
+	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
+	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
 	{
 		const auto properties = CubesUnit::Helper::Analyse::GetParameterModelsUnitProperties(kvp.second, unitIdUnitParameters_);
 
@@ -112,7 +112,7 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 		{
 			// item.category - Категория параметра - та, что должна быть, исходя из типа параметра юнита и его restrictions
 			// item.value - Оригинальное имя юнита - возможно с переменными
-			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels_, item.name);
+			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModelPtrs_, item.name);
 
 			// Ищем юнит по его имени
 			auto values = resolvedNames.toStdMap();
@@ -121,7 +121,7 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 			if (it != values.end())
 			{
 				const auto propertiesId = it->first;
-				const auto unitCategory = CubesUnit::Helper::Analyse::GetUnitCategory(propertiesId, propertiesIdParameterModels_,
+				const auto unitCategory = CubesUnit::Helper::Analyse::GetUnitCategory(propertiesId, propertiesIdParameterModelPtrs_,
 					unitIdUnitParameters_);
 
 				if (item.category != unitCategory)

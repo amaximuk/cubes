@@ -12,21 +12,23 @@ namespace CubesUnit
 		namespace Common
 		{
 			QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames);
-			ParameterModel* GetParameterModel(ParameterModels& parameterModels, const ParameterModelId& parameterModelId);
-			const ParameterModel* GetParameterModel(const ParameterModels& parameterModels, const ParameterModelId& parameterModelId);
+			ParameterModelPtr GetParameterModelPtr(ParameterModelPtrs parameterModelPtrs,
+				const ParameterModelId& parameterModelId);
+			ParameterModelConstPtr GetParameterModelPtr(ParameterModelConstPtrs parameterModelConstPtrs,
+				const ParameterModelId& parameterModelId);
 		}
 
 		namespace File
 		{
-			bool GetIncludes(const ParameterModels& parameterModels, IncludeIdNames& includeIdNames);
-			IncludeIdNames GetIncludes(const ParameterModels& parameterModels);
-			bool GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName);
-			QString GetIncludeName(const ParameterModels& parameterModels, const IncludeId includeId);
-			bool GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId, QString& includeName);
-			QString GetIncludePath(const ParameterModels& parameterModels, const IncludeId includeId);
-			bool GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId,
+			bool GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs, IncludeIdNames& includeIdNames);
+			IncludeIdNames GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs);
+			bool GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName);
+			QString GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
+			bool GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName);
+			QString GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
+			bool GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId,
 				VariableIdVariables& variableIdVariables);
-			VariableIdVariables GetIncludeVariables(const ParameterModels& parameterModels, const IncludeId includeId);
+			VariableIdVariables GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
 		}
 
 		namespace Unit
@@ -61,21 +63,22 @@ namespace CubesUnit
 				bool isUnitLevel;
 			};
 
-			UnitName GetResolvedUnitName(const ParameterModels& parameterModels, const FileIdParameterModels& fileIdParameterModels);
-			PropertiesIdUnitNames GetResolvedUnitNames(const PropertiesIdParameterModels& propertiesIdParameterModels,
-				const FileIdParameterModels& fileIdParametersModels);
-			UnitName GetResolvedUnitName(const ParameterModels& parameterModels, const FileIdParameterModels& fileIdParameterModels,
-				QString name);
-			QVector<UnitProperty> GetParameterModelsUnitProperties(const ParameterModels& parameterModels,
+			UnitName GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+				FileIdParameterModelPtrs fileIdParametersModelPtrs);
+			PropertiesIdUnitNames GetResolvedUnitNames(PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
+				FileIdParameterModelPtrs fileIdParametersModelPtrs);
+			UnitName GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+				FileIdParameterModelPtrs fileIdParametersModelPtrs, QString name);
+			QVector<UnitProperty> GetParameterModelsUnitProperties(ParameterModelConstPtrs parameterModelConstPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
-			QVector<UnitProperty> GetParameterModelUnitProperties(const ParameterModel& parameterModel,
-				const ParameterModels& parameterModels, const UnitParameters& unitParameters);
-			QString GetUnitId(PropertiesId propertiesId, const PropertiesIdParameterModels& propertiesIdParameterModels,
+			QVector<UnitProperty> GetParameterModelUnitProperties(ParameterModelPtr parameterModelPtr,
+				ParameterModelConstPtrs parameterModelConstPtrs, const UnitParameters& unitParameters);
+			QString GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
-			QString GetUnitCategory(PropertiesId propertiesId, const PropertiesIdParameterModels& propertiesIdParameterModels,
+			QString GetUnitCategory(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
-			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(const ParameterModels& parameterModels,
-				const FileIdParameterModels& fileIdParametersModels, const UnitIdUnitParameters& unitIdUnitParameters);
+			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(ParameterModelConstPtrs parameterModelConstPtrs,
+				FileIdParameterModelPtrs fileIdParametersModelPtrs, const UnitIdUnitParameters& unitIdUnitParameters);
 		}
 	}
 }

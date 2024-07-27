@@ -22,8 +22,7 @@ namespace CubesAnalysis
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
         QMap<CubesLog::BaseErrorCode, std::function<bool()>> delegates_;
-        CubesUnit::FileIdParameterModels fileIdParameterModels_;
-        QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> fileItems_;
+        CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs_;
 
         // Значения имен параметров
         CubesUnit::ParameterModelIds ids_;
@@ -35,8 +34,7 @@ namespace CubesAnalysis
         FileItemsAnalysis(CubesLog::ILogManager* logManager);
 
     public:
-        void SetFiles(const CubesUnit::FileIdParameterModels& files);
-        void SetFileItems(QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> files);
+        void SetFiles(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(uint32_t errorCode);
         bool RunAllTests();
