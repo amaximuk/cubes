@@ -83,6 +83,7 @@ namespace CubesUnit
 
 		ParameterModel()
 		{
+			key = InvalidBaseId;
 			readOnly = false;
 		}
 

@@ -32,6 +32,8 @@ namespace CubesUnit
 	using PropertiesId = BaseId;
 	constexpr PropertiesId InvalidPropertiesId = InvalidBaseId;
 
+	using UnitId = QString;
+
 	const std::vector<std::string> platform_names_ = {
 		"Windows x32",
 		"Windows x64",
@@ -46,5 +48,5 @@ namespace CubesUnit
 		QSet<QString> platforms;
 	};
 
-	using UnitIdUnitParameters = QMap<QString, CubesUnit::UnitParameters>;
+	using UnitIdUnitParameters = QMap<UnitId, UnitParameters>;
 }
