@@ -271,7 +271,7 @@ Analyse::UnitName Analyse::GetResolvedUnitName(const ParameterModels& parameterM
 	return { name, realName };
 }
 
-QVector<Analyse::UnitProperty> Analyse::GetUnitUnitProperties(const ParameterModels& parameterModels,
+QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(const ParameterModels& parameterModels,
 	const UnitIdUnitParameters& unitIdUnitParameters)
 {
 	QVector<Analyse::UnitProperty> result;
@@ -326,7 +326,7 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(const Pa
 		{
 			UnitProperty unit{};
 			unit.id = QString::fromStdString(pi->name);
-			unit.value = parameterModel.value.toString();
+			unit.name = parameterModel.value.toString();
 			const auto pmDepends = CubesUnit::Helper::Common::GetParameterModel(parameterModels, parameterModel.id + ids.depends);
 			unit.depends = pmDepends->value.toBool();
 			unit.dontSet = false;
@@ -383,4 +383,66 @@ QString Analyse::GetUnitCategory(PropertiesId propertiesId, const PropertiesIdPa
 	}
 
 	return {};
+}
+
+//QVector<Analyse::UnitProperty> Analyse::GetParameterModelsDependencies(const ParameterModels& parameterModels,
+//	const UnitIdUnitParameters& unitIdUnitParameters)
+//{
+//	QVector<Analyse::UnitProperty> result;
+//
+//	const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+//
+//	UnitParameters unitParameters{};
+//	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
+//
+//	for (const auto& pm : parameterModels)
+//	{
+//		if (pm.id == ids.parameters)
+//		{
+//			const auto list = GetParameterModelUnitProperties(pm, parameterModels, unitParameters);
+//			for (const auto& item : list)
+//				result.push_back(item);
+//		}
+//	}
+//
+//	return result;
+//}
+
+QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(const ParameterModels& parameterModels,
+	const FileIdParameterModels& fileIdParametersModels, const UnitIdUnitParameters& unitIdUnitParameters)
+{
+	QVector<Analyse::UnitDependency> result;
+
+	const auto pmDepends = Common::GetParameterModel(parameterModels, ids.parameters + ids.dependencies);
+	for (const auto& sub : pmDepends->parameters)
+	{
+		QString name = sub.value.toString();
+
+		UnitDependency ud{};
+		ud.name = GetResolvedUnitName(parameterModels, fileIdParametersModels, name);
+		ud.isUnitLevel = true;
+		result.push_back(ud);
+	}
+
+	const auto unitId = Common::GetParameterModel(parameterModels, ids.base + ids.unitId)->value.toString();
+
+	UnitParameters unitParameters{};
+	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
+
+	for (const auto& pm : parameterModels)
+	{
+		const auto list = GetParameterModelUnitProperties(pm, parameterModels, unitParameters);
+		for (const auto& item : list)
+		{
+			if (item.depends)
+			{
+				UnitDependency ud{};
+				ud.name = GetResolvedUnitName(parameterModels, fileIdParametersModels, item.name);
+				ud.isUnitLevel = false;
+				result.push_back(ud);
+			}
+		}
+	}
+
+	return result;
 }

@@ -106,13 +106,13 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModels_, fileIdParameterModels_);
 	for (auto& kvp : propertiesIdParameterModels_.toStdMap())
 	{
-		const auto properties = CubesUnit::Helper::Analyse::GetUnitUnitProperties(kvp.second, unitIdUnitParameters_);
+		const auto properties = CubesUnit::Helper::Analyse::GetParameterModelsUnitProperties(kvp.second, unitIdUnitParameters_);
 
 		for (const auto& item : properties)
 		{
 			// item.category - Категория параметра - та, что должна быть, исходя из типа параметра юнита и его restrictions
 			// item.value - Оригинальное имя юнита - возможно с переменными
-			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels_, item.value);
+			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels_, item.name);
 
 			// Ищем юнит по его имени
 			auto values = resolvedNames.toStdMap();

@@ -48,11 +48,17 @@ namespace CubesUnit
 			struct UnitProperty
 			{
 				QString id;
-				QString value;
+				QString name;
 				bool depends;
 				bool dontSet;
 				QString category;
 				QStringList ids;
+			};
+
+			struct UnitDependency
+			{
+				UnitName name;
+				bool isUnitLevel;
 			};
 
 			UnitName GetResolvedUnitName(const ParameterModels& parameterModels, const FileIdParameterModels& fileIdParameterModels);
@@ -60,7 +66,7 @@ namespace CubesUnit
 				const FileIdParameterModels& fileIdParametersModels);
 			UnitName GetResolvedUnitName(const ParameterModels& parameterModels, const FileIdParameterModels& fileIdParameterModels,
 				QString name);
-			QVector<UnitProperty> GetUnitUnitProperties(const ParameterModels& parameterModels,
+			QVector<UnitProperty> GetParameterModelsUnitProperties(const ParameterModels& parameterModels,
 				const UnitIdUnitParameters& unitIdUnitParameters);
 			QVector<UnitProperty> GetParameterModelUnitProperties(const ParameterModel& parameterModel,
 				const ParameterModels& parameterModels, const UnitParameters& unitParameters);
@@ -68,6 +74,8 @@ namespace CubesUnit
 				const UnitIdUnitParameters& unitIdUnitParameters);
 			QString GetUnitCategory(PropertiesId propertiesId, const PropertiesIdParameterModels& propertiesIdParameterModels,
 				const UnitIdUnitParameters& unitIdUnitParameters);
+			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(const ParameterModels& parameterModels,
+				const FileIdParameterModels& fileIdParametersModels, const UnitIdUnitParameters& unitIdUnitParameters);
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace CubesTop
     protected:
         uint32_t uniqueNumber_;
 
-        CubesUnit::UnitIdUnitParameters unitParameters_;
+        CubesUnit::UnitIdUnitParameters unitIdUnitParameters_;
         QPointer<CubesFile::FileItemsManager> fileItemsManager_;
         QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
         QPointer<CubesAnalysis::AnalysisManager> analysisManager_;

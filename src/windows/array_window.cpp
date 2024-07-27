@@ -147,7 +147,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterMo
     pi_ = pi;
     ri_ = ri;
 
-    unitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
+    unitIdUnitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
 
 
 //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];

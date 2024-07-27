@@ -10,6 +10,7 @@
 #include "../utils/graph.h"
 #include "../utils/zip.h"
 #include "../unit/unit_types.h"
+#include "../unit/unit_helper.h"
 #include "../log/log_helper.h"
 #include "top_manager.h"
 
@@ -67,14 +68,14 @@ bool TopManager::GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
 bool TopManager::GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters)
 {
     // Для массивов - мы не знаем название, но у нас всего один элемент в списке
-    if (unitId.isEmpty() && unitParameters_.size() == 1)
+    if (unitId.isEmpty() && unitIdUnitParameters_.size() == 1)
     {
-        unitParameters = *unitParameters_.begin();
+        unitParameters = *unitIdUnitParameters_.begin();
     }
     else
     {
-        const auto it = unitParameters_.find(unitId);
-        if (it == unitParameters_.end())
+        const auto it = unitIdUnitParameters_.find(unitId);
+        if (it == unitIdUnitParameters_.end())
             return false;
         unitParameters = *it;
     }
@@ -139,7 +140,32 @@ bool TopManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
 
 bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
-    return propertiesItemsManager_->GetDependsConnections(connections);
+    // TODO: REF!!! не копировать параметры
+    CubesUnit::FileIdParameterModels fileIdParameterModels;
+    if (!fileItemsManager_->GetParameterModels(fileIdParameterModels))
+        return false;
+    CubesUnit::PropertiesIdParameterModels propertiesIdParameterModels;
+    if (!propertiesItemsManager_->GetParameterModels(propertiesIdParameterModels))
+        return false;
+
+    for (auto& kvp : propertiesIdParameterModels.toStdMap())
+    {
+        const auto depends = CubesUnit::Helper::Analyse::GetParameterModelsDependencies(kvp.second,
+            fileIdParameterModels, unitIdUnitParameters_);
+
+        if (!depends.empty())
+        {
+            const auto name = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels);
+            auto& connects = connections[name.resolved];
+            for (const auto& depend_on : depends)
+            {
+                if (!connects.contains(depend_on.name.resolved))
+                    connects.push_back(depend_on.name.resolved);
+            }
+        }
+    }
+
+    return true;
 }
 
 bool TopManager::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
@@ -208,7 +234,7 @@ void TopManager::FillParametersInfo(const QString& parametersPath, bool isMock)
                     fi.parameters.push_back(std::move(pi));
                 }
 
-                auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
+                auto& up = unitIdUnitParameters_[QString::fromStdString(fi.info.id)];
                 up.fileInfo = fi;
                 up.platforms.insert(QFileInfo(platformDir).baseName());
             }
@@ -379,7 +405,7 @@ bool TopManager::SortUnitsRectangular(bool check)
 
 CubesUnit::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 {
-    for (auto& up : unitParameters_)
+    for (auto& up : unitIdUnitParameters_)
     {
         if (QString::fromStdString(up.fileInfo.info.id) == id)
             return &up;
@@ -399,7 +425,7 @@ bool TopManager::Test()
     //CubesUnit::PropertiesIdUnitParameters unitParameters;
     //if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
     //    return false;
-    analysisManager_->Test(fileModels, propertiesModels, unitParameters_);
+    analysisManager_->Test(fileModels, propertiesModels, unitIdUnitParameters_);
     return true;
 }
 
