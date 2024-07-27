@@ -20,9 +20,9 @@ namespace CubesAnalysis
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
         QMap<uint32_t, std::function<bool()>> delegates_;
-        CubesUnit::FileIdParameterModels fileModels_;
-        CubesUnit::PropertiesIdParameterModels propertiesModels_;
-        CubesUnit::UnitIdUnitParameters unitParameters_;
+        CubesUnit::FileIdParameterModels fileIdParameterModels_;
+        CubesUnit::PropertiesIdParameterModels propertiesIdParameterModels_;
+        CubesUnit::UnitIdUnitParameters unitIdUnitParameters_;
 
         // Значения имен параметров
         CubesUnit::ParameterModelIds ids_;

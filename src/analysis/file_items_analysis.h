@@ -22,7 +22,7 @@ namespace CubesAnalysis
         CubesLog::ILogManager* logManager_;
         QVector<Rule> rules_;
         QMap<CubesLog::BaseErrorCode, std::function<bool()>> delegates_;
-        CubesUnit::FileIdParameterModels fileModels_;
+        CubesUnit::FileIdParameterModels fileIdParameterModels_;
         QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> fileItems_;
 
         // Значения имен параметров

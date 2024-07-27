@@ -22,9 +22,9 @@ void PropertiesItemsAnalysis::SetProperties(const CubesUnit::FileIdParameterMode
 	const CubesUnit::PropertiesIdParameterModels& propertiesModels,
 	const CubesUnit::UnitIdUnitParameters& unitParameters)
 {
-	fileModels_ = fileModels;
-	propertiesModels_ = propertiesModels;
-	unitParameters_ = unitParameters;
+	fileIdParameterModels_ = fileModels;
+	propertiesIdParameterModels_ = propertiesModels;
+	unitIdUnitParameters_ = unitParameters;
 }
 
 QVector<Rule> PropertiesItemsAnalysis::GetAllRules()
@@ -56,11 +56,11 @@ bool PropertiesItemsAnalysis::RunAllTests()
 bool PropertiesItemsAnalysis::TestNameIsEmpty(Rule rule)
 {
 	bool result = true;
-	for (auto& kvp : propertiesModels_.toStdMap())
+	for (auto& kvp : propertiesIdParameterModels_.toStdMap())
 	{
 		auto& properties = kvp.second;
-		const auto name = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
-		const auto unitId = CubesUnit::Helper::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
+		const auto name = CubesUnit::Helper::Common::GetParameterModel(properties, ids_.base + ids_.name)->value.toString();
+		const auto unitId = CubesUnit::Helper::Common::GetParameterModel(properties, ids_.base + ids_.unitId)->value.toString();
 		if (name.isEmpty())
 		{
 			logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Тип юнита"), unitId} }, kvp.first);
@@ -75,7 +75,7 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 {
 	bool result = true;
 
-	const auto resolvedUnitNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesModels_, fileModels_);
+	const auto resolvedUnitNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModels_, fileIdParameterModels_);
 
 	QSet<QString> names;
 	for (const auto& kvp : resolvedUnitNames.toStdMap())
@@ -102,6 +102,45 @@ bool PropertiesItemsAnalysis::TestNameNotUnique(Rule rule)
 bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 {
 	bool result = true;
+
+	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModels_, fileIdParameterModels_);
+	for (auto& kvp : propertiesIdParameterModels_.toStdMap())
+	{
+		const auto properties = CubesUnit::Helper::Analyse::GetUnitUnitProperties(kvp.second, unitIdUnitParameters_);
+
+		for (const auto& item : properties)
+		{
+			// item.category - Категория параметра - та, что должна быть, исходя из типа параметра юнита и его restrictions
+			// item.value - Оригинальное имя юнита - возможно с переменными
+			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels_, item.value);
+
+			// Ищем юнит по его имени
+			auto values = resolvedNames.toStdMap();
+			const auto it = std::find_if(values.cbegin(), values.cend(),
+				[&resolvedName](const auto& v) {return v.second.resolved == resolvedName.resolved; });
+			if (it != values.end())
+			{
+				const auto propertiesId = it->first;
+				const auto unitCategory = CubesUnit::Helper::Analyse::GetUnitCategory(propertiesId, propertiesIdParameterModels_,
+					unitIdUnitParameters_);
+
+				if (item.category != unitCategory)
+				{
+					if (resolvedName.original == resolvedName.resolved)
+						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
+							{QString::fromLocal8Bit("Категория параметра"), item.category},
+							{QString::fromLocal8Bit("Категория юнита"), unitCategory} }, kvp.first);
+					else
+						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
+							{QString::fromLocal8Bit("Исходное имя"), resolvedName.original},
+							{QString::fromLocal8Bit("Категория параметра"), item.category},
+							{QString::fromLocal8Bit("Категория юнита"), unitCategory} }, kvp.first);
+
+					result = false;
+				}
+			}
+		}
+	}
 
 	return result;
 }
@@ -141,7 +180,7 @@ void PropertiesItemsAnalysis::CreateRules()
 		rule.isActive = true;
 		rules_.push_back(rule);
 
-		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestNameNotUnique, this, rule);
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestUnitCategoryMismatch, this, rule);
 	}
 
 	//{

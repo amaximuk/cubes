@@ -52,7 +52,7 @@ TEST(CUBES, FileAnalysisNameNotUnique)
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
+		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
 	}
 
 
@@ -87,7 +87,7 @@ TEST(CUBES, FileAnalysisFileNameNotUnique)
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 
@@ -122,7 +122,7 @@ TEST(CUBES, FileAnalysisConnectionIdNotUnique)
 	for (auto item : fileModels)
 	{
 		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 
