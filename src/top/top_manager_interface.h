@@ -16,7 +16,7 @@ namespace CubesTop
         virtual bool GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames) = 0;
         virtual bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
             CubesUnit::IncludeId includeId, QStringList& unitNames) = 0;
-        virtual bool GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters) = 0;
+        virtual bool GetUnitParametersPtr(const QString& unitId, CubesUnit::UnitParametersPtr& unitParametersPtr) = 0;
 
         virtual bool GetFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeIdNames& includeNames) = 0;
         virtual bool GetFileIncludeVariableList(CubesUnit::FileId fileId,
@@ -25,7 +25,7 @@ namespace CubesTop
         virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
         virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) = 0;
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
-            CubesUnit::UnitParameters& unitParameters) = 0;
+            CubesUnit::UnitParametersPtr& unitParametersPtr) = 0;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) = 0;
 
         virtual bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) = 0;

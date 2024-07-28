@@ -16,12 +16,12 @@
 using namespace CubesProperties;
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-    CubesUnit::UnitParameters unitParameters, bool isArrayUnit, CubesUnit::PropertiesId propertiesId)
+    CubesUnit::UnitParametersPtr unitParametersPtr, bool isArrayUnit, CubesUnit::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     logManager_ = logManager;
     editor_ = editor;
-    unitParameters_ = unitParameters;
+    unitParametersPtr_ = unitParametersPtr;
     propertiesId_ = propertiesId;
     parameterModelPtrs_ = {};
     ignoreEvents_ = false;
@@ -34,12 +34,12 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-    CubesUnit::UnitParameters unitParameters, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModelPtrs parameterModelPtrs)
+    CubesUnit::UnitParametersPtr unitParametersPtr, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModelPtrs parameterModelPtrs)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     logManager_ = logManager;
     editor_ = editor;
-    unitParameters_ = unitParameters;
+    unitParametersPtr_ = unitParametersPtr;
     propertiesId_ = propertiesId;
     parameterModelPtrs_ = {};
     ignoreEvents_ = false;
@@ -52,12 +52,12 @@ PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, 
 }
 
 PropertiesItem::PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-    CubesUnit::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId)
+    CubesUnit::UnitParametersPtr unitParametersPtr, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId)
 {
     propertiesItemsManager_ = propertiesItemsManager;
     logManager_ = logManager;
     editor_ = editor;
-    unitParameters_ = unitParameters;
+    unitParametersPtr_ = unitParametersPtr;
     propertiesId_ = propertiesId;
     parameterModelPtrs_ = {};
     ignoreEvents_ = false;
@@ -132,7 +132,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             CubesUnit::ParameterModelPtr unit_id = CubesUnit::CreateParameterModelPtr();
             unit_id->id = ids_.base + ids_.unitId;
             unit_id->name = QString::fromLocal8Bit("ID юнита");
-            unit_id->value = QString::fromStdString(unitParameters_.fileInfo.info.id);
+            unit_id->value = QString::fromStdString(unitParametersPtr_->fileInfo.info.id);
             unit_id->editorSettings.type = CubesUnit::EditorType::String;
             unit_id->editorSettings.isExpanded = false;
             unit_id->readOnly = true;
@@ -143,7 +143,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         instance_name->id = ids_.base + ids_.name;
         instance_name->name = QString::fromLocal8Bit("Имя");
         if (xmlUnit == nullptr)
-            instance_name->value = QString::fromStdString(parameters::helper::file::get_display_name(unitParameters_.fileInfo));
+            instance_name->value = QString::fromStdString(parameters::helper::file::get_display_name(unitParametersPtr_->fileInfo));
         else
             instance_name->value = QString(xmlUnit->name);
         instance_name->editorSettings.type = CubesUnit::EditorType::String;
@@ -174,7 +174,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         parameterModelPtrs_.push_back(std::move(base_group));
     }
 
-    if (unitParameters_.fileInfo.parameters.size() > 0)
+    if (unitParametersPtr_->fileInfo.parameters.size() > 0)
     {
         CubesUnit::ParameterModelPtr properties_group = CubesUnit::CreateParameterModelPtr();
         properties_group->id = ids_.parameters;
@@ -185,7 +185,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
 
         CheckParametersMatching(xmlUnit, QString::fromStdString(parameters::helper::type::main_type), ids_.parameters);
 
-        for (const auto& pi : unitParameters_.fileInfo.parameters)
+        for (const auto& pi : unitParametersPtr_->fileInfo.parameters)
         {
             CubesUnit::ParameterModelPtr pm;
             CreateParameterModel({ QString::fromStdString(parameters::helper::type::main_type), QString::fromStdString(pi.name) },
@@ -263,7 +263,7 @@ void PropertiesItem::CreateParameterModel(const CubesUnit::ParameterInfoId& para
     // Модель включает все вложенные параметры и массивы
     // Каждому параметру назначается model ID (путь к параметру в модели, разделенный /)
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
     CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
@@ -328,9 +328,9 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
 
     // Получаем описание параметра из его yml файла
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
-    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, isItem);
+    auto v = parameters::helper::parameter::get_initial_value(unitParametersPtr_->fileInfo, pi, isItem);
     const bool res = CubesParameters::convert_variant(v, model->value);
 
     // Параметр не должен быть массивом, здесь была проверка
@@ -353,7 +353,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                 { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                 {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                 {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                 {QString::fromLocal8Bit("Тип параметра юнита"), QString::fromStdString(pi.type)} }, propertiesId_);
         }
     }
@@ -378,7 +378,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                     { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                     {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                     {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
 
                 xmlValue = int{ 0 };
@@ -395,7 +395,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                     { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                     {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                     {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
 
                 xmlValue = double{ 0.0 };
@@ -436,7 +436,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                     { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                     {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                     {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
             }
         }
@@ -508,7 +508,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
         {
             // Пользовательский тип данных
             // Поскольку параметр не является массивом, единственный допустимый тип это enum
-            const auto pti = parameters::helper::type::get_type_info(unitParameters_.fileInfo, itemType);
+            const auto pti = parameters::helper::type::get_type_info(unitParametersPtr_->fileInfo, itemType);
             const auto typeCategory = parameters::helper::type::get_category(*pti);
             if (typeCategory != parameters::type_category::user_cpp)
                 assert(false);
@@ -535,7 +535,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                         { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                         {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                         {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                        {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                        {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                         {QString::fromLocal8Bit("Значение"), xmlValueString} }, propertiesId_);
                 }
             }
@@ -739,10 +739,10 @@ bool PropertiesItem::GetXmlParam(CubesUnit::ParameterModelPtr pm, CubesXml::Para
     //     PARAMETERS/CHANNELS/ITEM_0/PARAMETERS/COMMUTATOR_NAME/OPTIONAL
     // Массивы в данной функции не обрабатываются, для получения массива используется GetXmlArrray
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
-    auto typeName = parameters::helper::parameter::get_type_xml(unitParameters_.fileInfo, pi);
+    auto typeName = parameters::helper::parameter::get_type_xml(unitParametersPtr_->fileInfo, pi);
 
     bool depends{false};
     bool notSet{false};
@@ -774,7 +774,7 @@ bool PropertiesItem::GetXmlArrray(CubesUnit::ParameterModelPtr pm, CubesXml::Arr
     if (pm->parameters.size() == 0)
         return false;
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
     array.name = QString::fromStdString(pi.name);
@@ -786,7 +786,7 @@ bool PropertiesItem::GetXmlArrray(CubesUnit::ParameterModelPtr pm, CubesXml::Arr
         //     PARAMETERS/CHANNELS/ITEM_0
         //     PARAMETERS/CHANNELS/ITEM_1
 
-        auto itemTypeXmlName = parameters::helper::parameter::get_item_type_xml(unitParameters_.fileInfo, pi);
+        auto itemTypeXmlName = parameters::helper::parameter::get_item_type_xml(unitParametersPtr_->fileInfo, pi);
 
         array.type = QString::fromStdString(itemTypeXmlName);
 
@@ -831,7 +831,7 @@ bool PropertiesItem::GetXmlArrray(CubesUnit::ParameterModelPtr pm, CubesXml::Arr
                 {
                     for (auto& pmParameter : pmGroup->parameters)
                     {
-                        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+                        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
                             pmParameter->parameterInfoId.type.toStdString(), pmParameter->parameterInfoId.name.toStdString());
                         bool is_array = parameters::helper::common::get_is_array_type(pi.type);
                         if (is_array)
@@ -872,7 +872,7 @@ bool PropertiesItem::GetXmlArrray(CubesUnit::ParameterModelPtr pm, CubesXml::Arr
 
 void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
 {
-    xmlUnit.id = QString::fromStdString(unitParameters_.fileInfo.info.id);
+    xmlUnit.id = QString::fromStdString(unitParametersPtr_->fileInfo.info.id);
     
     for (auto& pmGroup : parameterModelPtrs_)
     {
@@ -888,7 +888,7 @@ void PropertiesItem::GetXml(CubesXml::Unit& xmlUnit)
         {
             for (auto& pmParameter : pmGroup->parameters)
             {
-                auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+                auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
                     pmParameter->parameterInfoId.type.toStdString(), pmParameter->parameterInfoId.name.toStdString());
                 bool is_array = parameters::helper::common::get_is_array_type(pi.type);
                 if (is_array)
@@ -984,9 +984,9 @@ QImage PropertiesItem::GetPixmap()
 {
     QImage px;
     bool loaded = false;
-    if (unitParameters_.fileInfo.info.pictogram != "")
+    if (unitParametersPtr_->fileInfo.info.pictogram != "")
     {
-        std::string s = base64_decode(unitParameters_.fileInfo.info.pictogram);
+        std::string s = base64_decode(unitParametersPtr_->fileInfo.info.pictogram);
         QByteArray ba(s.c_str(), static_cast<int>(s.size()));
         try
         {
@@ -1037,8 +1037,8 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
 {
     QString id = GetPropertyId(property).toString();
     auto pm = GetParameterModelPtr(property);
-    auto ui = GetUnitParameters();
-    auto pi = parameters::helper::parameter::get_parameter_info(ui.fileInfo,
+    auto ui = GetUnitParametersPtr();
+    auto pi = parameters::helper::parameter::get_parameter_info(ui->fileInfo,
         pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
     QStringList messageList;
@@ -1049,14 +1049,14 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
         messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
     if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
         messageList.push_back(QString("pi_id: %1, %2").arg(pm->parameterInfoId.type).arg(pm->parameterInfoId.name));
-    messageList.push_back(QString("fi_id: %1").arg(QString::fromStdString(ui.fileInfo.info.id)));
+    messageList.push_back(QString("fi_id: %1").arg(QString::fromStdString(ui->fileInfo.info.id)));
 
     return messageList.join('\n');
 }
 
 void PropertiesItem::GetConnectedNamesInternal(CubesUnit::ParameterModelPtr model, QList<QString>& list)
 {
-    auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
 
     if (pi != nullptr)
@@ -1093,7 +1093,7 @@ void PropertiesItem::GetConnectedNamesInternal(CubesUnit::ParameterModelPtr mode
 
 void PropertiesItem::GetDependentNamesInternal(CubesUnit::ParameterModelPtr model, QList<QString>& list)
 {
-    auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
 
     if (model->id == ids_.parameters + ids_.dependencies)
@@ -1147,7 +1147,7 @@ void PropertiesItem::GetDependentNamesInternal(CubesUnit::ParameterModelPtr mode
 
 void PropertiesItem::GetAnalysisPropertiesInternal(CubesUnit::ParameterModelPtr model, QVector<CubesAnalysis::UnitProperty>& list)
 {
-    auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
 
     if (pi != nullptr)
@@ -1226,9 +1226,9 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::Pa
     // Поля id, name, parameterInfoId должны быть предварительно заполнены
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
-    auto v = parameters::helper::parameter::get_initial_value(unitParameters_.fileInfo, pi, false);
+    auto v = parameters::helper::parameter::get_initial_value(unitParametersPtr_->fileInfo, pi, false);
     bool res = CubesParameters::convert_variant(v, model->value);
     //model->valueType = "int";
 
@@ -1260,7 +1260,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::Pa
                     { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                     {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                     {QString::fromLocal8Bit("Значение"), QString("%1").arg(element.itemsCount)} }, propertiesId_);
             }
             else
@@ -1292,7 +1292,7 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::Pa
                     { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
                     {QString::fromLocal8Bit("Тип параметра xml"), element.param->type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)},
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)},
                     {QString::fromLocal8Bit("Значение"), QString("%1").arg(element.itemsCount)} }, propertiesId_);
             }
             else
@@ -1308,7 +1308,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
     // Если xmlUnit != nullptr, значит создаем юнит из файла xml
 
     // Получаем описание параметра из его yml файла
-    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+    auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
         model->parameterInfoId.type.toStdString(), model->parameterInfoId.name.toStdString());
 
     auto itemType = parameters::helper::common::get_item_type(pi.type);
@@ -1329,7 +1329,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
     }
     else
     {
-        auto pti = parameters::helper::type::get_type_info(unitParameters_.fileInfo, itemType);
+        auto pti = parameters::helper::type::get_type_info(unitParametersPtr_->fileInfo, itemType);
         if (pti != nullptr)
         {
             const auto typeCategory = parameters::helper::type::get_category(*pti);
@@ -1396,7 +1396,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
             }
 
             // Получаем описание типа, проверили ранее, что такой тип существует
-            const auto ti = *parameters::helper::type::get_type_info(unitParameters_.fileInfo, itemType);
+            const auto ti = *parameters::helper::type::get_type_info(unitParametersPtr_->fileInfo, itemType);
 
             // Заполняем yml параметры
             if (!ti.parameters.empty())
@@ -1562,7 +1562,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         else
         {
             // Получаем описание параметра из его yml файла
-            auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+            auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
                 pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
             bool isArray = parameters::helper::common::get_is_array_type(pi.type);
@@ -1739,7 +1739,7 @@ void PropertiesItem::StringEditingFinished(QtProperty* property, const QString& 
         // с количеством элементов
 
         // Получаем описание параметра из его yml файла
-        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
+        auto& pi = *parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo,
             pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
         bool isArray = parameters::helper::common::get_is_array_type(pi.type);
@@ -1865,7 +1865,7 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
     {
         for (const auto& xpi : *(element.params))
         {
-            const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xpi.name.toStdString());
+            const auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo, type.toStdString(), xpi.name.toStdString());
 
             if (pi == nullptr)
             {
@@ -1873,7 +1873,7 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
                     { {QString::fromLocal8Bit("Имя параметра xml"), xpi.name},
                     {QString::fromLocal8Bit("Тип параметра xml"), type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)} }, propertiesId_);
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)} }, propertiesId_);
             }
         }
     }
@@ -1882,7 +1882,7 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
     {
         for (const auto& xai : *(element.arrays))
         {
-            const auto pi = parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo, type.toStdString(), xai.name.toStdString());
+            const auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr_->fileInfo, type.toStdString(), xai.name.toStdString());
 
             if (pi == nullptr)
             {
@@ -1890,7 +1890,7 @@ bool PropertiesItem::CheckParametersMatching(const CubesXml::Unit* xmlUnit, cons
                     { {QString::fromLocal8Bit("Имя параметра xml"), xai.name},
                     {QString::fromLocal8Bit("Тип параметра xml"), type},
                     {QString::fromLocal8Bit("Имя юнита"), GetName()},
-                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParameters_.fileInfo.info.id)} }, propertiesId_);
+                    {QString::fromLocal8Bit("Тип юнита"), QString::fromStdString(unitParametersPtr_->fileInfo.info.id)} }, propertiesId_);
             }
         }
     }

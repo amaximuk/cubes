@@ -22,7 +22,7 @@ namespace CubesAnalysis
         QMap<uint32_t, std::function<bool()>> delegates_;
         CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs_;
         CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs_;
-        CubesUnit::UnitIdUnitParameters unitIdUnitParameters_;
+        CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr_;
 
         // Значения имен параметров
         CubesUnit::ParameterModelIds ids_;
@@ -36,7 +36,7 @@ namespace CubesAnalysis
     public:
         void SetProperties(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
             CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-            const CubesUnit::UnitIdUnitParameters& unitParameters);
+            CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr);
         QVector<Rule> GetAllRules();
         bool RunRuleTest(uint32_t id);
         bool RunAllTests();
@@ -46,6 +46,7 @@ namespace CubesAnalysis
         bool TestNameNotUnique(Rule rule);
         bool TestUnitCategoryMismatch(Rule rule);
         bool TestUnitIdMismatch(Rule rule);
+        bool TestCyclicDependency(Rule rule);
 
     private:
         void CreateRules();

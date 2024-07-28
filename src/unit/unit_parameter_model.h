@@ -235,11 +235,11 @@ namespace CubesUnit
 
 	};
 
-	using FileIdParameterModels = QMap<FileId, ParameterModels>;
+	//using FileIdParameterModels = QMap<FileId, ParameterModels>;
 	using FileIdParameterModelPtrs = QMap<FileId, ParameterModelPtrs>;
-	using PropertiesIdParameterModels = QMap<PropertiesId, ParameterModels>;
+	//using PropertiesIdParameterModels = QMap<PropertiesId, ParameterModels>;
 	using PropertiesIdParameterModelPtrs = QMap<PropertiesId, ParameterModelPtrs>;
-	using PropertiesIdUnitParameters = QMap<PropertiesId, UnitParameters>;
+	//using PropertiesIdUnitParameters = QMap<PropertiesId, UnitParameters>;
 
 	inline ParameterModelPtr CreateParameterModelPtr()
 	{

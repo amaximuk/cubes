@@ -21,7 +21,7 @@ namespace CubesTop
     protected:
         uint32_t uniqueNumber_;
 
-        CubesUnit::UnitIdUnitParameters unitIdUnitParameters_;
+        CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr_;
         QPointer<CubesFile::FileItemsManager> fileItemsManager_;
         QPointer<CubesProperties::PropertiesItemsManager> propertiesItemsManager_;
         QPointer<CubesAnalysis::AnalysisManager> analysisManager_;
@@ -41,14 +41,14 @@ namespace CubesTop
         virtual bool GetUnitsInFileList(CubesUnit::FileId fileId, QStringList& unitNames) override;
         virtual bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
             QStringList& unitNames) override;
-        virtual bool GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters) override;
+        virtual bool GetUnitParametersPtr(const QString& unitId, CubesUnit::UnitParametersPtr& unitParametersPtr) override;
         virtual bool GetFileIncludeList(CubesUnit::FileId fileId, CubesUnit::IncludeIdNames& includeNames) override;
         virtual bool GetFileIncludeVariableList(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
             CubesUnit::VariableIdVariables& variables) override;
         virtual bool CreatePropetiesItem(const QString& unitId, CubesUnit::PropertiesId& propertiesId) override;
         virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
-            CubesUnit::UnitParameters& unitParameters) override;
+            CubesUnit::UnitParametersPtr& unitParametersPtr) override;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) override;
         virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
@@ -70,7 +70,7 @@ namespace CubesTop
         virtual bool AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId, const CubesXml::File& file);
         
         // Получение информации
-        virtual CubesUnit::UnitParameters* GetUnitParameters(const QString& id);
+        virtual CubesUnit::UnitParametersPtr GetUnitParametersPtr(const QString& id);
         virtual CubesUnit::FileIdNames GetFileNames();
         virtual CubesUnit::IncludeIdNames GetCurrentFileIncludeNames();
 

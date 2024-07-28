@@ -23,7 +23,7 @@ namespace CubesProperties
         CubesLog::ILogManager* logManager_;
         QPointer<PropertiesEditor> editor_;
         CubesUnit::PropertiesId propertiesId_;
-        CubesUnit::UnitParameters unitParameters_;
+        CubesUnit::UnitParametersPtr unitParametersPtr_;
 
         // Модель параметров
         CubesUnit::ParameterModelPtrs parameterModelPtrs_;
@@ -46,11 +46,11 @@ namespace CubesProperties
 
     public:
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-            CubesUnit::UnitParameters unitParameters, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
+            CubesUnit::UnitParametersPtr unitParametersPtr, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-            CubesUnit::UnitParameters unitParameters, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModelPtrs parameterModelPtrs);
+            CubesUnit::UnitParametersPtr unitParametersPtr, CubesUnit::PropertiesId propertiesId, CubesUnit::ParameterModelPtrs parameterModelPtrs);
         PropertiesItem(IPropertiesItemsManager* propertiesItemsManager, CubesLog::ILogManager* logManager, PropertiesEditor* editor,
-            CubesUnit::UnitParameters unitParameters, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
+            CubesUnit::UnitParametersPtr unitParametersPtr, const CubesXml::Unit& xmlUnit, bool isArrayUnit, CubesUnit::PropertiesId propertiesId);
 
     public:
         uint32_t GetPropertiesId() const;
@@ -86,9 +86,9 @@ namespace CubesProperties
         QString GetIncludeName();
 
         // TODO: Надо от них избавиться
-        CubesUnit::UnitParameters GetUnitParameters() { return unitParameters_; };
-        QString GetUnitId() { return QString::fromStdString(unitParameters_.fileInfo.info.id); };
-        QString GetUnitCategory() { return QString::fromStdString(unitParameters_.fileInfo.info.category); };
+        CubesUnit::UnitParametersPtr GetUnitParametersPtr() { return unitParametersPtr_; };
+        QString GetUnitId() { return QString::fromStdString(unitParametersPtr_->fileInfo.info.id); };
+        QString GetUnitCategory() { return QString::fromStdString(unitParametersPtr_->fileInfo.info.category); };
 
 
         QString GetPropertyDescription(QtProperty* property);

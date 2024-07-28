@@ -501,12 +501,12 @@ void MainWindow::FillTreeView()
     TreeItemModel* model = new TreeItemModel();
 
     QMap<QString, QSet<QString>> categoriesMap;
-    for (const auto& up : unitIdUnitParameters_)
+    for (const auto& up : unitIdUnitParametersPtr_)
     {
         QString category = "default";
-        if (up.fileInfo.info.category != "")
-            category = QString::fromStdString(up.fileInfo.info.category).toLower();
-        categoriesMap[category].insert(QString::fromStdString(up.fileInfo.info.id));
+        if (up->fileInfo.info.category != "")
+            category = QString::fromStdString(up->fileInfo.info.category).toLower();
+        categoriesMap[category].insert(QString::fromStdString(up->fileInfo.info.id));
     }
 
     int row = 0;
@@ -526,9 +526,9 @@ void MainWindow::FillTreeView()
 
             QPixmap px;
             bool loaded = false;
-            if (unitIdUnitParameters_[id].fileInfo.info.pictogram != "")
+            if (unitIdUnitParametersPtr_[id]->fileInfo.info.pictogram != "")
             {
-                std::string s = base64_decode(unitIdUnitParameters_[id].fileInfo.info.pictogram);
+                std::string s = base64_decode(unitIdUnitParametersPtr_[id]->fileInfo.info.pictogram);
                 QByteArray ba(s.c_str(), static_cast<int>(s.size()));
                 try
                 {

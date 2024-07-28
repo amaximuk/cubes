@@ -27,12 +27,6 @@ namespace CubesAnalysis
 	public:
 		void Test(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
 			CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-			const CubesUnit::UnitIdUnitParameters& unitParameters);
-
-	//public:
-	//	// IAnalysisManager
-	//	void AfterFileError(const CubesUnit::FileId fileId, CubesAnalysis::RuleId id, const QString& message) override;
-	//	void AfterPropertiesError(const CubesUnit::PropertiesId propertiesId,
-	//		CubesAnalysis::RuleId id, const QString& message) override;
+			CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr);
 	};
 }

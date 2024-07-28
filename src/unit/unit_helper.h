@@ -33,8 +33,7 @@ namespace CubesUnit
 
 		namespace Unit
 		{
-			bool GetUnitParameters(const QString& unitId, const UnitIdUnitParameters& unitIdUnitParameters,
-				CubesUnit::UnitParameters& unitParameters);
+			UnitParametersPtr GetUnitParameters(const QString& unitId, UnitIdUnitParametersPtr unitIdUnitParametersPtr);
 		}
 
 		namespace Analyse
@@ -69,16 +68,16 @@ namespace CubesUnit
 				FileIdParameterModelPtrs fileIdParametersModelPtrs);
 			UnitName GetResolvedUnitName(ParameterModelPtrs parameterModelPtrs,
 				FileIdParameterModelPtrs fileIdParametersModelPtrs, QString name);
-			QVector<UnitProperty> GetParameterModelsUnitProperties(ParameterModelPtrs parameterModelPtrs,
-				const UnitIdUnitParameters& unitIdUnitParameters);
-			QVector<UnitProperty> GetParameterModelUnitProperties(ParameterModelPtr parameterModelPtr,
-				ParameterModelPtrs parameterModelPtrs, const UnitParameters& unitParameters);
+			QVector<UnitProperty> GetUnitProperties(ParameterModelPtrs parameterModelPtrs,
+				UnitIdUnitParametersPtr unitIdUnitParametersPtr);
+			QVector<UnitProperty> GetUnitProperties(ParameterModelPtr parameterModelPtr,
+				ParameterModelPtrs parameterModelPtrs, UnitParametersPtr unitParametersPtr);
 			QString GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-				const UnitIdUnitParameters& unitIdUnitParameters);
+				UnitIdUnitParametersPtr unitIdUnitParametersPtr);
 			QString GetUnitCategory(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-				const UnitIdUnitParameters& unitIdUnitParameters);
-			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(ParameterModelPtrs parameterModelPtrs,
-				FileIdParameterModelPtrs fileIdParametersModelPtrs, const UnitIdUnitParameters& unitIdUnitParameters);
+				UnitIdUnitParametersPtr unitIdUnitParametersPtr);
+			QVector<Analyse::UnitDependency> GetUnitDependencies(ParameterModelPtrs parameterModelPtrs,
+				FileIdParameterModelPtrs fileIdParametersModelPtrs, UnitIdUnitParametersPtr unitIdUnitParametersPtr);
 		}
 	}
 }

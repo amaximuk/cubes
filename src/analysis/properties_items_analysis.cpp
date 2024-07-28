@@ -20,11 +20,11 @@ PropertiesItemsAnalysis::PropertiesItemsAnalysis(CubesLog::ILogManager* logManag
 
 void PropertiesItemsAnalysis::SetProperties(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
 	CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-	const CubesUnit::UnitIdUnitParameters& unitParameters)
+	CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	fileIdParameterModelPtrs_ = fileIdParameterModelPtrs;
 	propertiesIdParameterModelPtrs_ = propertiesIdParameterModelPtrs;
-	unitIdUnitParameters_ = unitParameters;
+	unitIdUnitParametersPtr_ = unitIdUnitParametersPtr;
 }
 
 QVector<Rule> PropertiesItemsAnalysis::GetAllRules()
@@ -106,7 +106,7 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
 	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
 	{
-		const auto properties = CubesUnit::Helper::Analyse::GetParameterModelsUnitProperties(kvp.second, unitIdUnitParameters_);
+		const auto properties = CubesUnit::Helper::Analyse::GetUnitProperties(kvp.second, unitIdUnitParametersPtr_);
 
 		for (const auto& item : properties)
 		{
@@ -122,7 +122,7 @@ bool PropertiesItemsAnalysis::TestUnitCategoryMismatch(Rule rule)
 			{
 				const auto propertiesId = it->first;
 				const auto unitCategory = CubesUnit::Helper::Analyse::GetUnitCategory(propertiesId, propertiesIdParameterModelPtrs_,
-					unitIdUnitParameters_);
+					unitIdUnitParametersPtr_);
 
 				if (item.category.compare(unitCategory, Qt::CaseInsensitive) != 0)
 				{
@@ -152,7 +152,7 @@ bool PropertiesItemsAnalysis::TestUnitIdMismatch(Rule rule)
 	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
 	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
 	{
-		const auto properties = CubesUnit::Helper::Analyse::GetParameterModelsUnitProperties(kvp.second, unitIdUnitParameters_);
+		const auto properties = CubesUnit::Helper::Analyse::GetUnitProperties(kvp.second, unitIdUnitParametersPtr_);
 
 		for (const auto& item : properties)
 		{
@@ -168,7 +168,54 @@ bool PropertiesItemsAnalysis::TestUnitIdMismatch(Rule rule)
 			{
 				const auto propertiesId = it->first;
 				const auto unitId = CubesUnit::Helper::Analyse::GetUnitId(propertiesId, propertiesIdParameterModelPtrs_,
-					unitIdUnitParameters_);
+					unitIdUnitParametersPtr_);
+
+				if (!item.ids.contains(unitId, Qt::CaseInsensitive))
+				{
+					if (resolvedName.original == resolvedName.resolved)
+						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
+							{QString::fromLocal8Bit("Категория параметра"), item.ids.join(", ")},
+							{QString::fromLocal8Bit("Категория юнита"), unitId} }, kvp.first);
+					else
+						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
+							{QString::fromLocal8Bit("Исходное имя"), resolvedName.original},
+							{QString::fromLocal8Bit("Категория параметра"), item.ids.join(", ")},
+							{QString::fromLocal8Bit("Категория юнита"), unitId} }, kvp.first);
+
+					result = false;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+bool PropertiesItemsAnalysis::TestCyclicDependency(Rule rule)
+{
+	bool result = true;
+
+	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
+	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
+	{
+		CubesUnit::Helper::Analyse::GetUnitDependencies(kvp.second, fileIdParameterModelPtrs_, unitIdUnitParametersPtr_);
+		const auto properties = CubesUnit::Helper::Analyse::GetUnitProperties(kvp.second, unitIdUnitParametersPtr_);
+
+		for (const auto& item : properties)
+		{
+			// item.category - Категория параметра - та, что должна быть, исходя из типа параметра юнита и его restrictions
+			// item.value - Оригинальное имя юнита - возможно с переменными
+			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModelPtrs_, item.name);
+
+			// Ищем юнит по его имени
+			auto values = resolvedNames.toStdMap();
+			const auto it = std::find_if(values.cbegin(), values.cend(),
+				[&resolvedName](const auto& v) {return v.second.resolved == resolvedName.resolved; });
+			if (it != values.end())
+			{
+				const auto propertiesId = it->first;
+				const auto unitId = CubesUnit::Helper::Analyse::GetUnitId(propertiesId, propertiesIdParameterModelPtrs_,
+					unitIdUnitParametersPtr_);
 
 				if (!item.ids.contains(unitId, Qt::CaseInsensitive))
 				{
@@ -241,27 +288,17 @@ void PropertiesItemsAnalysis::CreateRules()
 		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestUnitIdMismatch, this, rule);
 	}
 
-	//{
-	//	Rule rule{};
-	//	rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
-	//	rule.description = QString::fromLocal8Bit("Уникальность имен файлов");
-	//	rule.detailes = QString::fromLocal8Bit("В проекте у всех файлов, в том числе у включаемых, должны быть уникальные имена");
-	//	rule.isActive = true;
-	//	rules_.push_back(rule);
+	{
+		Rule rule{};
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::cyclicDependency);
+		rule.type = CubesLog::MessageType::warning;
+		rule.description = QString::fromLocal8Bit("Циклическая зависимость");
+		rule.detailes = QString::fromLocal8Bit("Циклическая зависимость юнитов друг от друга");
+		rule.isActive = true;
+		rules_.push_back(rule);
 
-	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestFileNameNotUnique, this, rule);
-	//}
-
-	//{
-	//	Rule rule{};
-	//	rule.errorCode = static_cast<uint32_t>(FileAnalysisErrorCode::noMainConfig);
-	//	rule.description = QString::fromLocal8Bit("Уникальность идентификатора хоста (соединение)");
-	//	rule.detailes = QString::fromLocal8Bit("В проекте каждый основной файл должен иметь уникальный идентификатор хоста в параметрах соединения");
-	//	rule.isActive = true;
-	//	rules_.push_back(rule);
-
-	//	delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::IsFileIdUnique, this, rule);
-	//}
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestCyclicDependency, this, rule);
+	}
 
 	assert((static_cast<CubesLog::BaseErrorCode>(PropertiesAnalysisErrorCode::__last__) -
 		CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)) == rules_.size());
@@ -269,8 +306,8 @@ void PropertiesItemsAnalysis::CreateRules()
 	// +Имена юнитов должжны быть заданы
 	// +Имена юнитов должны быть уникальны (с учетом переменных)
 	// Имя содержит только английские буквы, цифры, знак / и паременные в формате @xxx@
-	// Категория юнита должна соответствовать ограничениям
-	// Тип юнита должен соответствовать ограничениям
+	// +Категория юнита должна соответствовать ограничениям
+	// +Тип юнита должен соответствовать ограничениям
 	// Имя переменной допускается только во включаемых файлах
 	// Имя переменной должно быть в списке переменных включаемого файла юнита
 	// Имя обязательного параметра типа юнит должно быть задано

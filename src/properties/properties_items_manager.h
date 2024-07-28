@@ -50,7 +50,7 @@ namespace CubesProperties
 		bool GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
 			CubesUnit::IncludeId includeId, QStringList& unitNames);
 
-		bool GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters);
+		bool GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParametersPtr& unitParametersPtr);
 		bool GetUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId);
 
 		// TODO: переделать на PropertiesId
@@ -78,7 +78,7 @@ namespace CubesProperties
 
 		CubesUnit::PropertiesIdParameterModelPtrs GetPropertiesIdParameterModelPtrs();
 		
-		bool GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters);
+		//bool GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters);
 
 	private:
 		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;

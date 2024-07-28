@@ -9,6 +9,7 @@
 #include <QSet>
 #include <QString>
 #include <QVector>
+#include <QSharedPointer>
 #include "parameters/types.h"
 
 namespace CubesUnit
@@ -48,5 +49,23 @@ namespace CubesUnit
 		QSet<QString> platforms;
 	};
 
-	using UnitIdUnitParameters = QMap<UnitId, UnitParameters>;
+	using UnitParametersPtr = QSharedPointer<UnitParameters>;
+	using UnitParametersPtrs = QVector<UnitParametersPtr>;
+
+	using PropertiesIdUnitParametersPtr = QMap<PropertiesId, UnitParametersPtr>;
+	using UnitIdUnitParametersPtr = QMap<UnitId, UnitParametersPtr>;
+
+	//using UnitIdUnitParameters = QMap<UnitId, UnitParameters>;
+
+	inline UnitParametersPtr CreateUnitParametersPtr()
+	{
+		return UnitParametersPtr(new UnitParameters());
+	}
+
+	inline UnitParametersPtr CreateUnitParametersPtr(const UnitParameters& other)
+	{
+		UnitParametersPtr unitParametersPtr = UnitParametersPtr(new UnitParameters());
+		*unitParametersPtr = other;
+		return unitParametersPtr;
+	}
 }

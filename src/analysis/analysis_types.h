@@ -29,6 +29,7 @@ namespace CubesAnalysis
 		nameNotUnique,
 		unitCategoryMismatch,
 		unitIdMismatch,
+		cyclicDependency,
 		__last__
 	};
 

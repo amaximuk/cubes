@@ -38,6 +38,7 @@
 #include "../tree/tree_item_model.h"
 #include "../xml/xml_parser.h"
 #include "../xml/xml_writer.h"
+#include "../unit/unit_types.h"
 #include "array_window.h"
 
 ArrayWindow::ArrayWindow(QWidget *parent)
@@ -147,7 +148,8 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterMo
     pi_ = pi;
     ri_ = ri;
 
-    unitIdUnitParameters_[QString::fromStdString(afi.info.id)] = { afi, {} };
+    CubesUnit::UnitParameters up{ afi, {} };
+    unitIdUnitParametersPtr_[QString::fromStdString(afi.info.id)] = CubesUnit::CreateUnitParametersPtr(up);
 
 
 //            auto& up = unitParameters_[QString::fromStdString(fi.info.id)];
@@ -332,8 +334,8 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
         auto item = propertiesItemsManager_->GetItem(id);
         auto pm = item->GetParameterModelPtrs();
 
-        const auto up = item->GetUnitParameters();
-        const auto type = QString::fromStdString(up.fileInfo.info.id);
+        const auto up = item->GetUnitParametersPtr();
+        const auto type = QString::fromStdString(up->fileInfo.info.id);
         for (auto& group : pm)
         {
             if (group->id == ids_.parameters)
@@ -342,7 +344,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
                 {
                     parameter->parameterInfoId.type = type;
 
-                    auto& pi = *parameters::helper::parameter::get_parameter_info(up.fileInfo,
+                    auto& pi = *parameters::helper::parameter::get_parameter_info(up->fileInfo,
                         parameters::helper::type::main_type, parameter->parameterInfoId.name.toStdString());
                     
 

@@ -195,23 +195,21 @@ VariableIdVariables File::GetIncludeVariables(ParameterModelPtrs parameterModelP
 	return variableIdVariables;
 }
 
-bool Unit::GetUnitParameters(const QString& unitId, const UnitIdUnitParameters& unitIdUnitParameters,
-	CubesUnit::UnitParameters& unitParameters)
+UnitParametersPtr Unit::GetUnitParameters(const QString& unitId, UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	// ƒл€ массивов - мы не знаем название, но у нас всего один элемент в списке
-	if (unitId.isEmpty() && unitIdUnitParameters.size() == 1)
+	if (unitId.isEmpty() && unitIdUnitParametersPtr.size() == 1)
 	{
-		unitParameters = *unitIdUnitParameters.begin();
+		return *unitIdUnitParametersPtr.begin();
 	}
 	else
 	{
-		const auto it = unitIdUnitParameters.find(unitId);
-		if (it == unitIdUnitParameters.end())
-			return false;
-		unitParameters = *it;
+		const auto it = unitIdUnitParametersPtr.find(unitId);
+		if (it != unitIdUnitParametersPtr.end())
+			return *it;
 	}
 
-	return true;
+	return nullptr;
 }
 
 Analyse::UnitName Analyse::GetResolvedUnitName(ParameterModelPtrs parameterModelPtrs,
@@ -274,21 +272,19 @@ Analyse::UnitName Analyse::GetResolvedUnitName(ParameterModelPtrs parameterModel
 	return { name, realName };
 }
 
-QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(ParameterModelPtrs parameterModelPtrs,
-	const UnitIdUnitParameters& unitIdUnitParameters)
+QVector<Analyse::UnitProperty> Analyse::GetUnitProperties(ParameterModelPtrs parameterModelPtrs,
+	UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	QVector<Analyse::UnitProperty> result;
 
 	const auto unitId = Common::GetParameterModelPtr(parameterModelPtrs, ids.base + ids.unitId)->value.toString();
-
-	UnitParameters unitParameters{};
-	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
+	const auto unitParameters = Unit::GetUnitParameters(unitId, unitIdUnitParametersPtr);
 
 	for (const auto& pm : parameterModelPtrs)
 	{
 		if (pm->id == ids.parameters)
 		{
-			const auto list = GetParameterModelUnitProperties(pm, parameterModelPtrs, unitParameters);
+			const auto list = GetUnitProperties(pm, parameterModelPtrs, unitParameters);
 			for (const auto& item : list)
 				result.push_back(item);
 		}
@@ -297,12 +293,12 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelsUnitProperties(Paramet
 	return result;
 }
 
-QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(ParameterModelPtr parameterModelPtr,
-	ParameterModelPtrs parameterModelPtrs, const UnitParameters& unitParameters)
+QVector<Analyse::UnitProperty> Analyse::GetUnitProperties(ParameterModelPtr parameterModelPtr,
+	ParameterModelPtrs parameterModelPtrs, UnitParametersPtr unitParametersPtr)
 {
 	QVector<Analyse::UnitProperty> result;
 
-	auto pi = parameters::helper::parameter::get_parameter_info(unitParameters.fileInfo,
+	auto pi = parameters::helper::parameter::get_parameter_info(unitParametersPtr->fileInfo,
 		parameterModelPtr->parameterInfoId.type.toStdString(), parameterModelPtr->parameterInfoId.name.toStdString());
 
 	if (pi != nullptr)
@@ -351,7 +347,7 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(Paramete
 
 	for (const auto& pm : parameterModelPtr->parameters)
 	{
-		const auto list = GetParameterModelUnitProperties(pm, parameterModelPtrs, unitParameters);
+		const auto list = GetUnitProperties(pm, parameterModelPtrs, unitParametersPtr);
 		for (const auto& item : list)
 			result.push_back(item);
 	}
@@ -360,7 +356,7 @@ QVector<Analyse::UnitProperty> Analyse::GetParameterModelUnitProperties(Paramete
 }
 
 QString Analyse::GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-	const UnitIdUnitParameters& unitIdUnitParameters)
+	UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	if (propertiesIdParameterModelPtrs.contains(propertiesId))
 	{
@@ -373,17 +369,17 @@ QString Analyse::GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModel
 }
 
 QString Analyse::GetUnitCategory(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-	const UnitIdUnitParameters& unitIdUnitParameters)
+	UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	if (propertiesIdParameterModelPtrs.contains(propertiesId))
 	{
 		const auto& parameterModelPtrs = propertiesIdParameterModelPtrs[propertiesId];
 		const auto unitId = Common::GetParameterModelPtr(parameterModelPtrs, ids.base + ids.unitId)->value.toString();
 
-		if (unitIdUnitParameters.contains(unitId))
+		if (unitIdUnitParametersPtr.contains(unitId))
 		{
-			const auto& unitParameters = unitIdUnitParameters[unitId];
-			return QString::fromStdString(unitParameters.fileInfo.info.category);
+			const auto& unitParameters = unitIdUnitParametersPtr[unitId];
+			return QString::fromStdString(unitParameters->fileInfo.info.category);
 		}
 	}
 
@@ -413,8 +409,8 @@ QString Analyse::GetUnitCategory(PropertiesId propertiesId, PropertiesIdParamete
 //	return result;
 //}
 
-QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(ParameterModelPtrs parameterModelPtrs,
-	FileIdParameterModelPtrs fileIdParametersModelPtrs, const UnitIdUnitParameters& unitIdUnitParameters)
+QVector<Analyse::UnitDependency> Analyse::GetUnitDependencies(ParameterModelPtrs parameterModelPtrs,
+	FileIdParameterModelPtrs fileIdParametersModelPtrs, UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	QVector<Analyse::UnitDependency> result;
 
@@ -437,13 +433,11 @@ QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(Paramet
 	{
 		// ¬ редакторе массивов нет такого параметра
 		const auto unitId = pmUnitId->value.toString();
-
-		UnitParameters unitParameters{};
-		Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
+		const auto unitParametersPtr = Unit::GetUnitParameters(unitId, unitIdUnitParametersPtr);
 
 		for (const auto& pm : parameterModelPtrs)
 		{
-			const auto list = GetParameterModelUnitProperties(pm, parameterModelPtrs, unitParameters);
+			const auto list = GetUnitProperties(pm, parameterModelPtrs, unitParametersPtr);
 			for (const auto& item : list)
 			{
 				if (item.depends)

@@ -65,19 +65,19 @@ bool TopManager::GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
     return propertiesItemsManager_->GetUnitsInFileIncludeList(fileId, includeId, unitNames);
 }
 
-bool TopManager::GetUnitParameters(const QString& unitId, CubesUnit::UnitParameters& unitParameters)
+bool TopManager::GetUnitParametersPtr(const QString& unitId, CubesUnit::UnitParametersPtr& unitParametersPtr)
 {
     // Для массивов - мы не знаем название, но у нас всего один элемент в списке
-    if (unitId.isEmpty() && unitIdUnitParameters_.size() == 1)
+    if (unitId.isEmpty() && unitIdUnitParametersPtr_.size() == 1)
     {
-        unitParameters = *unitIdUnitParameters_.begin();
+        unitParametersPtr = *unitIdUnitParametersPtr_.begin();
     }
     else
     {
-        const auto it = unitIdUnitParameters_.find(unitId);
-        if (it == unitIdUnitParameters_.end())
+        const auto it = unitIdUnitParametersPtr_.find(unitId);
+        if (it == unitIdUnitParametersPtr_.end())
             return false;
-        unitParameters = *it;
+        unitParametersPtr = *it;
     }
     
     return true;
@@ -123,9 +123,9 @@ bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, Pr
     return true;
 }
 
-bool TopManager::GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters)
+bool TopManager::GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParametersPtr& unitParametersPtr)
 {
-    return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParameters);
+    return propertiesItemsManager_->GetUnitParameters(propertiesId, unitParametersPtr);
 }
 
 bool TopManager::GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId)
@@ -145,8 +145,8 @@ bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 
     for (auto& kvp : propertiesIdParameterModelPtrs.toStdMap())
     {
-        const auto depends = CubesUnit::Helper::Analyse::GetParameterModelsDependencies(kvp.second,
-            fileIdParameterModelPtrs, unitIdUnitParameters_);
+        const auto depends = CubesUnit::Helper::Analyse::GetUnitDependencies(kvp.second,
+            fileIdParameterModelPtrs, unitIdUnitParametersPtr_);
 
         if (!depends.empty())
         {
@@ -229,9 +229,11 @@ void TopManager::FillParametersInfo(const QString& parametersPath, bool isMock)
                     fi.parameters.push_back(std::move(pi));
                 }
 
-                auto& up = unitIdUnitParameters_[QString::fromStdString(fi.info.id)];
-                up.fileInfo = fi;
-                up.platforms.insert(QFileInfo(platformDir).baseName());
+                if (!unitIdUnitParametersPtr_.contains(QString::fromStdString(fi.info.id)))
+                    unitIdUnitParametersPtr_[QString::fromStdString(fi.info.id)] = CubesUnit::CreateUnitParametersPtr();
+                auto up = unitIdUnitParametersPtr_[QString::fromStdString(fi.info.id)];
+                up->fileInfo = fi;
+                up->platforms.insert(QFileInfo(platformDir).baseName());
             }
         }
     }
@@ -311,7 +313,7 @@ bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::Inclu
     {
         for (const auto& u : g.units)
         {
-            auto up = GetUnitParameters(u.id);
+            auto up = GetUnitParametersPtr(u.id);
             if (up != nullptr)
             {
                 all_units.push_back(u);
@@ -332,7 +334,7 @@ bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::Inclu
     for (int i = 0; i < all_units.size(); i++)
     {
         QString name = all_units[i].id;
-        auto up = GetUnitParameters(name);
+        auto up = GetUnitParametersPtr(name);
 
         if (up != nullptr)
         {
@@ -398,12 +400,12 @@ bool TopManager::SortUnitsRectangular(bool check)
     return propertiesItemsManager_->SortUnitsRectangular(check);
 }
 
-CubesUnit::UnitParameters* TopManager::GetUnitParameters(const QString& id)
+CubesUnit::UnitParametersPtr TopManager::GetUnitParametersPtr(const QString& id)
 {
-    for (auto& up : unitIdUnitParameters_)
+    for (auto& up : unitIdUnitParametersPtr_)
     {
-        if (QString::fromStdString(up.fileInfo.info.id) == id)
-            return &up;
+        if (QString::fromStdString(up->fileInfo.info.id) == id)
+            return up;
     }
     return nullptr;
 }
@@ -413,7 +415,7 @@ bool TopManager::Test()
     const auto fileIdParameterModelPtrs = fileItemsManager_->GetFileIdParameterModelPtrs();
     const auto propertiesIdParameterModelPtrs = propertiesItemsManager_->GetPropertiesIdParameterModelPtrs();
 
-    analysisManager_->Test(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitIdUnitParameters_);
+    analysisManager_->Test(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitIdUnitParametersPtr_);
     return true;
 }
 

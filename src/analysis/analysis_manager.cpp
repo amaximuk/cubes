@@ -17,13 +17,13 @@ AnalysisManager::AnalysisManager(CubesLog::ILogManager* logManager)
 
 void AnalysisManager::Test(CubesUnit::FileIdParameterModelPtrs fileIdParameterModelPtrs,
 	CubesUnit::PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
-	const CubesUnit::UnitIdUnitParameters& unitParameters)
+	CubesUnit::UnitIdUnitParametersPtr unitIdUnitParametersPtr)
 {
 	fileItemsAnalysis_->SetFiles(fileIdParameterModelPtrs);
 	//fileItemsAnalysis_->SetFileItems(fileModels);
 	fileItemsAnalysis_->RunAllTests();
 
-	propertiesItemsAnalysis_->SetProperties(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitParameters);
+	propertiesItemsAnalysis_->SetProperties(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitIdUnitParametersPtr);
 	propertiesItemsAnalysis_->RunAllTests();
 }
 

@@ -61,11 +61,11 @@ uint32_t PropertiesItemsManager::GetCurrentPropertiesId()
 
 void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnit::UnitParameters unitParameters{};
-	topManager_->GetUnitParameters(unitId, unitParameters);
+	CubesUnit::UnitParametersPtr unitParametersPtr{};
+	topManager_->GetUnitParametersPtr(unitId, unitParametersPtr);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, isArray_, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParametersPtr, isArray_, propertiesId));
 
 	items_[propertiesId] = pi;
 	selector_->addItem(pi->GetName(), propertiesId);
@@ -78,11 +78,11 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::Properties
 void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::ParameterModelPtrs parameterModelPtrs,
 	CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnit::UnitParameters unitParameters{};
-	topManager_->GetUnitParameters(unitId, unitParameters);
+	CubesUnit::UnitParametersPtr unitParametersPtr{};
+	topManager_->GetUnitParametersPtr(unitId, unitParametersPtr);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, propertiesId, parameterModelPtrs));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParametersPtr, propertiesId, parameterModelPtrs));
 
 	QString propertiesName = parameterModelPtrs[0]->parameters[0]->value.toString();
 
@@ -97,11 +97,11 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::ParameterM
 
 void PropertiesItemsManager::Create(const CubesXml::Unit& xmlUnit, CubesUnit::PropertiesId& propertiesId)
 {
-	CubesUnit::UnitParameters unitParameters{};
-	topManager_->GetUnitParameters(xmlUnit.id, unitParameters);
+	CubesUnit::UnitParametersPtr unitParametersPtr{};
+	topManager_->GetUnitParametersPtr(xmlUnit.id, unitParametersPtr);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, xmlUnit, isArray_, propertiesId));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParametersPtr, xmlUnit, isArray_, propertiesId));
 
 	items_[propertiesId] = pi;
 
@@ -187,13 +187,13 @@ bool PropertiesItemsManager::GetUnitsInFileIncludeList(CubesUnit::FileId fileId,
 	return true;
 }
 
-bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParameters& unitParameters)
+bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParametersPtr& unitParametersPtr)
 {
 	auto pi = GetItem(propertiesId);
 	if (pi == nullptr)
 		return false;
 
-	unitParameters = pi->GetUnitParameters();
+	unitParametersPtr = pi->GetUnitParametersPtr();
 	return true;
 }
 
@@ -520,17 +520,17 @@ CubesUnit::PropertiesIdParameterModelPtrs PropertiesItemsManager::GetPropertiesI
 	return result;
 }
 
-bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters)
-{
-	for (const auto& item : items_)
-	{
-		const auto id = item->GetFileId();
-		const auto parameters = item->GetUnitParameters();
-		unitParameters[id] = parameters;
-	}
-
-	return true;
-}
+//bool PropertiesItemsManager::GetUnitParameters(CubesUnit::PropertiesIdUnitParameters& unitParameters)
+//{
+//	for (const auto& item : items_)
+//	{
+//		const auto id = item->GetFileId();
+//		const auto parameters = item->GetUnitParameters();
+//		unitParameters[id] = parameters;
+//	}
+//
+//	return true;
+//}
 
 void PropertiesItemsManager::AfterNameChanged(CubesUnit::PropertiesId propertiesId)
 {
@@ -636,10 +636,10 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	if (item != nullptr)
 	{
 		auto pm = item->GetParameterModelPtr(pe->currentItem()->property());
-		auto ui = item->GetUnitParameters();
+		auto ui = item->GetUnitParametersPtr();
 
 		// ѕровер€ем,что параметр массив пользовательского типа данных, не перечислений
-		auto pi = parameters::helper::parameter::get_parameter_info(ui.fileInfo,
+		auto pi = parameters::helper::parameter::get_parameter_info(ui->fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 		if (pi == nullptr)
 			return;
@@ -652,7 +652,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 		CubesUnit::ParameterModelPtr pmCopy = CubesUnit::CreateParameterModelPtr(pm->Clone());
 
 		parameters::file_info afi{};
-		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,
+		bool b = parameters::helper::common::extract_array_file_info(ui->fileInfo,
 			pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString(), afi);
 
 		// ”дал€ем все элементы массива из панели параметров
@@ -742,10 +742,10 @@ void PropertiesItemsManager::OnAddUnitClicked()
 	}
 	else
 	{
-		CubesUnit::UnitParameters unitParameters;
-		topManager_->GetUnitParameters("", unitParameters);
+		CubesUnit::UnitParametersPtr unitParametersPtr;
+		topManager_->GetUnitParametersPtr("", unitParametersPtr);
 
-		const auto unitId = QString::fromStdString(unitParameters.fileInfo.info.id);
+		const auto unitId = QString::fromStdString(unitParametersPtr->fileInfo.info.id);
 
 		CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
 		Create(unitId, propertiesId);
