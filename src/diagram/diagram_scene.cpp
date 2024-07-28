@@ -4,6 +4,9 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QDebug>
+#include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
@@ -295,6 +298,30 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
                 pair.second->InformNameChanged(pair.first->name_, "");
                 pair.first->SetBorderOnly(true);
             }
+        }
+    }
+
+    bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
+    if (ctrl && keyEvent->key() == Qt::Key_C)
+    {
+        qDebug() << "CTRL-C";
+
+        QClipboard* clipboard = QApplication::clipboard();
+        QMimeData* mimeData = new QMimeData;
+        mimeData->setData("application/x-dnditemdata-xxx", QString("aaaaaaa").toUtf8());
+        clipboard->setMimeData(mimeData);
+    }
+    else if (ctrl && keyEvent->key() == Qt::Key_V)
+    {
+        qDebug() << "CTRL-V";
+
+        const QClipboard* clipboard = QApplication::clipboard();
+        const QMimeData* mimeData = clipboard->mimeData();
+
+        if (mimeData->hasFormat("application/x-dnditemdata-xxx"))
+        {
+            QString text = QString::fromUtf8(mimeData->data("application/x-dnditemdata-xxx"));
+            qDebug() << text;
         }
     }
 

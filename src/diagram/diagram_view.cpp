@@ -51,6 +51,7 @@ void DiagramView::dragMoveEvent(QDragMoveEvent *event)
 
 void DiagramView::dropEvent(QDropEvent *event)
 {
+    // Может приходить при перетаскивании из другой копии приложения
     if (event->mimeData()->hasFormat("application/x-dnditemdata"))
     {
         QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
@@ -181,5 +182,6 @@ void DiagramView::keyReleaseEvent(QKeyEvent* event)
     {
         setDragMode(QGraphicsView::RubberBandDrag);
     }
+
     QGraphicsView::keyReleaseEvent(event);
 }
