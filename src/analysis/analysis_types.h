@@ -28,6 +28,7 @@ namespace CubesAnalysis
 		nameIsEmpty = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis),
 		nameNotUnique,
 		unitCategoryMismatch,
+		unitIdMismatch,
 		__last__
 	};
 

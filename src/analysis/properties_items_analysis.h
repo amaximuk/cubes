@@ -45,6 +45,7 @@ namespace CubesAnalysis
         bool TestNameIsEmpty(Rule rule);
         bool TestNameNotUnique(Rule rule);
         bool TestUnitCategoryMismatch(Rule rule);
+        bool TestUnitIdMismatch(Rule rule);
 
     private:
         void CreateRules();
