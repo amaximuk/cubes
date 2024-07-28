@@ -47,12 +47,12 @@ TEST(CUBES, FileAnalysisNameNotUnique)
 	// Значения имен параметров
 	CubesUnit::ParameterModelIds ids_;
 
-	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
-	ASSERT_EQ(fileModels.size(), 2);
-	for (auto item : fileModels)
+	auto fileIdParameterModelPtrs = mockWindow.GetFileIdParameterModelPtrs();
+	ASSERT_EQ(fileIdParameterModelPtrs.size(), 2);
+	for (auto& item : fileIdParameterModelPtrs)
 	{
-		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
+		ASSERT_NE(item.size(), 0);
+		CubesUnit::Helper::Common::GetParameterModelPtr(item, ids_.base + ids_.name)->value = QString::fromLocal8Bit("Name1");
 	}
 
 
@@ -82,12 +82,12 @@ TEST(CUBES, FileAnalysisFileNameNotUnique)
 	// Значения имен параметров
 	CubesUnit::ParameterModelIds ids_;
 
-	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
-	ASSERT_EQ(fileModels.size(), 2);
-	for (auto item : fileModels)
+	auto fileIdParameterModelPtrs = mockWindow.GetFileIdParameterModelPtrs();
+	ASSERT_EQ(fileIdParameterModelPtrs.size(), 2);
+	for (auto& item : fileIdParameterModelPtrs)
 	{
-		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		ASSERT_NE(item.size(), 0);
+		CubesUnit::Helper::Common::GetParameterModelPtr(item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 
@@ -117,12 +117,12 @@ TEST(CUBES, FileAnalysisConnectionIdNotUnique)
 	// Значения имен параметров
 	CubesUnit::ParameterModelIds ids_;
 
-	auto fileModels = mockWindow.GetFileIdParameterModelsRef();
-	ASSERT_EQ(fileModels.size(), 2);
-	for (auto item : fileModels)
+	auto fileIdParameterModelPtrs = mockWindow.GetFileIdParameterModelPtrs();
+	ASSERT_EQ(fileIdParameterModelPtrs.size(), 2);
+	for (auto item : fileIdParameterModelPtrs)
 	{
-		ASSERT_NE(item, nullptr);
-		CubesUnit::Helper::Common::GetParameterModel(*item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
+		ASSERT_NE(item.size(), 0);
+		CubesUnit::Helper::Common::GetParameterModelPtr(item, ids_.base + ids_.path)->value = QString::fromLocal8Bit("FileName1");
 	}
 
 

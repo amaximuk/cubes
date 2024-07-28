@@ -218,8 +218,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterMo
             }
         }
 
-        CubesUnit::ParameterModelPtrs m{};
-        m = item->parameters;
+        CubesUnit::ParameterModelPtrs m = item->parameters;
 
         CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
@@ -372,7 +371,7 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
 
         rename(pm, pm_->id + ids_.Item(item_index), rename); // !!!!!!!!!!!! item_index
 
-        CubesUnit::ParameterModelPtr itemPm{};
+        CubesUnit::ParameterModelPtr itemPm = CubesUnit::CreateParameterModelPtr();
         itemPm->id = pm_->id + ids_.Item(item_index);
         itemPm->name = QString::fromLocal8Bit("Ёлемент %1").arg(item_index);
         itemPm->value = QVariant();
@@ -383,7 +382,6 @@ void ArrayWindow::closeEvent(QCloseEvent* event)
 
         ++item_index;
     }
-
 
     emit BeforeClose(true, pm_, pi_);
 }

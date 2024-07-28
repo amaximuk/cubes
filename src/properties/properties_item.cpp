@@ -120,23 +120,26 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
     // EDITOR/POSITION_Z
 
     {
-        CubesUnit::ParameterModelPtr base_group;
+        CubesUnit::ParameterModelPtr base_group = CubesUnit::CreateParameterModelPtr();
         base_group->id = ids_.base;
         base_group->name = QString::fromLocal8Bit("Базовые");
         base_group->value = QVariant();
         base_group->editorSettings.type = CubesUnit::EditorType::None;
         base_group->editorSettings.isExpanded = true;
 
-        CubesUnit::ParameterModelPtr unit_id;
-        unit_id->id = ids_.base + ids_.unitId;
-        unit_id->name = QString::fromLocal8Bit("ID юнита");
-        unit_id->value = QString::fromStdString(unitParameters_.fileInfo.info.id);
-        unit_id->editorSettings.type = CubesUnit::EditorType::String;
-        unit_id->editorSettings.isExpanded = false;
-        unit_id->readOnly = true;
-        base_group->parameters.push_back(std::move(unit_id));
+        if (!isArrayUnit)
+        {
+            CubesUnit::ParameterModelPtr unit_id = CubesUnit::CreateParameterModelPtr();
+            unit_id->id = ids_.base + ids_.unitId;
+            unit_id->name = QString::fromLocal8Bit("ID юнита");
+            unit_id->value = QString::fromStdString(unitParameters_.fileInfo.info.id);
+            unit_id->editorSettings.type = CubesUnit::EditorType::String;
+            unit_id->editorSettings.isExpanded = false;
+            unit_id->readOnly = true;
+            base_group->parameters.push_back(std::move(unit_id));
+        }
 
-        CubesUnit::ParameterModelPtr instance_name;
+        CubesUnit::ParameterModelPtr instance_name = CubesUnit::CreateParameterModelPtr();
         instance_name->id = ids_.base + ids_.name;
         instance_name->name = QString::fromLocal8Bit("Имя");
         if (xmlUnit == nullptr)
@@ -149,7 +152,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
 
         if (!isArrayUnit)
         {
-            CubesUnit::ParameterModelPtr file;
+            CubesUnit::ParameterModelPtr file = CubesUnit::CreateParameterModelPtr();
             file->id = ids_.base + ids_.fileName;
             file->name = QString::fromLocal8Bit("Файл");
             file->key = CubesUnit::InvalidFileId;
@@ -158,7 +161,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             file->editorSettings.isExpanded = false;
             base_group->parameters.push_back(std::move(file));
 
-            CubesUnit::ParameterModelPtr group;
+            CubesUnit::ParameterModelPtr group = CubesUnit::CreateParameterModelPtr();
             group->id = ids_.base + ids_.includeName;
             group->name = QString::fromLocal8Bit("Включаемый файл");
             group->key = CubesUnit::InvalidIncludeId;
@@ -173,7 +176,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
 
     if (unitParameters_.fileInfo.parameters.size() > 0)
     {
-        CubesUnit::ParameterModelPtr properties_group;
+        CubesUnit::ParameterModelPtr properties_group = CubesUnit::CreateParameterModelPtr();
         properties_group->id = ids_.parameters;
         properties_group->name = QString::fromLocal8Bit("Параметры");
         properties_group->value = QVariant();
@@ -194,7 +197,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
     }
 
     {
-        CubesUnit::ParameterModelPtr editor_group;
+        CubesUnit::ParameterModelPtr editor_group = CubesUnit::CreateParameterModelPtr();
         editor_group->id = ids_.editor;
         editor_group->name = QString::fromLocal8Bit("Редактор");
         editor_group->value = QVariant();
@@ -202,7 +205,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         editor_group->editorSettings.isExpanded = true;
 
         {
-            CubesUnit::ParameterModelPtr pm;
+            CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
             pm->id = ids_.editor + ids_.positionX;
             pm->name = QString::fromLocal8Bit("Позиция X");
             pm->value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->x };
@@ -214,7 +217,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         }
 
         {
-            CubesUnit::ParameterModelPtr pm;
+            CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
             pm->id = ids_.editor + ids_.positionY;
             pm->name = QString::fromLocal8Bit("Позиция Y");
             pm->value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->y };
@@ -226,7 +229,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
         }
 
         {
-            CubesUnit::ParameterModelPtr pm;
+            CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
             pm->id = ids_.editor + ids_.positionZ;
             pm->name = QString::fromLocal8Bit("Позиция Z");
             pm->value = double{ xmlUnit == nullptr ? 0.0 : xmlUnit->z };
@@ -254,7 +257,7 @@ void PropertiesItem::CreateProperties()
 
 void PropertiesItem::CreateParameterModel(const CubesUnit::ParameterInfoId& parameterInfoId,
     const CubesUnit::ParameterModelId& parentModelId, const CubesXml::Unit* xmlUnit,
-    CubesUnit::ParameterModelPtr model)
+    CubesUnit::ParameterModelPtr& model)
 {
     // Создание модели для параметра по его info ID (тип и имя из yml файла)
     // Модель включает все вложенные параметры и массивы
@@ -263,7 +266,7 @@ void PropertiesItem::CreateParameterModel(const CubesUnit::ParameterInfoId& para
     auto& pi = *parameters::helper::parameter::get_parameter_info(unitParameters_.fileInfo,
         parameterInfoId.type.toStdString(), parameterInfoId.name.toStdString());
 
-    CubesUnit::ParameterModelPtr pm;
+    CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
     pm->id = parentModelId + QString::fromStdString(pi.name);
     pm->name = QString::fromStdString(parameters::helper::parameter::get_display_name(pi));
     pm->parameterInfoId = parameterInfoId;
@@ -448,7 +451,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
             {
                 // Для типа unit добавляется дополнительное поле - зависимость (depends)
-                CubesUnit::ParameterModelPtr pm_depends;
+                CubesUnit::ParameterModelPtr pm_depends = CubesUnit::CreateParameterModelPtr();
                 pm_depends->id = model->id + ids_.depends;
                 pm_depends->name = QString::fromLocal8Bit("Зависимость");
                 // Если есть значение в xml, заполняем его в модели зависимости
@@ -551,7 +554,7 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
     // Для опциональных параметров добавляем дополнительное поле - не задавать
     if (parameters::helper::parameter::get_is_optional(pi))
     {
-        CubesUnit::ParameterModelPtr pmo;
+        CubesUnit::ParameterModelPtr pmo = CubesUnit::CreateParameterModelPtr();
         pmo->id = model->id + ids_.optional;
         pmo->name = QString::fromLocal8Bit("Не задавать");
         pmo->value = bool{ false };
@@ -1341,7 +1344,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
     {
         for (int i = model->parameters.size(); i < itemsCount; ++i)
         {
-            CubesUnit::ParameterModelPtr itemModel;
+            CubesUnit::ParameterModelPtr itemModel = CubesUnit::CreateParameterModelPtr();
             itemModel->id = model->id + ids_.Item(i);
             itemModel->name = QString::fromLocal8Bit("Элемент %1").arg(i);
             itemModel->parameterInfoId = model->parameterInfoId;
@@ -1354,7 +1357,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
     {
         for (int i = model->parameters.size(); i < itemsCount; ++i)
         {
-            CubesUnit::ParameterModelPtr group_model;
+            CubesUnit::ParameterModelPtr group_model = CubesUnit::CreateParameterModelPtr();
             group_model->id = model->id + ids_.Item(i);
             group_model->name = QString::fromLocal8Bit("Элемент %1").arg(i);
             group_model->value = QVariant();
@@ -1366,13 +1369,13 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
 
             // Заполняем базовые параметры
             {
-                CubesUnit::ParameterModelPtr base_group;
+                CubesUnit::ParameterModelPtr base_group = CubesUnit::CreateParameterModelPtr();
                 base_group->id = group_model->id + ids_.base;
                 base_group->name = QString::fromLocal8Bit("Базовые");
                 base_group->value = QVariant();
                 base_group->editorSettings.type = CubesUnit::EditorType::None;
 
-                CubesUnit::ParameterModelPtr instance_name;
+                CubesUnit::ParameterModelPtr instance_name = CubesUnit::CreateParameterModelPtr();
                 instance_name->id = group_model->id + ids_.base + ids_.name;
                 instance_name->name = QString::fromLocal8Bit("Имя");
                 if (element.type == CubesXml::ElementType::Item)
@@ -1392,7 +1395,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
             // Заполняем yml параметры
             if (!ti.parameters.empty())
             {
-                CubesUnit::ParameterModelPtr properties_group;
+                CubesUnit::ParameterModelPtr properties_group = CubesUnit::CreateParameterModelPtr();
                 properties_group->id = group_model->id + ids_.parameters;
                 properties_group->name = QString::fromLocal8Bit("Параметры");
                 properties_group->value = QVariant();
@@ -1403,7 +1406,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
 
                 for (const auto& pi : ti.parameters)
                 {
-                    CubesUnit::ParameterModelPtr pm;
+                    CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
                     CreateParameterModel({ QString::fromStdString(ti.name), QString::fromStdString(pi.name) },
                         group_model->id + ids_.parameters, xmlUnit, pm);
                     properties_group->parameters.push_back(std::move(pm));
@@ -1414,14 +1417,14 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
 
             // Заполняем параметры редактора
             {
-                CubesUnit::ParameterModelPtr editor_group;
+                CubesUnit::ParameterModelPtr editor_group = CubesUnit::CreateParameterModelPtr();
                 editor_group->id = group_model->id + ids_.editor;
                 editor_group->name = QString::fromLocal8Bit("Редактор");
                 editor_group->value = QVariant();
                 editor_group->editorSettings.type = CubesUnit::EditorType::None;
 
                 {
-                    CubesUnit::ParameterModelPtr pm;
+                    CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
                     pm->id = group_model->id + ids_.editor + ids_.positionX;
                     pm->name = QString::fromLocal8Bit("Позиция X");
                     pm->value = double{ element.type == CubesXml::ElementType::Item ? element.item->x : 0.0 };
@@ -1433,7 +1436,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
                 }
 
                 {
-                    CubesUnit::ParameterModelPtr pm;
+                    CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
                     pm->id = group_model->id + ids_.editor + ids_.positionY;
                     pm->name = QString::fromLocal8Bit("Позиция Y");
                     pm->value = double{ element.type == CubesXml::ElementType::Item ? element.item->y : 0.0 };
@@ -1445,7 +1448,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
                 }
 
                 {
-                    CubesUnit::ParameterModelPtr pm;
+                    CubesUnit::ParameterModelPtr pm = CubesUnit::CreateParameterModelPtr();
                     pm->id = group_model->id + ids_.editor + ids_.positionZ;
                     pm->name = QString::fromLocal8Bit("Позиция Z");
                     pm->value = double{ element.type == CubesXml::ElementType::Item ? element.item->z : 0.0 };

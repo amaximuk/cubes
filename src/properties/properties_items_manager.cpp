@@ -649,8 +649,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			return;
 
 
-		CubesUnit::ParameterModelPtr pmCopy;
-		*pmCopy = pm->Clone();
+		CubesUnit::ParameterModelPtr pmCopy = CubesUnit::CreateParameterModelPtr(pm->Clone());
 
 		parameters::file_info afi{};
 		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,

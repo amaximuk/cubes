@@ -44,7 +44,7 @@ public:
 
     // Debug
     QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> GetFileItems();
-    CubesUnit::FileIdParameterModelsRef GetFileIdParameterModelsRef();
+    CubesUnit::FileIdParameterModelPtrs GetFileIdParameterModelPtrs();
 
     // Message
     QVector<CubesLog::Message> GetMessages();

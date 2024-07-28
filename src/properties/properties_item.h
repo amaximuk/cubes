@@ -118,7 +118,7 @@ namespace CubesProperties
         void CreateProperties();
         void CreateParameterModel(const CubesUnit::ParameterInfoId& parameterInfoId,
             const CubesUnit::ParameterModelId& parentModelId, const CubesXml::Unit* xmlUnit,
-            CubesUnit::ParameterModelPtr model);
+            CubesUnit::ParameterModelPtr& model);
         void FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model, bool isItem);
         void FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model);
         void UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model);

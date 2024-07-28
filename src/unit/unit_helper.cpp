@@ -419,32 +419,40 @@ QVector<Analyse::UnitDependency> Analyse::GetParameterModelsDependencies(Paramet
 	QVector<Analyse::UnitDependency> result;
 
 	const auto pmDepends = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.parameters + ids.dependencies);
-	for (const auto& sub : pmDepends->parameters)
+	if (pmDepends != nullptr)
 	{
-		QString name = sub->value.toString();
+		for (const auto& sub : pmDepends->parameters)
+		{
+			QString name = sub->value.toString();
 
-		UnitDependency ud{};
-		ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, name);
-		ud.isUnitLevel = true;
-		result.push_back(ud);
+			UnitDependency ud{};
+			ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, name);
+			ud.isUnitLevel = true;
+			result.push_back(ud);
+		}
 	}
 
-	const auto unitId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.unitId)->value.toString();
-
-	UnitParameters unitParameters{};
-	Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
-
-	for (const auto& pm : parameterModelConstPtrs)
+	const auto pmUnitId = Common::GetParameterModelPtr(parameterModelConstPtrs, ids.base + ids.unitId);
+	if (pmUnitId != nullptr)
 	{
-		const auto list = GetParameterModelUnitProperties(pm, parameterModelConstPtrs, unitParameters);
-		for (const auto& item : list)
+		// В редакторе массивов нет такого параметра
+		const auto unitId = pmUnitId->value.toString();
+
+		UnitParameters unitParameters{};
+		Unit::GetUnitParameters(unitId, unitIdUnitParameters, unitParameters);
+
+		for (const auto& pm : parameterModelConstPtrs)
 		{
-			if (item.depends)
+			const auto list = GetParameterModelUnitProperties(pm, parameterModelConstPtrs, unitParameters);
+			for (const auto& item : list)
 			{
-				UnitDependency ud{};
-				ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, item.name);
-				ud.isUnitLevel = false;
-				result.push_back(ud);
+				if (item.depends)
+				{
+					UnitDependency ud{};
+					ud.name = GetResolvedUnitName(parameterModelConstPtrs, fileIdParametersModelPtrs, item.name);
+					ud.isUnitLevel = false;
+					result.push_back(ud);
+				}
 			}
 		}
 	}

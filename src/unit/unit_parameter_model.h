@@ -247,4 +247,16 @@ namespace CubesUnit
 	using PropertiesIdParameterModelPtrs = QMap<PropertiesId, ParameterModelPtrs>;
 	using PropertiesIdUnitParameters = QMap<PropertiesId, UnitParameters>;
 	using PropertiesIdParameterModelsRef = QMap<PropertiesId, ParameterModels*>;
+
+	inline ParameterModelPtr CreateParameterModelPtr()
+	{
+		return ParameterModelPtr(new ParameterModel());
+	}
+
+	inline ParameterModelPtr CreateParameterModelPtr(const ParameterModel& other)
+	{
+		ParameterModelPtr parameterModelPtr = ParameterModelPtr(new ParameterModel());
+		*parameterModelPtr = other;
+		return parameterModelPtr;
+	}
 }
