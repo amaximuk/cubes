@@ -95,6 +95,26 @@ namespace CubesUnit
 			readOnly = false;
 		}
 
+		ParameterModel Clone()
+		{
+			ParameterModel parameterModel{};
+			parameterModel.id = id;
+			parameterModel.name = name;
+			parameterModel.key = key;
+			parameterModel.value = value;
+			parameterModel.parameterInfoId = parameterInfoId;
+			parameterModel.editorSettings = editorSettings;
+			for (const auto& item : parameters)
+			{
+				ParameterModelPtr parameterModelPtr = ParameterModelPtr(new ParameterModel());
+				*parameterModelPtr = item->Clone();
+				parameterModel.parameters.push_back(parameterModelPtr);
+			}
+			parameterModel.readOnly = readOnly;
+
+			return parameterModel;
+		}
+
 		void SetComboBoxFileNames(FileIdNames fileNames)
 		{
 			editorSettings.comboBoxValues.clear();
@@ -215,6 +235,9 @@ namespace CubesUnit
 			else
 				return std::distance(editorSettings.comboBoxValues.cbegin(), it);
 		}
+
+		private:
+
 	};
 
 	using FileIdParameterModels = QMap<FileId, ParameterModels>;

@@ -140,18 +140,17 @@ bool TopManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
 
 bool TopManager::GetDependsConnections(QMap<QString, QStringList>& connections)
 {
-    // TODO: REF!!! не копировать параметры
     const auto fileIdParameterModelPtrs = fileItemsManager_->GetFileIdParameterModelPtrs();
-    const auto propertiesIdParameterModelPtrs = propertiesItemsManager_->GetFileIdParameterModelPtrs();
+    const auto propertiesIdParameterModelPtrs = propertiesItemsManager_->GetPropertiesIdParameterModelPtrs();
 
-    for (auto& kvp : propertiesIdParameterModels.toStdMap())
+    for (auto& kvp : propertiesIdParameterModelPtrs.toStdMap())
     {
         const auto depends = CubesUnit::Helper::Analyse::GetParameterModelsDependencies(kvp.second,
-            fileIdParameterModels, unitIdUnitParameters_);
+            fileIdParameterModelPtrs, unitIdUnitParameters_);
 
         if (!depends.empty())
         {
-            const auto name = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModels);
+            const auto name = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModelPtrs);
             auto& connects = connections[name.resolved];
             for (const auto& depend_on : depends)
             {
@@ -411,17 +410,10 @@ CubesUnit::UnitParameters* TopManager::GetUnitParameters(const QString& id)
 
 bool TopManager::Test()
 {
-    //log_table_model_->Clear();
-    CubesUnit::FileIdParameterModels fileModels;
-    if (!fileItemsManager_->GetParameterModels(fileModels))
-        return false;
-    CubesUnit::PropertiesIdParameterModels propertiesModels;
-    if (!propertiesItemsManager_->GetParameterModels(propertiesModels))
-        return false;
-    //CubesUnit::PropertiesIdUnitParameters unitParameters;
-    //if (!propertiesItemsManager_->GetUnitParameters(unitParameters))
-    //    return false;
-    analysisManager_->Test(fileModels, propertiesModels, unitIdUnitParameters_);
+    const auto fileIdParameterModelPtrs = fileItemsManager_->GetFileIdParameterModelPtrs();
+    const auto propertiesIdParameterModelPtrs = propertiesItemsManager_->GetPropertiesIdParameterModelPtrs();
+
+    analysisManager_->Test(fileIdParameterModelPtrs, propertiesIdParameterModelPtrs, unitIdUnitParameters_);
     return true;
 }
 

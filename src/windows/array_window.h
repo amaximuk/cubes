@@ -38,7 +38,7 @@ private:
     QPointer<CubesDiagram::DiagramScene> scene_;
     QPointer<CubesDiagram::DiagramView> view_;
 
-    CubesUnit::ParameterModel pm_{};
+    CubesUnit::ParameterModelPtr pm_{};
     QSharedPointer<CubesProperties::PropertiesItem> pi_;
     parameters::restrictions_info ri_{};
 
@@ -52,14 +52,15 @@ public:
     bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
 
     // ArrayWindow
-    void SetItemModel(parameters::file_info afi, CubesUnit::ParameterModel pm,
+    void SetItemModel(parameters::file_info afi, CubesUnit::ParameterModelPtr parameterModelPtr,
         parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 public:
     void closeEvent(QCloseEvent* event) override;
 
 signals:
-    void BeforeClose(const bool result, CubesUnit::ParameterModel pm, QSharedPointer<CubesProperties::PropertiesItem> pi);
+    void BeforeClose(const bool result, CubesUnit::ParameterModelPtr parameterModelPtr,
+        QSharedPointer<CubesProperties::PropertiesItem> pi);
 
 protected:
     // UI

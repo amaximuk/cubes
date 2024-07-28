@@ -24,11 +24,6 @@ void FileItemsAnalysis::SetFiles(CubesUnit::FileIdParameterModelPtrs fileIdParam
 	fileIdParameterModelPtrs_ = fileIdParameterModelPtrs;
 }
 
-void FileItemsAnalysis::SetFileItems(QMap<CubesUnit::FileId, QSharedPointer<CubesFile::FileItem>> files)
-{
-	fileItems_ = files;
-}
-
 QVector<Rule> FileItemsAnalysis::GetAllRules()
 {
 	return rules_;

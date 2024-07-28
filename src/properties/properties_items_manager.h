@@ -41,7 +41,7 @@ namespace CubesProperties
 		QWidget* GetWidget();
 		uint32_t GetCurrentPropertiesId();
 		void Create(const QString& unitId, CubesUnit::PropertiesId& propertiesId);
-		void Create(const QString& unitId, const CubesUnit::ParameterModels& pm, CubesUnit::PropertiesId& propertiesId);
+		void Create(const QString& unitId, CubesUnit::ParameterModelPtrs parameterModelPtrs, CubesUnit::PropertiesId& propertiesId);
 		void Create(const CubesXml::Unit& xmlUnit, CubesUnit::PropertiesId& propertiesId);
 		void Select(CubesUnit::PropertiesId propertiesId);
 		void Remove(CubesUnit::PropertiesId propertiesId);
@@ -131,7 +131,7 @@ namespace CubesProperties
 		void SetPropertyExpanded(const CubesUnit::PropertiesId propertiesId, const QtProperty* property, bool is_expanded);
 		QString GetName(const CubesUnit::PropertiesId propertiesId);
 
-		void OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModel pm,
+		void OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModelPtr parameterModelPtr,
 			QSharedPointer<CubesProperties::PropertiesItem> pi);
 	};
 }

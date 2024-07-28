@@ -75,16 +75,16 @@ void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::Properties
 		{ {QString::fromLocal8Bit("»м€"), pi->GetName()} }, propertiesId);
 }
 
-void PropertiesItemsManager::Create(const QString& unitId, const CubesUnit::ParameterModels& pm,
+void PropertiesItemsManager::Create(const QString& unitId, CubesUnit::ParameterModelPtrs parameterModelPtrs,
 	CubesUnit::PropertiesId& propertiesId)
 {
 	CubesUnit::UnitParameters unitParameters{};
 	topManager_->GetUnitParameters(unitId, unitParameters);
 
 	propertiesId = ++uniqueNumber_;
-	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, propertiesId, pm));
+	QSharedPointer<PropertiesItem> pi(new PropertiesItem(this, logManager_, editor_, unitParameters, propertiesId, parameterModelPtrs));
 
-	QString propertiesName = pm[0].parameters[0].value.toString();
+	QString propertiesName = parameterModelPtrs[0]->parameters[0]->value.toString();
 
 	pi->SetName(propertiesName);
 	items_[propertiesId] = pi;
@@ -635,7 +635,7 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 	auto item = GetItem(propertiesId);
 	if (item != nullptr)
 	{
-		auto pm = item->GetParameterModel(pe->currentItem()->property());
+		auto pm = item->GetParameterModelPtr(pe->currentItem()->property());
 		auto ui = item->GetUnitParameters();
 
 		// ѕровер€ем,что параметр массив пользовательского типа данных, не перечислений
@@ -649,7 +649,8 @@ void PropertiesItemsManager::OnContextMenuRequested(const QPoint& pos)
 			return;
 
 
-		auto pmCopy = *pm;
+		CubesUnit::ParameterModelPtr pmCopy;
+		*pmCopy = pm->Clone();
 
 		parameters::file_info afi{};
 		bool b = parameters::helper::common::extract_array_file_info(ui.fileInfo,
@@ -899,8 +900,8 @@ QString PropertiesItemsManager::GetName(CubesUnit::PropertiesId propertiesId)
 	return name;
 }
 
-void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModel pm,
+void PropertiesItemsManager::OnArrayWindowBeforeClose(const bool result, CubesUnit::ParameterModelPtr parameterModelPtr,
 	QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
-	pi->AddItems(pm);
+	pi->AddItems(parameterModelPtr);
 }
