@@ -483,10 +483,17 @@ bool TopManager::NewFile()
 bool TopManager::SaveFile(const QString& path)
 {
     //log_table_model_->Clear();
-
+    
     // Получаем список главных файлов
     bool is_first = true;
     CubesUnit::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+    
+    if (fileNames.isEmpty())
+    {
+        logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::noParametersFile));
+        return false;
+    }
+
     for (const auto& kvpFile : fileNames.toStdMap())
     {
         auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
@@ -583,6 +590,13 @@ bool TopManager::SaveFolder(const QString& path)
     // Получаем список главных файлов
     bool is_first = true;
     CubesUnit::FileIdNames fileNames = fileItemsManager_->GetFileNames();
+
+    if (fileNames.isEmpty())
+    {
+        logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(TopManagerErrorCode::noParametersFile));
+        return false;
+    }
+
     for (const auto& kvpFile : fileNames.toStdMap())
     {
         auto xmlFile = fileItemsManager_->GetXmlFile(kvpFile.first);
