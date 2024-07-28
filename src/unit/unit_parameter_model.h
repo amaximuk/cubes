@@ -73,11 +73,6 @@ namespace CubesUnit
 	using ParameterModelPtr = QSharedPointer<ParameterModel>;
 	using ParameterModelPtrs = QVector<ParameterModelPtr>;
 
-	//using ParameterModelConstPtr = QSharedPointer<const ParameterModel>;
-	//using ParameterModelConstPtrs = QVector<ParameterModelConstPtr>;
-	using ParameterModelConstPtr = ParameterModelPtr;
-	using ParameterModelConstPtrs = ParameterModelPtrs;
-
 	struct ParameterModel
 	{
 		ParameterModelId id; // id path, separated by /
@@ -242,11 +237,9 @@ namespace CubesUnit
 
 	using FileIdParameterModels = QMap<FileId, ParameterModels>;
 	using FileIdParameterModelPtrs = QMap<FileId, ParameterModelPtrs>;
-	using FileIdParameterModelsRef = QMap<FileId, ParameterModels*>;
 	using PropertiesIdParameterModels = QMap<PropertiesId, ParameterModels>;
 	using PropertiesIdParameterModelPtrs = QMap<PropertiesId, ParameterModelPtrs>;
 	using PropertiesIdUnitParameters = QMap<PropertiesId, UnitParameters>;
-	using PropertiesIdParameterModelsRef = QMap<PropertiesId, ParameterModels*>;
 
 	inline ParameterModelPtr CreateParameterModelPtr()
 	{

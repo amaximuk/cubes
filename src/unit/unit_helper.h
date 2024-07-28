@@ -14,21 +14,21 @@ namespace CubesUnit
 			QString GetUniqueName(QString baseName, QString delimiter, QStringList busyNames);
 			ParameterModelPtr GetParameterModelPtr(ParameterModelPtrs parameterModelPtrs,
 				const ParameterModelId& parameterModelId);
-			ParameterModelConstPtr GetParameterModelPtr(ParameterModelConstPtrs parameterModelConstPtrs,
+			ParameterModelPtr GetParameterModelPtr(ParameterModelPtrs parameterModelPtrs,
 				const ParameterModelId& parameterModelId);
 		}
 
 		namespace File
 		{
-			bool GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs, IncludeIdNames& includeIdNames);
-			IncludeIdNames GetIncludes(ParameterModelConstPtrs parameterModelConstPtrs);
-			bool GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName);
-			QString GetIncludeName(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
-			bool GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId, QString& includeName);
-			QString GetIncludePath(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
-			bool GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId,
+			bool GetIncludes(ParameterModelPtrs parameterModelPtrs, IncludeIdNames& includeIdNames);
+			IncludeIdNames GetIncludes(ParameterModelPtrs parameterModelPtrs);
+			bool GetIncludeName(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId, QString& includeName);
+			QString GetIncludeName(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId);
+			bool GetIncludePath(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId, QString& includeName);
+			QString GetIncludePath(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId);
+			bool GetIncludeVariables(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId,
 				VariableIdVariables& variableIdVariables);
-			VariableIdVariables GetIncludeVariables(ParameterModelConstPtrs parameterModelConstPtrs, const IncludeId includeId);
+			VariableIdVariables GetIncludeVariables(ParameterModelPtrs parameterModelPtrs, const IncludeId includeId);
 		}
 
 		namespace Unit
@@ -63,21 +63,21 @@ namespace CubesUnit
 				bool isUnitLevel;
 			};
 
-			UnitName GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+			UnitName GetResolvedUnitName(ParameterModelPtrs parameterModelPtrs,
 				FileIdParameterModelPtrs fileIdParametersModelPtrs);
 			PropertiesIdUnitNames GetResolvedUnitNames(PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 				FileIdParameterModelPtrs fileIdParametersModelPtrs);
-			UnitName GetResolvedUnitName(ParameterModelConstPtrs parameterModelConstPtrs,
+			UnitName GetResolvedUnitName(ParameterModelPtrs parameterModelPtrs,
 				FileIdParameterModelPtrs fileIdParametersModelPtrs, QString name);
-			QVector<UnitProperty> GetParameterModelsUnitProperties(ParameterModelConstPtrs parameterModelConstPtrs,
+			QVector<UnitProperty> GetParameterModelsUnitProperties(ParameterModelPtrs parameterModelPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
 			QVector<UnitProperty> GetParameterModelUnitProperties(ParameterModelPtr parameterModelPtr,
-				ParameterModelConstPtrs parameterModelConstPtrs, const UnitParameters& unitParameters);
+				ParameterModelPtrs parameterModelPtrs, const UnitParameters& unitParameters);
 			QString GetUnitId(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
 			QString GetUnitCategory(PropertiesId propertiesId, PropertiesIdParameterModelPtrs propertiesIdParameterModelPtrs,
 				const UnitIdUnitParameters& unitIdUnitParameters);
-			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(ParameterModelConstPtrs parameterModelConstPtrs,
+			QVector<Analyse::UnitDependency> GetParameterModelsDependencies(ParameterModelPtrs parameterModelPtrs,
 				FileIdParameterModelPtrs fileIdParametersModelPtrs, const UnitIdUnitParameters& unitIdUnitParameters);
 		}
 	}

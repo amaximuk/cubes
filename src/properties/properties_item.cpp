@@ -1242,11 +1242,14 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::Pa
 
     if (pi.restrictions.set_count.size() > 0)
     {
+        CubesUnit::BaseId key{CubesUnit::InvalidBaseId};
         model->editorSettings.type = CubesUnit::EditorType::ComboBox;
         for (int i = 0; i < pi.restrictions.set_count.size(); ++i)
         {
             model->editorSettings.comboBoxValues.push_back({ static_cast<CubesUnit::BaseId>(i),
                 QString::fromStdString(pi.restrictions.set_count[i]) });
+            if (QString::fromStdString(pi.restrictions.set_count[i]) == QString("%1").arg(element.itemsCount))
+                key = static_cast<CubesUnit::BaseId>(i);
         }
 
         if (element.type == CubesXml::ElementType::Array)
@@ -1261,7 +1264,10 @@ void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::Pa
                     {QString::fromLocal8Bit("Значение"), QString("%1").arg(element.itemsCount)} }, propertiesId_);
             }
             else
+            {
                 model->value = QString("%1").arg(element.itemsCount);
+                model->key = key;
+            }
         }
     }
     else
