@@ -383,7 +383,7 @@ void FileItem::CreateProperties()
     {
         QMap<CubesUnit::ParameterModelId, const QtProperty*> idToProperty;
         for (auto& pm : parameterModelPtrs_)
-            topLevelProperties_.push_back(editor_->CreatePropertyForModel(*pm, idToProperty));
+            topLevelProperties_.push_back(editor_->CreatePropertyForModel(pm, idToProperty));
         for (const auto& kvp : idToProperty.toStdMap())
             RegisterProperty(kvp.second, kvp.first);
     }
@@ -468,7 +468,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             QMap<CubesUnit::ParameterModelId, const QtProperty*> idToProperty;
             for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(editor_->CreatePropertyForModel(*pm->parameters[i], idToProperty));
+                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
             for (const auto& kvp : idToProperty.toStdMap())
                 RegisterProperty(kvp.second, kvp.first);
 
@@ -513,7 +513,7 @@ void FileItem::ValueChanged(QtProperty* property, const QVariant& value)
 
             QMap<CubesUnit::ParameterModelId, const QtProperty*> idToProperty;
             for (int i = property->subProperties().size(); i < count; ++i)
-                property->addSubProperty(editor_->CreatePropertyForModel(*pm->parameters[i], idToProperty));
+                property->addSubProperty(editor_->CreatePropertyForModel(pm->parameters[i], idToProperty));
             for (const auto& kvp : idToProperty.toStdMap())
                 RegisterProperty(kvp.second, kvp.first);
 

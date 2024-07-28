@@ -34,9 +34,9 @@ public:
 
 public:
     QtTreePropertyBrowser* GetPropertyEditor();
-    QtProperty* CreatePropertyForModel(const CubesUnit::ParameterModel& model,
+    QtProperty* CreatePropertyForModel(CubesUnit::ParameterModelPtr parameterModelPtr,
         QMap<CubesUnit::ParameterModelId, const QtProperty*>& idToProperty);
-    void SetPropertyValue(QtProperty* property, const CubesUnit::ParameterModel& model);
+    void SetPropertyValue(QtProperty* property, CubesUnit::ParameterModelPtr parameterModelPtr);
     void SetIntValue(QtProperty* property, int value);
     void SetDoubleValue(QtProperty* property, double value);
     void SetStringValue(QtProperty* property, const QString& value, bool setOldValue = false, const QString& oldValue = "");
