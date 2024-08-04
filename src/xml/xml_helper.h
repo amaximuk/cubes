@@ -14,5 +14,6 @@ namespace CubesXml
 		bool GetElement(Unit& unit, const CubesUnit::ParameterModelId& id, Element& element, CubesLog::ILogManager* logManager = nullptr);
 		bool Write(QByteArray& buffer, const File& fi, CubesLog::ILogManager* logManager = nullptr);
 		bool Write(const QString& filename, const File& fi, CubesLog::ILogManager* logManager = nullptr);
+		bool WriteUnits(QByteArray& buffer, const std::vector<Unit>& units, CubesLog::ILogManager* logManager = nullptr);
 	};
 }

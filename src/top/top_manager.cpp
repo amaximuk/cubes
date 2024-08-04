@@ -133,6 +133,11 @@ bool TopManager::GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QStrin
     return propertiesItemsManager_->GetUnitId(propertiesId, unitId);
 }
 
+bool TopManager::GetPropetiesXmlUnit(CubesUnit::PropertiesId propertiesId, CubesXml::Unit& xmlUnit)
+{
+    return propertiesItemsManager_->GetXmlUnit(propertiesId, xmlUnit);
+}
+
 bool TopManager::GetUnitsConnections(QMap<QString, QStringList>& connections)
 {
     return propertiesItemsManager_->GetUnitsConnections(connections);

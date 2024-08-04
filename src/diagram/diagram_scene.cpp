@@ -7,15 +7,19 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include "../log/log_helper.h"
+#include "../xml/xml_writer.h"
+#include "../xml/xml_parser.h"
 #include "diagram_item.h"
 #include "diagram_scene.h"
 
 using namespace CubesDiagram;
 
-DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, QObject *parent) :
+DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, QObject *parent) :
     QGraphicsScene(parent)
 {
     topManager_ = topManager;
+    logManager_ = logManager;
     isItemMoving_ = false;
     movingItem_ = nullptr;
     selectedWithCtrl_ = false;
@@ -306,9 +310,23 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
     {
         qDebug() << "CTRL-C";
 
+        std::vector<CubesXml::Unit> xmlUnits;
+        for (auto& item : selectedItems())
+        {
+            DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
+            const auto propertiesId = di->GetPropertiesId();
+            CubesXml::Unit xmlUnit{};
+            topManager_->GetPropetiesXmlUnit(propertiesId, xmlUnit);
+            xmlUnits.push_back(xmlUnit);
+        }
+
+        CubesXml::Writer writer(logManager_);
+        QByteArray byteArray;
+        writer.WriteUnits(byteArray, xmlUnits);
+
         QClipboard* clipboard = QApplication::clipboard();
         QMimeData* mimeData = new QMimeData;
-        mimeData->setData("application/x-dnditemdata-xxx", QString("aaaaaaa").toUtf8());
+        mimeData->setData("application/x-cubes-units+xml", byteArray);
         clipboard->setMimeData(mimeData);
     }
     else if (ctrl && keyEvent->key() == Qt::Key_V)
@@ -318,10 +336,13 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
         const QClipboard* clipboard = QApplication::clipboard();
         const QMimeData* mimeData = clipboard->mimeData();
 
-        if (mimeData->hasFormat("application/x-dnditemdata-xxx"))
+        if (mimeData->hasFormat("application/x-cubes-units+xml"))
         {
-            QString text = QString::fromUtf8(mimeData->data("application/x-dnditemdata-xxx"));
-            qDebug() << text;
+            QByteArray byteArray = mimeData->data("application/x-cubes-units+xml");
+            CubesXml::Parser parser(logManager_);
+            
+            std::vector<CubesXml::Unit> xmlUnits;
+            parser.ParseUnits(byteArray, xmlUnits);
         }
     }
 

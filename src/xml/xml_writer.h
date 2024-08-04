@@ -26,6 +26,7 @@ namespace CubesXml
 	public:
 		bool Write(QByteArray& buffer, const File& fi);
 		bool Write(const QString& filename, const File& fi);
+		bool WriteUnits(QByteArray& byteArray, const std::vector<Unit>& units);
 
 	private:
 		bool SetFile(const File& file, QXmlStreamWriter& xmlWriter);

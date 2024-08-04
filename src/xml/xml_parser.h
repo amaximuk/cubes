@@ -25,6 +25,7 @@ namespace CubesXml
 	public:
 		bool Parse(QByteArray& byteArray, const QString& fileName);
 		bool Parse(const QString& fileName);
+		bool ParseUnits(QByteArray& byteArray, std::vector<Unit>& units);
 		const File& GetFile();
 
 	private:

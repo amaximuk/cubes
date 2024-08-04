@@ -27,6 +27,7 @@ namespace CubesTop
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
             CubesUnit::UnitParametersPtr& unitParametersPtr) = 0;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) = 0;
+        virtual bool GetPropetiesXmlUnit(CubesUnit::PropertiesId propertiesId, CubesXml::Unit& xmlUnit) = 0;
 
         virtual bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) = 0;
         virtual bool EnshureVisible(CubesUnit::PropertiesId propertiesId) = 0;

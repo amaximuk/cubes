@@ -68,6 +68,35 @@ bool Writer::Write(const QString& filename, const File& fi)
 	return true;
 }
 
+bool Writer::WriteUnits(QByteArray& byteArray, const std::vector<Unit>& units)
+{
+	QBuffer buffer(&byteArray);
+	buffer.open(QIODevice::WriteOnly);
+
+	QXmlStreamWriter xmlWriter;
+	xmlWriter.setDevice(&buffer);
+	xmlWriter.setAutoFormatting(true);
+	xmlWriter.setAutoFormattingIndent(4);
+	xmlWriter.setCodec("windows-1251");
+	xmlWriter.writeStartDocument();
+
+	QList<Group> groups;
+	Group group{};
+	group.path = "clipboard";
+	for (const auto& unit : units)
+		group.units.push_back(unit);
+	groups.push_back(group);
+
+	if (!SetUnits(groups, xmlWriter))
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileSetFailed)));
+
+	xmlWriter.writeEndDocument();
+
+	buffer.close();
+
+	return true;
+}
+
 bool Writer::SetFile(const File& file, QXmlStreamWriter& xmlWriter)
 {
 	//<Includes>

@@ -50,6 +50,7 @@ namespace CubesTop
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
             CubesUnit::UnitParametersPtr& unitParametersPtr) override;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) override;
+        virtual bool GetPropetiesXmlUnit(CubesUnit::PropertiesId propertiesId, CubesXml::Unit& xmlUnit) override;
         virtual bool GetUnitsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool GetDependsConnections(QMap<QString, QStringList>& connections) override;
         virtual bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;

@@ -11,6 +11,7 @@
 #include "../top/top_manager_interface.h"
 #include "../unit/unit_types.h"
 #include "../xml/xml_parser.h"
+#include "../xml/xml_writer.h"
 #include "../windows/array_window.h"
 #include "../utils/graph.h"
 #include "../log/log_helper.h"
@@ -204,6 +205,23 @@ bool PropertiesItemsManager::GetUnitId(CubesUnit::PropertiesId propertiesId, QSt
 		return false;
 
 	unitId = pi->GetUnitId();
+	return true;
+}
+
+bool PropertiesItemsManager::GetXmlUnit(CubesUnit::PropertiesId propertiesId, CubesXml::Unit& xmlUnit)
+{
+	auto pi = GetItem(propertiesId);
+	if (pi == nullptr)
+		return false;
+
+	//CubesXml::Unit xmlUnit{};
+	//pi->GetXml(xmlUnit);
+
+	//CubesXml::Writer writer(logManager_);
+	//writer.Write(byteArray, xmlUnit);
+
+	pi->GetXml(xmlUnit);
+
 	return true;
 }
 

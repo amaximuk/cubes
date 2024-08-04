@@ -52,6 +52,7 @@ namespace CubesProperties
 
 		bool GetUnitParameters(CubesUnit::PropertiesId propertiesId, CubesUnit::UnitParametersPtr& unitParametersPtr);
 		bool GetUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId);
+		bool GetXmlUnit(CubesUnit::PropertiesId propertiesId, CubesXml::Unit& xmlUnit);
 
 		// TODO: переделать на PropertiesId
 		bool GetUnitsConnections(QMap<QString, QStringList>& connections);

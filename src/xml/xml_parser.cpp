@@ -65,6 +65,42 @@ bool Parser::Parse(const QString& fileName)
 	return Parse(byteArray, fileName);
 }
 
+bool Parser::ParseUnits(QByteArray& byteArray, std::vector<Unit>& units)
+{
+	QTextStream in(&byteArray);
+	QString xmlText = in.readAll();
+
+	QDomDocument doc;
+	if (!doc.setContent(xmlText))
+		CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitsParseFailed)));
+
+	QDomElement root = doc.documentElement();
+	if (!root.isNull())
+	{
+		QDomNode n = root.firstChild();
+		if (!n.isNull())
+		{
+			QDomElement ne = root.toElement();
+			if (!ne.isNull())
+			{
+				if (ne.tagName() == "Units")
+				{
+					QList<Group> groups;
+					if (!GetUnits(ne, groups))
+						CFRC(false, logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitsParseFailed)));
+					if (!groups.isEmpty())
+					{
+						for (const auto& unit : groups[0].units)
+							units.push_back(unit);
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
 const File& Parser::GetFile()
 {
 	return fi_;

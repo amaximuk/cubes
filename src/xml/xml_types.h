@@ -222,6 +222,7 @@ namespace CubesXml
 		success = CubesLog::SuccessErrorCode,
 		fileParseFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlParser),
 		fileOpenFailed,
+		unitsParseFailed,
 		getIncludesFailed,
 		getConfigFailed,
 		includesChildUnknown,
@@ -269,6 +270,7 @@ namespace CubesXml
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::success)] = QString::fromLocal8Bit("Успех");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileParseFailed)] = QString::fromLocal8Bit("Ошибка разбора файла");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::fileOpenFailed)] = QString::fromLocal8Bit("Ошибка открытия файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::unitsParseFailed)] = QString::fromLocal8Bit("Ошибка разбора юнитов");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getIncludesFailed)] = QString::fromLocal8Bit("Ошибка получения включаемых файлов (Includes)");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::getConfigFailed)] = QString::fromLocal8Bit("Ошибка получения конфигурации (Config)");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(ParserErrorCode::includesChildUnknown)] = QString::fromLocal8Bit("Неизвестный потомок включаемых файлов (Includes)");
@@ -325,6 +327,7 @@ namespace CubesXml
 	{
 		success = CubesLog::SuccessErrorCode,
 		fileSetFailed = CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlWriter),
+		unitsSetFailed,
 		bufferWriteFailed,
 		fileOpenFailed,
 		fileWriteFailed,
@@ -348,6 +351,7 @@ namespace CubesXml
 		{
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::success)] = QString::fromLocal8Bit("Успех");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileSetFailed)] = QString::fromLocal8Bit("Ошибка установки файла (File)");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::unitsSetFailed)] = QString::fromLocal8Bit("Ошибка установки юнитов");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::bufferWriteFailed)] = QString::fromLocal8Bit("Ошибка записи буфера");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileOpenFailed)] = QString::fromLocal8Bit("Ошибка открытия файла");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(WriterErrorCode::fileWriteFailed)] = QString::fromLocal8Bit("Ошибка записи файла");
@@ -384,6 +388,7 @@ namespace CubesXml
 		unitParametersMalformed,
 		bufferWriteFailed,
 		fileWriteFailed,
+		unitsWriteFailed,
 		__last__
 	};
 
@@ -398,6 +403,7 @@ namespace CubesXml
 			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitParametersMalformed)] = QString::fromLocal8Bit("Параметры юнита плохо сформированы");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::bufferWriteFailed)] = QString::fromLocal8Bit("Ошибка записи буфера");
 			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::fileWriteFailed)] = QString::fromLocal8Bit("Ошибка записи файла");
+			descriptions[static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitsWriteFailed)] = QString::fromLocal8Bit("Ошибка записи юнитов");
 		}
 
 		assert((static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::__last__) - CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::xmlHelper) + 1) == descriptions.size());

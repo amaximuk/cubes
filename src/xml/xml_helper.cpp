@@ -183,3 +183,12 @@ bool Helper::Write(const QString& filename, const File& fi, CubesLog::ILogManage
 			{ {"", fi.fileName} }));
 	return true;
 }
+
+bool Helper::WriteUnits(QByteArray& buffer, const std::vector<Unit>& units, CubesLog::ILogManager* logManager)
+{
+	CubesLog::LogHelper logHelper(logManager, CubesLog::SourceType::xmlHelper, GetHelperErrorDescriptions());
+	Writer writer(logManager);
+	if (!writer.WriteUnits(buffer, units))
+		CFRC(false, logHelper.LogError(static_cast<CubesLog::BaseErrorCode>(HelperErrorCode::unitsWriteFailed)));
+	return true;
+}
