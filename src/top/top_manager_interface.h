@@ -37,5 +37,8 @@ namespace CubesTop
 
         virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) = 0;
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) = 0;
+
+        virtual bool AddUnits(QList<CubesXml::Unit>& units) = 0;
+        virtual bool AddUnits(CubesXml::File& file) = 0;
     };
 }

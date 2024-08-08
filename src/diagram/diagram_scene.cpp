@@ -327,6 +327,9 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
         QClipboard* clipboard = QApplication::clipboard();
         QMimeData* mimeData = new QMimeData;
         mimeData->setData("application/x-cubes-units+xml", byteArray);
+
+        QString as1251 = QString::fromLocal8Bit(byteArray);
+        mimeData->setData("text/plain", as1251.toUtf8());
         clipboard->setMimeData(mimeData);
     }
     else if (ctrl && keyEvent->key() == Qt::Key_V)
@@ -343,6 +346,12 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
             
             std::vector<CubesXml::Unit> xmlUnits;
             parser.ParseUnits(byteArray, xmlUnits);
+
+            QList<CubesXml::Unit> units;
+            for (const auto& unit : xmlUnits)
+                units.push_back(unit);
+
+            topManager_->AddUnits(units);
         }
     }
 

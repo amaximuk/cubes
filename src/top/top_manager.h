@@ -57,6 +57,8 @@ namespace CubesTop
         virtual bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
         virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
+        virtual bool AddUnits(QList<CubesXml::Unit>& units) override;
+        virtual bool AddUnits(CubesXml::File& file) override;
 
         // ILogManager
         virtual void AddMessage(const CubesLog::Message& m) override;
@@ -68,7 +70,8 @@ namespace CubesTop
     protected:
         // Добавление юнитов
         virtual bool AddMainFile(const CubesXml::File& file, const QString& zipFileName);
-        virtual bool AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId, const CubesXml::File& file);
+        virtual bool AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId,
+            const QList<CubesXml::Group>& groups);
         
         // Получение информации
         virtual CubesUnit::UnitParametersPtr GetUnitParametersPtr(const QString& id);
