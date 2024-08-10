@@ -479,7 +479,7 @@ QWidget* MainWindow::CreateLogWidget()
 
 void MainWindow::CreateScene()
 {
-    scene_ = new CubesDiagram::DiagramScene(this, this);
+    scene_ = new CubesDiagram::DiagramScene(this, this, false);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);

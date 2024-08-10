@@ -141,6 +141,33 @@ bool ArrayWindow::EnshureVisible(CubesUnit::PropertiesId propertiesId)
     return true;
 }
 
+bool ArrayWindow::AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds)
+{
+    TopManager::AddUnits(units, addedPropertiesIds);
+
+    scene_->clearSelection();
+    if (!addedPropertiesIds.isEmpty())
+        propertiesItemsManager_->Select(addedPropertiesIds.first());
+    for (const auto& item : scene_->items())
+    {
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+        if (addedPropertiesIds.contains(di->GetPropertiesId()))
+            di->setSelected(true);
+    }
+    scene_->invalidate();
+
+    return true;
+}
+
+bool ArrayWindow::GetVisibleSceneRect(QRectF& rect)
+{
+    // TopManager::GetVisibleSceneRect(rect);
+
+    rect = view_->GetVisibleSceneRect();
+
+    return true;
+}
+
 void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterModelPtr parameterModelPtr,
     parameters::restrictions_info ri, QSharedPointer<CubesProperties::PropertiesItem> pi)
 {
@@ -436,7 +463,7 @@ QWidget* ArrayWindow::CreateMainWidget()
 
 void ArrayWindow::CreateScene()
 {
-    scene_ = new CubesDiagram::DiagramScene(this, this);
+    scene_ = new CubesDiagram::DiagramScene(this, this, true);
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemPositionChanged, this, &ArrayWindow::DiagramItemPositionChanged);

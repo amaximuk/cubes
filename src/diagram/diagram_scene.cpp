@@ -17,11 +17,12 @@ using namespace CubesDiagram;
 
 //#define COPY_ON_DRAG_ENABLED
 
-DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, QObject *parent) :
+DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, bool isArray, QObject *parent) :
     QGraphicsScene(parent)
 {
     topManager_ = topManager;
     logManager_ = logManager;
+    isArray_ = isArray;
     isItemMoving_ = false;
     movingItem_ = nullptr;
     selectedWithCtrl_ = false;
@@ -340,7 +341,8 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
         QClipboard* clipboard = QApplication::clipboard();
         QMimeData* mimeData = new QMimeData;
-        mimeData->setData("application/x-cubes-units+xml", byteArray);
+        const auto mime = isArray_ ? "application/x-cubes-units+xml" : "application/x-cubes-array-units+xml";
+        mimeData->setData(mime, byteArray);
 
         QString as1251 = QString::fromLocal8Bit(byteArray);
         mimeData->setData("text/plain", as1251.toUtf8());
@@ -353,9 +355,10 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
         const QClipboard* clipboard = QApplication::clipboard();
         const QMimeData* mimeData = clipboard->mimeData();
 
-        if (mimeData->hasFormat("application/x-cubes-units+xml"))
+        const auto mime = isArray_ ? "application/x-cubes-units+xml" : "application/x-cubes-array-units+xml";
+        if (mimeData->hasFormat(mime))
         {
-            QByteArray byteArray = mimeData->data("application/x-cubes-units+xml");
+            QByteArray byteArray = mimeData->data(mime);
             CubesXml::Parser parser(logManager_);
             
             std::vector<CubesXml::Unit> xmlUnits;
