@@ -51,6 +51,7 @@ public:
     // ITopManager
     bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;
     bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
+    bool AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds) override;
     bool GetVisibleSceneRect(QRectF& rect) override;
 
     // ILogManager

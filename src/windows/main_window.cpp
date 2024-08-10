@@ -210,6 +210,24 @@ bool MainWindow::EnshureVisible(CubesUnit::PropertiesId propertiesId)
     return true;
 }
 
+bool MainWindow::AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds)
+{
+    TopManager::AddUnits(units, addedPropertiesIds);
+
+    scene_->clearSelection();
+    if (!addedPropertiesIds.isEmpty())
+        propertiesItemsManager_->Select(addedPropertiesIds.first());
+    for (const auto& item : scene_->items())
+    {
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+        if (addedPropertiesIds.contains(di->GetPropertiesId()))
+            di->setSelected(true);
+    }
+    scene_->invalidate();
+
+    return true;
+}
+
 bool MainWindow::GetVisibleSceneRect(QRectF& rect)
 {
     // TopManager::GetVisibleSceneRect(rect);

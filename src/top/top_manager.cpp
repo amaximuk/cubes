@@ -188,7 +188,7 @@ bool TopManager::GetAnalysisProperties(QVector<CubesAnalysis::Properties>& prope
     return propertiesItemsManager_->GetAnalysisProperties(properties);
 }
 
-bool TopManager::AddUnits(QList<CubesXml::Unit>& units)
+bool TopManager::AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds)
 {
     const auto fileId = fileItemsManager_->GetCurrentFileId();
     QList<CubesXml::Group> groups;
@@ -196,7 +196,7 @@ bool TopManager::AddUnits(QList<CubesXml::Unit>& units)
     for (const auto& unit : units)
         group.units.push_back(unit);
     groups.push_back(group);
-    AddUnits(fileId, CubesUnit::InvalidFileId, groups);
+    AddUnits(fileId, CubesUnit::InvalidFileId, groups, addedPropertiesIds);
     return true;
 }
 
@@ -277,7 +277,8 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
     fileItemsManager_->Create(file, fileId);
     fileItemsManager_->Select(fileId);
 
-    if (!AddUnits(fileId, CubesUnit::InvalidIncludeId, file.config.groups))
+    QList<CubesUnit::PropertiesId> addedPropertiesIds;
+    if (!AddUnits(fileId, CubesUnit::InvalidIncludeId, file.config.groups, addedPropertiesIds))
         return false;
 
     if (zipFileName.isEmpty())
@@ -299,7 +300,8 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
             if (!CubesXml::Helper::Parse(includeName, includedFile, this))
                 return false;
 
-            if (!AddUnits(fileId, includeId, includedFile.config.groups))
+            QList<CubesUnit::PropertiesId> addedPropertiesIds;
+            if (!AddUnits(fileId, includeId, includedFile.config.groups, addedPropertiesIds))
                 return false;
         }
     }
@@ -324,7 +326,8 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
             if (!CubesXml::Helper::Parse(byteArray, includePath, includedFile, this))
                 return false;
 
-            if (!AddUnits(fileId, includeId, includedFile.config.groups))
+            QList<CubesUnit::PropertiesId> addedPropertiesIds;
+            if (!AddUnits(fileId, includeId, includedFile.config.groups, addedPropertiesIds))
                 return false;
         }
     }
@@ -336,7 +339,7 @@ bool TopManager::AddMainFile(const CubesXml::File& file, const QString& zipFileN
 }
 
 bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId,
-    const QList<CubesXml::Group>& groups)
+    const QList<CubesXml::Group>& groups, QList<CubesUnit::PropertiesId>& addedPropertiesIds)
 {
     QVector<CubesXml::Unit> all_units;
     for (const auto& g : groups)
@@ -371,6 +374,8 @@ bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::Inclu
             CubesUnit::PropertiesId propertiesId{ CubesUnit::InvalidPropertiesId };
             propertiesItemsManager_->Create(all_units[i], propertiesId);
             auto pi = propertiesItemsManager_->GetItem(propertiesId);
+
+            addedPropertiesIds.push_back(propertiesId);
 
             //pi->ApplyXmlProperties(all_units[i]);
             pi->SetFileIdNames(fileNames);

@@ -365,8 +365,6 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
             for (const auto& unit : xmlUnits)
                 units.push_back(unit);
 
-
-
             QPointF pastePos;
             {
                 bool first = true;
@@ -407,8 +405,6 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
                         if (copyPos.y() > di->pos().y())
                             copyPos.setY(di->pos().y());
                     }
-
-                    copyPos += {80, 80};
                 }
 
                 if (first)
@@ -418,11 +414,13 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
                         rect = QRectF(0, 0, 0, 0);
                     copyPos = rect.center();
                 }
+                else
+                {
+                    copyPos += {80, 80};
+                }
             }
 
             QPointF deltaPos{ copyPos.x() - pastePos.x(), copyPos.y() - pastePos.y() };
-
-
 
             for (auto& unit : units)
             {
@@ -430,11 +428,8 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
                 unit.y += deltaPos.y();
             }
 
-
-
-
-
-            topManager_->AddUnits(units);
+            QList<CubesUnit::PropertiesId> addedPropertiesIds;
+            topManager_->AddUnits(units, addedPropertiesIds);
         }
     }
 
