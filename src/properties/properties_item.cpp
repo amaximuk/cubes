@@ -345,9 +345,10 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
     if (element.type == CubesXml::ElementType::Param)
     {
+        auto typeName = parameters::helper::parameter::get_type_xml(unitParametersPtr_->fileInfo, pi);
+
         // Проверяем совместимость типов параметров из xml и из описания yml
-        auto xmlBaseType = parameters::helper::common::get_xml_base_item_type(element.param->type.toStdString());
-        if (xmlBaseType != baseItemType)
+        if (typeName != element.param->type.toStdString())
         {
             logHelper_->LogError(static_cast<CubesLog::BaseErrorCode>(PropertiesItemErrorCode::typeMismatch),
                 { {QString::fromLocal8Bit("Имя параметра xml"), element.param->name},
