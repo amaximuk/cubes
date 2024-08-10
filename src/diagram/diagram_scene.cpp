@@ -15,6 +15,8 @@
 
 using namespace CubesDiagram;
 
+//#define COPY_ON_DRAG_ENABLED
+
 DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, QObject *parent) :
     QGraphicsScene(parent)
 {
@@ -92,6 +94,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                 addItem(di);
             }
 
+#ifdef COPY_ON_DRAG_ENABLED
             //bool ctrl = (event->modifiers() == Qt::ControlModifier);
             bool shift = (event->modifiers() == Qt::ShiftModifier);
 
@@ -107,12 +110,14 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
             }
             else
                 QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
+#endif
 
             QPointF p = movingItem_->mapFromParent(event->scenePos());
             startPosition_ = event->scenePos() - p;
 
         }
     }
+
     // Always remember to call parents mousePressEvent
     QGraphicsScene::mousePressEvent(event);
 }
@@ -131,13 +136,17 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     isItemMoving_ = false;
 
+#ifdef COPY_ON_DRAG_ENABLED
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
     bool shift = (event->modifiers() == Qt::ShiftModifier);
+#endif
 
     if (movingItem_ != nullptr)
     {
         const int gridSize = 20;
         QPointF delta = startPosition_ - movingItem_->pos();
+
+#ifdef COPY_ON_DRAG_ENABLED
         if (shift && (std::abs(delta.x()) >= gridSize || std::abs(delta.y()) >= gridSize))
         {
             for (auto& item : selectedItems())
@@ -204,6 +213,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
         }
         else
+#endif
         {
             for (auto& pair : dragItems_)
             {
@@ -233,6 +243,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 {
+#ifdef COPY_ON_DRAG_ENABLED
     if (isItemMoving_)
     {
         //bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
@@ -261,6 +272,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
         }
     }
     else
+#endif
     {
         if (keyEvent->key() == Qt::Key_Delete)
         {
@@ -279,6 +291,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 
 void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
+#ifdef COPY_ON_DRAG_ENABLED
     if (isItemMoving_)
     {
         //bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
@@ -304,6 +317,7 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
             }
         }
     }
+#endif
 
     bool ctrl = (keyEvent->modifiers() == Qt::ControlModifier);
     if (ctrl && keyEvent->key() == Qt::Key_C)
@@ -394,7 +408,7 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
                             copyPos.setY(di->pos().y());
                     }
 
-                    copyPos += {40, 40};
+                    copyPos += {80, 80};
                 }
 
                 if (first)

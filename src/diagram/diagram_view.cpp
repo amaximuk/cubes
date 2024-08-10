@@ -9,6 +9,8 @@
 
 using namespace CubesDiagram;
 
+//#define COPY_ON_DRAG_ENABLED
+
 DiagramView::DiagramView(CubesTop::ITopManager* topManager, QGraphicsScene *scene, QWidget *parent):
     QGraphicsView(scene, parent)
 {
@@ -165,29 +167,33 @@ void DiagramView::mouseReleaseEvent(QMouseEvent* event)
 
 void DiagramView::keyPressEvent(QKeyEvent* event)
 {
+#ifdef COPY_ON_DRAG_ENABLED
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
     bool shift = (event->modifiers() == Qt::ShiftModifier);
     if (shift)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
     }
+#endif
+
     QGraphicsView::keyPressEvent(event);
 }
 
 void DiagramView::keyReleaseEvent(QKeyEvent* event)
 {
+#ifdef COPY_ON_DRAG_ENABLED
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
     bool shift = (event->modifiers() == Qt::ShiftModifier);
     if (!shift)
     {
         setDragMode(QGraphicsView::RubberBandDrag);
     }
+#endif
 
     QGraphicsView::keyReleaseEvent(event);
 }
 
 QRectF DiagramView::GetVisibleSceneRect()
 {
-    const auto sceneRect = mapToScene(rect()).boundingRect();
-    return sceneRect;
+    return mapToScene(rect()).boundingRect();
 }
