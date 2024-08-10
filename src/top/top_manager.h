@@ -59,6 +59,7 @@ namespace CubesTop
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
         virtual bool AddUnits(QList<CubesXml::Unit>& units) override;
         virtual bool AddUnits(CubesXml::File& file) override;
+        virtual bool GetVisibleSceneRect(QRectF& rect) override;
 
         // ILogManager
         virtual void AddMessage(const CubesLog::Message& m) override;

@@ -23,8 +23,6 @@ namespace CubesDiagram
         QGraphicsItem* movingItem_;
         QList<QPair<DiagramItem*, DiagramItem*>> dragItems_;
         bool selectedWithCtrl_;
-        QPointF copyPosition_;
-        bool isCoping_;
 
     public:
         explicit DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogManager* logManager, QObject* parent = nullptr);

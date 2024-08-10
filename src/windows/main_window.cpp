@@ -209,6 +209,16 @@ bool MainWindow::EnshureVisible(CubesUnit::PropertiesId propertiesId)
 
     return true;
 }
+
+bool MainWindow::GetVisibleSceneRect(QRectF& rect)
+{
+    // TopManager::GetVisibleSceneRect(rect);
+
+    rect = view_->GetVisibleSceneRect();
+
+    return true;
+}
+
 /*
 bool MainWindow::GetAnalysisFiles(QVector<CubesAnalysis::File>& files)
 {

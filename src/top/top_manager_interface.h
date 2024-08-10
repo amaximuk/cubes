@@ -40,5 +40,6 @@ namespace CubesTop
 
         virtual bool AddUnits(QList<CubesXml::Unit>& units) = 0;
         virtual bool AddUnits(CubesXml::File& file) = 0;
+        virtual bool GetVisibleSceneRect(QRectF& rect) = 0;
     };
 }

@@ -207,6 +207,11 @@ bool TopManager::AddUnits(CubesXml::File& file)
     return true;
 }
 
+bool TopManager::GetVisibleSceneRect(QRectF& rect)
+{
+    return true;
+}
+
 // ILogManager
 void TopManager::AddMessage(const CubesLog::Message& m)
 {

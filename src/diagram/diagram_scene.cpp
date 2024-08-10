@@ -23,7 +23,6 @@ DiagramScene::DiagramScene(CubesTop::ITopManager* topManager, CubesLog::ILogMana
     isItemMoving_ = false;
     movingItem_ = nullptr;
     selectedWithCtrl_ = false;
-    isCoping_ = false;
 }
 
 void DiagramScene::InformBasePropertiesChanged(CubesUnit::PropertiesId propertiesId, const QString& name,
@@ -311,8 +310,6 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
     {
         qDebug() << "CTRL-C";
 
-        isCoping_ = false;
-
         std::vector<CubesXml::Unit> xmlUnits;
         for (auto& item : selectedItems())
         {
@@ -321,19 +318,6 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
             CubesXml::Unit xmlUnit{};
             topManager_->GetPropetiesXmlUnit(propertiesId, xmlUnit);
             xmlUnits.push_back(xmlUnit);
-        
-            if (!isCoping_)
-            {
-                isCoping_ = true;
-                copyPosition_ = di->pos();
-            }
-            else
-            {
-                if (copyPosition_.x() < di->pos().x())
-                    copyPosition_.setX(di->pos().x());
-                if (copyPosition_.y() < di->pos().y())
-                    copyPosition_.setY(di->pos().y());
-            }
         }
 
         CubesXml::Writer writer(logManager_);
@@ -369,55 +353,67 @@ void DiagramScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 
 
-            bool first = true;
             QPointF pastePos;
-            for (const auto& unit : units)
             {
-                qreal x = unit.x;
-                qreal y = unit.y;
+                bool first = true;
+                for (const auto& unit : units)
+                {
+                    qreal x = unit.x;
+                    qreal y = unit.y;
+                    if (first)
+                    {
+                        first = false;
+                        pastePos = { x, y };
+                    }
+                    else
+                    {
+                        if (pastePos.x() > x)
+                            pastePos.setX(x);
+                        if (pastePos.y() > y)
+                            pastePos.setY(y);
+                    }
+                }
+            }
+
+            QPointF copyPos;
+            {
+                bool first = true;
+                for (auto& item : selectedItems())
+                {
+                    DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
+                    if (first)
+                    {
+                        first = false;
+                        copyPos = di->pos();
+                    }
+                    else
+                    {
+                        if (copyPos.x() > di->pos().x())
+                            copyPos.setX(di->pos().x());
+                        if (copyPos.y() > di->pos().y())
+                            copyPos.setY(di->pos().y());
+                    }
+
+                    copyPos += {40, 40};
+                }
+
                 if (first)
                 {
-                    first = false;
-                    pastePos = { x, y };
-                }
-                else
-                {
-                    if (pastePos.x() > x)
-                        pastePos.setX(x);
-                    if (pastePos.y() > y)
-                        pastePos.setY(y);
+                    QRectF rect{};
+                    if (!topManager_->GetVisibleSceneRect(rect))
+                        rect = QRectF(0, 0, 0, 0);
+                    copyPos = rect.center();
                 }
             }
 
-
-
-            isCoping_ = false;
-            for (auto& item : selectedItems())
-            {
-                DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-                if (!isCoping_)
-                {
-                    isCoping_ = true;
-                    copyPosition_ = di->pos();
-                }
-                else
-                {
-                    if (copyPosition_.x() > di->pos().x())
-                        copyPosition_.setX(di->pos().x());
-                    if (copyPosition_.y() > di->pos().y())
-                        copyPosition_.setY(di->pos().y());
-                }
-            }
-
-
-            QPointF deltaPos{ copyPosition_.x() - pastePos.x(), copyPosition_.y() - pastePos.y() };
+            QPointF deltaPos{ copyPos.x() - pastePos.x(), copyPos.y() - pastePos.y() };
 
 
 
             for (auto& unit : units)
             {
-                unit.x += deltaPos.x() + 40;
-                unit.y += deltaPos.y() + 40;
+                unit.x += deltaPos.x();
+                unit.y += deltaPos.y();
             }
 
 

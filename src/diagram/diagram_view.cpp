@@ -185,3 +185,9 @@ void DiagramView::keyReleaseEvent(QKeyEvent* event)
 
     QGraphicsView::keyReleaseEvent(event);
 }
+
+QRectF DiagramView::GetVisibleSceneRect()
+{
+    const auto sceneRect = mapToScene(rect()).boundingRect();
+    return sceneRect;
+}
