@@ -228,6 +228,39 @@ bool MainWindow::AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::P
     return true;
 }
 
+bool MainWindow::UnitsContextMenuRequested(QPoint globalPosition, QList<CubesUnit::PropertiesId>& propertiesIds)
+{
+    TopManager::UnitsContextMenuRequested(globalPosition, propertiesIds);
+
+    QMenu contextMenu("Context menu");
+    const auto fileIdNames = fileItemsManager_->GetFileNames();
+
+    if (!fileIdNames.isEmpty())
+    {
+        QMenu* moveToFileMenu = contextMenu.addMenu(QString::fromLocal8Bit("Ïונולוסעטעü ג פאיכ"));
+        for (const auto& fileIdName : fileIdNames.toStdMap())
+        {
+            QMenu* fileMenu = moveToFileMenu->addMenu(fileIdName.second);
+
+            CubesUnit::IncludeIdNames includeIdNames;
+            fileItemsManager_->GetFileIncludeNames(fileIdName.first, true, includeIdNames);
+            for (const auto& includeIdName : includeIdNames.toStdMap())
+            {
+                QAction* action = new QAction(includeIdName.second, this);
+                QVariantList list(propertiesIds.cbegin(), propertiesIds.cend());
+                action->setProperty("propertiesIds", list);
+                action->setProperty("fileId", fileIdName.first);
+                action->setProperty("includeId", includeIdName.first);
+                connect(action, &QAction::triggered, this, &MainWindow::OnSetFileMenuAction);
+                fileMenu->addAction(action);
+            }
+        }
+    }
+    contextMenu.exec(globalPosition);
+
+    return true;
+}
+
 bool MainWindow::GetVisibleSceneRect(QRectF& rect)
 {
     // TopManager::GetVisibleSceneRect(rect);
@@ -1202,6 +1235,27 @@ void MainWindow::OnTestAction()
 {
     log_table_model_->Clear();
     Test();
+}
+
+void MainWindow::OnSetFileMenuAction(bool checked)
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    const auto list = action->property("propertiesIds").toList();
+    const auto fileId = action->property("fileId").toUInt();
+    const auto includeId = action->property("includeId").toUInt();
+
+    for (const auto& item : list)
+    {
+        const auto propertiesId = item.toUInt();
+        auto unit = propertiesItemsManager_->GetItem(propertiesId);
+
+        const auto fileName = fileItemsManager_->GetFileName(fileId);
+        unit->SetFileIdName(fileId, fileName);
+
+        QString includeName;
+        fileItemsManager_->GetFileIncludeName(fileId, includeId, includeName);
+        unit->SetIncludeIdName(includeId, includeName);
+    }
 }
 
 // Ëמד

@@ -200,10 +200,8 @@ bool TopManager::AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::P
     return true;
 }
 
-bool TopManager::AddUnits(CubesXml::File& file)
+bool TopManager::UnitsContextMenuRequested(QPoint globalPosition, QList<CubesUnit::PropertiesId>& propertiesIds)
 {
-    fileItemsManager_->GetCurrentFileId();
-    //AddUnits(fileId, includeId, file);
     return true;
 }
 

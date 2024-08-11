@@ -20,6 +20,7 @@ DiagramView::DiagramView(CubesTop::ITopManager* topManager, QGraphicsScene *scen
     // без этого в начале масштабирования используется неправильная позиция курсора
     setMouseTracking(true);
 
+    //setContextMenuPolicy(Qt::CustomContextMenu);
     //setDragMode(QGraphicsView::ScrollHandDrag);
 }
 

@@ -39,7 +39,7 @@ namespace CubesTop
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) = 0;
 
         virtual bool AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds) = 0;
-        virtual bool AddUnits(CubesXml::File& file) = 0;
+        virtual bool UnitsContextMenuRequested(QPoint globalPosition, QList<CubesUnit::PropertiesId>& propertiesIds) = 0;
         virtual bool GetVisibleSceneRect(QRectF& rect) = 0;
     };
 }

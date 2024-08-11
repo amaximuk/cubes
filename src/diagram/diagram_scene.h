@@ -53,6 +53,7 @@ namespace CubesDiagram
         void drawBackground(QPainter* painter, const QRectF& rect) override;
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
         //void wheelEvent(QGraphicsSceneWheelEvent* wheelEvent) override;
+        void contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuEvent) override;
 
     private:
         DiagramItem* GetDiagramItem(QString name);

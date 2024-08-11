@@ -52,6 +52,7 @@ public:
     bool CreateDiagramItem(CubesUnit::PropertiesId propertiesId) override;
     bool EnshureVisible(CubesUnit::PropertiesId propertiesId) override;
     bool AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds) override;
+    bool UnitsContextMenuRequested(QPoint globalPosition, QList<CubesUnit::PropertiesId>& propertiesIds) override;
     bool GetVisibleSceneRect(QRectF& rect) override;
 
     // ILogManager
@@ -135,6 +136,9 @@ private slots:
     void OnSortRectAction();
     void OnRecentAction();
     void OnTestAction();
+
+    // ContextMenu
+    void OnSetFileMenuAction(bool checked);
 
     // ÀÓ„
     void OnErrorButtonClicked(bool checked);

@@ -58,7 +58,7 @@ namespace CubesTop
         virtual bool GetAnalysisFiles(QVector<CubesAnalysis::File>& files) override;
         virtual bool GetAnalysisProperties(QVector<CubesAnalysis::Properties>& properties) override;
         virtual bool AddUnits(const QList<CubesXml::Unit>& units, QList<CubesUnit::PropertiesId>& addedPropertiesIds) override;
-        virtual bool AddUnits(CubesXml::File& file) override;
+        virtual bool UnitsContextMenuRequested(QPoint globalPosition, QList<CubesUnit::PropertiesId>& propertiesIds) override;
         virtual bool GetVisibleSceneRect(QRectF& rect) override;
 
         // ILogManager
