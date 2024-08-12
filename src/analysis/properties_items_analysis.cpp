@@ -242,6 +242,7 @@ bool PropertiesItemsAnalysis::TestCyclicDependency(Rule rule)
 		};
 
 	// Проверяем все юниты
+	bool result = true;
 	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
 	{
 		QList<CubesUnit::PropertiesId> stack;
@@ -253,11 +254,11 @@ bool PropertiesItemsAnalysis::TestCyclicDependency(Rule rule)
 				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
 					{QString::fromLocal8Bit("Исходное имя"), resolvedNames[kvp.first].original} }, kvp.first);
 			
-			return false;
+			result = false;
 		}
 	}
 
-	return true;
+	return result;
 }
 
 void PropertiesItemsAnalysis::CreateRules()
