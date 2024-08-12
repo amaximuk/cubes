@@ -828,7 +828,7 @@ void MainWindow::RemoveRecent(QString fileName)
 // DiagramScene (as manager)
 void MainWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)
 {
-    auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+    auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
     pi->SetPosition(di->pos());
     
     UpdateFileState(path_, true);
@@ -836,14 +836,14 @@ void MainWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)
 
 void MainWindow::DiagramAfterItemCreated(CubesDiagram::DiagramItem* di)
 {
-    propertiesItemsManager_->Select(di->propertiesId_);
+    propertiesItemsManager_->Select(di->GetPropertiesId());
 
     UpdateFileState(path_, true);
 }
 
 void MainWindow::DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* di)
 {
-    propertiesItemsManager_->Remove(di->propertiesId_);
+    propertiesItemsManager_->Remove(di->GetPropertiesId());
 }
 
 void MainWindow::selectionChanged()
@@ -852,9 +852,9 @@ void MainWindow::selectionChanged()
     if (scene_->selectedItems().count() > 0)
     {
         CubesDiagram::DiagramItem* di = (CubesDiagram::DiagramItem*)(scene_->selectedItems()[0]);
-        auto pi = propertiesItemsManager_->GetItem(di->propertiesId_);
+        auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
         if (propertiesItemsManager_->GetCurrentPropertiesId() == 0)
-            propertiesItemsManager_->Select(di->propertiesId_);
+            propertiesItemsManager_->Select(di->GetPropertiesId());
     }
     else
     {
@@ -968,7 +968,7 @@ void MainWindow::PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertie
     for (auto& item : scene_->items())
     {
         CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
+        if (di->GetPropertiesId() == propertiesId)
         {
             item_to_select = item;
             break;
@@ -992,7 +992,7 @@ void MainWindow::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId,
     for (auto& item : scene_->items())
     {
         CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
+        if (di->GetPropertiesId() == propertiesId)
         {
             di->setPos(QPointF(posX, posY));
             di->setZValue(posZ);

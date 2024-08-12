@@ -7,7 +7,7 @@ namespace CubesDiagram
 {
     class DiagramItem : public QGraphicsItem
     {
-    public:
+    private:
         // TODO: Убрать обратно в private
         CubesUnit::PropertiesId propertiesId_;
         QImage pixmap_;
@@ -39,11 +39,12 @@ namespace CubesDiagram
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
     public:
+        CubesUnit::PropertiesId GetPropertiesId() { return propertiesId_; };
+        QString GetName() { return name_; };
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
-        void InformIncludeChanged();
-        void InformNameChanged(QString name, QString oldName);
-        void InformColorChanged(QColor color);
+        void SetIncludeName(QString includeName);
+        void SetName(QString name);
+        void SetColor(QColor color);
         void SetBorderOnly(bool borderOnly);
-        uint32_t GetPropertiesId() { return propertiesId_; };
     };
 }

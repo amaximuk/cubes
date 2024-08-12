@@ -34,15 +34,15 @@ void DiagramScene::InformBasePropertiesChanged(CubesUnit::PropertiesId propertie
     for (auto& item : items())
     {
         CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
-        if (di->propertiesId_ == propertiesId)
+        if (di->GetPropertiesId() == propertiesId)
         {
-            di->name_ = name;
-            di->fileName_ = fileName;
-            di->includeName_ = includeName;
-            di->color_ = color;
-            di->InformNameChanged(name, "");
-            di->InformIncludeChanged();
-            di->InformColorChanged(color);
+            //di->name_ = name;
+            //di->fileName_ = fileName;
+            //di->includeName_ = includeName;
+            //di->color_ = color;
+            di->SetName(name);
+            di->SetIncludeName(includeName);
+            di->SetColor(color);
         }
     }
 }
@@ -91,7 +91,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                     DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
                     DiagramItem* olddi = reinterpret_cast<DiagramItem*>(item);
 
-                    di->name_ = olddi->name_;
+                    //di->name_ = olddi->name_;
+                    di->SetName(olddi->GetName());
+
                     dragItems_.push_back({ di, olddi });
                     di->SetBorderOnly(true);
                     addItem(di);
@@ -221,8 +223,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         {
             for (auto& pair : dragItems_)
             {
-                pair.second->name_ = pair.first->name_;
-                pair.second->InformNameChanged(pair.first->name_, "");
+                //pair.second->name_ = pair.first->name_;
+                pair.second->SetName(pair.first->GetName());
                 delete pair.first;
             }
             dragItems_.clear();
@@ -463,7 +465,7 @@ void DiagramScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuE
         for (auto& item : selectedItems())
         {
             DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-            propertiesIds.push_back(di->propertiesId_);
+            propertiesIds.push_back(di->GetPropertiesId());
         }
 
         topManager_->UnitsContextMenuRequested(contextMenuEvent->screenPos(), propertiesIds);
@@ -484,7 +486,7 @@ DiagramItem* DiagramScene::GetDiagramItem(QString name)
     for (const auto& item : items())
     {
         DiagramItem* di = reinterpret_cast<DiagramItem*>(item);
-        if (name == di->name_)
+        if (name == di->GetName())
         {
             return di;
         }

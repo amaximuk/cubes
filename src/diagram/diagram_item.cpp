@@ -169,8 +169,10 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
     return QGraphicsItem::itemChange(change, value);
 }
 
-void DiagramItem::InformIncludeChanged()
+void DiagramItem::SetIncludeName(QString includeName)
 {
+    includeName_ = includeName;
+
     QFontMetricsF groupFontMetrics(groupFont_);
     includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, includeName_);
     includeTextRect_.adjust(-1, 0, 1, 0);
@@ -182,8 +184,9 @@ void DiagramItem::InformIncludeChanged()
     }
 }
 
-void DiagramItem::InformNameChanged(QString name, QString oldName)
+void DiagramItem::SetName(QString name)
 {
+    name_ = name;
     QFontMetricsF fontMetrics(font_);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
     textRect_.adjust(-1, 0, 1, 0);
@@ -195,7 +198,7 @@ void DiagramItem::InformNameChanged(QString name, QString oldName)
     }
 }
 
-void DiagramItem::InformColorChanged(QColor color)
+void DiagramItem::SetColor(QColor color)
 {
     color_ = color;
     if (scene() != nullptr)
