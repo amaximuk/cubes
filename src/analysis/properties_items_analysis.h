@@ -47,6 +47,7 @@ namespace CubesAnalysis
         bool TestUnitCategoryMismatch(Rule rule);
         bool TestUnitIdMismatch(Rule rule);
         bool TestCyclicDependency(Rule rule);
+        bool TestDependencyNotFound(Rule rule);
 
     private:
         void CreateRules();

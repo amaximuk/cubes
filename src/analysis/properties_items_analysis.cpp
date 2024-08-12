@@ -261,6 +261,89 @@ bool PropertiesItemsAnalysis::TestCyclicDependency(Rule rule)
 	return result;
 }
 
+bool PropertiesItemsAnalysis::TestDependencyNotFound(Rule rule)
+{
+	// Зависимости заданы именами юнитов с подставленными переменными
+	// Идем по каждому юниту, добавляем в список id юнитов, от которых
+	// есть зависимость, реккурсивно. Id должны быть уникальны, если нет - 
+	// значит есть цикл
+	// Имена могут повторяться, необходимо проверять все
+
+	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(
+		propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
+
+	// Получить по списку юнитов все id с заданным именем
+	auto getAllPropertiesIds = [&](const QString& resolvedName)
+		{
+			QList<CubesUnit::PropertiesId> result;
+			for (const auto& kvp : resolvedNames.toStdMap())
+			{
+				if (kvp.second.resolved == resolvedName)
+					result.push_back(kvp.first);
+			}
+			return result;
+		};
+
+	// Проверяем зависимости от заданного id вглубь
+	auto checkDependencies = [&](const CubesUnit::PropertiesId propertiesIdToCheck,
+		CubesUnit::Helper::Analyse::UnitDependency& badDependency, auto&& checkDependencies) -> bool
+		{
+			if (propertiesIdParameterModelPtrs_.contains(propertiesIdToCheck))
+			{
+				const auto dependencies = CubesUnit::Helper::Analyse::GetUnitDependencies(
+					propertiesIdParameterModelPtrs_[propertiesIdToCheck], fileIdParameterModelPtrs_, unitIdUnitParametersPtr_);
+
+				for (const auto& dependency : dependencies)
+				{
+					const auto propertiesIds = getAllPropertiesIds(dependency.name.resolved);
+
+					if (propertiesIds.isEmpty())
+					{
+						badDependency = dependency;
+						return false;
+					}
+				}
+			}
+			return true;
+		};
+
+	// Проверяем все юниты
+	bool result = true;
+	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
+	{
+		CubesUnit::Helper::Analyse::UnitDependency badDependency{};
+		if (!checkDependencies(kvp.first, badDependency, checkDependencies))
+		{
+			if (resolvedNames[kvp.first].original == resolvedNames[kvp.first].resolved)
+			{
+				if (badDependency.name.original == badDependency.name.resolved)
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
+						{QString::fromLocal8Bit("Имя зависимости"), badDependency.name.resolved} }, kvp.first);
+				else
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
+						{QString::fromLocal8Bit("Имя зависимости"), badDependency.name.resolved},
+						{QString::fromLocal8Bit("Исходное имя зависимости"), badDependency.name.resolved} }, kvp.first);
+			}
+			else
+			{
+				if (badDependency.name.original == badDependency.name.resolved)
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
+						{QString::fromLocal8Bit("Исходное имя"), resolvedNames[kvp.first].original},
+						{QString::fromLocal8Bit("Имя зависимости"), badDependency.name.resolved} }, kvp.first);
+				else
+					logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
+						{QString::fromLocal8Bit("Исходное имя"), resolvedNames[kvp.first].original},
+						{QString::fromLocal8Bit("Имя зависимости"), badDependency.name.resolved},
+						{QString::fromLocal8Bit("Исходное имя зависимости"), badDependency.name.resolved} }, kvp.first);
+			}
+
+			result = false;
+		}
+	}
+
+	return result;
+}
+
 void PropertiesItemsAnalysis::CreateRules()
 {
 	{
@@ -323,6 +406,18 @@ void PropertiesItemsAnalysis::CreateRules()
 		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestCyclicDependency, this, rule);
 	}
 
+	{
+		Rule rule{};
+		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::dependencyNotFound);
+		rule.type = CubesLog::MessageType::error;
+		rule.description = QString::fromLocal8Bit("Зависимость не существует");
+		rule.detailes = QString::fromLocal8Bit("Зависимость юнита не существует");
+		rule.isActive = true;
+		rules_.push_back(rule);
+
+		delegates_[rule.errorCode] = std::bind(&PropertiesItemsAnalysis::TestDependencyNotFound, this, rule);
+	}
+
 	assert((static_cast<CubesLog::BaseErrorCode>(PropertiesAnalysisErrorCode::__last__) -
 		CubesLog::GetSourceTypeCodeOffset(CubesLog::SourceType::propertiesAnalysis)) == rules_.size());
 
@@ -339,8 +434,8 @@ void PropertiesItemsAnalysis::CreateRules()
 	// Установлен флаг не задавать, но параметр задан
 	// Юнит есть в зависимостях, и для него установлен флаг зависимость
 	// Юнит есть в зависимостях, но можно установить вместо этого флаг зависимость
-	// -Зависимости не должны быть циклическими
-	// Зависимости должны быть в проекте
+	// +Зависимости не должны быть циклическими
+	// +Зависимости должны существовать
 	// Юнит должет существовать под выбранную в файле платформу
 	// В проекте обязан быть юнит task manager
 	// В проекте должно быть не более одного юнита task manager
