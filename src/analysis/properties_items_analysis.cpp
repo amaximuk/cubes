@@ -193,49 +193,71 @@ bool PropertiesItemsAnalysis::TestUnitIdMismatch(Rule rule)
 
 bool PropertiesItemsAnalysis::TestCyclicDependency(Rule rule)
 {
-	bool result = true;
+	// Зависимости заданы именами юнитов с подставленными переменными
+	// Идем по каждому юниту, добавляем в список id юнитов, от которых
+	// есть зависимость, реккурсивно. Id должны быть уникальны, если нет - 
+	// значит есть цикл
+	// Имена могут повторяться, необходимо проверять все
 
-	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
-	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
-	{
-		CubesUnit::Helper::Analyse::GetUnitDependencies(kvp.second, fileIdParameterModelPtrs_, unitIdUnitParametersPtr_);
-		const auto properties = CubesUnit::Helper::Analyse::GetUnitProperties(kvp.second, unitIdUnitParametersPtr_);
+	const auto resolvedNames = CubesUnit::Helper::Analyse::GetResolvedUnitNames(
+		propertiesIdParameterModelPtrs_, fileIdParameterModelPtrs_);
 
-		for (const auto& item : properties)
+	// Получить по списку юнитов все id с заданным именем
+	auto getAllPropertiesIds = [&](const QString& resolvedName)
 		{
-			// item.category - Категория параметра - та, что должна быть, исходя из типа параметра юнита и его restrictions
-			// item.value - Оригинальное имя юнита - возможно с переменными
-			const auto resolvedName = CubesUnit::Helper::Analyse::GetResolvedUnitName(kvp.second, fileIdParameterModelPtrs_, item.name);
-
-			// Ищем юнит по его имени
-			auto values = resolvedNames.toStdMap();
-			const auto it = std::find_if(values.cbegin(), values.cend(),
-				[&resolvedName](const auto& v) {return v.second.resolved == resolvedName.resolved; });
-			if (it != values.end())
+			QList<CubesUnit::PropertiesId> result;
+			for (const auto& kvp : resolvedNames.toStdMap())
 			{
-				const auto propertiesId = it->first;
-				const auto unitId = CubesUnit::Helper::Analyse::GetUnitId(propertiesId, propertiesIdParameterModelPtrs_,
-					unitIdUnitParametersPtr_);
+				if (kvp.second.resolved == resolvedName)
+					result.push_back(kvp.first);
+			}
+			return result;
+		};
 
-				if (!item.ids.contains(unitId, Qt::CaseInsensitive))
+	// Проверяем зависимости от заданного id вглубь
+	auto checkDependencies = [&](const CubesUnit::PropertiesId propertiesIdToCheck,
+		QList<CubesUnit::PropertiesId>& stack, auto&& checkDependencies) -> bool
+		{
+			stack.push_back(propertiesIdToCheck);
+			if (propertiesIdParameterModelPtrs_.contains(propertiesIdToCheck))
+			{
+				const auto dependencies = CubesUnit::Helper::Analyse::GetUnitDependencies(
+					propertiesIdParameterModelPtrs_[propertiesIdToCheck], fileIdParameterModelPtrs_, unitIdUnitParametersPtr_);
+
+				for (const auto& dependency : dependencies)
 				{
-					if (resolvedName.original == resolvedName.resolved)
-						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
-							{QString::fromLocal8Bit("Категория параметра"), item.ids.join(", ")},
-							{QString::fromLocal8Bit("Категория юнита"), unitId} }, kvp.first);
-					else
-						logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedName.resolved},
-							{QString::fromLocal8Bit("Исходное имя"), resolvedName.original},
-							{QString::fromLocal8Bit("Категория параметра"), item.ids.join(", ")},
-							{QString::fromLocal8Bit("Категория юнита"), unitId} }, kvp.first);
+					const auto propertiesIds = getAllPropertiesIds(dependency.name.resolved);
 
-					result = false;
+					for (const auto& propertiesId : propertiesIds)
+					{
+						if (stack.contains(propertiesId))
+							return false;
+
+						if (!checkDependencies(propertiesId, stack, checkDependencies))
+							return false;
+					}
 				}
 			}
+			return true;
+		};
+
+	// Проверяем все юниты
+	for (auto& kvp : propertiesIdParameterModelPtrs_.toStdMap())
+	{
+		QList<CubesUnit::PropertiesId> stack;
+		if (!checkDependencies(kvp.first, stack, checkDependencies))
+		{
+			if (resolvedNames[kvp.first].original == resolvedNames[kvp.first].resolved)
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved} }, kvp.first);
+			else
+				logHelper_->Log(rule.errorCode, { {QString::fromLocal8Bit("Имя"), resolvedNames[kvp.first].resolved},
+					{QString::fromLocal8Bit("Исходное имя"), resolvedNames[kvp.first].original} }, kvp.first);
+			
+			return false;
 		}
 	}
 
-	return result;
+	return true;
 }
 
 void PropertiesItemsAnalysis::CreateRules()
@@ -291,7 +313,7 @@ void PropertiesItemsAnalysis::CreateRules()
 	{
 		Rule rule{};
 		rule.errorCode = static_cast<uint32_t>(PropertiesAnalysisErrorCode::cyclicDependency);
-		rule.type = CubesLog::MessageType::warning;
+		rule.type = CubesLog::MessageType::error;
 		rule.description = QString::fromLocal8Bit("Циклическая зависимость");
 		rule.detailes = QString::fromLocal8Bit("Циклическая зависимость юнитов друг от друга");
 		rule.isActive = true;
@@ -316,7 +338,8 @@ void PropertiesItemsAnalysis::CreateRules()
 	// Установлен флаг не задавать, но параметр задан
 	// Юнит есть в зависимостях, и для него установлен флаг зависимость
 	// Юнит есть в зависимостях, но можно установить вместо этого флаг зависимость
-	// Зависимости не должны быть циклическими
+	// -Зависимости не должны быть циклическими
+	// Зависимости должны быть в проекте
 	// Юнит должет существовать под выбранную в файле платформу
 	// В проекте обязан быть юнит task manager
 	// В проекте должно быть не более одного юнита task manager
