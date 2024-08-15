@@ -23,7 +23,7 @@ namespace CubesTop
             const CubesUnit::IncludeId includeId, CubesUnit::VariableIdVariables& variables) = 0;
 
         virtual bool CreatePropetiesItem(const QString& name, uint32_t& propertiesId) = 0;
-        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) = 0;
+        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, CubesDiagram::PropertiesForDrawing& pfd) = 0;
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
             CubesUnit::UnitParametersPtr& unitParametersPtr) = 0;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) = 0;

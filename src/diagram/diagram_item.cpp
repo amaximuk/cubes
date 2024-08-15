@@ -5,15 +5,17 @@
 
 using namespace CubesDiagram;
 
-DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName, QString includeName, QColor color, QGraphicsItem* parent):
+DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::PropertiesForDrawing pfd, QGraphicsItem* parent):
     QGraphicsItem(parent)
 {
     propertiesId_ = propertiesId;
-    pixmap_ = pixmap;
-    name_ = name;
-    fileName_ = fileName;
-    includeName_ = includeName;
-    color_ = color;
+    pfd_ = pfd;
+    //pfd_.pixmap = pixmap;
+    //pfd_.name = name;
+    //fileName_ = fileName;
+    //pfd_.includeName = includeName;
+    //pfd_.color = color;
+    //itemType_ = itemType;
 
     borderOnly_ = false;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
@@ -23,12 +25,12 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, QImage pixmap, QS
     iconRect_ = QRect(0, 0, 32, 32);
 
     QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name_);
+    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
     textRect_.adjust(-1, 0, 1, 0);
     textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
 
     QFontMetricsF groupFontMetrics(groupFont_);
-    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, includeName_);
+    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
     includeTextRect_.adjust(-1, 0, 1, 0);
     includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
 
@@ -39,10 +41,13 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, QImage pixmap, QS
 DiagramItem::DiagramItem(const DiagramItem& other)
 {
     propertiesId_ = other.propertiesId_;
-    pixmap_ = QImage(other.pixmap_);
-    name_ = other.name_;
-    includeName_ = other.includeName_;
-    color_ = QColor(other.color_);
+    pfd_ = other.pfd_;
+
+    //pfd_.pixmap = QImage(other.pfd_.pixmap);
+    //pfd_.name = other.pfd_.name;
+    //pfd_.includeName = other.pfd_.includeName;
+    //pfd_.color = QColor(other.pfd_.color);
+    //itemType_ = other.itemType_;
 
     borderOnly_ = other.borderOnly_;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
@@ -80,30 +85,30 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     if (borderOnly_)
     {
-        qDebug() << "paint border " << name_;
+        qDebug() << "paint border " << pfd_.name;
         painter->fillRect(iconRect_, Qt::white);
         painter->setPen(Qt::black);
         painter->drawRect(iconRect_);
     }
     else
     {
-        qDebug() << "paint full " << name_;
+        qDebug() << "paint full " << pfd_.name;
         if (scene() != nullptr)
         {
             DiagramScene* ds = reinterpret_cast<DiagramScene*>(scene());
 
             painter->setRenderHint(QPainter::Antialiasing);
-            painter->drawImage(iconRect_, pixmap_);
+            painter->drawImage(iconRect_, pfd_.pixmap);
             painter->setFont(font_);
             painter->setPen(Qt::blue);
-            painter->drawText(textRect_, name_, Qt::AlignCenter | Qt::AlignHCenter);
-            painter->setPen(QPen(QBrush(color_, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter->drawText(textRect_, pfd_.name, Qt::AlignCenter | Qt::AlignHCenter);
+            painter->setPen(QPen(QBrush(pfd_.color, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             painter->drawRect(iconRect_);
 
-            QString includeName = includeName_;
+            QString includeName = pfd_.includeName;
             if (includeName != "<not selected>")
             {
-                QColor colorGroup(color_);
+                QColor colorGroup(pfd_.color);
                 colorGroup.setAlpha(0xFF);
                 painter->setFont(groupFont_);
                 painter->setPen(colorGroup);
@@ -169,12 +174,17 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
     return QGraphicsItem::itemChange(change, value);
 }
 
+void DiagramItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    qDebug() << "";
+}
+
 void DiagramItem::SetIncludeName(QString includeName)
 {
-    includeName_ = includeName;
+    pfd_.includeName = includeName;
 
     QFontMetricsF groupFontMetrics(groupFont_);
-    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, includeName_);
+    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
     includeTextRect_.adjust(-1, 0, 1, 0);
     includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
     boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
@@ -186,7 +196,7 @@ void DiagramItem::SetIncludeName(QString includeName)
 
 void DiagramItem::SetName(QString name)
 {
-    name_ = name;
+    pfd_.name = name;
     QFontMetricsF fontMetrics(font_);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
     textRect_.adjust(-1, 0, 1, 0);
@@ -200,7 +210,7 @@ void DiagramItem::SetName(QString name)
 
 void DiagramItem::SetColor(QColor color)
 {
-    color_ = color;
+    pfd_.color = color;
     if (scene() != nullptr)
     {
         scene()->invalidate();
@@ -209,7 +219,7 @@ void DiagramItem::SetColor(QColor color)
 
 void DiagramItem::SetBorderOnly(bool borderOnly)
 {
-    qDebug() << "set border " << borderOnly << " " << name_;
+    qDebug() << "set border " << borderOnly << " " << pfd_.name;
 
     borderOnly_ = borderOnly;
     if (scene() != nullptr)

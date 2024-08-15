@@ -160,7 +160,7 @@ bool MainWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::CreateDiagramItem(propertiesId);
 
-    CubesTop::PropertiesForDrawing pfd{};
+    CubesDiagram::PropertiesForDrawing pfd{};
 
     const auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -179,7 +179,17 @@ bool MainWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
     const auto pos = pi->GetPosition();
     const auto z = pi->GetZOrder();
 
-    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    CubesDiagram::ItemType itemType = CubesDiagram::ItemType::Unit;
+    if (pi->GetUnitCategory().compare("misc", Qt::CaseInsensitive))
+    {
+        if (pi->GetUnitId().compare("text", Qt::CaseInsensitive))
+            itemType = CubesDiagram::ItemType::Text;
+        else if (pi->GetUnitId().compare("group", Qt::CaseInsensitive))
+            itemType = CubesDiagram::ItemType::Group;
+    }
+    pfd.itemType = itemType;
+
+    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd);
     di->setX(pos.x());
     di->setY(pos.y());
     di->setZValue(z);

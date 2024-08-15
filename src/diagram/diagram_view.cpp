@@ -76,13 +76,13 @@ void DiagramView::dropEvent(QDropEvent *event)
                 qDebug() << "ERROR CreatePropetiesItem: " << unitId;
             }
 
-            CubesTop::PropertiesForDrawing pfd{};
+            CubesDiagram::PropertiesForDrawing pfd{};
             if (!topManager_->GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;
             }
 
-            DiagramItem *di = new DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+            DiagramItem *di = new DiagramItem(propertiesId, pfd);
 
             ds->InformItemCreated(di);
 

@@ -1031,7 +1031,19 @@ double PropertiesItem::GetZOrder()
         return pmZ->value.toDouble();
     else
         return 0;
+}
 
+CubesDiagram::ItemType PropertiesItem::GetItemType()
+{
+    CubesDiagram::ItemType itemType = CubesDiagram::ItemType::Unit;
+    if (GetUnitCategory().compare("misc", Qt::CaseInsensitive) == 0)
+    {
+        if (GetUnitId().compare("text", Qt::CaseInsensitive) == 0)
+            itemType = CubesDiagram::ItemType::Text;
+        else if (GetUnitId().compare("group", Qt::CaseInsensitive) == 0)
+            itemType = CubesDiagram::ItemType::Group;
+    }
+    return itemType;
 }
 
 QString PropertiesItem::GetPropertyDescription(QtProperty* property)

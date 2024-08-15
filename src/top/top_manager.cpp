@@ -105,7 +105,7 @@ bool TopManager::CreatePropetiesItem(const QString& unitId, uint32_t& properties
     return true;
 }
 
-bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd)
+bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, CubesDiagram::PropertiesForDrawing& pfd)
 {
     auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -119,6 +119,7 @@ bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, Pr
     pfd.fileName = pi->GetFileName();
     pfd.includeName = pi->GetIncludeName();
     pfd.color = fileItemsManager_->GetFileColor(pi->GetFileId());
+    pfd.itemType = pi->GetItemType();
 
     return true;
 }
@@ -392,7 +393,7 @@ bool TopManager::AddUnits(const CubesUnit::FileId fileId, const CubesUnit::Inclu
                 pi->SetIncludeIdName(includeId, includeName);
             }
 
-            PropertiesForDrawing pfd{};
+            CubesDiagram::PropertiesForDrawing pfd{};
             if (!GetPropetiesForDrawing(propertiesId, pfd))
             {
                 qDebug() << "ERROR GetPropeties: " << propertiesId;

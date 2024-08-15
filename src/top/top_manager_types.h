@@ -3,17 +3,19 @@
 #include <QString>
 #include <QImage>
 #include <QColor>
+#include "../diagram/diagram_item_types.h"
 
 namespace CubesTop
 {
-    struct PropertiesForDrawing
-    {
-        QImage pixmap;
-        QString name;
-        QString fileName;
-        QString includeName;
-        QColor color;
-    };
+  //  struct PropertiesForDrawing
+  //  {
+  //      QImage pixmap;
+  //      QString name;
+  //      QString fileName;
+  //      QString includeName;
+  //      QColor color;
+		//CubesDiagram::ItemType itemType;
+  //  };
 
 	enum class TopManagerErrorCode : CubesLog::BaseErrorCode
 	{

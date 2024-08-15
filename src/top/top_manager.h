@@ -46,7 +46,7 @@ namespace CubesTop
         virtual bool GetFileIncludeVariableList(CubesUnit::FileId fileId, CubesUnit::IncludeId includeId,
             CubesUnit::VariableIdVariables& variables) override;
         virtual bool CreatePropetiesItem(const QString& unitId, CubesUnit::PropertiesId& propertiesId) override;
-        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, PropertiesForDrawing& pfd) override;
+        virtual bool GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, CubesDiagram::PropertiesForDrawing& pfd) override;
         virtual bool GetPropetiesUnitParameters(CubesUnit::PropertiesId propertiesId,
             CubesUnit::UnitParametersPtr& unitParametersPtr) override;
         virtual bool GetPropetiesUnitId(CubesUnit::PropertiesId propertiesId, QString& unitId) override;

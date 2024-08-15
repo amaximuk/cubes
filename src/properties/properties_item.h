@@ -7,6 +7,7 @@
 #include "../analysis/analysis_types.h"
 #include "../xml/xml_parser.h"
 #include "../property_browser/properties_editor.h"
+#include "../diagram/diagram_item_types.h"
 
 namespace CubesLog { class ILogManager; }
 namespace CubesLog { class LogHelper; }
@@ -89,7 +90,7 @@ namespace CubesProperties
         CubesUnit::UnitParametersPtr GetUnitParametersPtr() { return unitParametersPtr_; };
         QString GetUnitId() { return QString::fromStdString(unitParametersPtr_->fileInfo.info.id); };
         QString GetUnitCategory() { return QString::fromStdString(unitParametersPtr_->fileInfo.info.category); };
-
+        CubesDiagram::ItemType GetItemType();
 
         QString GetPropertyDescription(QtProperty* property);
         QList<QString> GetConnectedNames();

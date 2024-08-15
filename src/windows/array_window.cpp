@@ -61,7 +61,7 @@ bool ArrayWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::CreateDiagramItem(propertiesId);
 
-    CubesTop::PropertiesForDrawing pfd{};
+    CubesDiagram::PropertiesForDrawing pfd{};
 
     const auto pi = propertiesItemsManager_->GetItem(propertiesId);
     if (pi == nullptr)
@@ -80,7 +80,9 @@ bool ArrayWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
     const auto pos = pi->GetPosition();
     const auto z = pi->GetZOrder();
 
-    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+    pfd.itemType = CubesDiagram::ItemType::Unit;
+
+    auto di = new CubesDiagram::DiagramItem(propertiesId, pfd);
     di->setX(pos.x());
     di->setY(pos.y());
     di->setZValue(z);
@@ -253,7 +255,7 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterMo
         propertiesItemsManager_->Create(QString::fromStdString(afi.info.id), m, propertiesId);
         auto pi = propertiesItemsManager_->GetItem(propertiesId);
 
-        CubesTop::PropertiesForDrawing pfd{};
+        CubesDiagram::PropertiesForDrawing pfd{};
         if (!GetPropetiesForDrawing(propertiesId, pfd))
         {
             qDebug() << "ERROR GetPropeties: " << propertiesId;
@@ -261,7 +263,9 @@ void ArrayWindow::SetItemModel(parameters::file_info afi, CubesUnit::ParameterMo
         const auto position = pi->GetPosition();
         const auto zOrder = pi->GetZOrder();
 
-        di = new CubesDiagram::DiagramItem(propertiesId, pfd.pixmap, pfd.name, pfd.fileName, pfd.includeName, pfd.color);
+        pfd.itemType = CubesDiagram::ItemType::Unit;
+
+        di = new CubesDiagram::DiagramItem(propertiesId, pfd);
         di->setX(position.x());
         di->setY(position.y());
         di->setZValue(zOrder);

@@ -2,19 +2,21 @@
 
 #include <QGraphicsItem>
 #include "../unit/unit_types.h"
+#include "diagram_item_types.h"
 
 namespace CubesDiagram
 {
     class DiagramItem : public QGraphicsItem
     {
     private:
-        // TODO: Убрать обратно в private
         CubesUnit::PropertiesId propertiesId_;
-        QImage pixmap_;
-        QString name_;
-        QString fileName_;
-        QString includeName_;
-        QColor color_;
+        CubesDiagram::PropertiesForDrawing pfd_;
+        //QImage pixmap_;
+        //QString name_;
+        //QString fileName_;
+        //QString includeName_;
+        //QColor color_;
+        //ItemType itemType_;
 
     private:
         QFont font_;
@@ -26,8 +28,7 @@ namespace CubesDiagram
         bool borderOnly_;
 
     public:
-        DiagramItem(CubesUnit::PropertiesId propertiesId, QImage pixmap, QString name, QString fileName,
-            QString includeName, QColor color, QGraphicsItem* parent = nullptr);
+        DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::PropertiesForDrawing pfd, QGraphicsItem* parent = nullptr);
         DiagramItem(const DiagramItem& other);
         ~DiagramItem();
 
@@ -37,10 +38,11 @@ namespace CubesDiagram
         QPainterPath shape() const override;
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+        void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
     public:
         CubesUnit::PropertiesId GetPropertiesId() { return propertiesId_; };
-        QString GetName() { return name_; };
+        QString GetName() { return pfd_.name; };
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
         void SetIncludeName(QString includeName);
         void SetName(QString name);
