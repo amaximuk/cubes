@@ -121,6 +121,11 @@ bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, Cu
     pfd.color = fileItemsManager_->GetFileColor(pi->GetFileId());
     pfd.itemType = pi->GetItemType();
 
+    if (pfd.itemType == CubesDiagram::ItemType::Text)
+    {
+        pfd.text = pi->GetText();
+    }
+
     return true;
 }
 
@@ -245,7 +250,7 @@ void TopManager::FillParametersInfo(const QString& parametersPath, bool isMock)
 
                 // ƒобавл€ем параметр - зависимости, его нет в параметрах юнитов, но он может присутствовать в xml файле
                 // ѕринцип обработки такой же как и у остальных параметров
-                //if (fi.info.id != "group" && fi.info.id != "group_mock")
+                if (fi.info.category != "Misc" && fi.info.category != "misc")
                 {
                     parameters::parameter_info pi{};
                     pi.type = QString::fromLocal8Bit("array<string>").toStdString();

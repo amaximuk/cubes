@@ -34,6 +34,12 @@ namespace CubesUnit
 		// PARAMETERS/LOG/LOGGING_LEVEL
 		// PARAMETERS/LOG/TOTAL_LOG_LIMIT_MB
 		// PARAMETERS/LOG/LOG_DIR
+		// PARAMETERS/DEPENDENCIES
+		
+		// PARAMETERS/TEXT
+		// PARAMETERS/HEIGHT
+		// PARAMETERS/WIDTH
+
 		// EDITOR
 		// EDITOR/COLOR
 
@@ -86,6 +92,10 @@ namespace CubesUnit
 		const CubesUnit::ParameterModelId logDir;
 		const CubesUnit::ParameterModelId dependencies;
 
+		const CubesUnit::ParameterModelId text;
+		const CubesUnit::ParameterModelId height;
+		const CubesUnit::ParameterModelId width;
+
 		const CubesUnit::ParameterModelId editor;
 		const CubesUnit::ParameterModelId color;
 		const CubesUnit::ParameterModelId depends;
@@ -129,6 +139,10 @@ namespace CubesUnit
 			totalLogLimitMb("$TOTAL_LOG_LIMIT_MB"),
 			logDir("$LOG_DIR"),
 			dependencies("$DEPENDENCIES"),
+
+			text("$TEXT"),
+			height("$HEIGHT"),
+			width("$WIDTH"),
 
 			editor("$EDITOR"),
 			color("$COLOR"),

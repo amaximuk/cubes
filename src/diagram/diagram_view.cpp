@@ -161,6 +161,12 @@ void DiagramView::mousePressEvent(QMouseEvent* event)
 {
     QGraphicsView::mousePressEvent(event);
 }
+
+void DiagramView::mouseMoveEvent(QMouseEvent* event)
+{
+    QGraphicsView::mouseMoveEvent(event);
+}
+
 void DiagramView::mouseReleaseEvent(QMouseEvent* event)
 {
     QGraphicsView::mouseReleaseEvent(event);

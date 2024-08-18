@@ -96,7 +96,7 @@ namespace CubesProperties
         QList<QString> GetConnectedNames();
         QList<QString> GetDependentNames();
 
-
+        QString GetText();
 
 
         void GetXml(CubesXml::Unit& xmlUnit);

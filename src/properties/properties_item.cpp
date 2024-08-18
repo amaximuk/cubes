@@ -1231,6 +1231,15 @@ QList<QString> PropertiesItem::GetDependentNames()
     return list;
 }
 
+QString PropertiesItem::GetText()
+{
+    const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.text);
+    if (pm != nullptr)
+        return pm->value.toString();
+
+    return "";
+}
+
 void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model)
 {
     // Созадем модель для параметра, хранящего количество элементов массива

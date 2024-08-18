@@ -59,6 +59,9 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+    // call first to check resize - недостаточно
+    //QGraphicsScene::mousePressEvent(event);
+
     if (event->buttons() == Qt::LeftButton)
     {
         bool ctrl = (event->modifiers() == Qt::ControlModifier);
@@ -66,6 +69,16 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         {
             // TODO: Ошибка: Если выделять за границу прямоугольника itemAt возвращает 0, но item выделен!!!
             movingItem_ = itemAt(event->scenePos(), QTransform());
+
+
+            //{
+            //    DiagramItem* di = reinterpret_cast<DiagramItem*>(movingItem_);
+            //    if (di->IsResizing())
+            //        return;
+            //}
+
+
+
             qDebug() << "moving item: " << movingItem_ << ", pos: " << event->scenePos();
             if (movingItem_ != nullptr)
             {
@@ -281,6 +294,10 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 #endif
     {
         if (keyEvent->key() == Qt::Key_Delete)
+        {
+
+        }
+        else if (keyEvent->key() == Qt::Key_Delete)
         {
             for (auto item : selectedItems())
             {

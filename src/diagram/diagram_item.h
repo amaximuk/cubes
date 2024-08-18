@@ -39,6 +39,12 @@ namespace CubesDiagram
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
         void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+        void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+        void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+        void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+        void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
+        void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+        void keyPressEvent(QKeyEvent* keyEvent) override;
 
     public:
         CubesUnit::PropertiesId GetPropertiesId() { return propertiesId_; };
@@ -48,5 +54,7 @@ namespace CubesDiagram
         void SetName(QString name);
         void SetColor(QColor color);
         void SetBorderOnly(bool borderOnly);
+
+        bool IsResizing();
     };
 }
