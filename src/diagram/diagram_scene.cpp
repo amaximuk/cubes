@@ -60,7 +60,8 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     // call first to check resize - недостаточно
-    QGraphicsScene::mousePressEvent(event);
+    // если вызывать здесь, то не работает событие selectionChanged в сцене
+    //QGraphicsScene::mousePressEvent(event);
 
     if (event->buttons() == Qt::LeftButton)
     {
@@ -141,7 +142,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
 
     // Always remember to call parents mousePressEvent
-    //QGraphicsScene::mousePressEvent(event);
+    QGraphicsScene::mousePressEvent(event);
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
