@@ -180,11 +180,11 @@ bool MainWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
     const auto z = pi->GetZOrder();
 
     CubesDiagram::ItemType itemType = CubesDiagram::ItemType::Unit;
-    if (pi->GetUnitCategory().compare("misc", Qt::CaseInsensitive))
+    if (pi->GetUnitCategory().compare("misc", Qt::CaseInsensitive) == 0)
     {
-        if (pi->GetUnitId().compare("text", Qt::CaseInsensitive))
+        if (pi->GetUnitId().compare("text", Qt::CaseInsensitive) == 0)
             itemType = CubesDiagram::ItemType::Text;
-        else if (pi->GetUnitId().compare("group", Qt::CaseInsensitive))
+        else if (pi->GetUnitId().compare("group", Qt::CaseInsensitive) == 0)
             itemType = CubesDiagram::ItemType::Group;
     }
     pfd.itemType = itemType;

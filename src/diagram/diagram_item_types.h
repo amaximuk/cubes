@@ -8,6 +8,8 @@
 
 namespace CubesDiagram
 {
+    constexpr int GridSize = 16;
+
 	enum class ItemType
 	{
 		Unit,
@@ -25,5 +27,35 @@ namespace CubesDiagram
         ItemType itemType;
         QSize size;
         QString text;
+
+        PropertiesForDrawing()
+        {
+            itemType = ItemType::Unit;
+        }
+
+        PropertiesForDrawing(const PropertiesForDrawing& other)
+        {
+            pixmap = QImage(other.pixmap);
+            name = other.name;
+            fileName = other.fileName;
+            includeName = other.includeName;
+            color = QColor(other.color);
+            itemType = other.itemType;
+            size = other.size;
+            text = other.text;
+        }
+
+        PropertiesForDrawing& operator=(const PropertiesForDrawing& other)
+        {
+            pixmap = QImage(other.pixmap);
+            name = other.name;
+            fileName = other.fileName;
+            includeName = other.includeName;
+            color = QColor(other.color);
+            itemType = other.itemType;
+            size = other.size;
+            text = other.text;
+            return *this;
+        }
     };
 }

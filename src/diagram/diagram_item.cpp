@@ -16,12 +16,6 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
 
     propertiesId_ = propertiesId;
     pfd_ = pfd;
-    //pfd_.pixmap = pixmap;
-    //pfd_.name = name;
-    //fileName_ = fileName;
-    //pfd_.includeName = includeName;
-    //pfd_.color = color;
-    //itemType_ = itemType;
 
     borderOnly_ = false;
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |
@@ -29,7 +23,7 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
 
     font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
-    iconRect_ = QRect(0, 0, 32, 32);
+    iconRect_ = QRect(0, 0, GridSize * 2, GridSize * 2);
 
     QFontMetricsF fontMetrics(font_);
     textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
@@ -50,14 +44,9 @@ DiagramItem::DiagramItem(const DiagramItem& other)
     propertiesId_ = other.propertiesId_;
     pfd_ = other.pfd_;
 
-    //pfd_.pixmap = QImage(other.pfd_.pixmap);
-    //pfd_.name = other.pfd_.name;
-    //pfd_.includeName = other.pfd_.includeName;
-    //pfd_.color = QColor(other.pfd_.color);
-    //itemType_ = other.itemType_;
-
     borderOnly_ = other.borderOnly_;
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |
+        QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsFocusable);
     font_ = QFont(other.font_);
     groupFont_ = QFont(other.groupFont_);
     iconRect_ = other.iconRect_;
@@ -170,7 +159,7 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
                 QPointF newPos = value.toPointF();
 
                 // Grid
-                int gridSize = 20;
+                int gridSize = GridSize;
                 qreal xV = round(newPos.x() / gridSize) * gridSize;
                 qreal yV = round(newPos.y() / gridSize) * gridSize;
                 sc->InformItemPositionChanged(this);
@@ -239,7 +228,7 @@ void DiagramItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             delta.setX(0);
 
         // Grid
-        int gridSize = 20;
+        int gridSize = GridSize;
         qreal xV = round(delta.x() / gridSize) * gridSize;
         qreal yV = round(delta.y() / gridSize) * gridSize;
         delta = { xV, yV };
@@ -359,7 +348,7 @@ void DiagramItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 void DiagramItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
-    qDebug() << "hoverMoveEvent";
+    //qDebug() << "hoverMoveEvent";
     QGraphicsItem::hoverMoveEvent(event);
 
     if (scene() != nullptr)

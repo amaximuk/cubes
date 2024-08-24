@@ -88,7 +88,7 @@ void DiagramView::dropEvent(QDropEvent *event)
 
             QPoint position = mapToScene(event->pos()-QPoint(24,24)).toPoint();
 
-            int gridSize = 20;
+            int gridSize = GridSize;
             qreal xV = round(position.x() / gridSize) * gridSize;
             qreal yV = round(position.y() / gridSize) * gridSize;
             position = QPoint(xV, yV);

@@ -309,7 +309,7 @@ bool PropertiesItemsManager::SortUnitsBoost()
 
 		int i = nameToIndex[name];
 
-		int gridSize = 20;
+		int gridSize = CubesDiagram::GridSize;
 		QPointF position(80 + coordinates[i].first * 80, 80 + coordinates[i].second * 80);
 
 		item->SetPosition(position);

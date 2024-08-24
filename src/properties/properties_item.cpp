@@ -212,7 +212,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             pm->editorSettings.type = CubesUnit::EditorType::SpinDouble;
             pm->editorSettings.spinDoubleMin = -10000;
             pm->editorSettings.spinDoubleMax = 10000;
-            pm->editorSettings.spinDoubleSingleStep = 20;
+            pm->editorSettings.spinDoubleSingleStep = CubesDiagram::GridSize;
             editor_group->parameters.push_back(std::move(pm));
         }
 
@@ -224,7 +224,7 @@ void PropertiesItem::CreateParametersModel(const CubesXml::Unit* xmlUnit, bool i
             pm->editorSettings.type = CubesUnit::EditorType::SpinDouble;
             pm->editorSettings.spinDoubleMin = -10000;
             pm->editorSettings.spinDoubleMax = 10000;
-            pm->editorSettings.spinDoubleSingleStep = 20;
+            pm->editorSettings.spinDoubleSingleStep = CubesDiagram::GridSize;
             editor_group->parameters.push_back(std::move(pm));
         }
 
@@ -1459,7 +1459,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
                     pm->editorSettings.type = CubesUnit::EditorType::SpinDouble;
                     pm->editorSettings.spinDoubleMin = -10000;
                     pm->editorSettings.spinDoubleMax = 10000;
-                    pm->editorSettings.spinDoubleSingleStep = 20;
+                    pm->editorSettings.spinDoubleSingleStep = CubesDiagram::GridSize;
                     editor_group->parameters.push_back(std::move(pm));
                 }
 
@@ -1471,7 +1471,7 @@ void PropertiesItem::UpdateArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::
                     pm->editorSettings.type = CubesUnit::EditorType::SpinDouble;
                     pm->editorSettings.spinDoubleMin = -10000;
                     pm->editorSettings.spinDoubleMax = 10000;
-                    pm->editorSettings.spinDoubleSingleStep = 20;
+                    pm->editorSettings.spinDoubleSingleStep = CubesDiagram::GridSize;
                     editor_group->parameters.push_back(std::move(pm));
                 }
 

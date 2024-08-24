@@ -182,7 +182,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     {
         movingItem_->setFlags(movingItem_->flags() | QGraphicsItem::ItemIsMovable);
 
-        const int gridSize = 20;
+        const int gridSize = GridSize;
         QPointF delta = startPosition_ - movingItem_->pos();
 
 #ifdef COPY_ON_DRAG_ENABLED
@@ -314,10 +314,6 @@ void DiagramScene::keyPressEvent(QKeyEvent *keyEvent)
 #endif
     {
         if (keyEvent->key() == Qt::Key_Delete)
-        {
-
-        }
-        else if (keyEvent->key() == Qt::Key_Delete)
         {
             for (auto item : selectedItems())
             {
