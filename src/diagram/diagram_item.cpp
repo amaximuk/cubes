@@ -41,6 +41,8 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
 
 DiagramItem::DiagramItem(const DiagramItem& other)
 {
+    setAcceptHoverEvents(true);
+
     propertiesId_ = other.propertiesId_;
     pfd_ = other.pfd_;
 
