@@ -60,7 +60,7 @@ void DiagramScene::InformItemCreated(DiagramItem* item)
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     // call first to check resize - недостаточно
-    //QGraphicsScene::mousePressEvent(event);
+    QGraphicsScene::mousePressEvent(event);
 
     if (event->buttons() == Qt::LeftButton)
     {
@@ -71,11 +71,14 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
             movingItem_ = itemAt(event->scenePos(), QTransform());
 
 
-            //{
-            //    DiagramItem* di = reinterpret_cast<DiagramItem*>(movingItem_);
-            //    if (di->IsResizing())
-            //        return;
-            //}
+            {
+                DiagramItem* di = reinterpret_cast<DiagramItem*>(movingItem_);
+                if (di->IsResizing())
+                {
+                    movingItem_->setFlags(movingItem_->flags() & ~QGraphicsItem::ItemIsMovable);
+                    return;
+                }
+            }
 
 
 
@@ -138,7 +141,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
 
     // Always remember to call parents mousePressEvent
-    QGraphicsScene::mousePressEvent(event);
+    //QGraphicsScene::mousePressEvent(event);
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
@@ -149,11 +152,26 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
     if (isItemMoving_)
         QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
+    //{
+    //    QPointF delta = startPosition_ - event->scenePos();
+    //    for (auto& item : dragItems_)
+    //    {
+    //        //QPointF p = movingItem_->mapFromParent(event->scenePos());
+    //        //startPosition_ = event->scenePos() - p;
+
+    //        qDebug() << startPosition_ << " --- " << event->pos() << " --- " << item.first->pos() << " --- " << item.second->pos();
+    //        qDebug() << item.first->scenePos() << " --- " << event->scenePos() << " --- " << item.first->scenePos() + delta;
+    //        item.second->setPos(item.first->scenePos() - delta);
+    //    }
+
+    //    QGraphicsScene::invalidate(sceneRect(), QGraphicsScene::BackgroundLayer);
+    //}
 }
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     isItemMoving_ = false;
+
 
 #ifdef COPY_ON_DRAG_ENABLED
     //bool ctrl = (event->modifiers() == Qt::ControlModifier);
@@ -162,6 +180,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     if (movingItem_ != nullptr)
     {
+        movingItem_->setFlags(movingItem_->flags() | QGraphicsItem::ItemIsMovable);
+
         const int gridSize = 20;
         QPointF delta = startPosition_ - movingItem_->pos();
 
