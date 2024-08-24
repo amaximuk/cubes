@@ -103,6 +103,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                     movingItem_->setSelected(true);
                 }
 
+    #ifdef COPY_ON_DRAG_ENABLED
                 for (auto& item : selectedItems())
                 {
                     DiagramItem* di = new DiagramItem(*reinterpret_cast<DiagramItem*>(item));
@@ -116,7 +117,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                     addItem(di);
                 }
 
-    #ifdef COPY_ON_DRAG_ENABLED
                 //bool ctrl = (event->modifiers() == Qt::ControlModifier);
                 bool shift = (event->modifiers() == Qt::ShiftModifier);
 
@@ -132,10 +132,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
                 }
                 else
                     QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
-    #endif
 
                 QPointF p = movingItem_->mapFromParent(event->scenePos());
                 startPosition_ = event->scenePos() - p;
+    #endif
 
             }
         }
@@ -183,10 +183,10 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     {
         movingItem_->setFlags(movingItem_->flags() | QGraphicsItem::ItemIsMovable);
 
+#ifdef COPY_ON_DRAG_ENABLED
         const int gridSize = GridSize;
         QPointF delta = startPosition_ - movingItem_->pos();
 
-#ifdef COPY_ON_DRAG_ENABLED
         if (shift && (std::abs(delta.x()) >= gridSize || std::abs(delta.y()) >= gridSize))
         {
             for (auto& item : selectedItems())
@@ -253,7 +253,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
         }
         else
-#endif
         {
             for (auto& pair : dragItems_)
             {
@@ -264,6 +263,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             dragItems_.clear();
             QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
         }
+#endif
+        QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
 
         //if (event->modifiers() == Qt::ControlModifier)
         if (selectedWithCtrl_)
