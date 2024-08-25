@@ -13,48 +13,37 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
     QGraphicsItem(parent)
 {
     setAcceptHoverEvents(true);
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |
+        QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsFocusable);
+
 
     propertiesId_ = propertiesId;
     pfd_ = pfd;
 
     borderOnly_ = false;
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |
-        QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsFocusable);
-
     font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
     iconRect_ = QRect(0, 0, GridSize * 2, GridSize * 2);
 
-    QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
-    textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
-
-    QFontMetricsF groupFontMetrics(groupFont_);
-    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
-    includeTextRect_.adjust(-1, 0, 1, 0);
-    includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
-
-    // Adjust iconRect_ for colored frame
-    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+    UpdateGeometry();
 }
 
 DiagramItem::DiagramItem(const DiagramItem& other)
 {
     setAcceptHoverEvents(true);
+    setFlags(other.flags());
 
     propertiesId_ = other.propertiesId_;
     pfd_ = other.pfd_;
 
     borderOnly_ = other.borderOnly_;
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable |
-        QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIsFocusable);
     font_ = QFont(other.font_);
     groupFont_ = QFont(other.groupFont_);
     iconRect_ = other.iconRect_;
     textRect_ = other.textRect_;
     includeTextRect_ = other.includeTextRect_;
     boundingRect_ = other.boundingRect_;
+
     setPos(other.pos() + QPointF{0, 0});
     setZValue(other.zValue() - 1);
 }
@@ -295,19 +284,12 @@ void DiagramItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             setPos(pos);
         }
 
-        QFontMetricsF fontMetrics(font_);
-        textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
-        textRect_.adjust(-1, 0, 1, 0);
-        textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
+        UpdateGeometry();
 
-        QFontMetricsF groupFontMetrics(groupFont_);
-        includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
-        includeTextRect_.adjust(-1, 0, 1, 0);
-        includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
+        qDebug() << "DiagramItem::mouseMoveEvent : " << iconRect_;
 
-        // Adjust iconRect_ for colored frame
-        boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
-
+        DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
+        sc->InformItemSizeChanged(this);
         scene()->invalidate();
     }
     else
@@ -468,18 +450,7 @@ void DiagramItem::keyPressEvent(QKeyEvent* keyEvent)
         iconRect_ = iconRect;
         setPos(startPos);
 
-        QFontMetricsF fontMetrics(font_);
-        textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
-        textRect_.adjust(-1, 0, 1, 0);
-        textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
-
-        QFontMetricsF groupFontMetrics(groupFont_);
-        includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
-        includeTextRect_.adjust(-1, 0, 1, 0);
-        includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
-
-        // Adjust iconRect_ for colored frame
-        boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+        UpdateGeometry();
 
         scene()->invalidate();
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -537,7 +508,35 @@ void DiagramItem::SetBorderOnly(bool borderOnly)
     }
 }
 
+void DiagramItem::SetSize(QSizeF size)
+{
+    qDebug() << "DiagramItem::SetSize : " << size;
+
+    prepareGeometryChange();
+
+    iconRect_.setWidth(size.width());// / GridSize * GridSize
+    iconRect_.setHeight(size.height());
+
+    UpdateGeometry();
+}
+
 bool DiagramItem::IsResizing()
 {
     return isResizing;
+}
+
+void DiagramItem::UpdateGeometry()
+{
+    QFontMetricsF fontMetrics(font_);
+    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
+    textRect_.adjust(-1, 0, 1, 0);
+    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
+
+    QFontMetricsF groupFontMetrics(groupFont_);
+    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
+    includeTextRect_.adjust(-1, 0, 1, 0);
+    includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
+
+    // Adjust iconRect_ for colored frame
+    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
 }

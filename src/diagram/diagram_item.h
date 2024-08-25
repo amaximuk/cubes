@@ -11,12 +11,6 @@ namespace CubesDiagram
     private:
         CubesUnit::PropertiesId propertiesId_;
         CubesDiagram::PropertiesForDrawing pfd_;
-        //QImage pixmap_;
-        //QString name_;
-        //QString fileName_;
-        //QString includeName_;
-        //QColor color_;
-        //ItemType itemType_;
 
     private:
         QFont font_;
@@ -50,11 +44,16 @@ namespace CubesDiagram
         CubesUnit::PropertiesId GetPropertiesId() { return propertiesId_; };
         QString GetName() { return pfd_.name; };
         QPointF GetLineAncorPosition() { return mapToScene(iconRect_.center()); }
+        QSizeF GetSize() { return iconRect_.size(); };
         void SetIncludeName(QString includeName);
         void SetName(QString name);
         void SetColor(QColor color);
         void SetBorderOnly(bool borderOnly);
+        void SetSize(QSizeF size);
 
         bool IsResizing();
+
+    private:
+        void UpdateGeometry();
     };
 }

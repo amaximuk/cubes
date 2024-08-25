@@ -504,6 +504,9 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
                 model->editorSettings.spinDoubleMax = std::stod(pi.restrictions.max);
             else
                 model->editorSettings.spinDoubleMax = parameters::helper::common::get_max_for_floating_point_type(itemType);
+
+            if (model->id == ids_.parameters + ids_.width || model->id == ids_.parameters + ids_.height)
+                model->editorSettings.spinDoubleSingleStep = CubesDiagram::GridSize;
         }
         else if (baseItemType == parameters::base_item_types::user)
         {
@@ -1016,6 +1019,19 @@ void PropertiesItem::SetPosition(QPointF point)
         editor_->SetDoubleValue(GetProperty(pm_y->id), point.y());
 }
 
+void PropertiesItem::SetSize(QSizeF size)
+{
+    auto pm_x = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.width);
+    pm_x->value = size.width();
+    if (editor_ != nullptr)
+        editor_->SetDoubleValue(GetProperty(pm_x->id), size.width());
+
+    auto pm_y = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.height);
+    pm_y->value = size.height();
+    if (editor_ != nullptr)
+        editor_->SetDoubleValue(GetProperty(pm_y->id), size.height());
+}
+
 void PropertiesItem::SetZOrder(double value)
 {
     auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.editor + ids_.positionZ);
@@ -1031,6 +1047,21 @@ double PropertiesItem::GetZOrder()
         return pmZ->value.toDouble();
     else
         return 0;
+}
+
+QSizeF PropertiesItem::GetSize()
+{
+    QSizeF size{ CubesDiagram::GridSize * 2, CubesDiagram::GridSize * 2 };
+
+    const auto pm_w = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.width);
+    if (pm_w != nullptr)
+        size.setWidth(pm_w->value.toDouble());
+
+    const auto pm_h = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.height);
+    if (pm_h != nullptr)
+        size.setHeight(pm_h->value.toDouble());
+
+    return size;
 }
 
 CubesDiagram::ItemType PropertiesItem::GetItemType()
@@ -1620,7 +1651,7 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
                     list.push_back(property);
                     for (const auto& p : property->subProperties())
                         collect(p, list, collect);
-                };
+                    };
 
                 QList<QtProperty*> toRemove;
                 QList<QtProperty*> toUnregister;
@@ -1675,9 +1706,10 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         }
 
         if (pm->id.endsWith(ids_.depends) || pm->id.endsWith(ids_.dependencies))
-        {
             propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
-        }
+
+        if (pm->id == ids_.parameters + ids_.width || pm->id == ids_.parameters + ids_.height)
+            propertiesItemsManager_->AfterSizeChanged(propertiesId_, GetSize());
     }
     else if (pm->id.startsWith(ids_.editor))
     {

@@ -615,6 +615,13 @@ void PropertiesItemsManager::AfterPositionChanged(CubesUnit::PropertiesId proper
 		positionChangedDelegate_(propertiesId, posX, posY, posZ);
 }
 
+void PropertiesItemsManager::AfterSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size)
+{
+	qDebug() << "PropertiesItemsManager::AfterSizeChanged : " << size;
+	if (sizeChangedDelegate_)
+		sizeChangedDelegate_(propertiesId, size);
+}
+
 void PropertiesItemsManager::AfterConnectionChanged(CubesUnit::PropertiesId propertiesId)
 {
 	if (connectionChangedDelegate_)

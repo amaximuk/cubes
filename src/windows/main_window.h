@@ -97,6 +97,7 @@ protected:
 public slots:
     // DiagramScene (as manager)
     void DiagramItemPositionChanged(CubesDiagram::DiagramItem* item);
+    void DiagramItemSizeChanged(CubesDiagram::DiagramItem* item);
     void DiagramAfterItemCreated(CubesDiagram::DiagramItem* item);
     void DiagramBeforeItemDeleted(CubesDiagram::DiagramItem* item);
     void selectionChanged(); // QGraphicsScene
@@ -118,6 +119,7 @@ public slots:
         CubesUnit::FileId fileId, CubesUnit::IncludeId includeId) override;
     void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+    void PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) override;
     void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message) override;
     void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPropertiesChanged() override;

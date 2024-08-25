@@ -36,11 +36,13 @@ namespace CubesDiagram
             const QString& fileName, const QString& includeName, const QColor& color);
 
         void InformItemPositionChanged(DiagramItem* item);
+        void InformItemSizeChanged(DiagramItem* item);
         void InformItemCreated(DiagramItem* item);
         bool IsItemMoving() { return isItemMoving_; };
 
     signals:
         void ItemPositionChanged(DiagramItem* item);
+        void ItemSizeChanged(DiagramItem* item);
         void AfterItemCreated(DiagramItem* item);
         void BeforeItemDeleted(DiagramItem* item);
 

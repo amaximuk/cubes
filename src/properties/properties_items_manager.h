@@ -84,6 +84,7 @@ namespace CubesProperties
 	private:
 		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;
 		PositionChangedDelegate positionChangedDelegate_;
+		SizeChangedDelegate sizeChangedDelegate_;
 		SelectedItemChangedDelegate selectedItemChangedDelegate_;
 		ErrorDelegate errorDelegate_;
 		ConnectionChangedDelegate connectionChangedDelegate_;
@@ -92,6 +93,7 @@ namespace CubesProperties
 	public:
 		void SetBasePropertiesChangedDelegate(BasePropertiesChangedDelegate basePropertiesChangedDelegate) { basePropertiesChangedDelegate_ = basePropertiesChangedDelegate; };
 		void SetPositionChangedDelegate(PositionChangedDelegate positionChangedDelegate) { positionChangedDelegate_ = positionChangedDelegate; };
+		void SetSizeChangedDelegate(SizeChangedDelegate sizeChangedDelegate) { sizeChangedDelegate_ = sizeChangedDelegate; };
 		void SetSelectedItemChangedDelegate(SelectedItemChangedDelegate selectedItemChangedDelegate) { selectedItemChangedDelegate_ = selectedItemChangedDelegate; };
 		void SetErrorDelegate(ErrorDelegate errorDelegate) { errorDelegate_ = errorDelegate; };
 		void SetConnectionChangedDelegate(ConnectionChangedDelegate connectionChangedDelegate) { connectionChangedDelegate_ = connectionChangedDelegate; };
@@ -112,6 +114,7 @@ namespace CubesProperties
 		void AfterFileNameChanged(const CubesUnit::PropertiesId propertiesId, CubesUnit::IncludeIdNames& includeNames) override;
 		void AfterIncludeNameChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
+		void AfterSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) override;
 		void AfterConnectionChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;
 

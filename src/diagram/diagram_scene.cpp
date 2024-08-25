@@ -52,6 +52,11 @@ void DiagramScene::InformItemPositionChanged(DiagramItem* item)
     emit ItemPositionChanged(item);
 }
 
+void DiagramScene::InformItemSizeChanged(DiagramItem* item)
+{
+    emit ItemSizeChanged(item);
+}
+
 void DiagramScene::InformItemCreated(DiagramItem* item)
 {
     emit AfterItemCreated(item);
@@ -72,6 +77,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
             movingItem_ = itemAt(event->scenePos(), QTransform());
 
 
+            if (movingItem_ != nullptr)
             {
                 DiagramItem* di = reinterpret_cast<DiagramItem*>(movingItem_);
                 if (di->IsResizing())

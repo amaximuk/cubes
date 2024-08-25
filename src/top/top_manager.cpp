@@ -35,6 +35,7 @@ TopManager::TopManager(bool isArray, bool isMock, QString path)
     propertiesItemsManager_ = new CubesProperties::PropertiesItemsManager(this, this, isArray, isMock);
     propertiesItemsManager_->SetBasePropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesBasePropertiesChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
+    propertiesItemsManager_->SetSizeChangedDelegate(std::bind<void>(&TopManager::PropertiesSizeChanged, this, _1, _2));
     propertiesItemsManager_->SetSelectedItemChangedDelegate(std::bind<void>(&TopManager::PropertiesSelectedItemChanged, this, _1));
     propertiesItemsManager_->SetErrorDelegate(std::bind<void>(&TopManager::PropertiesError, this, _1, _2));
     propertiesItemsManager_->SetConnectionChangedDelegate(std::bind<void>(&TopManager::PropertiesConnectionChanged, this, _1));
@@ -943,6 +944,10 @@ void TopManager::PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertie
 }
 
 void TopManager::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ)
+{
+}
+
+void TopManager::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size)
 {
 }
 

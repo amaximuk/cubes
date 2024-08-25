@@ -72,9 +72,12 @@ namespace CubesProperties
         QImage GetPixmap();
 
         void SetPosition(QPointF point);
+        void SetSize(QSizeF size);
         QPointF GetPosition();
         void SetZOrder(double value);
         double GetZOrder();
+        QSizeF GetSize();
+
 
         void SetFileIdNames(CubesUnit::FileIdNames fileNames);
         void SetFileIdName(CubesUnit::FileId fileId, QString fileName);

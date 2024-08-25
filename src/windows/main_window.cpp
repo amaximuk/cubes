@@ -526,6 +526,7 @@ void MainWindow::CreateScene()
     scene_->setSceneRect(-10000, -10000, 20032, 20032);
 
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemPositionChanged, this, &MainWindow::DiagramItemPositionChanged);
+    qDebug() << connect(scene_, &CubesDiagram::DiagramScene::ItemSizeChanged, this, &MainWindow::DiagramItemSizeChanged);
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::AfterItemCreated, this, &MainWindow::DiagramAfterItemCreated);
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::BeforeItemDeleted, this, &MainWindow::DiagramBeforeItemDeleted);
     qDebug() << connect(scene_, &CubesDiagram::DiagramScene::selectionChanged, this, &MainWindow::selectionChanged);
@@ -844,6 +845,14 @@ void MainWindow::DiagramItemPositionChanged(CubesDiagram::DiagramItem* di)
     UpdateFileState(path_, true);
 }
 
+void MainWindow::DiagramItemSizeChanged(CubesDiagram::DiagramItem* di)
+{
+    auto pi = propertiesItemsManager_->GetItem(di->GetPropertiesId());
+    pi->SetSize(di->GetSize());
+    
+    UpdateFileState(path_, true);
+}
+
 void MainWindow::DiagramAfterItemCreated(CubesDiagram::DiagramItem* di)
 {
     propertiesItemsManager_->Select(di->GetPropertiesId());
@@ -1006,6 +1015,26 @@ void MainWindow::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId,
         {
             di->setPos(QPointF(posX, posY));
             di->setZValue(posZ);
+            break;
+        }
+    }
+
+    UpdateFileState(path_, true);
+}
+
+void MainWindow::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size)
+{
+    qDebug() << "MainWindow::PropertiesSizeChanged : " << size;
+
+    TopManager::PropertiesSizeChanged(propertiesId, size);
+
+    for (auto& item : scene_->items())
+    {
+        CubesDiagram::DiagramItem* di = reinterpret_cast<CubesDiagram::DiagramItem*>(item);
+        if (di->GetPropertiesId() == propertiesId)
+        {
+            //if (size != di->GetSize())
+            di->SetSize(size);
             break;
         }
     }
