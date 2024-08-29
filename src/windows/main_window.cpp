@@ -189,6 +189,9 @@ bool MainWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
     }
     pfd.itemType = itemType;
 
+    pfd.text = pi->GetText();
+    pfd.size = pi->GetSize();
+
     auto di = new CubesDiagram::DiagramItem(propertiesId, pfd);
     di->setX(pos.x());
     di->setY(pos.y());

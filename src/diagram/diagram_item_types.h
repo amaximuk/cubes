@@ -25,7 +25,7 @@ namespace CubesDiagram
         QString includeName;
         QColor color;
         ItemType itemType;
-        QSize size;
+        QSizeF size;
         QString text;
 
         PropertiesForDrawing()

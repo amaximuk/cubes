@@ -125,6 +125,7 @@ bool TopManager::GetPropetiesForDrawing(CubesUnit::PropertiesId propertiesId, Cu
     if (pfd.itemType == CubesDiagram::ItemType::Text)
     {
         pfd.text = pi->GetText();
+        pfd.size = pi->GetSize();
     }
 
     return true;

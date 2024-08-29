@@ -23,8 +23,13 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
     borderOnly_ = false;
     font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
-    iconRect_ = QRect(0, 0, GridSize * 2, GridSize * 2);
-
+    if (pfd_.itemType == ItemType::Text)
+    {
+        iconRect_ = QRect(0, 0, pfd_.size.width(), pfd.size.height());
+    }
+    else
+        iconRect_ = QRect(0, 0, GridSize * 2, GridSize * 2);
+    
     UpdateGeometry();
 }
 
@@ -88,8 +93,8 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             {
                 painter->setRenderHint(QPainter::Antialiasing);
                 painter->setFont(font_);
-                painter->setPen(Qt::blue);
-                painter->drawText(textRect_, pfd_.text, Qt::AlignCenter | Qt::AlignHCenter);
+                painter->setPen(Qt::black);
+                painter->drawText(iconRect_, pfd_.text, Qt::AlignCenter | Qt::AlignHCenter);
             }
             else
             {
