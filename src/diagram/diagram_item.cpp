@@ -21,7 +21,10 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
     pfd_ = pfd;
 
     borderOnly_ = false;
-    font_ = QFont("Arial", 10);
+    if (pfd_.itemType == ItemType::Text)
+        font_ = QFont("Times", pfd_.fontSize);
+    else
+        font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
     if (pfd_.itemType == ItemType::Text)
         iconRect_ = QRect(0, 0, pfd_.size.width(), pfd.size.height());
@@ -556,9 +559,21 @@ void DiagramItem::SetSize(QSizeF size)
     UpdateGeometry();
 }
 
-void DiagramItem::SetText(QString text, bool showBorder, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
+void DiagramItem::SetText(QString text, uint32_t fontSize, bool showBorder,
+    HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
 {
     pfd_.text = text;
+    if (pfd_.fontSize != fontSize)
+    {
+        pfd_.fontSize = fontSize;
+
+        if (pfd_.itemType == ItemType::Text)
+            font_ = QFont("Times", pfd_.fontSize);
+        else
+            font_ = QFont("Arial", 10);
+        
+        UpdateGeometry();
+    }
     pfd_.showBorder = showBorder;
     pfd_.horizontalAlignment = horizontalAlignment;
     pfd_.verticalAlignment = verticalAlignment;

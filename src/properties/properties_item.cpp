@@ -1288,6 +1288,15 @@ QString PropertiesItem::GetText()
     return "";
 }
 
+uint32_t PropertiesItem::GetFontSize()
+{
+    const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.fontSize);
+    if (pm != nullptr)
+        return pm->value.toUInt();
+
+    return 10;
+}
+
 bool PropertiesItem::GetShowBorder()
 {
     const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.showBorder);
@@ -1759,10 +1768,11 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         if (pm->id.endsWith(ids_.depends) || pm->id.endsWith(ids_.dependencies))
             propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
 
-        if (pm->id == ids_.parameters + ids_.text || pm->id == ids_.parameters + ids_.showBorder ||
-            pm->id == ids_.parameters + ids_.hAlignment || pm->id == ids_.parameters + ids_.vAlignment)
+        if (pm->id == ids_.parameters + ids_.text || pm->id == ids_.parameters + ids_.fontSize ||
+            pm->id == ids_.parameters + ids_.showBorder || pm->id == ids_.parameters + ids_.hAlignment ||
+            pm->id == ids_.parameters + ids_.vAlignment)
         {
-            propertiesItemsManager_->AfterTextChanged(propertiesId_, GetText(), GetShowBorder(),
+            propertiesItemsManager_->AfterTextChanged(propertiesId_, GetText(), GetFontSize(), GetShowBorder(),
                 GetHorizontalAlignment(), GetVerticalAlignment());
         }
 

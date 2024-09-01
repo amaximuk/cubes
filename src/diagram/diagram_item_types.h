@@ -41,6 +41,7 @@ namespace CubesDiagram
         ItemType itemType;
         QSizeF size;
         QString text;
+        uint32_t fontSize;
         bool showBorder;
         HorizontalAlignment horizontalAlignment;
         VerticalAlignment verticalAlignment;
@@ -48,6 +49,7 @@ namespace CubesDiagram
         PropertiesForDrawing()
         {
             itemType = ItemType::Unit;
+            fontSize = 10;
             showBorder = true;
         }
 
@@ -61,6 +63,7 @@ namespace CubesDiagram
             itemType = other.itemType;
             size = other.size;
             text = other.text;
+            fontSize = other.fontSize;
             showBorder = other.showBorder;
             horizontalAlignment = other.horizontalAlignment;
             verticalAlignment = other.verticalAlignment;
@@ -76,6 +79,7 @@ namespace CubesDiagram
             itemType = other.itemType;
             size = other.size;
             text = other.text;
+            fontSize = other.fontSize;
             showBorder = other.showBorder;
             horizontalAlignment = other.horizontalAlignment;
             verticalAlignment = other.verticalAlignment;

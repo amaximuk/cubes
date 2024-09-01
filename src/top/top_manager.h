@@ -109,7 +109,7 @@ namespace CubesTop
         virtual void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId);
         virtual void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
         virtual void PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size);
-        virtual void PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+        virtual void PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
             CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment);
         virtual void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId);
         virtual void PropertiesPropertiesChanged();

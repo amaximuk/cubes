@@ -622,12 +622,12 @@ void PropertiesItemsManager::AfterSizeChanged(CubesUnit::PropertiesId properties
 		sizeChangedDelegate_(propertiesId, size);
 }
 
-void PropertiesItemsManager::AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+void PropertiesItemsManager::AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
 	CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment)
 {
 	qDebug() << "PropertiesItemsManager::AfterTextChanged : " << text;
 	if (textChangedDelegate_)
-		textChangedDelegate_(propertiesId, text, showBorder, horizontalAlignment, verticalAlignment);
+		textChangedDelegate_(propertiesId, text, fontSize, showBorder, horizontalAlignment, verticalAlignment);
 }
 
 void PropertiesItemsManager::AfterConnectionChanged(CubesUnit::PropertiesId propertiesId)

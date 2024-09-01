@@ -95,6 +95,7 @@ namespace CubesUnit
 		const CubesUnit::ParameterModelId text;
 		const CubesUnit::ParameterModelId height;
 		const CubesUnit::ParameterModelId width;
+		const CubesUnit::ParameterModelId fontSize;
 		const CubesUnit::ParameterModelId showBorder;
 		const CubesUnit::ParameterModelId hAlignment;
 		const CubesUnit::ParameterModelId vAlignment;
@@ -146,6 +147,7 @@ namespace CubesUnit
 			text("$TEXT"),
 			height("$HEIGHT"),
 			width("$WIDTH"),
+			fontSize("$FONT_SIZE"),
 			showBorder("$SHOW_BORDER"),
 			hAlignment("$H_ALIGNMENT"),
 			vAlignment("$V_ALIGNMENT"),

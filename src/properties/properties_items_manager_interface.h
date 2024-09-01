@@ -10,7 +10,7 @@ namespace CubesProperties
 	using BasePropertiesChangedDelegate = std::function<void(CubesUnit::PropertiesId, const QString&, CubesUnit::FileId, CubesUnit::IncludeId)>;
 	using PositionChangedDelegate = std::function<void(CubesUnit::PropertiesId, double, double, double)>;
 	using SizeChangedDelegate = std::function<void(CubesUnit::PropertiesId, QSizeF size)>;
-	using TextChangedDelegate = std::function<void(CubesUnit::PropertiesId, QString text, bool showBorder,
+	using TextChangedDelegate = std::function<void(CubesUnit::PropertiesId, QString text, uint32_t fontSize, bool showBorder,
 		CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment)>;
 	using SelectedItemChangedDelegate = std::function<void(CubesUnit::PropertiesId)>;
 	using ErrorDelegate = std::function<void(CubesUnit::PropertiesId, const QString&)>;
@@ -30,7 +30,7 @@ namespace CubesProperties
 		virtual void AfterPositionChanged(CubesUnit::PropertiesId propertiesId,
 			double posX, double posY, double posZ) = 0;
 		virtual void AfterSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) = 0;
-		virtual void AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+		virtual void AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
 			CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment) = 0;
 		virtual void AfterConnectionChanged(CubesUnit::PropertiesId propertiesId) = 0;
 		virtual void AfterPropertiesChanged() = 0;

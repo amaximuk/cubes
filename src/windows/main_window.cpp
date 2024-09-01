@@ -191,6 +191,7 @@ bool MainWindow::CreateDiagramItem(CubesUnit::PropertiesId propertiesId)
 
     pfd.text = pi->GetText();
     pfd.size = pi->GetSize();
+    pfd.fontSize = pi->GetFontSize();
     pfd.showBorder = pi->GetShowBorder();
     pfd.horizontalAlignment = pi->GetHorizontalAlignment();
     pfd.verticalAlignment = pi->GetVerticalAlignment();
@@ -1048,12 +1049,12 @@ void MainWindow::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSi
     UpdateFileState(path_, true);
 }
 
-void MainWindow::PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+void MainWindow::PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
     CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment)
 {
     qDebug() << "MainWindow::PropertiesTextChanged : " << text;
 
-    TopManager::PropertiesTextChanged(propertiesId, text, showBorder, horizontalAlignment, verticalAlignment);
+    TopManager::PropertiesTextChanged(propertiesId, text, fontSize, showBorder, horizontalAlignment, verticalAlignment);
 
     for (auto& item : scene_->items())
     {
@@ -1061,7 +1062,7 @@ void MainWindow::PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QSt
         if (di->GetPropertiesId() == propertiesId)
         {
             //if (size != di->GetSize())
-            di->SetText(text, showBorder, horizontalAlignment, verticalAlignment);
+            di->SetText(text, fontSize, showBorder, horizontalAlignment, verticalAlignment);
             break;
         }
     }

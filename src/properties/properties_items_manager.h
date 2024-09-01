@@ -107,7 +107,7 @@ namespace CubesProperties
 		void AfterIncludeNameChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
 		void AfterSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) override;
-		void AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+		void AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
 			CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment) override;
 		void AfterConnectionChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;

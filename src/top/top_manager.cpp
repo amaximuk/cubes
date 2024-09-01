@@ -36,7 +36,7 @@ TopManager::TopManager(bool isArray, bool isMock, QString path)
     propertiesItemsManager_->SetBasePropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesBasePropertiesChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetSizeChangedDelegate(std::bind<void>(&TopManager::PropertiesSizeChanged, this, _1, _2));
-    propertiesItemsManager_->SetTextChangedDelegate(std::bind<void>(&TopManager::PropertiesTextChanged, this, _1, _2, _3, _4, _5));
+    propertiesItemsManager_->SetTextChangedDelegate(std::bind<void>(&TopManager::PropertiesTextChanged, this, _1, _2, _3, _4, _5, _6));
     propertiesItemsManager_->SetSelectedItemChangedDelegate(std::bind<void>(&TopManager::PropertiesSelectedItemChanged, this, _1));
     propertiesItemsManager_->SetConnectionChangedDelegate(std::bind<void>(&TopManager::PropertiesConnectionChanged, this, _1));
     propertiesItemsManager_->SetPropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesPropertiesChanged, this));
@@ -952,7 +952,7 @@ void TopManager::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSi
 {
 }
 
-void TopManager::PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+void TopManager::PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, uint32_t fontSize, bool showBorder,
     CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment)
 {
 }
