@@ -95,6 +95,8 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                 painter->setFont(font_);
                 painter->setPen(Qt::black);
                 painter->drawText(iconRect_, pfd_.text, Qt::AlignCenter | Qt::AlignHCenter);
+                painter->setPen(QPen(QBrush(pfd_.color, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter->drawRect(iconRect_);
             }
             else
             {

@@ -17,6 +17,20 @@ namespace CubesDiagram
 		Group
 	};
 
+    enum class HorizontalAlignment
+    {
+        Left,
+        Center,
+        Right
+    };
+
+    enum class VerticalAlignment
+    {
+        Top,
+        Center,
+        Bottom
+    };
+
     struct PropertiesForDrawing
     {
         QImage pixmap;
@@ -27,10 +41,14 @@ namespace CubesDiagram
         ItemType itemType;
         QSizeF size;
         QString text;
+        bool showBorder;
+        HorizontalAlignment horizontalAlignment;
+        VerticalAlignment verticalAlignment;
 
         PropertiesForDrawing()
         {
             itemType = ItemType::Unit;
+            showBorder = true;
         }
 
         PropertiesForDrawing(const PropertiesForDrawing& other)
@@ -43,6 +61,7 @@ namespace CubesDiagram
             itemType = other.itemType;
             size = other.size;
             text = other.text;
+            showBorder = other.showBorder;
         }
 
         PropertiesForDrawing& operator=(const PropertiesForDrawing& other)
@@ -55,6 +74,7 @@ namespace CubesDiagram
             itemType = other.itemType;
             size = other.size;
             text = other.text;
+            showBorder = other.showBorder;
             return *this;
         }
     };
