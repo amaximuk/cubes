@@ -1708,6 +1708,9 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         if (pm->id.endsWith(ids_.depends) || pm->id.endsWith(ids_.dependencies))
             propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
 
+        //if (pm->id == ids_.parameters + ids_.text)
+        //    propertiesItemsManager_->AfterTextChanged(propertiesId_, GetText());
+
         if (pm->id == ids_.parameters + ids_.width || pm->id == ids_.parameters + ids_.height)
             propertiesItemsManager_->AfterSizeChanged(propertiesId_, GetSize());
     }

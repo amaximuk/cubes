@@ -95,7 +95,6 @@ public slots:
         CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId) override;
     void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
-    void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message) override;
 
 private slots:
     // Кнопки

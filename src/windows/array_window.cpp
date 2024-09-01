@@ -795,11 +795,6 @@ void ArrayWindow::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId
     }
 }
 
-void ArrayWindow::PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message)
-{
-    TopManager::PropertiesError(propertiesId, message);
-}
-
 // Кнопки
 void ArrayWindow::OnSortBoostAction()
 {

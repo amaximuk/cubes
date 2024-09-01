@@ -1045,18 +1045,6 @@ void MainWindow::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSi
     UpdateFileState(path_, true);
 }
 
-void MainWindow::PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message)
-{
-    TopManager::PropertiesError(propertiesId, message);
-
-    CubesLog::Message lm{};
-    lm.type = CubesLog::MessageType::error;
-    lm.source = CubesLog::SourceType::propertiesManager;
-    lm.description = message;
-    lm.tag = propertiesId;
-    AddMessage(lm);
-}
-
 void MainWindow::PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId)
 {
     TopManager::PropertiesConnectionChanged(propertiesId);

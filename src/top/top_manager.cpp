@@ -37,7 +37,6 @@ TopManager::TopManager(bool isArray, bool isMock, QString path)
     propertiesItemsManager_->SetPositionChangedDelegate(std::bind<void>(&TopManager::PropertiesPositionChanged, this, _1, _2, _3, _4));
     propertiesItemsManager_->SetSizeChangedDelegate(std::bind<void>(&TopManager::PropertiesSizeChanged, this, _1, _2));
     propertiesItemsManager_->SetSelectedItemChangedDelegate(std::bind<void>(&TopManager::PropertiesSelectedItemChanged, this, _1));
-    propertiesItemsManager_->SetErrorDelegate(std::bind<void>(&TopManager::PropertiesError, this, _1, _2));
     propertiesItemsManager_->SetConnectionChangedDelegate(std::bind<void>(&TopManager::PropertiesConnectionChanged, this, _1));
     propertiesItemsManager_->SetPropertiesChangedDelegate(std::bind<void>(&TopManager::PropertiesPropertiesChanged, this));
     
@@ -950,16 +949,6 @@ void TopManager::PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId,
 
 void TopManager::PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size)
 {
-}
-
-void TopManager::PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message)
-{
-    //CubesLog::Message lm{};
-    //lm.type = CubesLog::MessageType::error;
-    //lm.tag = 0;
-    //lm.source = QString("%1").arg(propertiesId);
-    //lm.description = message;
-    //AddMessage(lm);
 }
 
 void TopManager::PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId)

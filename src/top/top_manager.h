@@ -109,7 +109,6 @@ namespace CubesTop
         virtual void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId);
         virtual void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
         virtual void PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size);
-        virtual void PropertiesError(CubesUnit::PropertiesId propertiesId, const QString& message);
         virtual void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId);
         virtual void PropertiesPropertiesChanged();
     };

@@ -86,7 +86,6 @@ namespace CubesProperties
 		PositionChangedDelegate positionChangedDelegate_;
 		SizeChangedDelegate sizeChangedDelegate_;
 		SelectedItemChangedDelegate selectedItemChangedDelegate_;
-		ErrorDelegate errorDelegate_;
 		ConnectionChangedDelegate connectionChangedDelegate_;
 		PropertiesChangedDelegate propertiesChangedDelegate_;
 
@@ -95,7 +94,6 @@ namespace CubesProperties
 		void SetPositionChangedDelegate(PositionChangedDelegate positionChangedDelegate) { positionChangedDelegate_ = positionChangedDelegate; };
 		void SetSizeChangedDelegate(SizeChangedDelegate sizeChangedDelegate) { sizeChangedDelegate_ = sizeChangedDelegate; };
 		void SetSelectedItemChangedDelegate(SelectedItemChangedDelegate selectedItemChangedDelegate) { selectedItemChangedDelegate_ = selectedItemChangedDelegate; };
-		void SetErrorDelegate(ErrorDelegate errorDelegate) { errorDelegate_ = errorDelegate; };
 		void SetConnectionChangedDelegate(ConnectionChangedDelegate connectionChangedDelegate) { connectionChangedDelegate_ = connectionChangedDelegate; };
 		void SetPropertiesChangedDelegate(PropertiesChangedDelegate propertiesChangedDelegate) { propertiesChangedDelegate_ = propertiesChangedDelegate; };
 
