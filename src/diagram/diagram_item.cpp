@@ -24,9 +24,7 @@ DiagramItem::DiagramItem(CubesUnit::PropertiesId propertiesId, CubesDiagram::Pro
     font_ = QFont("Arial", 10);
     groupFont_ = QFont("Times", 10);
     if (pfd_.itemType == ItemType::Text)
-    {
         iconRect_ = QRect(0, 0, pfd_.size.width(), pfd.size.height());
-    }
     else
         iconRect_ = QRect(0, 0, GridSize * 2, GridSize * 2);
     
@@ -109,7 +107,12 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                 else if (pfd_.verticalAlignment == VerticalAlignment::Bottom)
                     vAlignment = Qt::AlignBottom;
 
-                painter->drawText(textRect, pfd_.text, hAlignment | vAlignment);
+                QString text = pfd_.text;
+                text.replace("\\r\\n", "\n");
+                text.replace("\\r", "\n");
+                text.replace("\\n", "\n");
+
+                painter->drawText(textRect, hAlignment | vAlignment, text);
 
                 if (pfd_.showBorder)
                 {
@@ -123,7 +126,12 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                 painter->drawImage(iconRect_, pfd_.pixmap);
                 painter->setFont(font_);
                 painter->setPen(Qt::blue);
-                painter->drawText(textRect_, pfd_.name, Qt::AlignCenter | Qt::AlignHCenter);
+
+                QString text = pfd_.name;
+                text.replace("\\", "\\\n");
+                text.replace("/", "/\n");
+
+                painter->drawText(textRect_, text, Qt::AlignCenter | Qt::AlignHCenter);
                 painter->setPen(QPen(QBrush(pfd_.color, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
                 painter->drawRect(iconRect_);
 
@@ -316,7 +324,9 @@ void DiagramItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
         DiagramScene* sc = qobject_cast<DiagramScene*>(scene());
         sc->InformItemSizeChanged(this);
-        scene()->invalidate();
+
+        if (scene() != nullptr)
+            scene()->invalidate();
     }
     else
     {
@@ -478,7 +488,9 @@ void DiagramItem::keyPressEvent(QKeyEvent* keyEvent)
 
         UpdateGeometry();
 
-        scene()->invalidate();
+        if (scene() != nullptr)
+            scene()->invalidate();
+
         QGuiApplication::setOverrideCursor(Qt::ArrowCursor);
     }
 
@@ -489,38 +501,38 @@ void DiagramItem::SetIncludeName(QString includeName)
 {
     pfd_.includeName = includeName;
 
-    QFontMetricsF groupFontMetrics(groupFont_);
-    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
-    includeTextRect_.adjust(-1, 0, 1, 0);
-    includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+    UpdateGeometry();
+
+    //QFontMetricsF groupFontMetrics(groupFont_);
+    //includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
+    //includeTextRect_.adjust(-1, 0, 1, 0);
+    //includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
+    //boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+
     if (scene() != nullptr)
-    {
         scene()->invalidate();
-    }
 }
 
 void DiagramItem::SetName(QString name)
 {
     pfd_.name = name;
-    QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
-    textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
-    boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+    //QFontMetricsF fontMetrics(font_);
+    //textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, name);
+    //textRect_.adjust(-1, 0, 1, 0);
+    //textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
+    //boundingRect_ = iconRect_.united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+
+    UpdateGeometry();
+
     if (scene() != nullptr)
-    {
         scene()->invalidate();
-    }
 }
 
 void DiagramItem::SetColor(QColor color)
 {
     pfd_.color = color;
     if (scene() != nullptr)
-    {
         scene()->invalidate();
-    }
 }
 
 void DiagramItem::SetBorderOnly(bool borderOnly)
@@ -529,9 +541,7 @@ void DiagramItem::SetBorderOnly(bool borderOnly)
 
     borderOnly_ = borderOnly;
     if (scene() != nullptr)
-    {
         scene()->invalidate();
-    }
 }
 
 void DiagramItem::SetSize(QSizeF size)
@@ -554,9 +564,7 @@ void DiagramItem::SetText(QString text, bool showBorder, HorizontalAlignment hor
     pfd_.verticalAlignment = verticalAlignment;
 
     if (scene() != nullptr)
-    {
         scene()->invalidate();
-    }
 }
 
 bool DiagramItem::IsResizing()
@@ -566,16 +574,29 @@ bool DiagramItem::IsResizing()
 
 void DiagramItem::UpdateGeometry()
 {
-    QFontMetricsF fontMetrics(font_);
-    textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
-    textRect_.adjust(-1, 0, 1, 0);
-    textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
+    if (pfd_.itemType == ItemType::Text)
+    {
+        boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2);
+    }
+    else
+    {
+        QString text = pfd_.name;
+        text.replace("\\", "\\\n");
+        text.replace("/", "/\n");
 
-    QFontMetricsF groupFontMetrics(groupFont_);
-    includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
-    includeTextRect_.adjust(-1, 0, 1, 0);
-    includeTextRect_.translate(iconRect_.width() / 2, -textRect_.height() + 6);
+        QFontMetricsF fontMetrics(font_);
+        textRect_ = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, text);
+        //auto r = fontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.name);
+        textRect_.adjust(-1, 0, 1, 0);
+        textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() / 2 + 2);
+        //textRect_.translate(iconRect_.width() / 2, iconRect_.height() + textRect_.height() - 6);
 
-    // Adjust iconRect_ for colored frame
-    boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+        QFontMetricsF groupFontMetrics(groupFont_);
+        includeTextRect_ = groupFontMetrics.boundingRect(QRect(0, 0, 0, 0), Qt::AlignCenter | Qt::AlignHCenter, pfd_.includeName);
+        includeTextRect_.adjust(-1, 0, 1, 0);
+        includeTextRect_.translate(iconRect_.width() / 2, -includeTextRect_.height() / 2 - 2);
+
+        // Adjust iconRect_ for colored frame
+        boundingRect_ = iconRect_.adjusted(-2, -2, 2, 2).united(textRect_.toAlignedRect()).united(includeTextRect_.toAlignedRect());
+    }
 }
