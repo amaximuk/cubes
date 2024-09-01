@@ -100,6 +100,9 @@ namespace CubesProperties
         QList<QString> GetDependentNames();
 
         QString GetText();
+        bool GetShowBorder();
+        CubesDiagram::HorizontalAlignment GetHorizontalAlignment();
+        CubesDiagram::VerticalAlignment GetVerticalAlignment();
 
 
         void GetXml(CubesXml::Unit& xmlUnit);

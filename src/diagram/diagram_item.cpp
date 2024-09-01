@@ -91,12 +91,31 @@ void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
             if (pfd_.itemType == ItemType::Text)
             {
+                QRect textRect = iconRect_.adjusted(4, 2, -4, -2);
+
                 painter->setRenderHint(QPainter::Antialiasing);
                 painter->setFont(font_);
                 painter->setPen(Qt::black);
-                painter->drawText(iconRect_, pfd_.text, Qt::AlignCenter | Qt::AlignHCenter);
-                painter->setPen(QPen(QBrush(pfd_.color, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-                painter->drawRect(iconRect_);
+
+                Qt::Alignment hAlignment = Qt::AlignLeft;
+                if (pfd_.horizontalAlignment == HorizontalAlignment::Center)
+                    hAlignment = Qt::AlignHCenter;
+                else if (pfd_.horizontalAlignment == HorizontalAlignment::Right)
+                    hAlignment = Qt::AlignRight;
+
+                Qt::Alignment vAlignment = Qt::AlignTop;
+                if (pfd_.verticalAlignment == VerticalAlignment::Center)
+                    vAlignment = Qt::AlignVCenter;
+                else if (pfd_.verticalAlignment == VerticalAlignment::Bottom)
+                    vAlignment = Qt::AlignBottom;
+
+                painter->drawText(textRect, pfd_.text, hAlignment | vAlignment);
+
+                if (pfd_.showBorder)
+                {
+                    painter->setPen(QPen(QBrush(pfd_.color, Qt::SolidPattern), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                    painter->drawRect(iconRect_);
+                }
             }
             else
             {
@@ -525,6 +544,19 @@ void DiagramItem::SetSize(QSizeF size)
     iconRect_.setHeight(size.height());
 
     UpdateGeometry();
+}
+
+void DiagramItem::SetText(QString text, bool showBorder, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
+{
+    pfd_.text = text;
+    pfd_.showBorder = showBorder;
+    pfd_.horizontalAlignment = horizontalAlignment;
+    pfd_.verticalAlignment = verticalAlignment;
+
+    if (scene() != nullptr)
+    {
+        scene()->invalidate();
+    }
 }
 
 bool DiagramItem::IsResizing()

@@ -50,6 +50,7 @@ namespace CubesDiagram
         void SetColor(QColor color);
         void SetBorderOnly(bool borderOnly);
         void SetSize(QSizeF size);
+        void SetText(QString text, bool showBorder, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 
         bool IsResizing();
 

@@ -60,6 +60,7 @@ namespace CubesProperties
 		bool SortUnitsBoost();
 		bool SortUnitsRectangular(bool check);
 
+		// Информирование от TopManager
 		bool InformVariableChanged();
 		bool InformFileNameChanged(CubesUnit::FileId fileId, const QString& fileName);
 		bool InformFileListChanged(const CubesUnit::FileIdNames& fileNames);
@@ -85,6 +86,7 @@ namespace CubesProperties
 		BasePropertiesChangedDelegate basePropertiesChangedDelegate_;
 		PositionChangedDelegate positionChangedDelegate_;
 		SizeChangedDelegate sizeChangedDelegate_;
+		TextChangedDelegate textChangedDelegate_;
 		SelectedItemChangedDelegate selectedItemChangedDelegate_;
 		ConnectionChangedDelegate connectionChangedDelegate_;
 		PropertiesChangedDelegate propertiesChangedDelegate_;
@@ -93,18 +95,10 @@ namespace CubesProperties
 		void SetBasePropertiesChangedDelegate(BasePropertiesChangedDelegate basePropertiesChangedDelegate) { basePropertiesChangedDelegate_ = basePropertiesChangedDelegate; };
 		void SetPositionChangedDelegate(PositionChangedDelegate positionChangedDelegate) { positionChangedDelegate_ = positionChangedDelegate; };
 		void SetSizeChangedDelegate(SizeChangedDelegate sizeChangedDelegate) { sizeChangedDelegate_ = sizeChangedDelegate; };
+		void SetTextChangedDelegate(TextChangedDelegate textChangedDelegate) { textChangedDelegate_ = textChangedDelegate; };
 		void SetSelectedItemChangedDelegate(SelectedItemChangedDelegate selectedItemChangedDelegate) { selectedItemChangedDelegate_ = selectedItemChangedDelegate; };
 		void SetConnectionChangedDelegate(ConnectionChangedDelegate connectionChangedDelegate) { connectionChangedDelegate_ = connectionChangedDelegate; };
 		void SetPropertiesChangedDelegate(PropertiesChangedDelegate propertiesChangedDelegate) { propertiesChangedDelegate_ = propertiesChangedDelegate; };
-
-	//signals:
-	//	void BasePropertiesChanged(const CubesUnit::PropertiesId propertiesId, const QString& name,
-	//		const CubesUnit::FileId fileId, const CubesUnit::IncludeId includeId);
-	//	void PositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ);
-	//	void SelectedItemChanged(const CubesUnit::PropertiesId propertiesId);
-	//	void Error(const CubesUnit::PropertiesId propertiesId, const QString& message);
-	//	void ConnectionChanged(const CubesUnit::PropertiesId propertiesId);
-	//	void PropertiesChanged();
 
 	public:
 		// IPropertiesItemsManager (для общения с PropertiesItem)
@@ -113,6 +107,8 @@ namespace CubesProperties
 		void AfterIncludeNameChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPositionChanged(const CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
 		void AfterSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) override;
+		void AfterTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+			CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment) override;
 		void AfterConnectionChanged(const CubesUnit::PropertiesId propertiesId) override;
 		void AfterPropertiesChanged() override;
 

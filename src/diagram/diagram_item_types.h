@@ -62,6 +62,8 @@ namespace CubesDiagram
             size = other.size;
             text = other.text;
             showBorder = other.showBorder;
+            horizontalAlignment = other.horizontalAlignment;
+            verticalAlignment = other.verticalAlignment;
         }
 
         PropertiesForDrawing& operator=(const PropertiesForDrawing& other)
@@ -75,6 +77,8 @@ namespace CubesDiagram
             size = other.size;
             text = other.text;
             showBorder = other.showBorder;
+            horizontalAlignment = other.horizontalAlignment;
+            verticalAlignment = other.verticalAlignment;
             return *this;
         }
     };

@@ -553,7 +553,24 @@ void PropertiesItem::FillParameterModel(const CubesXml::Unit* xmlUnit, CubesUnit
 
     // ”становка значени€ из xml в модель (если не задано, беретс€ значение по-умолчанию дл€ типа)
     if (haveXmlValue)
+    {
         model->value = xmlValue; // it's QVariant
+
+        if (!model->editorSettings.comboBoxValues.empty())
+        {
+            // enum
+            int key = 0;
+            for (int i = 0; i < model->editorSettings.comboBoxValues.size(); ++i)
+            {
+                if (model->editorSettings.comboBoxValues[i].value == xmlValue.toString())
+                {
+                    key = model->editorSettings.comboBoxValues[i].id;
+                    break;
+                }
+            }
+            model->key = key;
+        }
+    }
 
     // ƒл€ опциональных параметров добавл€ем дополнительное поле - не задавать
     if (parameters::helper::parameter::get_is_optional(pi))
@@ -1271,6 +1288,33 @@ QString PropertiesItem::GetText()
     return "";
 }
 
+bool PropertiesItem::GetShowBorder()
+{
+    const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.showBorder);
+    if (pm != nullptr)
+        return pm->value.toBool();
+
+    return "";
+}
+
+CubesDiagram::HorizontalAlignment PropertiesItem::GetHorizontalAlignment()
+{
+    const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.hAlignment);
+    if (pm != nullptr)
+        return static_cast<CubesDiagram::HorizontalAlignment>(pm->key);
+
+    return CubesDiagram::HorizontalAlignment::Left;
+}
+
+CubesDiagram::VerticalAlignment PropertiesItem::GetVerticalAlignment()
+{
+    const auto pm = CubesUnit::Helper::Common::GetParameterModelPtr(parameterModelPtrs_, ids_.parameters + ids_.vAlignment);
+    if (pm != nullptr)
+        return static_cast<CubesDiagram::VerticalAlignment>(pm->key);
+
+    return CubesDiagram::VerticalAlignment::Top;
+}
+
 void PropertiesItem::FillArrayModel(const CubesXml::Unit* xmlUnit, CubesUnit::ParameterModelPtr model)
 {
     // —озадем модель дл€ параметра, хран€щего количество элементов массива
@@ -1697,6 +1741,13 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
                     break;
                 }
                 case parameters::base_item_types::user:
+                {
+                    // enum
+                    const auto enumIndex = editor_->GetEnumValue(property);
+                    pm->key = pm->editorSettings.comboBoxValues[enumIndex].id;
+                    pm->value = property->valueText();
+                    break;
+                }
                 case parameters::base_item_types::none:
                 default:
                     pm->value = property->valueText();
@@ -1708,8 +1759,12 @@ void PropertiesItem::ValueChanged(QtProperty* property, const QVariant& value)
         if (pm->id.endsWith(ids_.depends) || pm->id.endsWith(ids_.dependencies))
             propertiesItemsManager_->AfterConnectionChanged(propertiesId_);
 
-        //if (pm->id == ids_.parameters + ids_.text)
-        //    propertiesItemsManager_->AfterTextChanged(propertiesId_, GetText());
+        if (pm->id == ids_.parameters + ids_.text || pm->id == ids_.parameters + ids_.showBorder ||
+            pm->id == ids_.parameters + ids_.hAlignment || pm->id == ids_.parameters + ids_.vAlignment)
+        {
+            propertiesItemsManager_->AfterTextChanged(propertiesId_, GetText(), GetShowBorder(),
+                GetHorizontalAlignment(), GetVerticalAlignment());
+        }
 
         if (pm->id == ids_.parameters + ids_.width || pm->id == ids_.parameters + ids_.height)
             propertiesItemsManager_->AfterSizeChanged(propertiesId_, GetSize());

@@ -120,6 +120,8 @@ public slots:
     void PropertiesSelectedItemChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPositionChanged(CubesUnit::PropertiesId propertiesId, double posX, double posY, double posZ) override;
     void PropertiesSizeChanged(CubesUnit::PropertiesId propertiesId, QSizeF size) override;
+    void PropertiesTextChanged(CubesUnit::PropertiesId propertiesId, QString text, bool showBorder,
+        CubesDiagram::HorizontalAlignment horizontalAlignment, CubesDiagram::VerticalAlignment verticalAlignment) override;
     void PropertiesConnectionChanged(CubesUnit::PropertiesId propertiesId) override;
     void PropertiesPropertiesChanged() override;
 

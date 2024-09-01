@@ -95,9 +95,9 @@ namespace CubesUnit
 		const CubesUnit::ParameterModelId text;
 		const CubesUnit::ParameterModelId height;
 		const CubesUnit::ParameterModelId width;
-		const CubesUnit::ParameterModelId show_border;
-		const CubesUnit::ParameterModelId h_alignment;
-		const CubesUnit::ParameterModelId v_alignment;
+		const CubesUnit::ParameterModelId showBorder;
+		const CubesUnit::ParameterModelId hAlignment;
+		const CubesUnit::ParameterModelId vAlignment;
 
 		const CubesUnit::ParameterModelId editor;
 		const CubesUnit::ParameterModelId color;
@@ -146,9 +146,9 @@ namespace CubesUnit
 			text("$TEXT"),
 			height("$HEIGHT"),
 			width("$WIDTH"),
-			show_border("$SHOW_BORDER"),
-			h_alignment("$H_ALIGNMENT"),
-			v_alignment("$V_ALIGNMENT"),
+			showBorder("$SHOW_BORDER"),
+			hAlignment("$H_ALIGNMENT"),
+			vAlignment("$V_ALIGNMENT"),
 
 			editor("$EDITOR"),
 			color("$COLOR"),
