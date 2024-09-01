@@ -1102,17 +1102,34 @@ QString PropertiesItem::GetPropertyDescription(QtProperty* property)
     auto pi = parameters::helper::parameter::get_parameter_info(ui->fileInfo,
         pm->parameterInfoId.type.toStdString(), pm->parameterInfoId.name.toStdString());
 
-    QStringList messageList;
-    messageList.push_back(QString("id: %1").arg(id));
-    if (pm->key == CubesUnit::InvalidBaseId)
-        messageList.push_back(QString("key: %1").arg(pm->key));
     if (pi != nullptr)
-        messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
-    if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
-        messageList.push_back(QString("pi_id: %1, %2").arg(pm->parameterInfoId.type).arg(pm->parameterInfoId.name));
-    messageList.push_back(QString("fi_id: %1").arg(QString::fromStdString(ui->fileInfo.info.id)));
+    {
+        QString html = "<h3>" + QString::fromStdString(pi->display_name.c_str()) + "</h3>" +
+            "<p>" + QString::fromStdString(pi->description.c_str()) + "</p>";
 
-    return messageList.join('\n');
+        //std::string description1251 = parameters::helper::common::get_description_as_cp1251(
+        //    ui->fileInfo.info.description, parameters::helper::common::description_type::plain);
+        return html;
+    }
+
+    return "";
+
+    // Отладочная инормация!!!
+    // НЕ УДАЛЯТЬ!!!
+    // 
+    //QStringList messageList;
+    //messageList.push_back(QString("id: %1").arg(id));
+    //if (pm->key == CubesUnit::InvalidBaseId)
+    //    messageList.push_back(QString("key: %1").arg(pm->key));
+    //if (pi != nullptr)
+    //    messageList.push_back(QString("type: %1").arg(QString::fromStdString(pi->type)));
+    //if (!pm->parameterInfoId.type.isEmpty() || !pm->parameterInfoId.name.isEmpty())
+    //    messageList.push_back(QString("pi_id: %1, %2").arg(pm->parameterInfoId.type).arg(pm->parameterInfoId.name));
+    //messageList.push_back(QString("fi_id: %1").arg(QString::fromStdString(ui->fileInfo.info.id)));
+
+    //return messageList.join('\n');
+    // 
+    // НЕ УДАЛЯТЬ!!!
 }
 
 void PropertiesItem::GetConnectedNamesInternal(CubesUnit::ParameterModelPtr model, QList<QString>& list)

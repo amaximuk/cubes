@@ -714,7 +714,9 @@ void PropertiesItemsManager::OnCurrentItemChanged(QtBrowserItem* item)
 	if (item != nullptr && items_.contains(propertiesId))
 	{
 		QString description = items_[propertiesId]->GetPropertyDescription(item->property());
-		hint_->setPlainText(description);
+		hint_->clear();
+		hint_->appendHtml(description);
+		//hint_->setPlainText(description);
 	}
 	else
 		hint_->setPlainText("");

@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include "parameters/yaml_parser.h"
+#include "parameters/helper_common.h"
 #include "qttreepropertybrowser.h" // потом убрать
 #include "../diagram/diagram_view.h"
 #include "../diagram/diagram_scene.h"
@@ -602,6 +603,14 @@ void MainWindow::FillTreeView()
         {
             QStandardItem* child = new QStandardItem(id);
             child->setEditable(false);
+
+            std::string description1251 = parameters::helper::common::get_description_as_cp1251(
+                unitIdUnitParametersPtr_[id]->fileInfo.info.description, parameters::helper::common::description_type::html);
+            QTextCodec* codec = QTextCodec::codecForName("Windows-1251");
+            QString descriptionUnicode = codec->toUnicode(description1251.c_str());
+            QString description = "<h3>" + QString::fromStdString(unitIdUnitParametersPtr_[id]->fileInfo.info.display_name) + "</h3>" +
+                descriptionUnicode;
+            child->setToolTip(description);
 
             QPixmap px;
             bool loaded = false;
