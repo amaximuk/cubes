@@ -728,7 +728,7 @@ bool MainWindow::OpenFolder(const QString& path)
 
 bool MainWindow::ImportXml(const QString& path)
 {
-    scene_->clear();
+    //scene_->clear();
     log_table_model_->Clear();
 
     UpdateFileState("", false);
